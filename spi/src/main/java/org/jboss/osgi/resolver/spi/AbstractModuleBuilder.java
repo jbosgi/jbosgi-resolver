@@ -21,8 +21,16 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.jar.Manifest;
 
+import org.jboss.osgi.msc.metadata.OSGiMetaData;
+import org.jboss.osgi.msc.metadata.PackageAttribute;
+import org.jboss.osgi.msc.metadata.Parameter;
+import org.jboss.osgi.msc.metadata.ParameterizedAttribute;
+import org.jboss.osgi.msc.metadata.internal.OSGiManifestMetaData;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;
 import org.jboss.osgi.resolver.XModule;
@@ -41,6 +49,13 @@ import org.osgi.framework.Version;
 public class AbstractModuleBuilder implements XModuleBuilder
 {
    private AbstractModule module;
+
+   @Override
+   public XModule createModule(long moduleId, Manifest manifest)
+   {
+      OSGiManifestMetaData metadata = new OSGiManifestMetaData(manifest);
+      return createModule(moduleId, metadata);
+   }
 
    @Override
    public XModule createModule(long moduleId, String symbolicName, Version version)
@@ -101,5 +116,96 @@ public class AbstractModuleBuilder implements XModuleBuilder
    public XModule getModule()
    {
       return module;
+   }
+
+   @Override
+   public XModule createModule(long moduleId, OSGiMetaData osgiMetaData)
+   {
+      XModule module = createModule(moduleId, osgiMetaData.getBundleSymbolicName(), osgiMetaData.getBundleVersion());
+      addBundleCapability(osgiMetaData.getBundleSymbolicName(), osgiMetaData.getBundleVersion());
+
+      // Required Bundles
+      List<ParameterizedAttribute> requireBundles = osgiMetaData.getRequireBundles();
+      if (requireBundles != null && requireBundles.isEmpty() == false)
+      {
+         for (ParameterizedAttribute metadata : requireBundles)
+         {
+            String name = metadata.getAttribute();
+            Map<String, String> dirs = getDirectives(metadata);
+            Map<String, Object> atts = getAttributes(metadata);
+            addBundleRequirement(name, dirs, atts);
+         }
+      }
+
+      // Export-Package
+      List<PackageAttribute> exports = osgiMetaData.getExportPackages();
+      if (exports != null && exports.isEmpty() == false)
+      {
+         for (PackageAttribute metadata : exports)
+         {
+            String name = metadata.getAttribute();
+            Map<String, String> dirs = getDirectives(metadata);
+            Map<String, Object> atts = getAttributes(metadata);
+            addPackageCapability(name, dirs, atts);
+         }
+      }
+
+      // Import-Package
+      List<PackageAttribute> imports = osgiMetaData.getImportPackages();
+      if (imports != null && imports.isEmpty() == false)
+      {
+         for (PackageAttribute metadata : imports)
+         {
+            String name = metadata.getAttribute();
+            Map<String, String> dirs = getDirectives(metadata);
+            Map<String, Object> atts = getAttributes(metadata);
+            addPackageRequirement(name, dirs, atts);
+         }
+      }
+
+      // DynamicImport-Package
+      List<PackageAttribute> dynamicImports = osgiMetaData.getDynamicImports();
+      if (dynamicImports != null && dynamicImports.isEmpty() == false)
+      {
+         for (PackageAttribute metadata : dynamicImports)
+         {
+            String name = metadata.getAttribute();
+            Map<String, Object> atts = getAttributes(metadata);
+            addDynamicPackageRequirement(name, atts);
+         }
+      }
+
+      // Fragment-Host
+      ParameterizedAttribute fragmentHost = osgiMetaData.getFragmentHost();
+      if (fragmentHost != null)
+      {
+         String symbolicName = fragmentHost.getAttribute();
+         Map<String, String> dirs = getDirectives(fragmentHost);
+         Map<String, Object> atts = getAttributes(fragmentHost);
+         addFragmentHostRequirement(symbolicName, dirs, atts);
+      }
+      return module;
+   }
+
+   private Map<String, String> getDirectives(ParameterizedAttribute metadata)
+   {
+      Map<String, String> dirs = new HashMap<String, String>();
+      for (String key : metadata.getDirectives().keySet())
+      {
+         Parameter param = metadata.getDirective(key);
+         dirs.put(key, param.getValue().toString());
+      }
+      return dirs;
+   }
+
+   private Map<String, Object> getAttributes(ParameterizedAttribute metadata)
+   {
+      Map<String, Object> atts = new HashMap<String, Object>();
+      for (String key : metadata.getAttributes().keySet())
+      {
+         Parameter param = metadata.getAttribute(key);
+         atts.put(key, param.getValue().toString());
+      }
+      return atts;
    }
 }

@@ -22,7 +22,9 @@
 package org.jboss.osgi.resolver;
 
 import java.util.Map;
+import java.util.jar.Manifest;
 
+import org.jboss.osgi.msc.metadata.OSGiMetaData;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;
 import org.jboss.osgi.resolver.XModule;
@@ -40,7 +42,22 @@ import org.osgi.framework.Version;
 public interface XModuleBuilder
 {
    /**
+    * Get a new module from an OSGi manifest
+    * @param moduleId The provided module id
+    * @param manifest The manifest
+    */
+   XModule createModule(long moduleId, Manifest manifest);
+   
+   /**
+    * Get a new module from OSGi metadata
+    * @param moduleId The provided module id
+    * @param metadata The metadata
+    */
+   XModule createModule(long moduleId, OSGiMetaData metadata);
+   
+   /**
     * Get a new module and associate it with this builder
+    * @param moduleId The provided module id
     * @param symbolicName The module symbolic name
     * @param version The module version
     */

@@ -14,7 +14,7 @@
 
   <name>JBossOSGi Resolver</name>
   <groupId>org.jboss.osgi.resolver</groupId>
-  <artifactId>jboss-osgi-resolver-parent</artifactId>
+  <artifactId>jbosgi-resolver-parent</artifactId>
   <packaging>pom</packaging>
 
   <version>1.0.0-SNAPSHOT</version>
@@ -28,6 +28,7 @@
   <!-- Properties -->
   <properties>
     <version.apache.felix.framework>3.0.1</version.apache.felix.framework>
+    <version.jboss.common.core>2.2.17.GA</version.jboss.common.core>
     <version.jboss.osgi.spi>1.0.8</version.jboss.osgi.spi>
     <version.jboss.osgi.vfs>1.0.0</version.jboss.osgi.vfs>
     <version.mockito>1.8.4</version.mockito>
@@ -37,6 +38,11 @@
   <!-- Dependency Management -->
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-common-core</artifactId>
+        <version>${version.jboss.common.core}</version>
+      </dependency>
       <dependency>
         <groupId>org.jboss.osgi</groupId>
         <artifactId>jboss-osgi-spi</artifactId>
@@ -68,6 +74,7 @@
   <modules>
     <module>api</module>
     <module>spi</module>
+    <module>metadata</module>
     <module>felix</module>
     <module>itest</module>
   </modules>
