@@ -69,6 +69,7 @@
     <module>api</module>
     <module>spi</module>
     <module>felix</module>
+    <module>itest</module>
   </modules>
 
 </project>
