@@ -61,11 +61,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Attributes.Name;
 
-import org.jboss.osgi.msc.metadata.ActivationPolicyMetaData;
-import org.jboss.osgi.msc.metadata.CaseInsensitiveDictionary;
-import org.jboss.osgi.msc.metadata.OSGiMetaData;
-import org.jboss.osgi.msc.metadata.PackageAttribute;
-import org.jboss.osgi.msc.metadata.ParameterizedAttribute;
+import org.jboss.osgi.metadata.ActivationPolicyMetaData;
+import org.jboss.osgi.metadata.CaseInsensitiveDictionary;
+import org.jboss.osgi.metadata.OSGiMetaData;
+import org.jboss.osgi.metadata.PackageAttribute;
+import org.jboss.osgi.metadata.ParameterizedAttribute;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 

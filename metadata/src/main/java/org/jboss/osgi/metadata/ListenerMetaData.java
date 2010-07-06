@@ -19,43 +19,18 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata;
-
-import org.jboss.osgi.msc.metadata.internal.AbstractVersionRange;
-import org.osgi.framework.Version;
+package org.jboss.osgi.metadata;
 
 /**
- * Version range.
- * [floor, ceiling]
+ * Simple listener meta data - referencing bean as listener.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public interface VersionRange
+public interface ListenerMetaData
 {
-   /**
-    * The version range that matches all versions
-    */
-   static VersionRange allVersions = AbstractVersionRange.valueOf("0.0.0");
-   
-   /**
-    * Get the floor version.
-    *
-    * @return floor version
-    */
-   Version getFloor();
+   String getRef();
 
-   /**
-    * Get the ceiling version.
-    *
-    * @return ceiling version
-    */
-   Version getCeiling();
+   String getBindMethod();
 
-   /**
-    * Is param verision between (including) floor and ceiling.
-    *
-    * @param version version parameter to compare
-    * @return true if version param in version range interval
-    */
-   boolean isInRange(Version version);
+   String getUnbindMethod();
 }

@@ -19,19 +19,18 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata;
+package org.jboss.osgi.metadata;
+
 
 /**
- * Metadata about what a osgi service's dependency.
- *
+ * A package, includes version and properties.
+ * 
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public interface DependencyMetaData
+public interface PackageAttribute extends VersionRangeAttribute, ParameterizedAttribute
 {
    /**
-    * What is the dependency
-    *
-    * @return the dependency
+    * Get the package name.
     */
-   Object getDependency();
+   String getPackageName();
 }

@@ -35,8 +35,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jboss.logging.Logger;
-import org.jboss.osgi.msc.metadata.Parameter;
-import org.jboss.osgi.msc.metadata.VersionRange;
+import org.jboss.osgi.metadata.Parameter;
+import org.jboss.osgi.metadata.VersionRange;
 
 /**
  * OSGi parameter values.

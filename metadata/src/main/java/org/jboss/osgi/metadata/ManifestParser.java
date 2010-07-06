@@ -41,7 +41,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jboss.osgi.msc.metadata;
+package org.jboss.osgi.metadata;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -23,7 +23,7 @@ package org.jboss.osgi.msc.metadata.internal;
 
 import java.util.StringTokenizer;
 
-import org.jboss.osgi.msc.metadata.VersionRange;
+import org.jboss.osgi.metadata.VersionRange;
 import org.osgi.framework.Version;
 
 /**

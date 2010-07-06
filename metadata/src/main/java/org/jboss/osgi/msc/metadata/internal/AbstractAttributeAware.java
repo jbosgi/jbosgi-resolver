@@ -21,7 +21,7 @@
 */
 package org.jboss.osgi.msc.metadata.internal;
 
-import org.jboss.osgi.msc.metadata.AttributeAware;
+import org.jboss.osgi.metadata.AttributeAware;
 
 /**
  * Attribute holder.

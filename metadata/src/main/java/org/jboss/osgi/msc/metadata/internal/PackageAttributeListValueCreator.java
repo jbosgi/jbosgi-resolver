@@ -24,8 +24,8 @@ package org.jboss.osgi.msc.metadata.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.osgi.msc.metadata.ManifestParser;
-import org.jboss.osgi.msc.metadata.PackageAttribute;
+import org.jboss.osgi.metadata.ManifestParser;
+import org.jboss.osgi.metadata.PackageAttribute;
 
 /**
  * Create package attribute list from string attribute.

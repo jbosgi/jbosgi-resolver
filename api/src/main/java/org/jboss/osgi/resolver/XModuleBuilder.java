@@ -24,7 +24,7 @@ package org.jboss.osgi.resolver;
 import java.util.Map;
 import java.util.jar.Manifest;
 
-import org.jboss.osgi.msc.metadata.OSGiMetaData;
+import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;
 import org.jboss.osgi.resolver.XModule;

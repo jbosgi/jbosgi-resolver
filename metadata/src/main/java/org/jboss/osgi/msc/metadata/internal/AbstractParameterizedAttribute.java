@@ -24,8 +24,8 @@ package org.jboss.osgi.msc.metadata.internal;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jboss.osgi.msc.metadata.Parameter;
-import org.jboss.osgi.msc.metadata.ParameterizedAttribute;
+import org.jboss.osgi.metadata.Parameter;
+import org.jboss.osgi.metadata.ParameterizedAttribute;
 
 /**
  * Parameter attribute impl.

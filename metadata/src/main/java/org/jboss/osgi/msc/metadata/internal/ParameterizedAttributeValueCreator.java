@@ -23,7 +23,7 @@ package org.jboss.osgi.msc.metadata.internal;
 
 import java.util.List;
 
-import org.jboss.osgi.msc.metadata.ParameterizedAttribute;
+import org.jboss.osgi.metadata.ParameterizedAttribute;
 
 /**
  * Create paramertized attribute from string attribute.

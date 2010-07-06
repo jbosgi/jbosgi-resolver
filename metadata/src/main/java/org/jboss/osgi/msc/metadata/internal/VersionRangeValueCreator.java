@@ -21,7 +21,7 @@
 */
 package org.jboss.osgi.msc.metadata.internal;
 
-import org.jboss.osgi.msc.metadata.VersionRange;
+import org.jboss.osgi.metadata.VersionRange;
 
 /**
  * Parse VersionRange from string.

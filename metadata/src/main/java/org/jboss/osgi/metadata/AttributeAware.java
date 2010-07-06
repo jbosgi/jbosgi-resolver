@@ -19,19 +19,19 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata;
+package org.jboss.osgi.metadata;
 
 /**
- * Attribute with VersionRange attribute.
+ * Attribute string value holder.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public interface VersionRangeAttribute extends AttributeAware
+public interface AttributeAware
 {
    /**
-    * Get the version range.
+    * Get the attribute.
     *
-    * @return version range for this attribute
+    * @return string attribute value
     */
-   VersionRange getVersion();
+   String getAttribute();
 }

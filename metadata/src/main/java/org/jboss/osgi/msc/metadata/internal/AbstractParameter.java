@@ -24,7 +24,7 @@ package org.jboss.osgi.msc.metadata.internal;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.jboss.osgi.msc.metadata.Parameter;
+import org.jboss.osgi.metadata.Parameter;
 
 /**
  * Parameter impl.

@@ -19,35 +19,19 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata;
-
-import java.util.List;
+package org.jboss.osgi.metadata;
 
 /**
- * OSGi activation policy metadata.
+ * Attribute with VersionRange attribute.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public interface ActivationPolicyMetaData
+public interface VersionRangeAttribute extends AttributeAware
 {
    /**
-    * Get the type.
+    * Get the version range.
     *
-    * @return the type
+    * @return version range for this attribute
     */
-   String getType();
-
-   /**
-    * Get include packages.
-    *
-    * @return the include packages
-    */
-   List<String> getIncludes();
-
-   /**
-    * Get the exclude packages.
-    *
-    * @return the exclude packages
-    */
-   List<String> getExcludes();
+   VersionRange getVersion();
 }

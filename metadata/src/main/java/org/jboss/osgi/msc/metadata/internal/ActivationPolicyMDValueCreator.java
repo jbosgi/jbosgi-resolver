@@ -23,7 +23,7 @@ package org.jboss.osgi.msc.metadata.internal;
 
 import java.util.Arrays;
 
-import org.jboss.osgi.msc.metadata.ActivationPolicyMetaData;
+import org.jboss.osgi.metadata.ActivationPolicyMetaData;
 
 /**
  * Activation policy value creator.

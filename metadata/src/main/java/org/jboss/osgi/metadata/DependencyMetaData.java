@@ -19,36 +19,19 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata;
+package org.jboss.osgi.metadata;
 
 /**
- * Parameter interface - single value or set of values.
+ * Metadata about what a osgi service's dependency.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public interface Parameter
+public interface DependencyMetaData
 {
    /**
-    * Get value.
-    * Simple string value or collection of string values.
+    * What is the dependency
     *
-    * @return value
+    * @return the dependency
     */
-   Object getValue();
-
-   /**
-    * Add value.
-    * 
-    * @param value string to add
-    */
-   void addValue(String value);
-
-   /**
-    * Has multiple values.
-    * Used when same name is used for multiple parameter values.
-    * Value _can_ be casted into Collection<String>.
-    *
-    * @return true is returned type is Collection, otherwise false
-    */
-   boolean isCollection();
+   Object getDependency();
 }

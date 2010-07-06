@@ -24,7 +24,7 @@ package org.jboss.osgi.msc.metadata.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.osgi.msc.metadata.ParameterizedAttribute;
+import org.jboss.osgi.metadata.ParameterizedAttribute;
 
 /**
  * Create parameterized attribute list from string attribute.

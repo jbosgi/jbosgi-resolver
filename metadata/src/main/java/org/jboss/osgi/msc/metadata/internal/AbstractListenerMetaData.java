@@ -23,7 +23,7 @@ package org.jboss.osgi.msc.metadata.internal;
 
 import java.io.Serializable;
 
-import org.jboss.osgi.msc.metadata.ListenerMetaData;
+import org.jboss.osgi.metadata.ListenerMetaData;
 
 /**
  * Simple listener meta data.

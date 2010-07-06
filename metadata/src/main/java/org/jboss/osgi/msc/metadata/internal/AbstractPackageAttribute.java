@@ -24,9 +24,9 @@ package org.jboss.osgi.msc.metadata.internal;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.jboss.osgi.msc.metadata.PackageAttribute;
-import org.jboss.osgi.msc.metadata.Parameter;
-import org.jboss.osgi.msc.metadata.VersionRange;
+import org.jboss.osgi.metadata.PackageAttribute;
+import org.jboss.osgi.metadata.Parameter;
+import org.jboss.osgi.metadata.VersionRange;
 import org.osgi.framework.Constants;
 
 /**

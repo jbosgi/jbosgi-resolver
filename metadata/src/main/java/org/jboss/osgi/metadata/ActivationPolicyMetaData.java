@@ -19,18 +19,35 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata;
+package org.jboss.osgi.metadata;
+
+import java.util.List;
 
 /**
- * Simple listener meta data - referencing bean as listener.
+ * OSGi activation policy metadata.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public interface ListenerMetaData
+public interface ActivationPolicyMetaData
 {
-   String getRef();
+   /**
+    * Get the type.
+    *
+    * @return the type
+    */
+   String getType();
 
-   String getBindMethod();
+   /**
+    * Get include packages.
+    *
+    * @return the include packages
+    */
+   List<String> getIncludes();
 
-   String getUnbindMethod();
+   /**
+    * Get the exclude packages.
+    *
+    * @return the exclude packages
+    */
+   List<String> getExcludes();
 }

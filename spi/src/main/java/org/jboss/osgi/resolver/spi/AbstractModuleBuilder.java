@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.Manifest;
 
-import org.jboss.osgi.msc.metadata.OSGiMetaData;
-import org.jboss.osgi.msc.metadata.PackageAttribute;
-import org.jboss.osgi.msc.metadata.Parameter;
-import org.jboss.osgi.msc.metadata.ParameterizedAttribute;
+import org.jboss.osgi.metadata.OSGiMetaData;
+import org.jboss.osgi.metadata.PackageAttribute;
+import org.jboss.osgi.metadata.Parameter;
+import org.jboss.osgi.metadata.ParameterizedAttribute;
 import org.jboss.osgi.msc.metadata.internal.OSGiManifestMetaData;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;

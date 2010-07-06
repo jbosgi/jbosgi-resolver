@@ -24,7 +24,7 @@ package org.jboss.osgi.msc.metadata.internal;
 import java.io.Serializable;
 import java.util.List;
 
-import org.jboss.osgi.msc.metadata.ActivationPolicyMetaData;
+import org.jboss.osgi.metadata.ActivationPolicyMetaData;
 
 /**
  * Activation policy impl.
