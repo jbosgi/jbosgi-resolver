@@ -34,7 +34,6 @@ import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequireBundleRequirement;
 import org.jboss.osgi.resolver.XRequirement;
-import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XWire;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
@@ -49,8 +48,6 @@ import org.osgi.framework.Version;
  */
 public class AbstractModule extends AbstractElement implements XModule
 {
-   private XResolver resolver;
-   
    private long moduleId;
    private Version version;
    private XBundleCapability bundleCapability;
@@ -70,17 +67,6 @@ public class AbstractModule extends AbstractElement implements XModule
       
       this.moduleId = moduleId;
       this.version = version;
-   }
-
-   @Override
-   public XResolver getResolver()
-   {
-      return resolver;
-   }
-
-   void setResolver(XResolver resolver)
-   {
-      this.resolver = resolver;
    }
 
    @Override

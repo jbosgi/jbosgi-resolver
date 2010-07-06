@@ -72,6 +72,9 @@ public abstract class AbstractResolver implements XResolver
    @Override
    public void setCallbackHandler(XResolverCallback callback)
    {
+      if (callback == null)
+         throw new IllegalArgumentException("Null callback");
+      
       this.callback = callback;
    }
 
@@ -83,19 +86,28 @@ public abstract class AbstractResolver implements XResolver
    @Override
    public void addModule(XModule module)
    {
+      if (module == null)
+         throw new IllegalArgumentException("Null module");
+      
       synchronized (moduleMap)
       {
-         ((AbstractModule)module).setResolver(this);
-         moduleMap.put(module.getModuleId(), module);
+         long moduleId = module.getModuleId();
+         if (moduleMap.get(moduleId) != null)
+            throw new IllegalStateException("Module already added: " + module);
+         
+         moduleMap.put(moduleId, module);
       }
    }
 
    @Override
-   public XModule removeModule(long moduleId)
+   public XModule removeModule(XModule module)
    {
+      if (module == null)
+         throw new IllegalArgumentException("Null module");
+      
       synchronized (moduleMap)
       {
-         return moduleMap.remove(moduleId);
+         return moduleMap.remove(module.getModuleId());
       }
    }
 
@@ -121,15 +133,22 @@ public abstract class AbstractResolver implements XResolver
    @Override
    public final void resolve(XModule module) throws XResolverException
    {
+      if (module == null)
+         throw new IllegalArgumentException("Null module");
+      
+      if (findModuleById(module.getModuleId()) == null)
+         throw new IllegalStateException("Module not registered: " + module);
+         
       try
       {
          module.removeAttachment(XResolverException.class);
          resolveInternal(module);
       }
-      catch (XResolverException ex)
+      catch (XResolverException rex)
       {
          // Add the last resolver exception to the module
-         module.addAttachment(XResolverException.class, ex);
+         module.addAttachment(XResolverException.class, rex);
+         throw rex;
       }
    }
 
@@ -161,6 +180,9 @@ public abstract class AbstractResolver implements XResolver
 
    protected void setResolved(AbstractModule module)
    {
+      if (module == null)
+         throw new IllegalArgumentException("Null module");
+      
       module.setResolved();
    }
 

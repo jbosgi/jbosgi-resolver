@@ -67,7 +67,7 @@ public class FelixResolver extends AbstractResolver implements XResolver
    }
 
    @Override
-   public void addModule(org.jboss.osgi.resolver.XModule module)
+   public void addModule(XModule module)
    {
       super.addModule(module);
       ModuleExt fmod = new ModuleExt((AbstractModule)module);
@@ -76,12 +76,9 @@ public class FelixResolver extends AbstractResolver implements XResolver
    }
 
    @Override
-   public org.jboss.osgi.resolver.XModule removeModule(long moduleId)
+   public XModule removeModule(XModule module)
    {
-      org.jboss.osgi.resolver.XModule module = super.removeModule(moduleId);
-      if (module == null)
-         return null;
-
+      super.removeModule(module);
       ModuleExt fmod = module.getAttachment(ModuleExt.class);
       resolverState.removeModule(fmod);
       return module;
@@ -100,8 +97,11 @@ public class FelixResolver extends AbstractResolver implements XResolver
    }
 
    @Override
-   protected void resolveInternal(org.jboss.osgi.resolver.XModule module) throws XResolverException
+   protected void resolveInternal(XModule module) throws XResolverException
    {
+      if (module == null)
+         throw new IllegalArgumentException("Null module");
+      
       ModuleExt rootModule = module.getAttachment(ModuleExt.class);
       try
       {

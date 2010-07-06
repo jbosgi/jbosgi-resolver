@@ -40,7 +40,7 @@ public interface XResolver
     * Remove a module from the resolver.
     * @return The removed module or null
     */
-   XModule removeModule(long moduleId);
+   XModule removeModule(XModule module);
 
    /**
     * Get the list of registered modules
