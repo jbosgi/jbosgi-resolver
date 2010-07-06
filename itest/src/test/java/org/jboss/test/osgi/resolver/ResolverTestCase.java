@@ -22,18 +22,16 @@ package org.jboss.test.osgi.resolver;
  */
 
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.Attributes;
-import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
-import org.jboss.osgi.resolver.Module;
-import org.jboss.osgi.resolver.ModuleBuilder;
-import org.jboss.osgi.resolver.Resolver;
-import org.jboss.osgi.resolver.ResolverFactory;
+import org.jboss.osgi.resolver.XModule;
+import org.jboss.osgi.resolver.XModuleBuilder;
+import org.jboss.osgi.resolver.XResolver;
+import org.jboss.osgi.resolver.XResolverFactory;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.osgi.vfs.VFSUtils;
 import org.jboss.osgi.vfs.VirtualFile;
@@ -41,8 +39,6 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.osgi.framework.Bundle;
 
 /**
  * Test the default resolver integration.
@@ -53,12 +49,13 @@ import org.osgi.framework.Bundle;
 @Ignore
 public class ResolverTestCase extends OSGiTest
 {
-   private Resolver resolver;
+   private AtomicLong moduleId = new AtomicLong(); 
+   private XResolver resolver;
    
    @Before
    public void setUp()
    {
-      resolver = ResolverFactory.newInstance();
+      resolver = XResolverFactory.getResolver();
    }
    
    @Test
@@ -67,13 +64,13 @@ public class ResolverTestCase extends OSGiTest
       // Bundle-SymbolicName: simpleimport
       // Import-Package: org.jboss.test.osgi.classloader.support.a
       Archive<?> assemblyA = assembleArchive("bundleA", "/resolver/simpleimport");
-      Bundle bundleA = installBundle(assemblyA);
+      XModule bundleA = installBundle(assemblyA);
       try
       {
          // Bundle-SymbolicName: simpleexport
          // Export-Package: org.jboss.test.osgi.classloader.support.a
          Archive<?> assemblyB = assembleArchive("bundleB", "/resolver/simpleexport");
-         Bundle bundleB = installBundle(assemblyB);
+         XModule bundleB = installBundle(assemblyB);
          try
          {
             // Verify that the class load
@@ -81,17 +78,17 @@ public class ResolverTestCase extends OSGiTest
             //assertLoadClass(bundleB, A.class.getName(), bundleB);
 
             // Verify bundle states
-            assertEquals("BundleA RESOLVED", Bundle.RESOLVED, bundleA.getState());
-            assertEquals("BundleB RESOLVED", Bundle.RESOLVED, bundleB.getState());
+            //assertEquals("BundleA RESOLVED", Bundle.RESOLVED, bundleA.getState());
+            //assertEquals("BundleB RESOLVED", Bundle.RESOLVED, bundleB.getState());
          }
          finally
          {
-            bundleB.uninstall();
+            resolver.removeModule(bundleB);
          }
       }
       finally
       {
-         bundleA.uninstall();
+         resolver.removeModule(bundleA);
       }
    }
 
@@ -1144,7 +1141,7 @@ public class ResolverTestCase extends OSGiTest
    }
    */
 
-   private Bundle installBundle(Archive<?> archive) throws IOException
+   private XModule installBundle(Archive<?> archive) throws IOException
    {
       VirtualFile virtualFile = toVirtualFile(archive);
       Manifest manifest = VFSUtils.getManifest(virtualFile);
@@ -1156,12 +1153,10 @@ public class ResolverTestCase extends OSGiTest
          headers.put(key.toString(), value);
       }
       
-      Bundle bundle = Mockito.mock(Bundle.class);
-      Mockito.when(bundle.getHeaders()).thenReturn(headers);
+      XModuleBuilder builder = XResolverFactory.getModuleBuilder();
+      XModule module = builder.createModule(moduleId.incrementAndGet(), manifest);
+      resolver.addModule(module);
       
-      Module module = ModuleBuilder.createModule(bundle);
-      resolver.installModule(module);
-      
-      return bundle;
+      return module;
    }
 }

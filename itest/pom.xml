@@ -32,10 +32,16 @@
 
   <!-- Properties -->
   <properties>
+    <version.jboss.osgi.resolver.felix>2.1.0-SNAPSHOT</version.jboss.osgi.resolver.felix>
   </properties>
 
   <!-- Dependencies -->
   <dependencies>
+    <dependency>
+      <groupId>org.jboss.osgi.resolver</groupId>
+      <artifactId>jbosgi-resolver-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.jboss.osgi</groupId>
       <artifactId>jboss-osgi-spi</artifactId>
@@ -46,7 +52,14 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
     </dependency>
-    
+
+    <!-- Test Dependencies -->    
+    <dependency>
+      <groupId>org.jboss.osgi.resolver</groupId>
+      <artifactId>jbosgi-resolver-felix</artifactId>
+      <version>${version.jboss.osgi.resolver.felix}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.jboss.osgi.vfs</groupId>
       <artifactId>jboss-osgi-vfs30</artifactId>

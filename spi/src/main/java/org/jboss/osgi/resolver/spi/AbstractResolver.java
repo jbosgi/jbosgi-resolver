@@ -184,6 +184,17 @@ public abstract class AbstractResolver implements XResolver
          throw new IllegalArgumentException("Null module");
       
       module.setResolved();
+      
+      try
+      {
+         callback.markResolved(module);
+      }
+      catch (RuntimeException ex)
+      {
+         // [TODO] settle on a logging strategy
+         System.err.println("Error in callback: " + callback.getClass().getName());
+         ex.printStackTrace();
+      }
    }
 
    protected XWire addWire(AbstractModule importer, XRequirement requirement, XModule exporter, XCapability capability)
