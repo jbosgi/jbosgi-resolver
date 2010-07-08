@@ -19,22 +19,29 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import java.util.List;
-
-import org.jboss.osgi.metadata.ManifestParser;
-import org.jboss.osgi.metadata.ParameterizedAttribute;
+import org.osgi.framework.Version;
 
 /**
- * Create [dynamic]qname attribute list from string attribute.
+ * Parse Version from string.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
- */
-class QNameAttributeListValueCreator extends ParameterizedAttributeListValueCreator
+*/
+class VersionValueCreator extends AbstractValueCreator<Version>
 {
-   protected void parseAttribute(String attribute, List<ParameterizedAttribute> list, boolean trace)
+   public VersionValueCreator()
    {
-      ManifestParser.parseParameters(attribute, list);
+      super();
+   }
+
+   public VersionValueCreator(boolean trim)
+   {
+      super(trim);
+   }
+
+   public Version useString(String attribute)
+   {
+      return new Version(attribute);
    }
 }

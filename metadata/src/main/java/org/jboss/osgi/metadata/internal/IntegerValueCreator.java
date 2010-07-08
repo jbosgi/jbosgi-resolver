@@ -19,34 +19,27 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jboss.osgi.metadata.ParameterizedAttribute;
+package org.jboss.osgi.metadata.internal;
 
 /**
- * Create parameterized attribute list from string attribute.
- *
+ * Parse int from string.
+ * 
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
- */
-abstract class ParameterizedAttributeListValueCreator extends ListValueCreator<ParameterizedAttribute>
+*/
+class IntegerValueCreator extends AbstractValueCreator<Integer>
 {
-   public List<ParameterizedAttribute> useString(String attribute)
+   public IntegerValueCreator()
    {
-      List<ParameterizedAttribute> list = new ArrayList<ParameterizedAttribute>();
-      parseAttribute(attribute, list, log.isTraceEnabled());
-      return list;
+      super();
    }
 
-   /**
-    * Use appropriate JavaCC parsing util.
-    *
-    * @param attribute string value to parse
-    * @param list data holder list
-    * @param trace log trace
-    */
-   protected abstract void parseAttribute(String attribute, List<ParameterizedAttribute> list, boolean trace);
+   public IntegerValueCreator(boolean trim)
+   {
+      super(trim);
+   }
 
+   public Integer useString(String attribute)
+   {
+      return Integer.valueOf(attribute);
+   }
 }

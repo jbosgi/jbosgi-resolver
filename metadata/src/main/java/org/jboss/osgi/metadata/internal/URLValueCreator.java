@@ -19,29 +19,38 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import org.jboss.osgi.metadata.VersionRange;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
- * Parse VersionRange from string.
+ * Create URL from string.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
 */
-class VersionRangeValueCreator extends AbstractValueCreator<VersionRange>
+class URLValueCreator extends AbstractValueCreator<URL>
 {
-   public VersionRangeValueCreator()
+   public URLValueCreator()
    {
       super();
    }
 
-   public VersionRangeValueCreator(boolean trim)
+   public URLValueCreator(boolean trim)
    {
       super(trim);
    }
 
-   public VersionRange useString(String attribute)
+   public URL useString(String attribute)
    {
-      return AbstractVersionRange.parseRangeSpec(attribute);
+      try
+      {
+         return new URL(attribute);
+      }
+      catch (MalformedURLException e)
+      {
+         log.warn("Exception while creating URL.", e);
+         return null;
+      }
    }
 }

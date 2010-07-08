@@ -30,7 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.jar.Attributes.Name;
 
-import org.jboss.osgi.msc.metadata.internal.AbstractOSGiMetaData;
+import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
 import org.osgi.framework.Constants;
 
 /**

@@ -19,21 +19,53 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
+
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.jboss.osgi.metadata.Parameter;
 
 /**
- * Create value from attribute.
+ * Parameter impl.
+ * It uses [Hash]Set to hold the values.
+ * So duplicate values (by hash) will be ignored.
  *
- * @param <T> expected type
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public interface ValueCreator<T>
+public class AbstractParameter implements Parameter
 {
-   /**
-    * Create value from string attribute.
-    *
-    * @param attribute string to get value from
-    * @return value
-    */
-   T createValue(String attribute);
+   protected Collection<String> values;
+
+   public AbstractParameter()
+   {
+      super();
+      values = new HashSet<String>();
+   }
+
+   public AbstractParameter(String parameter)
+   {
+      this();
+      addValue(parameter);
+   }
+
+   public void addValue(String value)
+   {
+      values.add(value);
+   }
+
+   public Object getValue()
+   {
+      if (values.isEmpty())
+         return null;
+      else if (values.size() == 1)
+         return values.iterator().next();
+      else
+         return values;
+   }
+
+   public boolean isCollection()
+   {
+      return values.size() > 1;
+   }
 }

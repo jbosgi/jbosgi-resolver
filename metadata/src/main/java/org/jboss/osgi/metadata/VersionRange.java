@@ -21,7 +21,7 @@
 */
 package org.jboss.osgi.metadata;
 
-import org.jboss.osgi.msc.metadata.internal.AbstractVersionRange;
+import org.jboss.osgi.metadata.internal.AbstractVersionRange;
 import org.osgi.framework.Version;
 
 /**

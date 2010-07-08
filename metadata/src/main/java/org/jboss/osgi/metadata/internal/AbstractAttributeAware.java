@@ -19,27 +19,26 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
+
+import org.jboss.osgi.metadata.AttributeAware;
 
 /**
- * Parse boolean from string.
+ * Attribute holder.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
-*/
-class BooleanValueCreator extends AbstractValueCreator<Boolean>
+ */
+public abstract class AbstractAttributeAware implements AttributeAware
 {
-   public BooleanValueCreator()
+   protected String attribute;
+
+   protected AbstractAttributeAware(String attribute)
    {
-      super();
+      this.attribute = attribute;
    }
 
-   public BooleanValueCreator(boolean trim)
+   public String getAttribute()
    {
-      super(trim);
-   }
-
-   public Boolean useString(String attribute)
-   {
-      return Boolean.valueOf(attribute);
+      return attribute;
    }
 }

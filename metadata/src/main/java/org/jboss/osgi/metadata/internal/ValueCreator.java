@@ -19,23 +19,21 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
-
-import java.util.Collection;
+package org.jboss.osgi.metadata.internal;
 
 /**
- * Create value from collection of attributes.
+ * Create value from attribute.
  *
  * @param <T> expected type
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public interface CollectionValueCreator<T> extends ValueCreator<T>
+public interface ValueCreator<T>
 {
    /**
     * Create value from string attribute.
     *
-    * @param attributes collection of strings to get value from
+    * @param attribute string to get value from
     * @return value
     */
-   T createValue(Collection<String> attributes);
+   T createValue(String attribute);
 }

@@ -19,26 +19,23 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import org.jboss.osgi.metadata.AttributeAware;
+import java.util.List;
+
+import org.jboss.osgi.metadata.ParameterizedAttribute;
 
 /**
- * Attribute holder.
+ * Create paramertized attribute from string attribute.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public abstract class AbstractAttributeAware implements AttributeAware
+class ParameterizedAttributeValueCreator extends AbstractValueCreator<ParameterizedAttribute>
 {
-   protected String attribute;
-
-   protected AbstractAttributeAware(String attribute)
+   public ParameterizedAttribute useString(String attribute)
    {
-      this.attribute = attribute;
-   }
-
-   public String getAttribute()
-   {
-      return attribute;
+      ParameterizedAttributeListValueCreator palvc = new QNameAttributeListValueCreator();
+      List<ParameterizedAttribute> list = palvc.useString(attribute);
+      return list.size() > 0 ? list.get(0) : null;
    }
 }

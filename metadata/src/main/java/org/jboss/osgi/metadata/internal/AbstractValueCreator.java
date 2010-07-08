@@ -19,27 +19,44 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
+
+import org.jboss.logging.Logger;
 
 /**
- * Parse int from string.
- * 
+ * Abstract value creator.
+ * Extend this one for safe string usage.
+ *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
 */
-class IntegerValueCreator extends AbstractValueCreator<Integer>
+abstract class AbstractValueCreator<T> implements ValueCreator<T>
 {
-   public IntegerValueCreator()
+   protected Logger log = Logger.getLogger(getClass());
+   private boolean trim;
+
+   protected AbstractValueCreator()
    {
-      super();
+      this(false);
    }
 
-   public IntegerValueCreator(boolean trim)
+   protected AbstractValueCreator(boolean trim)
    {
-      super(trim);
+      this.trim = trim;
    }
 
-   public Integer useString(String attribute)
+   public T createValue(String attribute)
    {
-      return Integer.valueOf(attribute);
+      if (attribute == null)
+         return null;
+      if (trim)
+         attribute = attribute.trim();
+      return useString(attribute);
    }
+
+   /**
+    * Use this method on non-null trimmed string.
+    * @param attibute non-null trimmed string
+    * @return expected value
+    */
+   protected abstract T useString(String attibute);
 }

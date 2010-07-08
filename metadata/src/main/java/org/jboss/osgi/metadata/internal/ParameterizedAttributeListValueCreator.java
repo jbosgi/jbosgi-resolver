@@ -19,44 +19,34 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.jboss.osgi.metadata.ParameterizedAttribute;
+
 /**
- * Split string into list of strings.
+ * Create parameterized attribute list from string attribute.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
-*/
-class StringListValueCreator extends ListValueCreator<String>
+ */
+abstract class ParameterizedAttributeListValueCreator extends ListValueCreator<ParameterizedAttribute>
 {
-   protected String delimiter = ",";
-
-   public StringListValueCreator()
+   public List<ParameterizedAttribute> useString(String attribute)
    {
-      super();
+      List<ParameterizedAttribute> list = new ArrayList<ParameterizedAttribute>();
+      parseAttribute(attribute, list, log.isTraceEnabled());
+      return list;
    }
 
-   public StringListValueCreator(boolean trim)
-   {
-      super(trim);
-   }
+   /**
+    * Use appropriate JavaCC parsing util.
+    *
+    * @param attribute string value to parse
+    * @param list data holder list
+    * @param trace log trace
+    */
+   protected abstract void parseAttribute(String attribute, List<ParameterizedAttribute> list, boolean trace);
 
-   public StringListValueCreator(String delimiter)
-   {
-      this();
-      this.delimiter = delimiter;
-   }
-
-   public StringListValueCreator(String delimiter, boolean trim)
-   {
-      this(trim);
-      this.delimiter = delimiter;
-   }
-
-   public List<String> useString(String attribute)
-   {
-      return Arrays.asList(attribute.split(delimiter));
-   }
 }

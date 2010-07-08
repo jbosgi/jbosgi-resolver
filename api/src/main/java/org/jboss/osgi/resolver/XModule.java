@@ -94,6 +94,11 @@ public interface XModule extends XElement, XAttachmentSupport
    boolean isFragment();
 
    /**
+    * Get the bundle class paths
+    */
+   List<String> getBundleClassPath();
+   
+   /**
     * True if this module is resolved
     */
    boolean isResolved();

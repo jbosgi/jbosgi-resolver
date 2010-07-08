@@ -19,54 +19,44 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import java.io.Serializable;
-
-import org.jboss.osgi.metadata.ListenerMetaData;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * Simple listener meta data.
- * Referencing ref bean as a reference listener.
+ * Split string into list of strings.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
- */
-public class AbstractListenerMetaData implements ListenerMetaData, Serializable
+*/
+class StringListValueCreator extends ListValueCreator<String>
 {
-   private static final long serialVersionUID = 1l;
+   protected String delimiter = ",";
 
-   private String ref;
-   private String bindMethod;
-   private String unbindMethod;
-
-   public String getRef()
+   public StringListValueCreator()
    {
-      return ref;
+      super();
    }
 
-   public String getBindMethod()
+   public StringListValueCreator(boolean trim)
    {
-      return bindMethod;
+      super(trim);
    }
 
-   public String getUnbindMethod()
+   public StringListValueCreator(String delimiter)
    {
-      return unbindMethod;
+      this();
+      this.delimiter = delimiter;
    }
 
-   public void setRef(String ref)
+   public StringListValueCreator(String delimiter, boolean trim)
    {
-      this.ref = ref;
+      this(trim);
+      this.delimiter = delimiter;
    }
 
-   public void setBindMethod(String bindMethod)
+   public List<String> useString(String attribute)
    {
-      this.bindMethod = bindMethod;
+      return Arrays.asList(attribute.split(delimiter));
    }
-
-   public void setUnbindMethod(String unbindMethod)
-   {
-      this.unbindMethod = unbindMethod;
-   }
-
 }

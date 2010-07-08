@@ -48,9 +48,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.osgi.msc.metadata.internal.AbstractPackageAttribute;
-import org.jboss.osgi.msc.metadata.internal.AbstractParameter;
-import org.jboss.osgi.msc.metadata.internal.AbstractParameterizedAttribute;
+import org.jboss.osgi.metadata.internal.AbstractPackageAttribute;
+import org.jboss.osgi.metadata.internal.AbstractParameter;
+import org.jboss.osgi.metadata.internal.AbstractParameterizedAttribute;
 
 /**
  * ManifestParser.

@@ -19,23 +19,29 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import java.util.List;
-
-import org.jboss.osgi.metadata.ParameterizedAttribute;
+import org.jboss.osgi.metadata.VersionRange;
 
 /**
- * Create paramertized attribute from string attribute.
+ * Parse VersionRange from string.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
- */
-class ParameterizedAttributeValueCreator extends AbstractValueCreator<ParameterizedAttribute>
+*/
+class VersionRangeValueCreator extends AbstractValueCreator<VersionRange>
 {
-   public ParameterizedAttribute useString(String attribute)
+   public VersionRangeValueCreator()
    {
-      ParameterizedAttributeListValueCreator palvc = new QNameAttributeListValueCreator();
-      List<ParameterizedAttribute> list = palvc.useString(attribute);
-      return list.size() > 0 ? list.get(0) : null;
+      super();
+   }
+
+   public VersionRangeValueCreator(boolean trim)
+   {
+      super(trim);
+   }
+
+   public VersionRange useString(String attribute)
+   {
+      return AbstractVersionRange.parseRangeSpec(attribute);
    }
 }

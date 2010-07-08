@@ -19,44 +19,54 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import org.jboss.logging.Logger;
+import java.io.Serializable;
+
+import org.jboss.osgi.metadata.ListenerMetaData;
 
 /**
- * Abstract value creator.
- * Extend this one for safe string usage.
+ * Simple listener meta data.
+ * Referencing ref bean as a reference listener.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
-*/
-abstract class AbstractValueCreator<T> implements ValueCreator<T>
+ */
+public class AbstractListenerMetaData implements ListenerMetaData, Serializable
 {
-   protected Logger log = Logger.getLogger(getClass());
-   private boolean trim;
+   private static final long serialVersionUID = 1l;
 
-   protected AbstractValueCreator()
+   private String ref;
+   private String bindMethod;
+   private String unbindMethod;
+
+   public String getRef()
    {
-      this(false);
+      return ref;
    }
 
-   protected AbstractValueCreator(boolean trim)
+   public String getBindMethod()
    {
-      this.trim = trim;
+      return bindMethod;
    }
 
-   public T createValue(String attribute)
+   public String getUnbindMethod()
    {
-      if (attribute == null)
-         return null;
-      if (trim)
-         attribute = attribute.trim();
-      return useString(attribute);
+      return unbindMethod;
    }
 
-   /**
-    * Use this method on non-null trimmed string.
-    * @param attibute non-null trimmed string
-    * @return expected value
-    */
-   protected abstract T useString(String attibute);
+   public void setRef(String ref)
+   {
+      this.ref = ref;
+   }
+
+   public void setBindMethod(String bindMethod)
+   {
+      this.bindMethod = bindMethod;
+   }
+
+   public void setUnbindMethod(String unbindMethod)
+   {
+      this.unbindMethod = unbindMethod;
+   }
+
 }

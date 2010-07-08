@@ -19,22 +19,25 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.osgi.metadata.ManifestParser;
-import org.jboss.osgi.metadata.ParameterizedAttribute;
+import org.jboss.osgi.metadata.PackageAttribute;
 
 /**
- * Create path attribute list from string attribute.
+ * Create package attribute list from string attribute.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-class PathAttributeListValueCreator extends ParameterizedAttributeListValueCreator
+class PackageAttributeListValueCreator extends ListValueCreator<PackageAttribute>
 {
-   protected void parseAttribute(String attribute, List<ParameterizedAttribute> list, boolean trace)
+   public List<PackageAttribute> useString(String attibute)
    {
-      ManifestParser.parsePaths(attribute, list);
+      List<PackageAttribute> list = new ArrayList<PackageAttribute>();
+      ManifestParser.parsePackages(attibute, list);
+      return list;
    }
 }

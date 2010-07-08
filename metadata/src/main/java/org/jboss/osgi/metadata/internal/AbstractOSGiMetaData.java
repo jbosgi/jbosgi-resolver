@@ -19,18 +19,18 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.ACTIVATION_POLICY_VC;
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.INTEGER_VC;
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.PACKAGE_LIST_VC;
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.PARAM_ATTRIB_VC;
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.PATH_ATTRIB_LIST_VC;
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.QNAME_ATTRIB_LIST_VC;
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.STRING_LIST_VC;
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.STRING_VC;
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.VERSION_VC;
-import static org.jboss.osgi.msc.metadata.internal.ValueCreatorUtil.URL_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.ACTIVATION_POLICY_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.INTEGER_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.PACKAGE_LIST_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.PARAM_ATTRIB_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.PATH_ATTRIB_LIST_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.QNAME_ATTRIB_LIST_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.STRING_LIST_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.STRING_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.URL_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.VERSION_VC;
 import static org.osgi.framework.Constants.BUNDLE_ACTIVATIONPOLICY;
 import static org.osgi.framework.Constants.BUNDLE_ACTIVATOR;
 import static org.osgi.framework.Constants.BUNDLE_CATEGORY;

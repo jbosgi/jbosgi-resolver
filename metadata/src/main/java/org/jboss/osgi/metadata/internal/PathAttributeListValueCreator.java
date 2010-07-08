@@ -19,29 +19,22 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import org.osgi.framework.Version;
+import java.util.List;
+
+import org.jboss.osgi.metadata.ManifestParser;
+import org.jboss.osgi.metadata.ParameterizedAttribute;
 
 /**
- * Parse Version from string.
+ * Create path attribute list from string attribute.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
-*/
-class VersionValueCreator extends AbstractValueCreator<Version>
+ */
+class PathAttributeListValueCreator extends ParameterizedAttributeListValueCreator
 {
-   public VersionValueCreator()
+   protected void parseAttribute(String attribute, List<ParameterizedAttribute> list, boolean trace)
    {
-      super();
-   }
-
-   public VersionValueCreator(boolean trim)
-   {
-      super(trim);
-   }
-
-   public Version useString(String attribute)
-   {
-      return new Version(attribute);
+      ManifestParser.parsePaths(attribute, list);
    }
 }

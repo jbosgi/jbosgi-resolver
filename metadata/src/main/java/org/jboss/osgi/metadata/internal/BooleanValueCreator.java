@@ -19,25 +19,27 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
-
-import java.util.List;
+package org.jboss.osgi.metadata.internal;
 
 /**
- * Create value list from string attribute.
+ * Parse boolean from string.
  *
- * @param <T> expected component type
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
- */
-abstract class ListValueCreator<T> extends AbstractValueCreator<List<T>>   
+*/
+class BooleanValueCreator extends AbstractValueCreator<Boolean>
 {
-   protected ListValueCreator()
+   public BooleanValueCreator()
    {
       super();
    }
 
-   protected ListValueCreator(boolean trim)
+   public BooleanValueCreator(boolean trim)
    {
       super(trim);
+   }
+
+   public Boolean useString(String attribute)
+   {
+      return Boolean.valueOf(attribute);
    }
 }

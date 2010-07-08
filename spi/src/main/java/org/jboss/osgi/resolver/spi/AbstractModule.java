@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver.spi;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,6 +54,7 @@ public class AbstractModule extends AbstractElement implements XModule
    private XBundleCapability bundleCapability;
    private List<XCapability> capabilities;
    private List<XRequirement> requirements;
+   private List<String> classPaths;
    private XFragmentHostRequirement hostRequirement;
    private XAttachmentSupport attachments;
    private List<XWire> wires;
@@ -214,6 +216,22 @@ public class AbstractModule extends AbstractElement implements XModule
       return getHostRequirement() != null;
    }
 
+   @Override
+   public List<String> getBundleClassPath()
+   {
+      if (classPaths == null)
+         return Collections.emptyList();
+      
+      return Collections.unmodifiableList(classPaths);
+   }
+
+   void addBundleClassPath(String... paths)
+   {
+      if (classPaths == null)
+         classPaths = new ArrayList<String>();
+      
+      classPaths.addAll(Arrays.asList(paths));
+   }
    
    @Override
    public List<XWire> getWires()

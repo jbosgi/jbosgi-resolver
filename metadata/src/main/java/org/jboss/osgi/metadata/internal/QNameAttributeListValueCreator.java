@@ -19,53 +19,22 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
+package org.jboss.osgi.metadata.internal;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 
-import org.jboss.osgi.metadata.Parameter;
+import org.jboss.osgi.metadata.ManifestParser;
+import org.jboss.osgi.metadata.ParameterizedAttribute;
 
 /**
- * Parameter impl.
- * It uses [Hash]Set to hold the values.
- * So duplicate values (by hash) will be ignored.
+ * Create [dynamic]qname attribute list from string attribute.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  */
-public class AbstractParameter implements Parameter
+class QNameAttributeListValueCreator extends ParameterizedAttributeListValueCreator
 {
-   protected Collection<String> values;
-
-   public AbstractParameter()
+   protected void parseAttribute(String attribute, List<ParameterizedAttribute> list, boolean trace)
    {
-      super();
-      values = new HashSet<String>();
-   }
-
-   public AbstractParameter(String parameter)
-   {
-      this();
-      addValue(parameter);
-   }
-
-   public void addValue(String value)
-   {
-      values.add(value);
-   }
-
-   public Object getValue()
-   {
-      if (values.isEmpty())
-         return null;
-      else if (values.size() == 1)
-         return values.iterator().next();
-      else
-         return values;
-   }
-
-   public boolean isCollection()
-   {
-      return values.size() > 1;
+      ManifestParser.parseParameters(attribute, list);
    }
 }

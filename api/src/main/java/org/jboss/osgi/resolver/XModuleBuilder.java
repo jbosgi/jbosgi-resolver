@@ -25,12 +25,7 @@ import java.util.Map;
 import java.util.jar.Manifest;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
-import org.jboss.osgi.resolver.XBundleCapability;
-import org.jboss.osgi.resolver.XFragmentHostRequirement;
-import org.jboss.osgi.resolver.XModule;
-import org.jboss.osgi.resolver.XPackageCapability;
-import org.jboss.osgi.resolver.XPackageRequirement;
-import org.jboss.osgi.resolver.XRequireBundleRequirement;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
 /**
@@ -71,7 +66,7 @@ public interface XModuleBuilder
    XBundleCapability addBundleCapability(String symbolicName, Version version);
 
    /**
-    * Add a bundle requirement
+    * Add a {@link Constants#REQUIRE_BUNDLE} requirement
     * @param symbolicName The bundle symbolic name
     * @param dirs The directives
     * @param atts The attributes
@@ -79,7 +74,7 @@ public interface XModuleBuilder
    XRequireBundleRequirement addBundleRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts);
 
    /**
-    * Add a fragment host requirement
+    * Add a {@link Constants#FRAGMENT_HOST} requirement
     * @param symbolicName The bundle symbolic name
     * @param dirs The directives
     * @param atts The attributes
@@ -87,7 +82,7 @@ public interface XModuleBuilder
    XFragmentHostRequirement addFragmentHostRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts);
 
    /**
-    * Add a package capability
+    * Add a {@link Constants#EXPORT_PACKAGE} capability
     * @param name The package name
     * @param dirs The directives
     * @param atts The attributes
@@ -95,7 +90,7 @@ public interface XModuleBuilder
    XPackageCapability addPackageCapability(String name, Map<String, String> dirs, Map<String, Object> atts);
 
    /**
-    * Add a package requirement
+    * Add a {@link Constants#IMPORT_PACKAGE} requirement
     * @param name The package name
     * @param dirs The directives
     * @param atts The attributes
@@ -103,11 +98,16 @@ public interface XModuleBuilder
    XPackageRequirement addPackageRequirement(String name, Map<String, String> dirs, Map<String, Object> atts);
 
    /**
-    * Add a dynamic package requirement
+    * Add a {@link Constants#DYNAMICIMPORT_PACKAGE} requirement
     * @param name The package name
     * @param atts The attributes
     */
    XPackageRequirement addDynamicPackageRequirement(String name, Map<String, Object> atts);
+
+   /**
+    * Add a {@link Constants#BUNDLE_CLASSPATH} element
+    */
+   void addBundleClassPath(String... path);
 
    /**
     * Get the final module from the builder

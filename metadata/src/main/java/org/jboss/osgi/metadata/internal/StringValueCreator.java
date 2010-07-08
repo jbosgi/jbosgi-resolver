@@ -19,38 +19,27 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.msc.metadata.internal;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+package org.jboss.osgi.metadata.internal;
 
 /**
- * Create URL from string.
+ * Plain string forwarding - no conversion.
  *
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
 */
-class URLValueCreator extends AbstractValueCreator<URL>
+class StringValueCreator extends AbstractValueCreator<String>
 {
-   public URLValueCreator()
+   public StringValueCreator()
    {
       super();
    }
 
-   public URLValueCreator(boolean trim)
+   public StringValueCreator(boolean trim)
    {
       super(trim);
    }
 
-   public URL useString(String attribute)
+   protected String useString(String attibute)
    {
-      try
-      {
-         return new URL(attribute);
-      }
-      catch (MalformedURLException e)
-      {
-         log.warn("Exception while creating URL.", e);
-         return null;
-      }
+      return attibute;
    }
 }

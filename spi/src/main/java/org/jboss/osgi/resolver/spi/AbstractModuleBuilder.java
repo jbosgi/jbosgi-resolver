@@ -30,7 +30,7 @@ import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.PackageAttribute;
 import org.jboss.osgi.metadata.Parameter;
 import org.jboss.osgi.metadata.ParameterizedAttribute;
-import org.jboss.osgi.msc.metadata.internal.OSGiManifestMetaData;
+import org.jboss.osgi.metadata.internal.OSGiManifestMetaData;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;
 import org.jboss.osgi.resolver.XModule;
@@ -113,6 +113,12 @@ public class AbstractModuleBuilder implements XModuleBuilder
    }
 
    @Override
+   public void addBundleClassPath(String... paths)
+   {
+      module.addBundleClassPath(paths);
+   }
+
+   @Override
    public XModule getModule()
    {
       return module;
@@ -184,6 +190,12 @@ public class AbstractModuleBuilder implements XModuleBuilder
          Map<String, Object> atts = getAttributes(fragmentHost);
          addFragmentHostRequirement(symbolicName, dirs, atts);
       }
+      
+      // Bundle-ClassPath
+      List<String> classPath = osgiMetaData.getBundleClassPath();
+      if (classPath != null && classPath.isEmpty() == false)
+         addBundleClassPath(classPath.toArray(new String[classPath.size()]));
+      
       return module;
    }
 
