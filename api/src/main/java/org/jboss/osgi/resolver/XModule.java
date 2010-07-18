@@ -38,6 +38,12 @@ import org.osgi.framework.Version;
 public interface XModule extends XElement, XAttachmentSupport
 {
    /**
+    * Get the resolver that is controlling this module.
+    * @return The resolver or null if this module has not been added to a resolver
+    */
+   XResolver getResolver();
+   
+   /**
     * Get the module id
     */
    long getModuleId();

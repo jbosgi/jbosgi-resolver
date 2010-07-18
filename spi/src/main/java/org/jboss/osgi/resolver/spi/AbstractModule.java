@@ -35,6 +35,7 @@ import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequireBundleRequirement;
 import org.jboss.osgi.resolver.XRequirement;
+import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XWire;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
@@ -49,6 +50,7 @@ import org.osgi.framework.Version;
  */
 public class AbstractModule extends AbstractElement implements XModule
 {
+   private XResolver resolver;
    private long moduleId;
    private Version version;
    private XBundleCapability bundleCapability;
@@ -69,6 +71,16 @@ public class AbstractModule extends AbstractElement implements XModule
       
       this.moduleId = moduleId;
       this.version = version;
+   }
+
+   public XResolver getResolver()
+   {
+      return resolver;
+   }
+
+   void setResolver(XResolver resolver)
+   {
+      this.resolver = resolver;
    }
 
    @Override
@@ -313,9 +325,36 @@ public class AbstractModule extends AbstractElement implements XModule
       return getName().equals(other.getName()) && getVersion().equals(other.getVersion());
    }
 
+   public StringBuffer toLongString(StringBuffer buffer)
+   {
+      if (buffer == null)
+         throw new IllegalArgumentException("Null buffer");
+      
+      String simpleName = getClass().getSimpleName();
+      buffer.append("\n" + simpleName + ": " + toString());
+      if (resolved)
+         buffer.append(" - resolved");
+      
+      buffer.append("\nCapabilities");
+      for (XCapability cap : getCapabilities())
+         buffer.append("\n " + cap);
+      
+      buffer.append("\nRequirements");
+      for (XRequirement req : getRequirements())
+         buffer.append("\n " + req);
+      
+      if (wires != null)
+      {
+         buffer.append("\nWires");
+         for (XWire wire : getWires())
+            buffer.append("\n " + wire);
+      }
+      return buffer;
+   }
+   
    @Override
    public String toString()
    {
-      return getName() + ":" + getVersion();
+      return "[" + getModuleId() + "]:" + getName() + ":" + getVersion();
    }
 }

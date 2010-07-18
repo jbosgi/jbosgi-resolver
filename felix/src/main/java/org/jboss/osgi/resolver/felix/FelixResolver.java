@@ -76,12 +76,11 @@ public class FelixResolver extends AbstractResolver implements XResolver
    }
 
    @Override
-   public XModule removeModule(XModule module)
+   public void removeModule(XModule module)
    {
       super.removeModule(module);
       ModuleExt fmod = module.getAttachment(ModuleExt.class);
       resolverState.removeModule(fmod);
-      return module;
    }
 
    public ModuleExt findHost(ModuleExt fragModule)

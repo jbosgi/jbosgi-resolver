@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * An OSGi resolver.
@@ -38,9 +39,8 @@ public interface XResolver
 
    /**
     * Remove a module from the resolver.
-    * @return The removed module or null
     */
-   XModule removeModule(XModule module);
+   void removeModule(XModule module);
 
    /**
     * Get the list of registered modules
@@ -65,6 +65,18 @@ public interface XResolver
     */
    List<XModule> resolve(List<XModule> modules);
 
+   /**
+    * Get the set of requirements that the given capability is wired to
+    * @return The requirements or an empty set.
+    */
+   Set<XRequirement> getWiredRequirements(XCapability capability);
+
+   /**
+    * Get the capability that the given requirement is wired to
+    * @return The capability or null.
+    */
+   XCapability getWiredCapability(XRequirement requirement);
+   
    /**
     * The the optional callback handler on the resolver
     */

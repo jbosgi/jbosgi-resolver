@@ -23,10 +23,14 @@ package org.jboss.osgi.resolver.spi;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.jboss.logging.Logger;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XModule;
 import org.jboss.osgi.resolver.XRequirement;
@@ -43,8 +47,12 @@ import org.jboss.osgi.resolver.XWire;
  */
 public abstract class AbstractResolver implements XResolver
 {
+   static private Logger log = Logger.getLogger(AbstractResolver.class);
+   
    private XResolverCallback callback;
    private Map<Long, XModule> moduleMap = new LinkedHashMap<Long, XModule>();
+   private Map<XRequirement, XCapability> reqcapMap = new ConcurrentHashMap<XRequirement, XCapability>();
+   private Map<XCapability, Set<XRequirement>> capreqMap = new ConcurrentHashMap<XCapability, Set<XRequirement>>();
 
    public AbstractResolver()
    {
@@ -89,6 +97,12 @@ public abstract class AbstractResolver implements XResolver
       if (module == null)
          throw new IllegalArgumentException("Null module");
       
+      if (log.isTraceEnabled())
+      {
+         StringBuffer buffer = ((AbstractModule)module).toLongString(new StringBuffer());
+         log.trace(buffer);
+      }
+         
       synchronized (moduleMap)
       {
          long moduleId = module.getModuleId();
@@ -96,18 +110,40 @@ public abstract class AbstractResolver implements XResolver
             throw new IllegalStateException("Module already added: " + module);
          
          moduleMap.put(moduleId, module);
+         ((AbstractModule)module).setResolver(this);
       }
    }
 
    @Override
-   public XModule removeModule(XModule module)
+   public void removeModule(XModule module)
    {
       if (module == null)
          throw new IllegalArgumentException("Null module");
       
       synchronized (moduleMap)
       {
-         return moduleMap.remove(module.getModuleId());
+         XModule result = moduleMap.remove(module.getModuleId());
+         if (result != null)
+            ((AbstractModule)result).setResolver(null);
+      }
+      
+      // Cleanup the cap <--> req mapping
+      synchronized (this)
+      {
+         for (XRequirement req : module.getRequirements())
+         {
+            XCapability cap = reqcapMap.get(req);
+            if (cap != null)
+            {
+               Set<XRequirement> reqset = capreqMap.get(cap);
+               if (reqset != null)
+                  reqset.remove(req);
+            }
+         }
+         for (XCapability cap : module.getCapabilities())
+         {
+            capreqMap.remove(cap);
+         }
       }
    }
 
@@ -197,10 +233,38 @@ public abstract class AbstractResolver implements XResolver
       }
    }
 
-   protected XWire addWire(AbstractModule importer, XRequirement requirement, XModule exporter, XCapability capability)
+   protected XWire addWire(AbstractModule importer, XRequirement req, XModule exporter, XCapability cap)
    {
-      AbstractWire wire = new AbstractWire(importer, requirement, exporter, capability);
+      AbstractWire wire = new AbstractWire(importer, req, exporter, cap);
       importer.addWire(wire);
+      
+      synchronized (this)
+      {
+         // Map the requirement to its capability
+         reqcapMap.put(req, cap);
+         
+         // Map the capability to the set of requirements that it is wired to
+         Set<XRequirement> reqset = capreqMap.get(cap);
+         if (reqset == null)
+            capreqMap.put(cap, reqset = new HashSet<XRequirement>());
+         reqset.add(req);
+      }
       return wire;
+   }
+
+   @Override
+   public Set<XRequirement> getWiredRequirements(XCapability cap)
+   {
+      Set<XRequirement> reqset = capreqMap.get(cap);
+      if (reqset == null)
+         return Collections.emptySet();
+      
+      return Collections.unmodifiableSet(reqset);
+   }
+
+   @Override
+   public XCapability getWiredCapability(XRequirement req)
+   {
+      return reqcapMap.get(req);
    }
 }
