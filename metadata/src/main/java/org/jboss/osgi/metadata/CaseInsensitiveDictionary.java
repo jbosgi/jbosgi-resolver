@@ -26,6 +26,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
 import org.jboss.util.collection.Iterators;
@@ -131,6 +132,45 @@ public class CaseInsensitiveDictionary extends Hashtable
    public Object remove(Object key)
    {
       throw new UnsupportedOperationException("immutable");
+   }
+
+   @Override
+   public Set keySet()
+   {
+      return originalKeys;
+   }
+
+   @Override
+   public Set entrySet()
+   {
+      Set<Map.Entry> entrySet = new HashSet<Map.Entry>();
+      for (final String key : originalKeys)
+      {
+         final Object value = get(key);
+         Map.Entry entry = new Map.Entry()
+         {
+
+            @Override
+            public Object getKey()
+            {
+               return key;
+            }
+
+            @Override
+            public Object getValue()
+            {
+               return value;
+            }
+
+            @Override
+            public Object setValue(Object value)
+            {
+               throw new UnsupportedOperationException("immutable");
+            }
+         };
+         entrySet.add(entry);
+      }
+      return entrySet;
    }
 
    public int size()
