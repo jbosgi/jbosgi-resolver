@@ -22,7 +22,6 @@ package org.jboss.test.osgi.resolver;
  */
 
 
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.Attributes;
@@ -1141,7 +1140,7 @@ public class ResolverTestCase extends OSGiTest
    }
    */
 
-   private XModule installBundle(Archive<?> archive) throws IOException
+   private XModule installBundle(Archive<?> archive) throws Exception
    {
       VirtualFile virtualFile = toVirtualFile(archive);
       Manifest manifest = VFSUtils.getManifest(virtualFile);

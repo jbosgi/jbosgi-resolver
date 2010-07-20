@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.jar.Manifest;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
@@ -41,14 +42,14 @@ public interface XModuleBuilder
     * @param moduleId The provided module id
     * @param manifest The manifest
     */
-   XModule createModule(long moduleId, Manifest manifest);
+   XModule createModule(long moduleId, Manifest manifest) throws BundleException;
    
    /**
     * Get a new module from OSGi metadata
     * @param moduleId The provided module id
     * @param metadata The metadata
     */
-   XModule createModule(long moduleId, OSGiMetaData metadata);
+   XModule createModule(long moduleId, OSGiMetaData metadata) throws BundleException;
    
    /**
     * Get a new module and associate it with this builder
