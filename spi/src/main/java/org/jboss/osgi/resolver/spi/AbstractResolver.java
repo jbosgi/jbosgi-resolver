@@ -21,11 +21,9 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +46,7 @@ import org.jboss.osgi.resolver.XWire;
 public abstract class AbstractResolver implements XResolver
 {
    static private Logger log = Logger.getLogger(AbstractResolver.class);
-   
+
    private XResolverCallback callback;
    private Map<Long, XModule> moduleMap = new LinkedHashMap<Long, XModule>();
    private Map<XRequirement, XCapability> reqcapMap = new ConcurrentHashMap<XRequirement, XCapability>();
@@ -63,12 +61,12 @@ public abstract class AbstractResolver implements XResolver
          public void releaseGlobalLock()
          {
          }
-         
+
          @Override
          public void markResolved(XModule module)
          {
          }
-         
+
          @Override
          public boolean acquireGlobalLock()
          {
@@ -82,7 +80,7 @@ public abstract class AbstractResolver implements XResolver
    {
       if (callback == null)
          throw new IllegalArgumentException("Null callback");
-      
+
       this.callback = callback;
    }
 
@@ -96,19 +94,19 @@ public abstract class AbstractResolver implements XResolver
    {
       if (module == null)
          throw new IllegalArgumentException("Null module");
-      
+
       if (log.isTraceEnabled())
       {
          StringBuffer buffer = ((AbstractModule)module).toLongString(new StringBuffer());
          log.trace(buffer);
       }
-         
+
       synchronized (moduleMap)
       {
          long moduleId = module.getModuleId();
          if (moduleMap.get(moduleId) != null)
             throw new IllegalStateException("Module already added: " + module);
-         
+
          moduleMap.put(moduleId, module);
          ((AbstractModule)module).setResolver(this);
       }
@@ -119,14 +117,14 @@ public abstract class AbstractResolver implements XResolver
    {
       if (module == null)
          throw new IllegalArgumentException("Null module");
-      
+
       synchronized (moduleMap)
       {
          XModule result = moduleMap.remove(module.getModuleId());
          if (result != null)
             ((AbstractModule)result).setResolver(null);
       }
-      
+
       // Cleanup the cap <--> req mapping
       synchronized (this)
       {
@@ -148,12 +146,12 @@ public abstract class AbstractResolver implements XResolver
    }
 
    @Override
-   public List<XModule> getModules()
+   public Set<XModule> getModules()
    {
       synchronized (moduleMap)
       {
-         List<XModule> values = new ArrayList<XModule>(moduleMap.values());
-         return Collections.unmodifiableList(values);
+         Set<XModule> values = new LinkedHashSet<XModule>(moduleMap.values());
+         return Collections.unmodifiableSet(values);
       }
    }
 
@@ -171,10 +169,10 @@ public abstract class AbstractResolver implements XResolver
    {
       if (module == null)
          throw new IllegalArgumentException("Null module");
-      
+
       if (findModuleById(module.getModuleId()) == null)
          throw new IllegalStateException("Module not registered: " + module);
-         
+
       try
       {
          module.removeAttachment(XResolverException.class);
@@ -188,15 +186,20 @@ public abstract class AbstractResolver implements XResolver
       }
    }
 
-   protected abstract void resolveInternal(XModule rootModule); 
+   protected abstract void resolveInternal(XModule rootModule);
 
    @Override
-   public List<XModule> resolve(List<XModule> modules)
+   public Set<XModule> resolveAll(Set<XModule> modules)
    {
       if (modules == null)
-         modules = getModules();
-      
-      List<XModule> result = new ArrayList<XModule>();
+      {
+         modules = new LinkedHashSet<XModule>();
+         for (XModule aux : getModules())
+            if (aux.isResolved() == false)
+               modules.add(aux);
+      }
+
+      Set<XModule> result = new LinkedHashSet<XModule>();
       for (XModule module : modules)
       {
          try
@@ -211,16 +214,16 @@ public abstract class AbstractResolver implements XResolver
             module.addAttachment(XResolverException.class, ex);
          }
       }
-      return Collections.unmodifiableList(result);
+      return Collections.unmodifiableSet(result);
    }
 
    protected void setResolved(AbstractModule module)
    {
       if (module == null)
          throw new IllegalArgumentException("Null module");
-      
+
       module.setResolved();
-      
+
       try
       {
          callback.markResolved(module);
@@ -237,33 +240,34 @@ public abstract class AbstractResolver implements XResolver
    {
       AbstractWire wire = new AbstractWire(importer, req, exporter, cap);
       importer.addWire(wire);
-      
+
       synchronized (this)
       {
          // Map the requirement to its capability
          reqcapMap.put(req, cap);
-         
+
          // Map the capability to the set of requirements that it is wired to
          Set<XRequirement> reqset = capreqMap.get(cap);
          if (reqset == null)
-            capreqMap.put(cap, reqset = new HashSet<XRequirement>());
+            capreqMap.put(cap, reqset = new LinkedHashSet<XRequirement>());
          reqset.add(req);
       }
       return wire;
    }
 
-   @Override
-   public Set<XRequirement> getWiredRequirements(XCapability cap)
+   Set<XRequirement> getWiredRequirements(XCapability cap)
    {
+      if (cap.getModule().isResolved() == false)
+         return null;
+      
       Set<XRequirement> reqset = capreqMap.get(cap);
       if (reqset == null)
          return Collections.emptySet();
-      
+
       return Collections.unmodifiableSet(reqset);
    }
 
-   @Override
-   public XCapability getWiredCapability(XRequirement req)
+   XCapability getWiredCapability(XRequirement req)
    {
       return reqcapMap.get(req);
    }

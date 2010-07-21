@@ -26,11 +26,10 @@ import java.util.Map;
 
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
-import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XModule;
 import org.jboss.osgi.resolver.XRequirement;
-import org.jboss.osgi.resolver.XWire;
 
 /**
  * The abstract implementation of a {@link XCapability}.
@@ -45,7 +44,6 @@ class AbstractRequirement extends AbstractElement implements XRequirement
    private XAttributeSupport attributes;
    private XAttachmentSupport attachments;
    private boolean optional, dynamic;
-   private XWire wire;
 
    public AbstractRequirement(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts)
    {
@@ -84,6 +82,13 @@ class AbstractRequirement extends AbstractElement implements XRequirement
       this.dynamic = dynamic;
    }
 
+   @Override
+   public XCapability getWiredCapability()
+   {
+      AbstractResolver resolver = (AbstractResolver)getModule().getResolver();
+      return resolver.getWiredCapability(this);
+   }
+   
    @Override
    public Object getAttribute(String key)
    {
@@ -145,25 +150,5 @@ class AbstractRequirement extends AbstractElement implements XRequirement
          return null;
       
       return attachments.removeAttachment(clazz);
-   }
-
-   @Override
-   public XWire getWire()
-   {
-      if (module.getWires() == null)
-         return null;
-
-      if (wire == null)
-      {
-         for (XWire aux : module.getWires())
-         {
-            if (aux.getRequirement() == this)
-            {
-               wire = aux;
-               break;
-            }
-         }
-      }
-      return wire;
    }
 }

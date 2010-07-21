@@ -248,8 +248,11 @@ public class AbstractModule extends AbstractElement implements XModule
    @Override
    public List<XWire> getWires()
    {
-      if (wires == null)
+      if (resolved == false)
          return null;
+      
+      if (wires == null)
+         return Collections.emptyList();
       
       return Collections.unmodifiableList(wires);
    }

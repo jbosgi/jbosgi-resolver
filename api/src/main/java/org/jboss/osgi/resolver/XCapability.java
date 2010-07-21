@@ -21,6 +21,8 @@
  */
 package org.jboss.osgi.resolver;
 
+import java.util.Set;
+
 /**
  * A capability
  *
@@ -34,4 +36,9 @@ public interface XCapability extends XElement, XAttributeSupport, XDirectiveSupp
     */
    XModule getModule();
    
+   /**
+    * Get the set of requirements that this capability is wired to
+    * @return The requirements or null if the capbility belongs to an unresolved module.
+    */
+   Set<XRequirement> getWiredRequirements();
 }

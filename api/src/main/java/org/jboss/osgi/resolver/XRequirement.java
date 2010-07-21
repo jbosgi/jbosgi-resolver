@@ -45,8 +45,8 @@ public interface XRequirement extends XElement, XAttributeSupport, XDirectiveSup
    boolean isDynamic();
    
    /**
-    * Get the wire for this requirement.
-    * @return the wire or null
+    * Get the wired capbillity for this requirement.
+    * @return The wired capabillity or null
     */
-   XWire getWire();
+   XCapability getWiredCapability();
 }

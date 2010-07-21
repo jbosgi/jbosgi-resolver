@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.resolver;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,7 +44,7 @@ public interface XResolver
    /**
     * Get the list of registered modules
     */
-   List<XModule> getModules();
+   Set<XModule> getModules();
    
    /**
     * Find the a module for a given id.
@@ -59,24 +58,12 @@ public interface XResolver
    void resolve(XModule rootModule) throws XResolverException;
 
    /**
-    * Resolve the given list of modules
-    * @param modules The list of modules or null for all modules
-    * @return The list of modules that could be resolved
+    * Resolve the given set of modules
+    * @param modules The set of modules or null for all modules
+    * @return The set of modules that could be resolved
     */
-   List<XModule> resolve(List<XModule> modules);
+   Set<XModule> resolveAll(Set<XModule> modules);
 
-   /**
-    * Get the set of requirements that the given capability is wired to
-    * @return The requirements or an empty set.
-    */
-   Set<XRequirement> getWiredRequirements(XCapability capability);
-
-   /**
-    * Get the capability that the given requirement is wired to
-    * @return The capability or null.
-    */
-   XCapability getWiredCapability(XRequirement requirement);
-   
    /**
     * The the optional callback handler on the resolver
     */

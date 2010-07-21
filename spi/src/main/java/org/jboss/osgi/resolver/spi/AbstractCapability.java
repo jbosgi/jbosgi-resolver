@@ -23,12 +23,14 @@ package org.jboss.osgi.resolver.spi;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
-import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XModule;
+import org.jboss.osgi.resolver.XRequirement;
 
 /**
  * The abstract implementation of a {@link XCapability}.
@@ -60,6 +62,13 @@ class AbstractCapability extends AbstractElement implements XCapability
       return module;
    }
    
+   @Override
+   public Set<XRequirement> getWiredRequirements()
+   {
+      AbstractResolver resolver = (AbstractResolver)getModule().getResolver();
+      return resolver.getWiredRequirements(this);
+   }
+
    @Override
    public Object getAttribute(String key)
    {

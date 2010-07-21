@@ -111,7 +111,7 @@ public interface XModule extends XElement, XAttachmentSupport
    
    /**
     * Get the list of wires for this module
-    * @return null if the module is not resolved
+    * @return The list of wires when the module is resolved, otherwise null.
     */
    List<XWire> getWires();
 }
