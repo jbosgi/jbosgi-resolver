@@ -19,6 +19,7 @@
 package org.apache.felix.framework.util.manifestparser;
 
 import java.util.*;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import org.apache.felix.framework.Logger;
@@ -225,8 +226,7 @@ public class ManifestParser
         m_isExtension = checkExtensionBundle(headerMap);
     }
 
-    @SuppressWarnings("deprecation")
-   private static List<ParsedHeaderClause> normalizeImportClauses(
+    private static List<ParsedHeaderClause> normalizeImportClauses(
         Logger logger, List<ParsedHeaderClause> clauses, String mv)
         throws BundleException
     {
@@ -408,8 +408,7 @@ public class ManifestParser
         return reqList;
     }
 
-    @SuppressWarnings("deprecation")
-   private static List<ParsedHeaderClause> normalizeDynamicImportClauses(
+    private static List<ParsedHeaderClause> normalizeDynamicImportClauses(
         Logger logger, List<ParsedHeaderClause> clauses, String mv)
         throws BundleException
     {
@@ -511,8 +510,7 @@ public class ManifestParser
         return clauses;
     }
 
-    @SuppressWarnings("deprecation")
-   private static List<ParsedHeaderClause> normalizeExportClauses(
+    private static List<ParsedHeaderClause> normalizeExportClauses(
         Logger logger, List<ParsedHeaderClause> clauses,
         String mv, String bsn, Version bv)
         throws BundleException

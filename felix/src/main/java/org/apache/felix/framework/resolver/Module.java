@@ -53,11 +53,11 @@ public interface Module
     Bundle getBundle();
     String getId();
     List<Wire> getWires();
-    void setWires(List<Wire> wires);
-    void removeWires();
     boolean isResolved();
-    void setResolved();
     ProtectionDomain getSecurityContext();
+    
+    void setWires(List<Wire> wires);
+    void setResolved();
     boolean isStale();
     boolean isRemovalPending();
     boolean impliesDirect(Permission permission);
@@ -65,7 +65,6 @@ public interface Module
     // Fragment access methods.
     void attachFragments(List<Module> fragments) throws Exception;
     List<Module> getFragments();
-    void removeFragments();
 
     // Content access methods.
     Content getContent();

@@ -434,23 +434,9 @@ public class ModuleExt implements Module
    }
 
    @Override
-   public void removeWires()
-   {
-      this.wires = null;
-   }
-
-   @Override
    public void attachFragments(List<Module> modules) throws Exception
    {
       fragments = modules;
-      capabilities = null;
-      requirements = null;
-   }
-
-   @Override
-   public void removeFragments()
-   {
-      fragments = null;
       capabilities = null;
       requirements = null;
    }

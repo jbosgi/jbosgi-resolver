@@ -41,11 +41,6 @@ public class ResolveException extends RuntimeException
         return m_module;
     }
 
-    public Module getFragment()
-    {
-       return (m_req instanceof FragmentRequirement ? ((FragmentRequirement)m_req).getFragment() : null);
-    }
-    
     public Requirement getRequirement()
     {
         return m_req;

@@ -28,8 +28,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
-
-import org.jboss.util.collection.Iterators;
+import java.util.Vector;
 
 /**
  * CaseInsensitiveDictionary.
@@ -121,7 +120,7 @@ public class CaseInsensitiveDictionary extends Hashtable
    @SuppressWarnings("unchecked")
    public Enumeration<String> keys()
    {
-      return Iterators.toEnumeration(originalKeys.iterator());
+      return new Vector(originalKeys).elements();
    }
 
    public Object put(Object key, Object value)

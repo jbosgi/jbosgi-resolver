@@ -22,13 +22,13 @@
   <parent>
     <groupId>org.jboss.osgi</groupId>
     <artifactId>jboss-osgi-parent</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.7</version>
   </parent>
 
   <!-- Properties -->
   <properties>
     <version.jboss.common.core>2.2.17.GA</version.jboss.common.core>
-    <version.jboss.osgi.spi>1.0.8</version.jboss.osgi.spi>
+    <version.jboss.osgi.spi>1.0.10</version.jboss.osgi.spi>
     <version.jboss.osgi.vfs>1.0.0</version.jboss.osgi.vfs>
     <version.mockito>1.8.4</version.mockito>
     <version.osgi>4.2.0</version.osgi>
@@ -37,11 +37,6 @@
   <!-- Dependency Management -->
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.jboss</groupId>
-        <artifactId>jboss-common-core</artifactId>
-        <version>${version.jboss.common.core}</version>
-      </dependency>
       <dependency>
         <groupId>org.jboss.osgi</groupId>
         <artifactId>jboss-osgi-spi</artifactId>

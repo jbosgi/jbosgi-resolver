@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 
 import org.apache.felix.framework.Logger;
 import org.apache.felix.framework.capabilityset.Requirement;
+import org.apache.felix.framework.resolver.FragmentRequirement;
 import org.apache.felix.framework.resolver.Module;
 import org.apache.felix.framework.resolver.ResolveException;
 import org.apache.felix.framework.resolver.Wire;
@@ -100,7 +101,7 @@ public class FelixResolver extends AbstractResolver implements XResolver
    {
       if (module == null)
          throw new IllegalArgumentException("Null module");
-      
+
       ModuleExt rootModule = module.getAttachment(ModuleExt.class);
       try
       {
@@ -156,10 +157,10 @@ public class FelixResolver extends AbstractResolver implements XResolver
                      }
                      catch (ResolveException ex)
                      {
-                        Module fragment = ex.getFragment();
-                        if (fragment != null && rootModule != fragment)
+                        Requirement req = ex.getRequirement();
+                        if (req != null && (req instanceof FragmentRequirement) && (rootModule != ((FragmentRequirement)req).getFragment()))
                         {
-                           resolverState.detachFragment(newRootModule, fragment);
+                           resolverState.detachFragment(newRootModule, ((FragmentRequirement)req).getFragment());
                            repeat = true;
                         }
                         else
@@ -199,7 +200,7 @@ public class FelixResolver extends AbstractResolver implements XResolver
             {
                logger.log(Logger.LOG_DEBUG, "WIRE: " + wires.get(wireIdx));
             }
-            
+
             resultProcessor.setModuleWires(moduleExt, wires);
 
             // Resolve all attached fragments.
@@ -208,7 +209,7 @@ public class FelixResolver extends AbstractResolver implements XResolver
             {
                ModuleExt frag = (ModuleExt)fragments.get(i);
                frag.setResolved();
-               
+
                resultProcessor.setModuleWires(frag, null);
                resultProcessor.setResolved(frag);
                logger.log(Logger.LOG_DEBUG, "FRAGMENT WIRE: " + frag + " -> hosted by -> " + moduleExt);

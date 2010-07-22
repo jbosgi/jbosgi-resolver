@@ -27,21 +27,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+
 import org.apache.felix.framework.capabilityset.Capability;
 import org.apache.felix.framework.capabilityset.CapabilitySet;
 import org.apache.felix.framework.capabilityset.Directive;
-import org.apache.felix.framework.resolver.Module;
 import org.apache.felix.framework.capabilityset.Requirement;
-import org.apache.felix.framework.resolver.Wire;
 import org.apache.felix.framework.resolver.CandidateComparator;
+import org.apache.felix.framework.resolver.Module;
 import org.apache.felix.framework.resolver.ResolveException;
 import org.apache.felix.framework.resolver.Resolver;
+import org.apache.felix.framework.resolver.Wire;
 import org.apache.felix.framework.util.Util;
 import org.apache.felix.framework.util.manifestparser.R4Library;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundlePermission;
-import org.osgi.framework.PackagePermission;
 import org.osgi.framework.Constants;
+import org.osgi.framework.PackagePermission;
 import org.osgi.framework.Version;
 
 public class FelixResolverState implements Resolver.ResolverState
@@ -169,7 +169,7 @@ public class FelixResolverState implements Resolver.ResolverState
             // Try to clean up by removing all fragments.
             try
             {
-                host.removeFragments();
+                host.attachFragments(null);
             }
             catch (Exception ex2)
             {
@@ -296,7 +296,7 @@ public class FelixResolverState implements Resolver.ResolverState
                     // Try to clean up by removing all fragments.
                     try
                     {
-                        host.removeFragments();
+                        host.attachFragments(null);
                     }
                     catch (Exception ex2)
                     {
@@ -355,7 +355,7 @@ public class FelixResolverState implements Resolver.ResolverState
                         // Try to clean up by removing all fragments.
                         try
                         {
-                            host.removeFragments();
+                            host.attachFragments(null);
                         }
                         catch (Exception ex2)
                         {
@@ -493,7 +493,7 @@ public class FelixResolverState implements Resolver.ResolverState
                 // Try to clean up by removing all fragments.
                 try
                 {
-                    host.removeFragments();
+                    host.attachFragments(null);
                 }
                 catch (Exception ex2)
                 {
@@ -534,7 +534,7 @@ public class FelixResolverState implements Resolver.ResolverState
         // of its dependent fragment modules.
         try
         {
-            host.removeFragments();
+            host.attachFragments(null);
         }
         catch (Exception ex)
         {
@@ -542,7 +542,7 @@ public class FelixResolverState implements Resolver.ResolverState
         }
         // Set wires to null, which will remove the module from all
         // of its dependent modules.
-        host.removeWires();
+        host.setWires(null);
     }
 
     private List<Module> getMatchingFragments(Module host)
