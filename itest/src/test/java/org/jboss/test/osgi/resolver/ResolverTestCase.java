@@ -499,7 +499,7 @@ public class ResolverTestCase extends AbstractResolverTestCase
       List<XWire> wiresC = moduleC.getWires();
       assertEquals(1, wiresC.size());
 
-      System.out.println("FIXME testPreferredExporterResolved fails occasionally");
+      System.out.println("FIXME [JBOSGI-368] testPreferredExporterResolved fails occasionally");
       //assertEquals(moduleA, wiresC.get(0).getExporter());
    }
 
@@ -542,7 +542,7 @@ public class ResolverTestCase extends AbstractResolverTestCase
       List<XWire> wiresC = moduleC.getWires();
       assertEquals(1, wiresC.size());
 
-      System.out.println("FIXME testPreferredExporterResolvedReverse fails occasionally");
+      System.out.println("FIXME [JBOSGI-368] testPreferredExporterResolvedReverse fails occasionally");
       //assertEquals(moduleB, wiresC.get(0).getExporter());
    }
 
@@ -650,7 +650,7 @@ public class ResolverTestCase extends AbstractResolverTestCase
       List<XWire> wiresC = moduleC.getWires();
       assertEquals(1, wiresC.size());
 
-      System.out.println("FIXME testPreferredExporterLowerId fails occasionally");
+      System.out.println("FIXME [JBOSGI-368] testPreferredExporterLowerId fails occasionally");
       //assertEquals(moduleA, wiresC.get(0).getExporter());
    }
 
@@ -692,7 +692,7 @@ public class ResolverTestCase extends AbstractResolverTestCase
       List<XWire> wiresC = moduleC.getWires();
       assertEquals(1, wiresC.size());
 
-      System.out.println("FIXME testPreferredExporterLowerIdReverse fails occasionally");
+      System.out.println("FIXME [JBOSGI-368] testPreferredExporterLowerIdReverse fails occasionally");
       //assertEquals(moduleB, wiresC.get(0).getExporter());
    }
 
