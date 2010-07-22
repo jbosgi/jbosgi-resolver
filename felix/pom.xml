@@ -22,12 +22,12 @@
   <parent>
     <groupId>org.jboss.osgi.resolver</groupId>
     <artifactId>jbosgi-resolver-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
   
   <!-- Properties -->
   <properties>
-    <version.jboss.osgi.resolver>1.0.0</version.jboss.osgi.resolver>
+    <version.jboss.osgi.resolver>1.0.1-SNAPSHOT</version.jboss.osgi.resolver>
   </properties>
   
   <dependencies>
