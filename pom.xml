@@ -17,7 +17,7 @@
   <artifactId>jbosgi-resolver-parent</artifactId>
   <packaging>pom</packaging>
 
-  <version>1.0.0</version>
+  <version>1.0.0-SNAPSHOT</version>
   
   <parent>
     <groupId>org.jboss.osgi</groupId>
@@ -70,14 +70,11 @@
     <module>spi</module>
     <module>metadata</module>
   </modules>
-  
+
+  <!-- Profiles -->  
   <profiles>
     <profile>
-      <activation>
-        <property>
-          <name>!noimpl</name>
-        </property>
-      </activation>
+      <id>felix</id>
       <modules>
         <module>felix</module>
         <module>itest</module>
