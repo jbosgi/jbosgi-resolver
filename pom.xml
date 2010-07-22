@@ -25,6 +25,13 @@
     <version>1.0.7</version>
   </parent>
 
+  <!-- Source -->
+  <scm>
+    <connection>scm:git:git://github.com/jbosgi/jbosgi-resolver.git</connection>
+    <developerConnection>scm:git:git@github.com:jbosgi/jbosgi-resolver.git</developerConnection>
+    <url>http://github.com/jbosgi/jbosgi-resolver</url>
+  </scm>
+
   <!-- Properties -->
   <properties>
     <version.jboss.common.core>2.2.17.GA</version.jboss.common.core>
