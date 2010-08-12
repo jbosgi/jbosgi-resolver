@@ -126,56 +126,43 @@ public class FelixResolver extends AbstractResolver implements XResolver
       {
          synchronized (resolverState)
          {
-            // Acquire global lock.
-            boolean locked = getCallbackHandler().acquireGlobalLock();
-            if (!locked)
-               throw new ResolveException("Unable to acquire global lock for resolve.", rootModule, null);
-
-            try
+            // If the root module to resolve is a fragment, then we
+            // must find a host to attach it to and resolve the host
+            // instead, since the underlying resolver doesn't know
+            // how to deal with fragments.
+            Module newRootModule = resolverState.findHost(rootModule);
+            if (!Util.isFragment(newRootModule))
             {
-               // If the root module to resolve is a fragment, then we
-               // must find a host to attach it to and resolve the host
-               // instead, since the underlying resolver doesn't know
-               // how to deal with fragments.
-               Module newRootModule = resolverState.findHost(rootModule);
-               if (!Util.isFragment(newRootModule))
+               // Check singleton status.
+               resolverState.checkSingleton(newRootModule);
+
+               boolean repeat;
+               do
                {
-                  // Check singleton status.
-                  resolverState.checkSingleton(newRootModule);
-
-                  boolean repeat;
-                  do
+                  repeat = false;
+                  try
                   {
-                     repeat = false;
-                     try
-                     {
-                        // Resolve the module.
-                        Map<Module, List<Wire>> wireMap = resolver.resolve(resolverState, newRootModule);
+                     // Resolve the module.
+                     Map<Module, List<Wire>> wireMap = resolver.resolve(resolverState, newRootModule);
 
-                        // Mark all modules as resolved.
-                        markResolvedModules(wireMap);
-                     }
-                     catch (ResolveException ex)
+                     // Mark all modules as resolved.
+                     markResolvedModules(wireMap);
+                  }
+                  catch (ResolveException ex)
+                  {
+                     Requirement req = ex.getRequirement();
+                     if (req != null && (req instanceof FragmentRequirement) && (rootModule != ((FragmentRequirement)req).getFragment()))
                      {
-                        Requirement req = ex.getRequirement();
-                        if (req != null && (req instanceof FragmentRequirement) && (rootModule != ((FragmentRequirement)req).getFragment()))
-                        {
-                           resolverState.detachFragment(newRootModule, ((FragmentRequirement)req).getFragment());
-                           repeat = true;
-                        }
-                        else
-                        {
-                           throw ex;
-                        }
+                        resolverState.detachFragment(newRootModule, ((FragmentRequirement)req).getFragment());
+                        repeat = true;
+                     }
+                     else
+                     {
+                        throw ex;
                      }
                   }
-                  while (repeat);
                }
-            }
-            finally
-            {
-               // Always release the global lock.
-               getCallbackHandler().releaseGlobalLock();
+               while (repeat);
             }
          }
       }

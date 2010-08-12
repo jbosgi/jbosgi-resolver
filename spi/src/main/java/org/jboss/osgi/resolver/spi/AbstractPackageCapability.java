@@ -103,6 +103,6 @@ class AbstractPackageCapability extends AbstractCapability implements XPackageCa
    @Override
    public String toString()
    {
-      return "[" + getName() + ":" + version + "]";
+      return Constants.EXPORT_PACKAGE + "[" + getName() + ":" + version + "]";
    }
 }

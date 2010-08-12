@@ -79,6 +79,6 @@ class AbstractBundleRequirement extends AbstractRequirement implements XRequireB
    @Override
    public String toString()
    {
-      return "[" + getName() + ":" + versionRange + ";resolution:=" + resolution + "]";
+      return Constants.REQUIRE_BUNDLE + "[" + getName() + ":" + versionRange + ";resolution:=" + resolution + "]";
    }
 }

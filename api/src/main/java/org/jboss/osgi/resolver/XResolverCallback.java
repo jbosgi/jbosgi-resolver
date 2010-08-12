@@ -29,9 +29,5 @@ package org.jboss.osgi.resolver;
  */
 public interface XResolverCallback 
 {
-   boolean acquireGlobalLock();
-
-   void releaseGlobalLock();
-
    void markResolved(XModule module);
 }

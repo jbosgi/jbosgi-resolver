@@ -51,6 +51,6 @@ class AbstractBundleCapability extends AbstractCapability implements XBundleCapa
    @Override
    public String toString()
    {
-      return "[" + getName() + ":" + getVersion() + "]";
+      return "Bundle[" + getName() + ":" + getVersion() + "]";
    }
 }

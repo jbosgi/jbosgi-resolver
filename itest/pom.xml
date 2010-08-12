@@ -30,11 +30,6 @@
     <version>1.0.1-SNAPSHOT</version>
   </parent>
 
-  <!-- Properties -->
-  <properties>
-    <version.jboss.osgi.resolver.felix>3.0.1</version.jboss.osgi.resolver.felix>
-  </properties>
-
   <!-- Dependencies -->
   <dependencies>
     <dependency>
@@ -57,7 +52,7 @@
     <dependency>
       <groupId>org.jboss.osgi.resolver</groupId>
       <artifactId>jbosgi-resolver-felix</artifactId>
-      <version>${version.jboss.osgi.resolver.felix}</version>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

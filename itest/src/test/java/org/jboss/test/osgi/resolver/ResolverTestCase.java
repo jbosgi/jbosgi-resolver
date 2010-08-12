@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,9 +64,13 @@ public class ResolverTestCase extends AbstractResolverTestCase
       Set<XModule> modules = new HashSet<XModule>();
       modules.add(moduleA);
       modules.add(moduleB);
-      Set<XModule> result = resolver.resolveAll(modules);
 
-      assertEquals(2, result.size());
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      
+      assertTrue(resolver.resolveAll(modules));
+
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
@@ -151,9 +155,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
@@ -179,9 +185,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertFalse(resolver.resolveAll(null));
 
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertFalse(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
    }
@@ -213,9 +221,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
@@ -266,9 +276,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
@@ -294,9 +306,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertFalse(resolver.resolveAll(null));
 
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertFalse(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
    }
@@ -315,9 +329,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
@@ -343,9 +359,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertFalse(resolver.resolveAll(null));
 
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertFalse(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
    }
@@ -366,9 +384,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
@@ -425,9 +445,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
@@ -453,9 +475,11 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertFalse(resolver.resolveAll(null));
 
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertFalse(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
    }
@@ -478,10 +502,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleA = installModule(assemblyA);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertTrue(moduleA.isResolved());
 
       XModule moduleB = installModule(assemblyB);
@@ -489,10 +515,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleC = installModule(assemblyC);
 
       // Resolve all modules
-      result = resolver.resolveAll(null);
+      resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleB.isResolved());
       assertTrue(moduleC.isResolved());
 
@@ -521,10 +549,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertTrue(moduleB.isResolved());
 
       XModule moduleA = installModule(assemblyA);
@@ -532,10 +562,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleC = installModule(assemblyC);
 
       // Resolve all modules
-      result = resolver.resolveAll(null);
+      resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleC.isResolved());
 
@@ -566,10 +598,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleC = installModule(assemblyC);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(3, result.size());
+      assertEquals(3, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
       assertTrue(moduleC.isResolved());
@@ -599,10 +633,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleC = installModule(assemblyC);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(3, result.size());
+      assertEquals(3, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
       assertTrue(moduleC.isResolved());
@@ -631,20 +667,24 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
       XModule moduleC = installModule(assemblyC);
 
       // Resolve all modules
-      result = resolver.resolveAll(null);
+      resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertTrue(moduleC.isResolved());
 
       List<XWire> wiresC = moduleC.getWires();
@@ -673,20 +713,24 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleA = installModule(assemblyA);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleB.isResolved());
       assertTrue(moduleA.isResolved());
 
       XModule moduleC = installModule(assemblyC);
 
       // Resolve all modules
-      result = resolver.resolveAll(null);
+      resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertTrue(moduleC.isResolved());
 
       List<XWire> wiresC = moduleC.getWires();
@@ -710,10 +754,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
@@ -726,10 +772,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       Archive<?> assemblyC = assembleArchive("moduleC", "/resolver/packageimportattribute");
       XModule moduleC = installModule(assemblyC);
 
-      result = resolver.resolveAll(null);
+      resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertTrue(moduleC.isResolved());
 
       List<XWire> wiresC = moduleC.getWires();
@@ -751,10 +799,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertFalse(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertTrue(moduleA.isResolved());
       assertFalse(moduleB.isResolved());
    }
@@ -773,10 +823,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(2, result.size());
+      assertEquals(2, resolved.size());
       assertTrue(moduleA.isResolved());
       assertTrue(moduleB.isResolved());
 
@@ -799,10 +851,12 @@ public class ResolverTestCase extends AbstractResolverTestCase
       XModule moduleB = installModule(assemblyB);
 
       // Resolve all modules
-      Collection<XModule> result = resolver.resolveAll(null);
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertFalse(resolver.resolveAll(null));
 
       // Verify bundle states
-      assertEquals(1, result.size());
+      assertEquals(1, resolved.size());
       assertTrue(moduleA.isResolved());
       assertFalse(moduleB.isResolved());
    }

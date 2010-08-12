@@ -119,6 +119,6 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
    @Override
    public String toString()
    {
-      return "[" + getName() + ":" + versionRange + ";resolution:=" + resolution + "]";
+      return Constants.IMPORT_PACKAGE + "[" + getName() + ":" + versionRange + ";resolution:=" + resolution + "]";
    }
 }

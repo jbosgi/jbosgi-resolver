@@ -60,9 +60,9 @@ public interface XResolver
    /**
     * Resolve the given set of modules
     * @param modules The set of modules or null for all modules
-    * @return The set of modules that could be resolved
+    * @return True if all modules could be resolved
     */
-   Set<XModule> resolveAll(Set<XModule> modules);
+   boolean resolveAll(Set<XModule> modules);
 
    /**
     * The the optional callback handler on the resolver

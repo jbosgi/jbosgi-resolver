@@ -105,6 +105,6 @@ class AbstractWire implements XWire, XAttachmentSupport
    @Override
    public String toString()
    {
-      return "Wire[" + importer + requirement + " --> " + exporter + capability + "]";
+      return "Wire[" + importer + "," + requirement + " --> " + exporter + "," + capability + "]";
    }
 }

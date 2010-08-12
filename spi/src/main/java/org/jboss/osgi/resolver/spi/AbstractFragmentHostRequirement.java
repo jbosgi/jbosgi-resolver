@@ -62,4 +62,10 @@ class AbstractFragmentHostRequirement extends AbstractRequirement implements XFr
    {
       return extension;
    }
+
+   @Override
+   public String toString()
+   {
+      return Constants.FRAGMENT_HOST + "[" + getName() + ":" + versionRange + "]";
+   }
 }

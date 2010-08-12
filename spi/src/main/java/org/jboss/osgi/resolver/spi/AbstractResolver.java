@@ -58,19 +58,8 @@ public abstract class AbstractResolver implements XResolver
       callback = new XResolverCallback()
       {
          @Override
-         public void releaseGlobalLock()
-         {
-         }
-
-         @Override
          public void markResolved(XModule module)
          {
-         }
-
-         @Override
-         public boolean acquireGlobalLock()
-         {
-            return true;
          }
       };
    }
@@ -189,32 +178,32 @@ public abstract class AbstractResolver implements XResolver
    protected abstract void resolveInternal(XModule rootModule);
 
    @Override
-   public Set<XModule> resolveAll(Set<XModule> modules)
+   public boolean resolveAll(Set<XModule> unresolved)
    {
-      if (modules == null)
+      if (unresolved == null)
       {
-         modules = new LinkedHashSet<XModule>();
+         unresolved = new LinkedHashSet<XModule>();
          for (XModule aux : getModules())
             if (aux.isResolved() == false)
-               modules.add(aux);
+               unresolved.add(aux);
       }
 
-      Set<XModule> result = new LinkedHashSet<XModule>();
-      for (XModule module : modules)
+      boolean allResolved = true;
+      for (XModule module : unresolved)
       {
          try
          {
             module.removeAttachment(XResolverException.class);
             resolveInternal(module);
-            result.add(module);
          }
          catch (XResolverException ex)
          {
             // Add the last resolver exception to the module
             module.addAttachment(XResolverException.class, ex);
+            allResolved = false;
          }
       }
-      return Collections.unmodifiableSet(result);
+      return allResolved;
    }
 
    protected void setResolved(AbstractModule module)

@@ -23,6 +23,7 @@ package org.jboss.test.osgi.resolver;
  */
 
 import java.util.Hashtable;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -30,6 +31,7 @@ import java.util.jar.Manifest;
 import org.jboss.osgi.resolver.XModule;
 import org.jboss.osgi.resolver.XModuleBuilder;
 import org.jboss.osgi.resolver.XResolver;
+import org.jboss.osgi.resolver.XResolverCallback;
 import org.jboss.osgi.resolver.XResolverFactory;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.osgi.vfs.VFSUtils;
@@ -79,5 +81,21 @@ public abstract class AbstractResolverTestCase extends OSGiTest
 
       resolver.addModule(module);
       return module;
+   }
+
+   class ResolverCallback implements XResolverCallback
+   {
+      private List<XModule> resolved;
+
+      ResolverCallback(List<XModule> resolved)
+      {
+         this.resolved = resolved;
+      }
+
+      @Override
+      public void markResolved(XModule resModule)
+      {
+         resolved.add(resModule);
+      }
    }
 }
