@@ -24,9 +24,11 @@ package org.jboss.osgi.resolver.felix;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.felix.framework.capabilityset.Attribute;
 import org.apache.felix.framework.capabilityset.Capability;
 import org.apache.felix.framework.capabilityset.Requirement;
 import org.apache.felix.framework.resolver.FragmentRequirement;
+import org.apache.felix.framework.resolver.Module;
 import org.apache.felix.framework.resolver.Wire;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XCapability;
@@ -87,7 +89,7 @@ public class ResultProcessor
          XModule exporter = fexporter.getModule();
 
          // Find the coresponding capability
-         XCapability cap = findCapability(exporter, fcap);
+         XCapability cap = findCapability(fexporter, fcap);
          resolver.addWire(importer, req, exporter, cap);
       }
    }
@@ -112,8 +114,7 @@ public class ResultProcessor
             Wire fwire = findWireForRequirement(hostExt.getWires(), freq);
             if (fwire != null)
             {
-               XModule exporter = ((ModuleExt)fwire.getExporter()).getModule();
-               cap = (XPackageCapability)findCapability(exporter, fwire.getCapability());
+               cap = (XPackageCapability)findCapability((ModuleExt)fwire.getExporter(), fwire.getCapability());
             }
          }
          
@@ -191,12 +192,35 @@ public class ResultProcessor
       return fwire;
    }
 
-   private XCapability findCapability(XModule exporter, Capability fcap)
+   private XCapability findCapability(ModuleExt fexporter, Capability fcap)
    {
+      String capNamespace = fcap.getNamespace();
+      Attribute capValue = fcap.getAttribute(capNamespace);
+      
+      AbstractModule exporter = fexporter.getModule();
       for (XCapability aux : exporter.getCapabilities())
       {
-         if (aux.getAttachment(Capability.class) == fcap)
+         Capability auxfcap = aux.getAttachment(Capability.class);
+         if (auxfcap == fcap)
             return aux;
+      }
+      
+      // If the exporter does not define the capability
+      // scan the attached fragments if there are any
+      for (Module fFragment : fexporter.getFragments())
+      {
+         exporter = ((ModuleExt)fFragment).getModule();
+         for (XCapability aux : exporter.getCapabilities())
+         {
+            Capability faux = aux.getAttachment(Capability.class);
+            String auxNamespace = faux.getNamespace();
+            Attribute auxValue = faux.getAttribute(auxNamespace);
+            
+            boolean match = capNamespace.equals(auxNamespace);
+            match = match && (capValue != null && capValue.equals(auxValue));
+            if (match == true)
+               return aux;
+         }
       }
       return null;
    }
