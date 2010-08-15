@@ -48,6 +48,8 @@ public class OSGiManifestMetaData extends AbstractOSGiMetaData implements Extern
 
    public OSGiManifestMetaData(Manifest manifest)
    {
+      if (manifest == null)
+         throw new IllegalArgumentException("Null manifest");
       this.manifest = manifest;
    }
 

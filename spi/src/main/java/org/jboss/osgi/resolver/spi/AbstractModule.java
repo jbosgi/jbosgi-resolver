@@ -325,7 +325,7 @@ public class AbstractModule extends AbstractElement implements XModule
       if (obj == this)
          return true;
       AbstractModule other = (AbstractModule)obj;
-      return getName().equals(other.getName()) && getVersion().equals(other.getVersion());
+      return moduleId == other.moduleId;
    }
 
    public StringBuffer toLongString(StringBuffer buffer)
