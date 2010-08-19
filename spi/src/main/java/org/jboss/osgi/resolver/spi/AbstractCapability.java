@@ -65,7 +65,14 @@ class AbstractCapability extends AbstractElement implements XCapability
    @Override
    public Set<XRequirement> getWiredRequirements()
    {
+      if (getModule().isResolved() == false)
+         return null;
+      
+      // The resolver may be null if this capability has already been removed from the resolver
       AbstractResolver resolver = (AbstractResolver)getModule().getResolver();
+      if (resolver == null)
+         return Collections.emptySet();
+      
       return resolver.getWiredRequirements(this);
    }
 
