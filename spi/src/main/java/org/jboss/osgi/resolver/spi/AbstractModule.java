@@ -31,6 +31,7 @@ import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;
 import org.jboss.osgi.resolver.XModule;
+import org.jboss.osgi.resolver.XModuleIdentity;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequireBundleRequirement;
@@ -44,15 +45,14 @@ import org.osgi.framework.Version;
  * The abstract implementation of an {@link XModule}.
  *
  * This is the resolver representation of a {@link Bundle}.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
 public class AbstractModule extends AbstractElement implements XModule
 {
    private XResolver resolver;
-   private long moduleId;
-   private Version version;
+   private XModuleIdentity moduleId;
    private XBundleCapability bundleCapability;
    private List<XCapability> capabilities;
    private List<XRequirement> requirements;
@@ -62,15 +62,10 @@ public class AbstractModule extends AbstractElement implements XModule
    private List<XWire> wires;
    private boolean resolved;
 
-   AbstractModule(long moduleId, String name, Version version)
+   AbstractModule(XModuleIdentity moduleId)
    {
-      super(name);
-      
-      if (version == null)
-         throw new IllegalArgumentException("Null version");
-      
+      super(moduleId != null ? moduleId.getName() : null);
       this.moduleId = moduleId;
-      this.version = version;
    }
 
    public XResolver getResolver()
@@ -84,7 +79,7 @@ public class AbstractModule extends AbstractElement implements XModule
    }
 
    @Override
-   public long getModuleId()
+   public XModuleIdentity getModuleId()
    {
       return moduleId;
    }
@@ -92,7 +87,8 @@ public class AbstractModule extends AbstractElement implements XModule
    @Override
    public Version getVersion()
    {
-      return version;
+      String version = moduleId.getVersion();
+      return Version.parseVersion(version);
    }
 
    @Override
@@ -111,7 +107,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (capabilities == null)
          return Collections.emptyList();
-      
+
       return Collections.unmodifiableList(capabilities);
    }
 
@@ -120,7 +116,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (requirements == null)
          return Collections.emptyList();
-      
+
       return Collections.unmodifiableList(requirements);
    }
 
@@ -129,7 +125,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (requirements == null)
          return Collections.emptyList();
-      
+
       List<XRequireBundleRequirement> result = new ArrayList<XRequireBundleRequirement>();
       for (XRequirement aux : requirements)
       {
@@ -150,7 +146,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (capabilities == null)
          return Collections.emptyList();
-      
+
       List<XPackageCapability> result = new ArrayList<XPackageCapability>();
       for (XCapability aux : capabilities)
       {
@@ -168,7 +164,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (requirements == null)
          return Collections.emptyList();
-      
+
       List<XPackageRequirement> result = new ArrayList<XPackageRequirement>();
       for (XRequirement aux : requirements)
       {
@@ -187,7 +183,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (requirements == null)
          return Collections.emptyList();
-      
+
       List<XPackageRequirement> result = new ArrayList<XPackageRequirement>();
       for (XRequirement aux : requirements)
       {
@@ -206,7 +202,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (hostRequirement != null)
          return hostRequirement;
-      
+
       if (requirements != null)
       {
          for (XRequirement aux : requirements)
@@ -218,7 +214,7 @@ public class AbstractModule extends AbstractElement implements XModule
             }
          }
       }
-      
+
       return hostRequirement;
    }
 
@@ -233,7 +229,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (classPaths == null)
          return Collections.emptyList();
-      
+
       return Collections.unmodifiableList(classPaths);
    }
 
@@ -241,19 +237,19 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (classPaths == null)
          classPaths = new ArrayList<String>();
-      
+
       classPaths.addAll(Arrays.asList(paths));
    }
-   
+
    @Override
    public List<XWire> getWires()
    {
       if (resolved == false)
          return null;
-      
+
       if (wires == null)
          return Collections.emptyList();
-      
+
       return Collections.unmodifiableList(wires);
    }
 
@@ -261,10 +257,10 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (wires == null)
          wires = new ArrayList<XWire>();
-      
+
       wires.add(wire);
    }
-   
+
    void addCapability(XCapability capability)
    {
       if (capabilities == null)
@@ -289,7 +285,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (attachments  == null)
          attachments = new AttachmentSupporter();
-      
+
       return attachments.addAttachment(clazz, value);
    }
 
@@ -298,7 +294,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (attachments  == null)
          return null;
-      
+
       return attachments.getAttachment(clazz);
    }
 
@@ -307,7 +303,7 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (attachments  == null)
          return null;
-      
+
       return attachments.removeAttachment(clazz);
    }
 
@@ -332,20 +328,20 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       if (buffer == null)
          throw new IllegalArgumentException("Null buffer");
-      
+
       String simpleName = getClass().getSimpleName();
       buffer.append("\n" + simpleName + ": " + toString());
       if (resolved)
          buffer.append(" - resolved");
-      
+
       buffer.append("\nCapabilities");
       for (XCapability cap : getCapabilities())
          buffer.append("\n " + cap);
-      
+
       buffer.append("\nRequirements");
       for (XRequirement req : getRequirements())
          buffer.append("\n " + req);
-      
+
       if (wires != null)
       {
          buffer.append("\nWires");
@@ -354,7 +350,7 @@ public class AbstractModule extends AbstractElement implements XModule
       }
       return buffer;
    }
-   
+
    @Override
    public String toString()
    {

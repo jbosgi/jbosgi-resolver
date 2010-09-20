@@ -24,12 +24,13 @@ package org.jboss.test.osgi.resolver;
 
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import org.jboss.osgi.metadata.internal.OSGiManifestMetaData;
 import org.jboss.osgi.resolver.XModule;
 import org.jboss.osgi.resolver.XModuleBuilder;
+import org.jboss.osgi.resolver.XModuleIdentity;
 import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResolverCallback;
 import org.jboss.osgi.resolver.XResolverFactory;
@@ -43,13 +44,12 @@ import org.osgi.framework.Bundle;
 
 /**
  * The abstract resolver test.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
 public abstract class AbstractResolverTestCase extends OSGiTest
 {
-   AtomicLong moduleId = new AtomicLong();
    XResolver resolver;
 
    @Before
@@ -62,6 +62,9 @@ public abstract class AbstractResolverTestCase extends OSGiTest
    {
       VirtualFile virtualFile = toVirtualFile(archive);
       Manifest manifest = VFSUtils.getManifest(virtualFile);
+      OSGiManifestMetaData osgiMetaData = new OSGiManifestMetaData(manifest);
+      String bundleSymbolicName = osgiMetaData.getBundleSymbolicName();
+      String bundleVersion = osgiMetaData.getBundleVersion().toString();
 
       // Setup the headers
       Hashtable<String, String> headers = new Hashtable<String, String>();
@@ -73,7 +76,8 @@ public abstract class AbstractResolverTestCase extends OSGiTest
       }
 
       XModuleBuilder builder = XResolverFactory.getModuleBuilder();
-      XModule module = builder.createModule(moduleId.incrementAndGet(), manifest);
+      XModuleIdentity moduleId = XModuleIdentity.create(bundleSymbolicName, bundleVersion, null);
+      XModule module = builder.createModule(moduleId, manifest);
 
       Bundle bundle = Mockito.mock(Bundle.class);
       Mockito.when(bundle.getHeaders()).thenReturn(headers);

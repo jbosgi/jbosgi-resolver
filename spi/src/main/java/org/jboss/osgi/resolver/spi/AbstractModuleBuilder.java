@@ -35,6 +35,7 @@ import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;
 import org.jboss.osgi.resolver.XModule;
 import org.jboss.osgi.resolver.XModuleBuilder;
+import org.jboss.osgi.resolver.XModuleIdentity;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequireBundleRequirement;
@@ -43,7 +44,7 @@ import org.osgi.framework.Version;
 
 /**
  * A builder for resolver modules
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -52,16 +53,16 @@ public class AbstractModuleBuilder implements XModuleBuilder
    private AbstractModule module;
 
    @Override
-   public XModule createModule(long moduleId, Manifest manifest) throws BundleException
+   public XModule createModule(XModuleIdentity moduleId, Manifest manifest) throws BundleException
    {
       OSGiManifestMetaData metadata = new OSGiManifestMetaData(manifest);
       return createModule(moduleId, metadata);
    }
 
    @Override
-   public XModule createModule(long moduleId, String symbolicName, Version version)
+   public XModule createModule(XModuleIdentity moduleId)
    {
-      module = new AbstractModule(moduleId, symbolicName, version);
+      module = new AbstractModule(moduleId);
       return module;
    }
 
@@ -126,13 +127,22 @@ public class AbstractModuleBuilder implements XModuleBuilder
    }
 
    @Override
-   public XModule createModule(long moduleId, OSGiMetaData osgiMetaData) throws BundleException
+   public XModule createModule(XModuleIdentity moduleId, OSGiMetaData osgiMetaData) throws BundleException
    {
-      String symbolicName = osgiMetaData.getBundleSymbolicName();
+      if (moduleId == null)
+         throw new IllegalArgumentException("Null moduleId");
+      if (osgiMetaData == null)
+         throw new IllegalArgumentException("Null osgiMetaData");
+
+      if (moduleId.getName().equals(osgiMetaData.getBundleSymbolicName()) == false)
+         throw new IllegalArgumentException("No matching name: " + moduleId);
+      if (Version.parseVersion(moduleId.getVersion()).equals(osgiMetaData.getBundleVersion()) == false)
+         throw new IllegalArgumentException("No matching version: " + moduleId);
+
       try
       {
-         XModule module = createModule(moduleId, symbolicName, osgiMetaData.getBundleVersion());
-         addBundleCapability(symbolicName, osgiMetaData.getBundleVersion());
+         XModule module = createModule(moduleId);
+         addBundleCapability(moduleId.getName(), osgiMetaData.getBundleVersion());
 
          // Required Bundles
          List<ParameterizedAttribute> requireBundles = osgiMetaData.getRequireBundles();
@@ -194,17 +204,17 @@ public class AbstractModuleBuilder implements XModuleBuilder
             Map<String, Object> atts = getAttributes(fragmentHost);
             addFragmentHostRequirement(hostName, dirs, atts);
          }
-         
+
          // Bundle-ClassPath
          List<String> classPath = osgiMetaData.getBundleClassPath();
          if (classPath != null && classPath.isEmpty() == false)
             addBundleClassPath(classPath.toArray(new String[classPath.size()]));
-         
+
          return module;
       }
       catch (RuntimeException rte)
       {
-         throw new BundleException("Cannot create resolver bundle: " + symbolicName, rte);
+         throw new BundleException("Cannot create resolver module: " + moduleId, rte);
       }
    }
 

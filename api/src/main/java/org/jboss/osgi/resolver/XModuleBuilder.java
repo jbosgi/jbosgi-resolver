@@ -31,7 +31,7 @@ import org.osgi.framework.Version;
 
 /**
  * A builder for resolver modules
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -42,22 +42,22 @@ public interface XModuleBuilder
     * @param moduleId The provided module id
     * @param manifest The manifest
     */
-   XModule createModule(long moduleId, Manifest manifest) throws BundleException;
-   
+   XModule createModule(XModuleIdentity moduleId, Manifest manifest) throws BundleException;
+
    /**
     * Get a new module from OSGi metadata
     * @param moduleId The provided module id
     * @param metadata The metadata
     */
-   XModule createModule(long moduleId, OSGiMetaData metadata) throws BundleException;
-   
+   XModule createModule(XModuleIdentity moduleId, OSGiMetaData metadata) throws BundleException;
+
    /**
     * Get a new module and associate it with this builder
     * @param moduleId The provided module id
     * @param symbolicName The module symbolic name
     * @param version The module version
     */
-   XModule createModule(long moduleId, String symbolicName, Version version);
+   XModule createModule(XModuleIdentity moduleId);
 
    /**
     * Add a bundle capability

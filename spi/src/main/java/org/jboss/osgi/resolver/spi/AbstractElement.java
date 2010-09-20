@@ -41,7 +41,7 @@ class AbstractElement implements XElement
 {
    private String name;
 
-   public AbstractElement(String name)
+   AbstractElement(String name)
    {
       if (name == null)
          throw new IllegalArgumentException("Null name");
@@ -53,7 +53,12 @@ class AbstractElement implements XElement
    {
       return name;
    }
-   
+
+   void setName(String name)
+   {
+      this.name = name;
+   }
+
    static class AttachmentSupporter implements XAttachmentSupport
    {
       private Map<Class<?>, Object> attachments;
@@ -64,7 +69,7 @@ class AbstractElement implements XElement
       {
          if (attachments == null)
             attachments = new HashMap<Class<?>, Object>();
-         
+
          T result = (T)attachments.get(clazz);
          attachments.put(clazz, value);
          return result;
@@ -76,7 +81,7 @@ class AbstractElement implements XElement
       {
          if (attachments == null)
             return null;
-         
+
          T result = (T)attachments.get(clazz);
          return result;
       }
@@ -87,12 +92,12 @@ class AbstractElement implements XElement
       {
          if (attachments == null)
             return null;
-         
+
          T result = (T)attachments.remove(clazz);
          return result;
       }
    }
-   
+
    static class AttributeSupporter implements XAttributeSupport
    {
       private Map<String, Object> attributes;
@@ -114,7 +119,7 @@ class AbstractElement implements XElement
          return Collections.unmodifiableMap(attributes);
       }
    }
-   
+
    static class DirectiveSupporter implements XDirectiveSupport
    {
       private Map<String, String> directives;

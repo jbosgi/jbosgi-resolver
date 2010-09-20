@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jboss.logging.Logger;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XModule;
+import org.jboss.osgi.resolver.XModuleIdentity;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResolverCallback;
@@ -39,7 +40,7 @@ import org.jboss.osgi.resolver.XWire;
 
 /**
  * An abstract base implementation of a Resolver.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 04-Jul-2010
  */
@@ -48,7 +49,7 @@ public abstract class AbstractResolver implements XResolver
    static private Logger log = Logger.getLogger(AbstractResolver.class);
 
    private XResolverCallback callback;
-   private Map<Long, XModule> moduleMap = new LinkedHashMap<Long, XModule>();
+   private Map<XModuleIdentity, XModule> moduleMap = new LinkedHashMap<XModuleIdentity, XModule>();
    private Map<XRequirement, XCapability> reqcapMap = new ConcurrentHashMap<XRequirement, XCapability>();
    private Map<XCapability, Set<XRequirement>> capreqMap = new ConcurrentHashMap<XCapability, Set<XRequirement>>();
 
@@ -92,7 +93,7 @@ public abstract class AbstractResolver implements XResolver
 
       synchronized (moduleMap)
       {
-         long moduleId = module.getModuleId();
+         XModuleIdentity moduleId = module.getModuleId();
          if (moduleMap.get(moduleId) != null)
             throw new IllegalStateException("Module already added: " + module);
 
@@ -145,7 +146,7 @@ public abstract class AbstractResolver implements XResolver
    }
 
    @Override
-   public XModule findModuleById(long moduleId)
+   public XModule findModuleById(XModuleIdentity moduleId)
    {
       synchronized (moduleMap)
       {
@@ -248,7 +249,7 @@ public abstract class AbstractResolver implements XResolver
    {
       if (cap.getModule().isResolved() == false)
          return null;
-      
+
       Set<XRequirement> reqset = capreqMap.get(cap);
       if (reqset == null)
          return Collections.emptySet();

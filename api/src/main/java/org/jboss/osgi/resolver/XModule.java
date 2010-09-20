@@ -31,7 +31,7 @@ import org.osgi.framework.Version;
  * A Module for the {@link XResolver}.
  *
  * This is the resolver representation of a {@link Bundle}.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -42,29 +42,29 @@ public interface XModule extends XElement, XAttachmentSupport
     * @return The resolver or null if this module has not been added to a resolver
     */
    XResolver getResolver();
-   
+
    /**
     * Get the module id
     */
-   long getModuleId();
-   
+   XModuleIdentity getModuleId();
+
    /**
     * Get the module version
     */
    Version getVersion();
-   
+
    /**
     * Get this modules host capability
     */
    XBundleCapability getBundleCapability();
-   
+
    /**
-    * Get the package capabilities 
+    * Get the package capabilities
     */
    List<XPackageCapability> getPackageCapabilities();
 
    /**
-    * Get all module capabilities 
+    * Get all module capabilities
     */
    List<XCapability> getCapabilities();
 
@@ -74,17 +74,17 @@ public interface XModule extends XElement, XAttachmentSupport
    List<XRequireBundleRequirement> getBundleRequirements();
 
    /**
-    * Get the non-dynamic package requirements  
+    * Get the non-dynamic package requirements
     */
    List<XPackageRequirement> getPackageRequirements();
 
    /**
-    * Get the dynamic package requirements  
+    * Get the dynamic package requirements
     */
    List<XPackageRequirement> getDynamicPackageRequirements();
 
    /**
-    * Get all module requirements  
+    * Get all module requirements
     */
    List<XRequirement> getRequirements();
 
@@ -93,7 +93,7 @@ public interface XModule extends XElement, XAttachmentSupport
     * @return null if this module is not a fragment
     */
    XFragmentHostRequirement getHostRequirement();
-   
+
    /**
     * True is this module represents a fragment
     */
@@ -103,12 +103,12 @@ public interface XModule extends XElement, XAttachmentSupport
     * Get the bundle class paths
     */
    List<String> getBundleClassPath();
-   
+
    /**
     * True if this module is resolved
     */
    boolean isResolved();
-   
+
    /**
     * Get the list of wires for this module
     * @return The list of wires when the module is resolved, otherwise null.

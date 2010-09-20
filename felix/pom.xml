@@ -27,15 +27,13 @@
   <properties>
     <!-- Sources @ http://github.com/jbosgi/felix-framework/tree/jbosgi363 -->
     <version.apache.felix>3.0.1.SP1</version.apache.felix> 
-    
-    <version.jboss.osgi.resolver>1.0.1</version.jboss.osgi.resolver>
   </properties>
   
   <dependencies>
     <dependency>
       <groupId>org.jboss.osgi.resolver</groupId>
       <artifactId>jbosgi-resolver-spi</artifactId>
-      <version>${version.jboss.osgi.resolver}</version>
+      <version>${version}</version>
     </dependency>
   </dependencies>
 

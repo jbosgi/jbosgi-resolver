@@ -25,11 +25,11 @@ import java.util.Set;
 
 /**
  * An OSGi resolver.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XResolver 
+public interface XResolver
 {
    /**
     * Add a module to the resolver.
@@ -45,12 +45,12 @@ public interface XResolver
     * Get the list of registered modules
     */
    Set<XModule> getModules();
-   
+
    /**
     * Find the a module for a given id.
     */
-   XModule findModuleById(long moduleId);
-   
+   XModule findModuleById(XModuleIdentity moduleId);
+
    /**
     * Resolve the given root module
     * @throws XResolverException if the module cannot be resolved
