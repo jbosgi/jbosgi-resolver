@@ -63,8 +63,6 @@ public abstract class AbstractResolverTestCase extends OSGiTest
       VirtualFile virtualFile = toVirtualFile(archive);
       Manifest manifest = VFSUtils.getManifest(virtualFile);
       OSGiManifestMetaData osgiMetaData = new OSGiManifestMetaData(manifest);
-      String bundleSymbolicName = osgiMetaData.getBundleSymbolicName();
-      String bundleVersion = osgiMetaData.getBundleVersion().toString();
 
       // Setup the headers
       Hashtable<String, String> headers = new Hashtable<String, String>();
@@ -76,7 +74,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest
       }
 
       XModuleBuilder builder = XResolverFactory.getModuleBuilder();
-      XModuleIdentity moduleId = XModuleIdentity.create(bundleSymbolicName, bundleVersion, null);
+      XModuleIdentity moduleId = XModuleIdentity.create(osgiMetaData, null);
       XModule module = builder.createModule(moduleId, manifest);
 
       Bundle bundle = Mockito.mock(Bundle.class);

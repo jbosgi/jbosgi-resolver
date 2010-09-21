@@ -354,6 +354,6 @@ public class AbstractModule extends AbstractElement implements XModule
    @Override
    public String toString()
    {
-      return "[" + getModuleId() + "]:" + getName() + ":" + getVersion();
+      return "[" + getModuleId() + "]";
    }
 }

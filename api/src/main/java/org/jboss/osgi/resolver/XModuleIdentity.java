@@ -23,6 +23,7 @@ package org.jboss.osgi.resolver;
 
 import java.io.Serializable;
 
+import org.jboss.osgi.metadata.OSGiMetaData;
 import org.osgi.framework.Version;
 
 /**
@@ -38,6 +39,13 @@ public final class XModuleIdentity implements Serializable
    private String name;
    private String version;
    private String revision;
+
+   public static XModuleIdentity create(OSGiMetaData osgiMetaData, String revision)
+   {
+      String name = osgiMetaData.getBundleSymbolicName();
+      String version = osgiMetaData.getBundleVersion().toString();
+      return new XModuleIdentity(name, version, revision);
+   }
 
    public static XModuleIdentity create(String name, String version, String revision)
    {
