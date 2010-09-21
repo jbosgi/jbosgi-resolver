@@ -146,7 +146,7 @@ public abstract class AbstractResolver implements XResolver
    }
 
    @Override
-   public XModule findModuleById(XModuleIdentity moduleId)
+   public XModule getModuleById(XModuleIdentity moduleId)
    {
       synchronized (moduleMap)
       {
@@ -160,7 +160,7 @@ public abstract class AbstractResolver implements XResolver
       if (module == null)
          throw new IllegalArgumentException("Null module");
 
-      if (findModuleById(module.getModuleId()) == null)
+      if (getModuleById(module.getModuleId()) == null)
          throw new IllegalStateException("Module not registered: " + module);
 
       try

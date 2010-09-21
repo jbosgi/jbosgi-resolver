@@ -49,7 +49,7 @@ public interface XResolver
    /**
     * Find the a module for a given id.
     */
-   XModule findModuleById(XModuleIdentity moduleId);
+   XModule getModuleById(XModuleIdentity moduleId);
 
    /**
     * Resolve the given root module
