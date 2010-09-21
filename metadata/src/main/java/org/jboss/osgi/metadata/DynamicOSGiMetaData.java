@@ -1,24 +1,24 @@
 /*
-* JBoss, Home of Professional Open Source
-* Copyright 2006, JBoss Inc., and individual contributors as indicated
-* by the @authors tag. See the copyright.txt in the distribution for a
-* full listing of individual contributors.
-*
-* This is free software; you can redistribute it and/or modify it
-* under the terms of the GNU Lesser General Public License as
-* published by the Free Software Foundation; either version 2.1 of
-* the License, or (at your option) any later version.
-*
-* This software is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with this software; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-* 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-*/
+ * JBoss, Home of Professional Open Source
+ * Copyright 2006, JBoss Inc., and individual contributors as indicated
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.jboss.osgi.metadata;
 
 import java.io.Externalizable;
@@ -32,10 +32,11 @@ import java.util.jar.Attributes.Name;
 
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 /**
  * OSGi meta data that can constructed dynamically.
- * 
+ *
  * This is needed for deployments that are not backed by a valid OSGi Manifest.
  *
  * @author Thomas.Diesler@jboss.com
@@ -44,18 +45,19 @@ import org.osgi.framework.Constants;
 class DynamicOSGiMetaData extends AbstractOSGiMetaData implements Externalizable
 {
    private Map<Name, String> attributes = new LinkedHashMap<Name, String>();
-   
-   public DynamicOSGiMetaData(String symbolicName)
+
+   public DynamicOSGiMetaData(String symbolicName, Version version)
    {
-      addMainAttribute(Constants.BUNDLE_SYMBOLICNAME, symbolicName);
       addMainAttribute(Constants.BUNDLE_MANIFESTVERSION, "2");
+      addMainAttribute(Constants.BUNDLE_SYMBOLICNAME, symbolicName);
+      addMainAttribute(Constants.BUNDLE_VERSION, version.toString());
    }
 
    public void addMainAttribute(String key, String value)
    {
       attributes.put(new Name(key), value);
    }
-   
+
    @Override
    public Map<Name, String> getMainAttributes()
    {
@@ -67,7 +69,6 @@ class DynamicOSGiMetaData extends AbstractOSGiMetaData implements Externalizable
    {
       return getMainAttributes().get(new Name(key));
    }
-
 
    @Override
    public void writeExternal(ObjectOutput out) throws IOException

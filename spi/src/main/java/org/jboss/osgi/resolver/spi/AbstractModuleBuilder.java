@@ -121,6 +121,12 @@ public class AbstractModuleBuilder implements XModuleBuilder
    }
 
    @Override
+   public void addModuleActivator(String moduleActivator)
+   {
+      module.setModuleActivator(moduleActivator);
+   }
+
+   @Override
    public XModule getModule()
    {
       return module;
@@ -142,7 +148,8 @@ public class AbstractModuleBuilder implements XModuleBuilder
       try
       {
          XModule module = createModule(moduleId);
-         addBundleCapability(moduleId.getName(), osgiMetaData.getBundleVersion());
+         addBundleCapability(moduleId.getName(), Version.parseVersion(moduleId.getVersion()));
+         addModuleActivator(osgiMetaData.getBundleActivator());
 
          // Required Bundles
          List<ParameterizedAttribute> requireBundles = osgiMetaData.getRequireBundles();

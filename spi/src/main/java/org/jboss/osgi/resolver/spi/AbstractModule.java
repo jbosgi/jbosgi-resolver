@@ -53,6 +53,7 @@ public class AbstractModule extends AbstractElement implements XModule
 {
    private XResolver resolver;
    private XModuleIdentity moduleId;
+   private String moduleActivator;
    private XBundleCapability bundleCapability;
    private List<XCapability> capabilities;
    private List<XRequirement> requirements;
@@ -64,7 +65,7 @@ public class AbstractModule extends AbstractElement implements XModule
 
    AbstractModule(XModuleIdentity moduleId)
    {
-      super(moduleId != null ? moduleId.getName() : null);
+      super(moduleId.getName());
       this.moduleId = moduleId;
    }
 
@@ -89,6 +90,17 @@ public class AbstractModule extends AbstractElement implements XModule
    {
       String version = moduleId.getVersion();
       return Version.parseVersion(version);
+   }
+
+   @Override
+   public String getModuleActivator()
+   {
+      return moduleActivator;
+   }
+
+   void setModuleActivator(String moduleActivator)
+   {
+      this.moduleActivator = moduleActivator;
    }
 
    @Override

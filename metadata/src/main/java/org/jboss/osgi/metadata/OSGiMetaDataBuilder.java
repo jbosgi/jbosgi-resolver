@@ -25,10 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 /**
  * OSGi meta data that can constructed dynamically.
- * 
+ *
  * @author Thomas.Diesler@jboss.com
  * @since 04-Jun-2010
  */
@@ -41,12 +42,17 @@ public class OSGiMetaDataBuilder
 
    public static OSGiMetaDataBuilder createBuilder(String symbolicName)
    {
-      return new OSGiMetaDataBuilder(symbolicName);
+      return new OSGiMetaDataBuilder(symbolicName, Version.emptyVersion);
    }
 
-   private OSGiMetaDataBuilder(String symbolicName)
+   public static OSGiMetaDataBuilder createBuilder(String symbolicName, Version version)
    {
-      metadata = new DynamicOSGiMetaData(symbolicName);
+      return new OSGiMetaDataBuilder(symbolicName, version);
+   }
+
+   private OSGiMetaDataBuilder(String symbolicName, Version version)
+   {
+      metadata = new DynamicOSGiMetaData(symbolicName, version);
    }
 
    public OSGiMetaDataBuilder setBundleManifestVersion(int version)

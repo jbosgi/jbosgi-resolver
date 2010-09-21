@@ -111,6 +111,11 @@ public interface XModuleBuilder
    void addBundleClassPath(String... path);
 
    /**
+    * Add a {@link Constants#BUNDLE_ACTIVATOR} element
+    */
+   void addModuleActivator(String moduleActivator);
+
+   /**
     * Get the final module from the builder
     */
    XModule getModule();

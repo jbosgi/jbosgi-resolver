@@ -54,6 +54,11 @@ public interface XModule extends XElement, XAttachmentSupport
    Version getVersion();
 
    /**
+    * Get the optional module activator
+    */
+   String getModuleActivator();
+
+   /**
     * Get this modules host capability
     */
    XBundleCapability getBundleCapability();

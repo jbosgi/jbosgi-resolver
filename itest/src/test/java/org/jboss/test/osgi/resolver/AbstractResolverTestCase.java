@@ -55,7 +55,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest
    @Before
    public void setUp()
    {
-      resolver = XResolverFactory.getResolver();
+      resolver = XResolverFactory.loadResolver(null);
    }
 
    XModule installModule(Archive<?> archive) throws Exception
@@ -73,7 +73,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest
          headers.put(key.toString(), value);
       }
 
-      XModuleBuilder builder = XResolverFactory.getModuleBuilder();
+      XModuleBuilder builder = XResolverFactory.loadModuleBuilder(null);
       XModuleIdentity moduleId = XModuleIdentity.create(osgiMetaData, null);
       XModule module = builder.createModule(moduleId, manifest);
 

@@ -48,6 +48,7 @@ import org.apache.felix.framework.util.manifestparser.CapabilityImpl;
 import org.apache.felix.framework.util.manifestparser.R4Library;
 import org.apache.felix.framework.util.manifestparser.RequirementImpl;
 import org.jboss.logging.Logger;
+import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
@@ -61,10 +62,10 @@ import org.osgi.framework.Version;
 
 /**
  * An implementation of the ModuleExtension.
- * 
+ *
  * This implemantion should use no framework specific API.
  * It is the extension point for a framework specific Module.
- *  
+ *
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
@@ -156,8 +157,8 @@ public class ModuleExt implements Module
       String name = module.getName();
       Version version = module.getVersion();
 
-      // Add a module capability and a host capability to all non-fragment bundles. 
-      // A host capability is the same as a module capability, but with a different capability namespace. 
+      // Add a module capability and a host capability to all non-fragment bundles.
+      // A host capability is the same as a module capability, but with a different capability namespace.
       // Module capabilities resolve required-bundle dependencies, while host capabilities resolve fragment-host dependencies.
       if (module.isFragment() == false)
       {
@@ -168,12 +169,16 @@ public class ModuleExt implements Module
          result.add(fcap);
       }
 
-      // Always add the module capability 
+      // Always add the module capability
       List<Attribute> attrs = new ArrayList<Attribute>(2);
       attrs.add(new Attribute(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE, name, false));
       attrs.add(new Attribute(Constants.BUNDLE_VERSION_ATTRIBUTE, version, false));
       Capability fcap = new CapabilityImpl(this, Capability.MODULE_NAMESPACE, new ArrayList<Directive>(0), attrs);
-      module.getBundleCapability().addAttachment(Capability.class, fcap);
+      XBundleCapability bundleCapability = module.getBundleCapability();
+      if (bundleCapability == null)
+         throw new IllegalStateException("Cannot obtain XBundleCapability from: " + module);
+
+      bundleCapability.addAttachment(Capability.class, fcap);
       result.add(fcap);
 
       for (XPackageCapability cap : module.getPackageCapabilities())
@@ -205,7 +210,7 @@ public class ModuleExt implements Module
 
       if (dynamicreqs == null)
          dynamicreqs = createDynamicRequirements();
-      
+
       return requirements;
    }
 
@@ -525,9 +530,9 @@ public class ModuleExt implements Module
       throw new NotImplementedException();
    }
 
-   /** 
+   /**
     * Gets the potential wire for a given requirement.
-    * @return The wire or null 
+    * @return The wire or null
     */
    public Wire getWireForRequirement(Requirement requirement)
    {

@@ -21,11 +21,11 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.jboss.osgi.spi.util.ServiceLoader;
+import java.util.ServiceLoader;
 
 /**
  * A factory for resolver instances.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -35,28 +35,33 @@ public final class XResolverFactory
    XResolverFactory()
    {
    }
-   
+
    /**
     * Get a new instance of a module builder.
     */
-   public static XModuleBuilder getModuleBuilder()
+   public static XModuleBuilder loadModuleBuilder(ClassLoader classloader)
    {
-      XModuleBuilder builder = ServiceLoader.loadService(XModuleBuilder.class);
-      if (builder == null)
-         throw new IllegalStateException("Cannot load XModuleBuilder");
-      
-      return builder;
+      classloader = fixupClassLoader(classloader);
+      ServiceLoader<XModuleBuilder> loader = ServiceLoader.load(XModuleBuilder.class, classloader);
+      return loader.iterator().next();
    }
-   
+
    /**
     * Get a new instance of a resolver.
     */
-   public static XResolver getResolver()
+   public static XResolver loadResolver(ClassLoader classloader)
    {
-      XResolver resolver = ServiceLoader.loadService(XResolver.class);
-      if (resolver == null)
-         throw new IllegalStateException("Cannot load XResolver");
-      
-      return resolver;
+      classloader = fixupClassLoader(classloader);
+      ServiceLoader<XResolver> loader = ServiceLoader.load(XResolver.class, classloader);
+      return loader.iterator().next();
+   }
+
+   private static ClassLoader fixupClassLoader(ClassLoader classloader)
+   {
+      if (classloader == null)
+         classloader = Thread.currentThread().getContextClassLoader();
+      if (classloader == null)
+         classloader = XResolverFactory.class.getClassLoader();
+      return classloader;
    }
 }
