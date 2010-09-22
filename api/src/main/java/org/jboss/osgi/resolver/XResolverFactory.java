@@ -21,7 +21,8 @@
  */
 package org.jboss.osgi.resolver;
 
-import java.util.ServiceLoader;
+import org.jboss.osgi.spi.util.ServiceLoader;
+
 
 /**
  * A factory for resolver instances.
@@ -41,9 +42,15 @@ public final class XResolverFactory
     */
    public static XModuleBuilder loadModuleBuilder(ClassLoader classloader)
    {
-      classloader = fixupClassLoader(classloader);
-      ServiceLoader<XModuleBuilder> loader = ServiceLoader.load(XModuleBuilder.class, classloader);
-      return loader.iterator().next();
+      //classloader = fixupClassLoader(classloader);
+      //ServiceLoader<XModuleBuilder> loader = ServiceLoader.load(XModuleBuilder.class, classloader);
+      //return loader.iterator().next();
+
+      // [JBAS-8458] Cannot use java.util.ServiceLoader in subsystem
+      XModuleBuilder builder = ServiceLoader.loadService(XModuleBuilder.class);
+      if (builder == null)
+         throw new IllegalStateException("Cannot load XModuleBuilder");
+      return builder;
    }
 
    /**
@@ -51,9 +58,15 @@ public final class XResolverFactory
     */
    public static XResolver loadResolver(ClassLoader classloader)
    {
-      classloader = fixupClassLoader(classloader);
-      ServiceLoader<XResolver> loader = ServiceLoader.load(XResolver.class, classloader);
-      return loader.iterator().next();
+      XResolver resolver = ServiceLoader.loadService(XResolver.class);
+      if (resolver == null)
+         throw new IllegalStateException("Cannot load XResolver");
+      return resolver;
+
+      // [JBAS-8458] Cannot use java.util.ServiceLoader in subsystem
+      //classloader = fixupClassLoader(classloader);
+      //ServiceLoader<XResolver> loader = ServiceLoader.load(XResolver.class, classloader);
+      //return loader.iterator().next();
    }
 
    private static ClassLoader fixupClassLoader(ClassLoader classloader)
