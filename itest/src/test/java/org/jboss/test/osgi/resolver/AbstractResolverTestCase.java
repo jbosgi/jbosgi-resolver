@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.jboss.osgi.metadata.internal.OSGiManifestMetaData;
+import org.jboss.osgi.metadata.OSGiMetaData;
+import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XModule;
 import org.jboss.osgi.resolver.XModuleBuilder;
 import org.jboss.osgi.resolver.XModuleIdentity;
@@ -62,7 +63,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest
    {
       VirtualFile virtualFile = toVirtualFile(archive);
       Manifest manifest = VFSUtils.getManifest(virtualFile);
-      OSGiManifestMetaData osgiMetaData = new OSGiManifestMetaData(manifest);
+      OSGiMetaData osgiMetaData = OSGiMetaDataBuilder.load(manifest);
 
       // Setup the headers
       Hashtable<String, String> headers = new Hashtable<String, String>();

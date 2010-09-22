@@ -19,7 +19,7 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.jboss.osgi.metadata.internal;
+package org.jboss.osgi.metadata;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -31,13 +31,15 @@ import java.util.Map;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
+import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
+
 /**
  * Abstract OSGi meta data.
  *
  * @author Thomas.Diesler@jboss.com
  * @since 04-Jun-2010
  */
-public class OSGiManifestMetaData extends AbstractOSGiMetaData implements Externalizable
+class OSGiManifestMetaData extends AbstractOSGiMetaData implements Externalizable
 {
    private Manifest manifest;
 
@@ -46,7 +48,7 @@ public class OSGiManifestMetaData extends AbstractOSGiMetaData implements Extern
       // for serialization
    }
 
-   public OSGiManifestMetaData(Manifest manifest)
+   OSGiManifestMetaData(Manifest manifest)
    {
       if (manifest == null)
          throw new IllegalArgumentException("Null manifest");

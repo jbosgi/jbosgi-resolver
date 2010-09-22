@@ -21,14 +21,21 @@
 */
 package org.jboss.osgi.metadata;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
 /**
- * OSGi meta data that can constructed dynamically.
+ * A builder for {@link OSGiMetaData}.
  *
  * @author Thomas.Diesler@jboss.com
  * @since 04-Jun-2010
@@ -39,6 +46,45 @@ public class OSGiMetaDataBuilder
    private List<String> importPackages = new ArrayList<String>();
    private List<String> exportPackages = new ArrayList<String>();
    private List<String> dynamicImportPackages = new ArrayList<String>();
+
+   public static OSGiMetaData load(InputStream input) throws IOException
+   {
+      if (input == null)
+         throw new IllegalArgumentException("Null input");
+
+      return load(new InputStreamReader(input));
+   }
+
+   public static OSGiMetaData load(Reader reader) throws IOException
+   {
+      if (reader == null)
+         throw new IllegalArgumentException("Null reader");
+
+      Properties props = new Properties();
+      props.load(reader);
+      return load(props);
+   }
+
+   public static OSGiMetaData load(Properties props)
+   {
+      if (props == null)
+         throw new IllegalArgumentException("Null props");
+
+      Manifest manifest = new Manifest();
+      Attributes mainAttributes = manifest.getMainAttributes();
+      for (Object key : props.keySet())
+      {
+         Attributes.Name name = new Attributes.Name((String)key);
+         mainAttributes.put(name, props.get(key));
+      }
+
+      return load(manifest);
+   }
+
+   public static OSGiMetaData load(Manifest manifest)
+   {
+      return new OSGiManifestMetaData(manifest);
+   }
 
    public static OSGiMetaDataBuilder createBuilder(String symbolicName)
    {

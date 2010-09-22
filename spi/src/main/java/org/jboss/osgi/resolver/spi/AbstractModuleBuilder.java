@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.jar.Manifest;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
+import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.metadata.PackageAttribute;
 import org.jboss.osgi.metadata.Parameter;
 import org.jboss.osgi.metadata.ParameterizedAttribute;
-import org.jboss.osgi.metadata.internal.OSGiManifestMetaData;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;
 import org.jboss.osgi.resolver.XModule;
@@ -55,7 +55,7 @@ public class AbstractModuleBuilder implements XModuleBuilder
    @Override
    public XModule createModule(XModuleIdentity moduleId, Manifest manifest) throws BundleException
    {
-      OSGiManifestMetaData metadata = new OSGiManifestMetaData(manifest);
+      OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
       return createModule(moduleId, metadata);
    }
 
