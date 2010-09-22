@@ -88,8 +88,7 @@ public class AbstractModule extends AbstractElement implements XModule
    @Override
    public Version getVersion()
    {
-      String version = moduleId.getVersion();
-      return Version.parseVersion(version);
+      return moduleId.getVersion();
    }
 
    @Override

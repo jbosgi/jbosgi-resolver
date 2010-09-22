@@ -22,10 +22,8 @@
 package org.jboss.osgi.resolver;
 
 import java.util.Map;
-import java.util.jar.Manifest;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
@@ -38,26 +36,19 @@ import org.osgi.framework.Version;
 public interface XModuleBuilder
 {
    /**
-    * Get a new module from an OSGi manifest
-    * @param moduleId The provided module id
-    * @param manifest The manifest
+    * Create a module builder from OSGi metadata
+    * @param metadata The OSGi metadata
+    * @param revision The bundle revision
     */
-   XModule createModule(XModuleIdentity moduleId, Manifest manifest) throws BundleException;
+    XModuleBuilder create(OSGiMetaData metadata, int revision);
 
-   /**
-    * Get a new module from OSGi metadata
-    * @param moduleId The provided module id
-    * @param metadata The metadata
-    */
-   XModule createModule(XModuleIdentity moduleId, OSGiMetaData metadata) throws BundleException;
-
-   /**
-    * Get a new module and associate it with this builder
-    * @param moduleId The provided module id
-    * @param symbolicName The module symbolic name
+    /**
+    * Create an empty module builder
+    * @param name The module name
     * @param version The module version
-    */
-   XModule createModule(XModuleIdentity moduleId);
+    * @param revision The bundle revision
+     */
+    XModuleBuilder create(String name, Version version, int revision);
 
    /**
     * Add a bundle capability
@@ -108,12 +99,17 @@ public interface XModuleBuilder
    /**
     * Add a {@link Constants#BUNDLE_CLASSPATH} element
     */
-   void addBundleClassPath(String... path);
+   XModuleBuilder addBundleClassPath(String... path);
 
    /**
     * Add a {@link Constants#BUNDLE_ACTIVATOR} element
     */
-   void addModuleActivator(String moduleActivator);
+   XModuleBuilder addModuleActivator(String moduleActivator);
+
+   /**
+    * Get the module identity from the builder
+    */
+   XModuleIdentity getModuleIdentity();
 
    /**
     * Get the final module from the builder

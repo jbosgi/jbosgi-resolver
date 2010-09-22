@@ -21,9 +21,6 @@
  */
 package org.jboss.osgi.resolver;
 
-import java.io.Serializable;
-
-import org.jboss.osgi.metadata.OSGiMetaData;
 import org.osgi.framework.Version;
 
 /**
@@ -32,92 +29,11 @@ import org.osgi.framework.Version;
  * @author thomas.diesler@jboss.com
  * @since 20-Sep-2010
  */
-public final class XModuleIdentity implements Serializable
+public interface XModuleIdentity
 {
-   private static final long serialVersionUID = -6096312558786598132L;
+   String getName();
 
-   private String name;
-   private String version;
-   private String revision;
+   Version getVersion();
 
-   public static XModuleIdentity create(OSGiMetaData osgiMetaData, String revision)
-   {
-      String name = osgiMetaData.getBundleSymbolicName();
-      String version = osgiMetaData.getBundleVersion().toString();
-      return new XModuleIdentity(name, version, revision);
-   }
-
-   public static XModuleIdentity create(String name, String version, String revision)
-   {
-      return new XModuleIdentity(name, version, revision);
-   }
-
-   private XModuleIdentity(String name, String version, String revision)
-   {
-      if (name == null)
-         throw new IllegalArgumentException("Null name part");
-
-      this.version = "0.0.0";
-      if (version != null)
-      {
-         Version.parseVersion(version);
-         this.version = version;
-      }
-
-      this.name = name;
-      this.revision = revision;
-   }
-
-   public String getName()
-   {
-      return name;
-   }
-
-   public String getVersion()
-   {
-      return version;
-   }
-
-   public String getRevision()
-   {
-      return revision;
-   }
-
-   public static XModuleIdentity parse(String string)
-   {
-      if (string == null)
-         throw new IllegalArgumentException("Null string");
-
-      String[] parts = string.split("-");
-      if (parts.length < 2 || parts.length > 3)
-         throw new IllegalArgumentException("Invalid string: " + string);
-
-      return new XModuleIdentity(parts[0], parts[1], parts[2]);
-   }
-
-   @Override
-   public int hashCode()
-   {
-      return toString().hashCode();
-   }
-
-   @Override
-   public boolean equals(Object obj)
-   {
-      if (obj == this)
-         return true;
-      if (obj instanceof XModuleIdentity == false)
-         return false;
-      return toString().equals(obj.toString());
-   }
-
-   @Override
-   public String toString()
-   {
-      String string = name + "-" + version;
-      if (revision != null)
-         string += "-" + revision;
-      return string;
-   }
-
+   int getRevision();
 }

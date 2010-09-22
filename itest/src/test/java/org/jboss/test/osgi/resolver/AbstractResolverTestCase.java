@@ -31,7 +31,6 @@ import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XModule;
 import org.jboss.osgi.resolver.XModuleBuilder;
-import org.jboss.osgi.resolver.XModuleIdentity;
 import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResolverCallback;
 import org.jboss.osgi.resolver.XResolverFactory;
@@ -63,7 +62,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest
    {
       VirtualFile virtualFile = toVirtualFile(archive);
       Manifest manifest = VFSUtils.getManifest(virtualFile);
-      OSGiMetaData osgiMetaData = OSGiMetaDataBuilder.load(manifest);
+      OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
 
       // Setup the headers
       Hashtable<String, String> headers = new Hashtable<String, String>();
@@ -75,8 +74,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest
       }
 
       XModuleBuilder builder = XResolverFactory.loadModuleBuilder(null);
-      XModuleIdentity moduleId = XModuleIdentity.create(osgiMetaData, null);
-      XModule module = builder.createModule(moduleId, manifest);
+      XModule module = builder.create(metadata, 0).getModule();
 
       Bundle bundle = Mockito.mock(Bundle.class);
       Mockito.when(bundle.getHeaders()).thenReturn(headers);

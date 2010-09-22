@@ -32,14 +32,12 @@ import org.osgi.framework.Version;
  */
 class AbstractBundleCapability extends AbstractCapability implements XBundleCapability
 {
-   private Version version = Version.emptyVersion;
+   private final Version version;
 
    public AbstractBundleCapability(AbstractModule module, String symbolicName, Version version)
    {
       super(module, symbolicName, null, null);
-      
-      if (version != null)
-         this.version = version;
+      this.version = (version != null ? version : Version.emptyVersion);
    }
 
    @Override
