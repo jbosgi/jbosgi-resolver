@@ -24,6 +24,7 @@ package org.jboss.osgi.resolver;
 import java.util.Map;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
@@ -40,7 +41,7 @@ public interface XModuleBuilder
     * @param metadata The OSGi metadata
     * @param revision The bundle revision
     */
-    XModuleBuilder create(OSGiMetaData metadata, int revision);
+    XModuleBuilder create(OSGiMetaData metadata, int revision) throws BundleException;
 
     /**
     * Create an empty module builder

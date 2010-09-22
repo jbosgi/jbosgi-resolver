@@ -37,6 +37,7 @@ import org.jboss.osgi.resolver.XModuleIdentity;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequireBundleRequirement;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 
 /**
@@ -50,7 +51,7 @@ public class AbstractModuleBuilder implements XModuleBuilder
    private AbstractModule module;
 
    @Override
-   public XModuleBuilder create(OSGiMetaData metadata, int revision)
+   public XModuleBuilder create(OSGiMetaData metadata, int revision) throws BundleException
    {
       XModuleIdentity moduleId = new AbstractModuleIdentity(metadata, revision);
       module = new AbstractModule(moduleId);
@@ -149,76 +150,83 @@ public class AbstractModuleBuilder implements XModuleBuilder
       return module;
    }
 
-   private void load(OSGiMetaData metadata)
+   private void load(OSGiMetaData metadata) throws BundleException
    {
-      XModuleIdentity moduleId = module.getModuleId();
-      addBundleCapability(moduleId.getName(), moduleId.getVersion());
-      addModuleActivator(metadata.getBundleActivator());
-      // Required Bundles
-      List<ParameterizedAttribute> requireBundles = metadata.getRequireBundles();
-      if (requireBundles != null && requireBundles.isEmpty() == false)
+      try
       {
-         for (ParameterizedAttribute attribs : requireBundles)
+         XModuleIdentity moduleId = module.getModuleId();
+         addBundleCapability(moduleId.getName(), moduleId.getVersion());
+         addModuleActivator(metadata.getBundleActivator());
+         // Required Bundles
+         List<ParameterizedAttribute> requireBundles = metadata.getRequireBundles();
+         if (requireBundles != null && requireBundles.isEmpty() == false)
          {
-            String name = attribs.getAttribute();
-            Map<String, String> dirs = getDirectives(attribs);
-            Map<String, Object> atts = getAttributes(attribs);
-            addBundleRequirement(name, dirs, atts);
+            for (ParameterizedAttribute attribs : requireBundles)
+            {
+               String name = attribs.getAttribute();
+               Map<String, String> dirs = getDirectives(attribs);
+               Map<String, Object> atts = getAttributes(attribs);
+               addBundleRequirement(name, dirs, atts);
+            }
          }
-      }
 
-      // Export-Package
-      List<PackageAttribute> exports = metadata.getExportPackages();
-      if (exports != null && exports.isEmpty() == false)
-      {
-         for (PackageAttribute attribs : exports)
+         // Export-Package
+         List<PackageAttribute> exports = metadata.getExportPackages();
+         if (exports != null && exports.isEmpty() == false)
          {
-            String name = attribs.getAttribute();
-            Map<String, String> dirs = getDirectives(attribs);
-            Map<String, Object> atts = getAttributes(attribs);
-            addPackageCapability(name, dirs, atts);
+            for (PackageAttribute attribs : exports)
+            {
+               String name = attribs.getAttribute();
+               Map<String, String> dirs = getDirectives(attribs);
+               Map<String, Object> atts = getAttributes(attribs);
+               addPackageCapability(name, dirs, atts);
+            }
          }
-      }
 
-      // Import-Package
-      List<PackageAttribute> imports = metadata.getImportPackages();
-      if (imports != null && imports.isEmpty() == false)
-      {
-         for (PackageAttribute attribs : imports)
+         // Import-Package
+         List<PackageAttribute> imports = metadata.getImportPackages();
+         if (imports != null && imports.isEmpty() == false)
          {
-            String name = attribs.getAttribute();
-            Map<String, String> dirs = getDirectives(attribs);
-            Map<String, Object> atts = getAttributes(attribs);
-            addPackageRequirement(name, dirs, atts);
+            for (PackageAttribute attribs : imports)
+            {
+               String name = attribs.getAttribute();
+               Map<String, String> dirs = getDirectives(attribs);
+               Map<String, Object> atts = getAttributes(attribs);
+               addPackageRequirement(name, dirs, atts);
+            }
          }
-      }
 
-      // DynamicImport-Package
-      List<PackageAttribute> dynamicImports = metadata.getDynamicImports();
-      if (dynamicImports != null && dynamicImports.isEmpty() == false)
-      {
-         for (PackageAttribute attribs : dynamicImports)
+         // DynamicImport-Package
+         List<PackageAttribute> dynamicImports = metadata.getDynamicImports();
+         if (dynamicImports != null && dynamicImports.isEmpty() == false)
          {
-            String name = attribs.getAttribute();
-            Map<String, Object> atts = getAttributes(attribs);
-            addDynamicPackageRequirement(name, atts);
+            for (PackageAttribute attribs : dynamicImports)
+            {
+               String name = attribs.getAttribute();
+               Map<String, Object> atts = getAttributes(attribs);
+               addDynamicPackageRequirement(name, atts);
+            }
          }
-      }
 
-      // Fragment-Host
-      ParameterizedAttribute fragmentHost = metadata.getFragmentHost();
-      if (fragmentHost != null)
+         // Fragment-Host
+         ParameterizedAttribute fragmentHost = metadata.getFragmentHost();
+         if (fragmentHost != null)
+         {
+            String hostName = fragmentHost.getAttribute();
+            Map<String, String> dirs = getDirectives(fragmentHost);
+            Map<String, Object> atts = getAttributes(fragmentHost);
+            addFragmentHostRequirement(hostName, dirs, atts);
+         }
+
+         // Bundle-ClassPath
+         List<String> classPath = metadata.getBundleClassPath();
+         if (classPath != null && classPath.isEmpty() == false)
+            addBundleClassPath(classPath.toArray(new String[classPath.size()]));
+      }
+      catch (RuntimeException ex)
       {
-         String hostName = fragmentHost.getAttribute();
-         Map<String, String> dirs = getDirectives(fragmentHost);
-         Map<String, Object> atts = getAttributes(fragmentHost);
-         addFragmentHostRequirement(hostName, dirs, atts);
+         throw new BundleException("Cannot initialize XModule from: " + metadata);
       }
-
-      // Bundle-ClassPath
-      List<String> classPath = metadata.getBundleClassPath();
-      if (classPath != null && classPath.isEmpty() == false)
-         addBundleClassPath(classPath.toArray(new String[classPath.size()]));
    }
 
    private void assertModuleCreated()
