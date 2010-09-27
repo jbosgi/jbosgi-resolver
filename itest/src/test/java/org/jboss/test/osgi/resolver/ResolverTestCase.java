@@ -34,16 +34,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jboss.osgi.resolver.XFragmentHostRequirement;
 import org.jboss.osgi.resolver.XModule;
+import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResolverException;
 import org.jboss.osgi.resolver.XWire;
 import org.jboss.shrinkwrap.api.Archive;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Test the default resolver integration.
  * 
  * @author thomas.diesler@jboss.com
+ * @author <a href="david@redhat.com">David Bosschaert</a>
  * @since 31-May-2010
  */
 public class ResolverTestCase extends AbstractResolverTestCase
@@ -859,5 +863,72 @@ public class ResolverTestCase extends AbstractResolverTestCase
       assertEquals(1, resolved.size());
       assertTrue(moduleA.isResolved());
       assertFalse(moduleB.isResolved());
+   }
+
+   @Test
+   public void testFragmentAddsExport() throws Exception
+   {
+      // Bundle-SymbolicName: bundlefragmenthost
+      Archive<?> assemblyH = assembleArchive("host", "/resolver/bundlefragmenthost");
+      XModule moduleH = installModule(assemblyH);
+      assertFalse(moduleH.isFragment());
+
+      // Bundle-SymbolicName: fragmentaddsexport
+      // Fragment-Host: bundlefragmenthost
+      // Export-Package: org.jboss.osgi.test.fragment.export
+      Archive<?> assemblyF = assembleArchive("fragment", "/resolver/fragmentaddsexport");
+      XModule moduleF = installModule(assemblyF);
+      assertTrue(moduleF.isFragment());
+
+      // Bundle-SymbolicName: bundleimportfragmentpkg
+      // Import-Package: org.jboss.osgi.test.fragment.export
+      Archive<?> assemblyB = assembleArchive("bundle", "/resolver/bundleimportfragmentpkg");
+      XModule moduleB = installModule(assemblyB);
+      assertFalse(moduleB.isFragment());
+
+      // Resolve all modules
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
+
+      assertTrue(moduleH.isResolved());
+      assertTrue(moduleF.isResolved());
+      assertTrue(moduleB.isResolved());
+
+      assertEquals(0, moduleH.getWires().size());
+      assertEquals(1, moduleF.getWires().size());
+      XWire fragWire = moduleF.getWires().get(0);
+      assertTrue(fragWire.getRequirement() instanceof XFragmentHostRequirement);
+      assertEquals(moduleH, fragWire.getExporter());
+
+      assertEquals(1, moduleB.getWires().size());
+      XWire bundleWire = moduleB.getWires().get(0);
+      assertTrue(bundleWire.getRequirement() instanceof XPackageRequirement);
+      assertEquals(moduleH, bundleWire.getExporter());
+   }
+
+   @Ignore("JBOSGI-402")
+   @Test
+   public void testHostDependsOnFragmentPackage() throws Exception
+   {
+      // Bundle-SymbolicName: bundledependsfragment
+      // Export-Package: org.jboss.osgi.test.host.export
+      // Import-Package: org.jboss.osgi.test.fragment.export
+      Archive<?> assemblyH = assembleArchive("host", "/resolver/bundledependsfragment");
+      XModule moduleH = installModule(assemblyH);
+      assertFalse(moduleH.isFragment());
+
+      // Bundle-SymbolicName: fragmentsdependshostexport
+      // Export-Package: org.jboss.osgi.test.fragment.export
+      // Import-Package: org.jboss.osgi.test.host.export
+      // Fragment-Host: bundledependsfragment
+      Archive<?> assemblyF = assembleArchive("fragment", "/resolver/fragmentdependshostexport");
+      XModule moduleF = installModule(assemblyF);
+      assertTrue(moduleF.isFragment());
+
+      // Resolve all modules
+      List<XModule> resolved = new ArrayList<XModule>();
+      resolver.setCallbackHandler(new ResolverCallback(resolved));
+      assertTrue(resolver.resolveAll(null));
    }
 }

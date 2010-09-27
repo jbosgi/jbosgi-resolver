@@ -12,7 +12,7 @@
 <!-- 
   Set these VM properties in your IDE debugger 
 
-  -Dlog4j.output.dir=${workspace_loc:jbosgi-msc-resolver/target} 
+  -Dlog4j.output.dir=${workspace_loc:jbosgi-resolver-itest/target} 
   -Dlog4j.configuration=log4j-console.xml 
 -->
 

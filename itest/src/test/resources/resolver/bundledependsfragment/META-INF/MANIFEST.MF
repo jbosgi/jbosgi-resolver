@@ -1,0 +1,4 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundledependsfragment
+Import-Package: org.jboss.osgi.test.fragment.export
+Export-Package: org.jboss.osgi.test.host.export
