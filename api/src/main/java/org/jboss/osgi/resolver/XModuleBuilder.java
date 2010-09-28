@@ -41,7 +41,7 @@ public interface XModuleBuilder
     * @param metadata The OSGi metadata
     * @param revision The bundle revision
     */
-    XModuleBuilder create(OSGiMetaData metadata, int revision) throws BundleException;
+    XModuleBuilder createModule(OSGiMetaData metadata, int revision) throws BundleException;
 
     /**
     * Create an empty module builder
@@ -49,7 +49,7 @@ public interface XModuleBuilder
     * @param version The module version
     * @param revision The bundle revision
      */
-    XModuleBuilder create(String name, Version version, int revision);
+    XModuleBuilder createModule(String name, Version version, int revision);
 
    /**
     * Add a bundle capability

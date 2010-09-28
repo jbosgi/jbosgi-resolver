@@ -51,7 +51,7 @@ public class AbstractModuleBuilder implements XModuleBuilder
    private AbstractModule module;
 
    @Override
-   public XModuleBuilder create(OSGiMetaData metadata, int revision) throws BundleException
+   public XModuleBuilder createModule(OSGiMetaData metadata, int revision) throws BundleException
    {
       XModuleIdentity moduleId = new AbstractModuleIdentity(metadata, revision);
       module = new AbstractModule(moduleId);
@@ -60,7 +60,7 @@ public class AbstractModuleBuilder implements XModuleBuilder
    }
 
    @Override
-   public XModuleBuilder create(String name, Version version, int revision)
+   public XModuleBuilder createModule(String name, Version version, int revision)
    {
       XModuleIdentity moduleId = new AbstractModuleIdentity(name, version, revision);
       module = new AbstractModule(moduleId);

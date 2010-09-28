@@ -38,43 +38,25 @@ public final class XResolverFactory
    }
 
    /**
-    * Get a new instance of a module builder.
+    * Load the service for the given class
     */
-   public static XModuleBuilder loadModuleBuilder(ClassLoader classloader)
+   public static <T> T load(Class<T> serviceClass)
    {
-      //classloader = fixupClassLoader(classloader);
-      //ServiceLoader<XModuleBuilder> loader = ServiceLoader.load(XModuleBuilder.class, classloader);
-      //return loader.iterator().next();
-
-      // [JBAS-8458] Cannot use java.util.ServiceLoader in subsystem
-      XModuleBuilder builder = ServiceLoader.loadService(XModuleBuilder.class);
-      if (builder == null)
-         throw new IllegalStateException("Cannot load XModuleBuilder");
-      return builder;
+      return load(serviceClass, null);
    }
-
+   
    /**
-    * Get a new instance of a resolver.
+    * Load the service for the given class using the given classloader
     */
-   public static XResolver loadResolver(ClassLoader classloader)
+   public static <T> T load(Class<T> serviceClass, ClassLoader classloader)
    {
-      XResolver resolver = ServiceLoader.loadService(XResolver.class);
-      if (resolver == null)
-         throw new IllegalStateException("Cannot load XResolver");
-      return resolver;
+      T service = ServiceLoader.loadService(serviceClass);
+      if (service == null)
+         throw new IllegalStateException("Cannot load service: " + serviceClass.getName());
+      return service;
 
       // [JBAS-8458] Cannot use java.util.ServiceLoader in subsystem
-      //classloader = fixupClassLoader(classloader);
       //ServiceLoader<XResolver> loader = ServiceLoader.load(XResolver.class, classloader);
       //return loader.iterator().next();
-   }
-
-   private static ClassLoader fixupClassLoader(ClassLoader classloader)
-   {
-      if (classloader == null)
-         classloader = Thread.currentThread().getContextClassLoader();
-      if (classloader == null)
-         classloader = XResolverFactory.class.getClassLoader();
-      return classloader;
    }
 }
