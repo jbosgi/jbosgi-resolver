@@ -30,33 +30,38 @@ import org.jboss.osgi.spi.util.ServiceLoader;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public final class XResolverFactory
+public abstract class XResolverFactory
 {
-   // Hide ctor
-   XResolverFactory()
-   {
-   }
-
    /**
-    * Load the service for the given class
+    * Get an instance of the resolver factory
     */
-   public static <T> T load(Class<T> serviceClass)
+   public static XResolverFactory getInstance()
    {
-      return load(serviceClass, null);
+      return getInstance(null);
    }
    
    /**
-    * Load the service for the given class using the given classloader
+    * Get an instance of the resolver factory
     */
-   public static <T> T load(Class<T> serviceClass, ClassLoader classloader)
+   public static XResolverFactory getInstance(ClassLoader classloader)
    {
-      T service = ServiceLoader.loadService(serviceClass);
-      if (service == null)
-         throw new IllegalStateException("Cannot load service: " + serviceClass.getName());
-      return service;
+      XResolverFactory factory = ServiceLoader.loadService(XResolverFactory.class);
+      if (factory == null)
+         throw new IllegalStateException("Cannot load service: " + XResolverFactory.class.getName());
+      return factory;
 
       // [JBAS-8458] Cannot use java.util.ServiceLoader in subsystem
       //ServiceLoader<XResolver> loader = ServiceLoader.load(XResolver.class, classloader);
       //return loader.iterator().next();
    }
+
+   /**
+    * Get a new instance of an {@link XResolver} 
+    */
+   public abstract XResolver newResolver();
+   
+   /**
+    * Get a new instance of an {@link XModuleBuilder} 
+    */
+   public abstract XModuleBuilder newModuleBuilder();
 }

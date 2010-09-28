@@ -50,12 +50,14 @@ import org.osgi.framework.Bundle;
  */
 public abstract class AbstractResolverTestCase extends OSGiTest
 {
+   XResolverFactory factory;
    XResolver resolver;
 
    @Before
    public void setUp()
    {
-      resolver = XResolverFactory.load(XResolver.class);
+      factory = XResolverFactory.getInstance();
+      resolver = factory.newResolver();
    }
 
    XModule installModule(Archive<?> archive) throws Exception
@@ -73,7 +75,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest
          headers.put(key.toString(), value);
       }
 
-      XModuleBuilder builder = XResolverFactory.load(XModuleBuilder.class);
+      XModuleBuilder builder = factory.newModuleBuilder();
       XModule module = builder.createModule(metadata, 0).getModule();
 
       Bundle bundle = Mockito.mock(Bundle.class);
