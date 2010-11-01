@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import org.apache.felix.framework.FelixResolverState;
 import org.apache.felix.framework.Logger;
 import org.apache.felix.framework.capabilityset.Attribute;
 import org.apache.felix.framework.capabilityset.Capability;
@@ -37,6 +36,7 @@ import org.apache.felix.framework.capabilityset.Directive;
 import org.apache.felix.framework.capabilityset.Requirement;
 import org.apache.felix.framework.util.Util;
 import org.apache.felix.framework.util.manifestparser.RequirementImpl;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 
 public class ResolverImpl implements Resolver
@@ -58,8 +58,6 @@ public class ResolverImpl implements Resolver
     public ResolverImpl(Logger logger)
     {
         m_logger = logger;
-
-        String v = System.getProperty("invoke.count");
     }
 
     public Map<Module, List<Wire>> resolve(ResolverState state, Module module)
@@ -111,7 +109,11 @@ public class ResolverImpl implements Resolver
                     catch (ResolveException ex)
                     {
                         rethrow = ex;
-                        System.out.println("RE: " + ex);
+                        m_logger.log(
+                            module.getBundle(),
+                            Logger.LOG_DEBUG,
+                            "Current candidate permutation failed, will try another if possible.",
+                            ex);
                     }
                 }
                 while ((rethrow != null)
@@ -188,7 +190,11 @@ public class ResolverImpl implements Resolver
                     catch (ResolveException ex)
                     {
                         rethrow = ex;
-                        System.out.println("RE: " + ex);
+                        m_logger.log(
+                            module.getBundle(),
+                            Logger.LOG_DEBUG,
+                            "Current candidate permutation failed, will try another if possible.",
+                            ex);
                     }
                 }
                 while ((rethrow != null)
@@ -230,7 +236,7 @@ public class ResolverImpl implements Resolver
         // If the module doesn't have dynamic imports, then just return
         // immediately.
         List<Requirement> dynamics = module.getDynamicRequirements();
-        if ((dynamics == null) || (dynamics.size() == 0))
+        if ((dynamics == null) || dynamics.isEmpty())
         {
             return null;
         }
@@ -404,11 +410,23 @@ public class ResolverImpl implements Resolver
             Requirement req = remainingReqs.remove(0);
 
             // Get satisfying candidates and populate their candidates if necessary.
+            ResolveException rethrow = null;
             Set<Capability> candidates = state.getCandidates(module, req, true);
             for (Iterator<Capability> itCandCap = candidates.iterator(); itCandCap.hasNext(); )
             {
                 Capability candCap = itCandCap.next();
-                if (!candCap.getModule().isResolved())
+
+                // If the candidate module is not resolved and not the current
+                // module we are trying to populate, then try to populate the
+                // candidate module as well.
+                // NOTE: Technically, we don't have to check to see if the
+                // candidate module is equal to the current module, but this
+                // saves us from recursing and also simplifies exceptions messages
+                // since we effectively chain exception messages for each level
+                // of recursion; thus, any avoided recursion results in fewer
+                // exceptions to chain when an error does occur.
+                if (!candCap.getModule().isResolved()
+                    && !candCap.getModule().equals(module))
                 {
                     try
                     {
@@ -417,6 +435,10 @@ public class ResolverImpl implements Resolver
                     }
                     catch (ResolveException ex)
                     {
+                        if (rethrow == null)
+                        {
+                            rethrow = ex;
+                        }
                         // Remove the candidate since we weren't able to
                         // populate its candidates.
                         itCandCap.remove();
@@ -427,14 +449,22 @@ public class ResolverImpl implements Resolver
             // If there are no candidates for the current requirement
             // and it is not optional, then create, cache, and throw
             // a resolve exception.
-            if ((candidates.size() == 0) && !req.isOptional())
+            if (candidates.isEmpty() && !req.isOptional())
             {
-                ResolveException ex =
-                    new ResolveException("Unable to resolve " + module
-                        + ": missing requirement " + req, module, req);
-                resultCache.put(module, ex);
-                m_logger.log(Logger.LOG_DEBUG, "No viable candidates", ex);
-                throw ex;
+                String msg = "Unable to resolve " + module
+                    + ": missing requirement " + req;
+                if (rethrow != null)
+                {
+                    msg = msg + " [caused by: " + rethrow.getMessage() + "]";
+                }
+                rethrow = new ResolveException(msg, module, req);
+                resultCache.put(module, rethrow);
+                m_logger.log(
+                    module.getBundle(),
+                    Logger.LOG_DEBUG,
+                    "No viable candidates",
+                    rethrow);
+                throw rethrow;
             }
             // If we actually have candidates for the requirement, then
             // add them to the local candidate map.
@@ -470,6 +500,7 @@ public class ResolverImpl implements Resolver
         // There should be one entry in the candidate map, which are the
         // the candidates for the matching dynamic requirement. Get the
         // matching candidates and populate their candidates if necessary.
+        ResolveException rethrow = null;
         Entry<Requirement, Set<Capability>> entry = candidateMap.entrySet().iterator().next();
         Requirement dynReq = entry.getKey();
         Set<Capability> candidates = entry.getValue();
@@ -485,15 +516,23 @@ public class ResolverImpl implements Resolver
                 }
                 catch (ResolveException ex)
                 {
+                    if (rethrow == null)
+                    {
+                        rethrow = ex;
+                    }
                     itCandCap.remove();
                 }
             }
         }
 
-        if (candidates.size() == 0)
+        if (candidates.isEmpty())
         {
             candidateMap.remove(dynReq);
-            throw new ResolveException("Dynamic import failed.", module, dynReq);
+            if (rethrow == null)
+            {
+                rethrow = new ResolveException("Dynamic import failed.", module, dynReq);
+            }
+            throw rethrow;
         }
     }
 
@@ -837,10 +876,8 @@ public class ResolverImpl implements Resolver
         Packages pkgs = modulePkgMap.get(module);
 
         ResolveException rethrow = null;
-        Map<Requirement, Set<Capability>> copyConflict = null;
+        Map<Requirement, Set<Capability>> permutation = null;
         Set<Requirement> mutated = null;
-
-        Set<Module> checkModules = new HashSet();
 
         // Check for conflicting imports from fragments.
         for (Entry<String, List<Blame>> entry : pkgs.m_importedPkgs.entrySet())
@@ -857,38 +894,21 @@ public class ResolverImpl implements Resolver
                     else if (!sourceBlame.m_cap.equals(blame.m_cap))
                     {
                         // Try to permutate the conflicting requirement.
-                        Requirement req = blame.m_reqs.get(0);
-                        Set<Capability> candidates = candidateMap.get(req);
-                        if (candidates.size() > 1)
-                        {
-                            Map<Requirement, Set<Capability>> importPerm =
-                                copyCandidateMap(candidateMap);
-                            candidates = importPerm.get(req);
-                            Iterator it = candidates.iterator();
-                            it.next();
-                            it.remove();
-                            m_importPermutations.add(importPerm);
-                        }
+                        permutate(candidateMap, blame.m_reqs.get(0), m_importPermutations);
                         // Try to permutate the source requirement.
-                        req = sourceBlame.m_reqs.get(0);
-                        candidates = candidateMap.get(req);
-                        if (candidates.size() > 1)
-                        {
-                            Map<Requirement, Set<Capability>> importPerm =
-                                copyCandidateMap(candidateMap);
-                            candidates = importPerm.get(req);
-                            Iterator it = candidates.iterator();
-                            it.next();
-                            it.remove();
-                            m_importPermutations.add(importPerm);
-                        }
+                        permutate(candidateMap, sourceBlame.m_reqs.get(0), m_importPermutations);
+                        // Report conflict.
                         ResolveException ex = new ResolveException(
                             "Constraint violation for package '"
                             + entry.getKey() + "' when resolving module "
                             + module + " between an import "
                             + sourceBlame + " and a fragment import "
                             + blame, module, blame.m_reqs.get(0));
-                        m_logger.log(Logger.LOG_DEBUG, "Conflicting fragment import", ex);
+                        m_logger.log(
+                            module.getBundle(),
+                            Logger.LOG_DEBUG,
+                            "Conflicting fragment import",
+                            ex);
                         throw ex;
                     }
                 }
@@ -907,10 +927,10 @@ public class ResolverImpl implements Resolver
             {
                 if (!isCompatible(exportBlame.m_cap, usedBlame.m_cap, modulePkgMap))
                 {
-                    // Create a candidate permutation that eliminates any candidates
+                    // Create a candidate permutation that eliminates all candidates
                     // that conflict with existing selected candidates.
-                    copyConflict = (copyConflict != null)
-                        ? copyConflict
+                    permutation = (permutation != null)
+                        ? permutation
                         : copyCandidateMap(candidateMap);
                     rethrow = (rethrow != null)
                         ? rethrow
@@ -940,7 +960,7 @@ public class ResolverImpl implements Resolver
                         // See if we can permutate the candidates for blamed
                         // requirement; there may be no candidates if the module
                         // associated with the requirement is already resolved.
-                        Set<Capability> candidates = copyConflict.get(req);
+                        Set<Capability> candidates = permutation.get(req);
                         if ((candidates != null) && (candidates.size() > 1))
                         {
                             mutated.add(req);
@@ -958,9 +978,15 @@ public class ResolverImpl implements Resolver
             {
                 if (mutated.size() > 0)
                 {
-                    m_usesPermutations.add(copyConflict);
+                    m_usesPermutations.add(permutation);
                 }
-                m_logger.log(Logger.LOG_DEBUG, "Conflict between an export and import", rethrow);
+                Bundle bundle =
+                    (rethrow.getModule() != null) ? rethrow.getModule().getBundle() : null;
+                m_logger.log(
+                    bundle,
+                    Logger.LOG_DEBUG,
+                    "Conflict between an export and import",
+                    rethrow);
                 throw rethrow;
             }
         }
@@ -970,11 +996,6 @@ public class ResolverImpl implements Resolver
         {
             for (Blame importBlame : entry.getValue())
             {
-                if (!module.equals(importBlame.m_cap.getModule()))
-                {
-                    checkModules.add(importBlame.m_cap.getModule());
-                }
-
                 String pkgName = entry.getKey();
                 if (!pkgs.m_usedPkgs.containsKey(pkgName))
                 {
@@ -986,8 +1007,8 @@ public class ResolverImpl implements Resolver
                     {
                         // Create a candidate permutation that eliminates any candidates
                         // that conflict with existing selected candidates.
-                        copyConflict = (copyConflict != null)
-                            ? copyConflict
+                        permutation = (permutation != null)
+                            ? permutation
                             : copyCandidateMap(candidateMap);
                         rethrow = (rethrow != null)
                             ? rethrow
@@ -1017,7 +1038,7 @@ public class ResolverImpl implements Resolver
                             // See if we can permutate the candidates for blamed
                             // requirement; there may be no candidates if the module
                             // associated with the requirement is already resolved.
-                            Set<Capability> candidates = copyConflict.get(req);
+                            Set<Capability> candidates = permutation.get(req);
                             if ((candidates != null) && (candidates.size() > 1))
                             {
                                 mutated.add(req);
@@ -1031,34 +1052,41 @@ public class ResolverImpl implements Resolver
                     }
                 }
 
+                // If there was a uses conflict, then we should add a uses
+                // permutation if we were able to permutate any candidates.
+                // Additionally, we should try to push an import permutation
+                // for the original import to force a backtracking on the
+                // original candidate decision if no viable candidate is found
+                // for the conflicting uses constraint.
                 if (rethrow != null)
                 {
-                    // If we couldn't permutate the uses constraints,
-                    // then try to permutate the import.
-// TODO: FELIX3 - Maybe we will push too many permutations this way, since
-//       we will push one on each level as we move down.
+                    // Add uses permutation if we mutated any candidates.
+                    if (mutated.size() > 0)
+                    {
+                        m_usesPermutations.add(permutation);
+                    }
+
+                    // Try to permutate the candidate for the original
+                    // import requirement; only permutate it if we haven't
+                    // done so already.
                     Requirement req = importBlame.m_reqs.get(0);
                     if (!mutated.contains(req))
                     {
-                        Set<Capability> candidates = candidateMap.get(req);
-                        if (candidates.size() > 1)
-                        {
-                            Map<Requirement, Set<Capability>> importPerm =
-                                copyCandidateMap(candidateMap);
-                            candidates = importPerm.get(req);
-                            Iterator it = candidates.iterator();
-                            it.next();
-                            it.remove();
-                            m_importPermutations.add(importPerm);
-                        }
+                        // Since there may be lots of uses constraint violations
+                        // with existing import decisions, we may end up trying
+                        // to permutate the same import a lot of times, so we should
+                        // try to check if that the case and only permutate it once.
+                        permutateIfNeeded(candidateMap, req, m_importPermutations);
                     }
 
-                    if (mutated.size() > 0)
-                    {
-                        m_usesPermutations.add(copyConflict);
-                    }
-
-                    m_logger.log(Logger.LOG_DEBUG, "Conflict between imports", rethrow);
+                    Bundle bundle =
+                        (rethrow.getModule() != null)
+                            ? rethrow.getModule().getBundle() : null;
+                    m_logger.log(
+                        bundle,
+                        Logger.LOG_DEBUG,
+                        "Conflict between imports",
+                        rethrow);
                     throw rethrow;
                 }
             }
@@ -1067,10 +1095,84 @@ public class ResolverImpl implements Resolver
         resultCache.put(module, Boolean.TRUE);
 
         // Now check the consistency of all modules on which the
-        // current module depends.
-        for (Module m : checkModules)
+        // current module depends. Keep track of the current number
+        // of permutations so we know if the lower level check was
+        // able to create a permutation or not in the case of failure.
+        int permCount = m_usesPermutations.size() + m_importPermutations.size();
+        for (Entry<String, List<Blame>> entry : pkgs.m_importedPkgs.entrySet())
         {
-            checkPackageSpaceConsistency(m, candidateMap, modulePkgMap, capDepSet, resultCache);
+            for (Blame importBlame : entry.getValue())
+            {
+                if (!module.equals(importBlame.m_cap.getModule()))
+                {
+                    try
+                    {
+                        checkPackageSpaceConsistency(
+                            importBlame.m_cap.getModule(), candidateMap, modulePkgMap,
+                            capDepSet, resultCache);
+                    }
+                    catch (ResolveException ex)
+                    {
+                        // If the lower level check didn't create any permutations,
+                        // then we should create an import permutation for the
+                        // requirement with the dependency on the failing module
+                        // to backtrack on our current candidate selection.
+                        if (permCount == (m_usesPermutations.size() + m_importPermutations.size()))
+                        {
+                            Requirement req = importBlame.m_reqs.get(0);
+                            permutate(candidateMap, req, m_importPermutations);
+                        }
+                        throw ex;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void permutate(
+        Map<Requirement, Set<Capability>> candidateMap, Requirement req,
+        List<Map<Requirement, Set<Capability>>> permutations)
+    {
+        Set<Capability> candidates = candidateMap.get(req);
+        if (candidates.size() > 1)
+        {
+            Map<Requirement, Set<Capability>> perm = copyCandidateMap(candidateMap);
+            candidates = perm.get(req);
+            Iterator it = candidates.iterator();
+            it.next();
+            it.remove();
+            permutations.add(perm);
+        }
+    }
+
+    private static void permutateIfNeeded(
+        Map<Requirement, Set<Capability>> candidateMap, Requirement req,
+        List<Map<Requirement, Set<Capability>>> permutations)
+    {
+        Set<Capability> candidates = candidateMap.get(req);
+        if (candidates.size() > 1)
+        {
+            // Check existing permutations to make sure we haven't
+            // already permutated this requirement. This check for
+            // duplicate permutations is simplistic. It assumes if
+            // there is any permutation that contains a different
+            // initial candidate for the requirement in question,
+            // then it has already been permutated.
+            boolean permutated = false;
+            for (Map<Requirement, Set<Capability>> existingPerm : permutations)
+            {
+                Set<Capability> existingPermCands = existingPerm.get(req);
+                if (!existingPermCands.iterator().next().equals(candidates.iterator().next()))
+                {
+                    permutated = true;
+                }
+            }
+            // If we haven't already permutated the existing
+            // import, do so now.
+            if (!permutated)
+            {
+                permutate(candidateMap, req, permutations);
+            }
         }
     }
 
@@ -1082,12 +1184,13 @@ public class ResolverImpl implements Resolver
         {
             return;
         }
-        packages = new Packages();
+        packages = new Packages(module);
 
         List<Capability> caps = module.getCapabilities();
 
         if (caps.size() > 0)
         {
+            // Grab all exported packages that are not also imported.
             for (int i = 0; i < caps.size(); i++)
             {
 // TODO: FELIX3 - Assume if a module imports the same package it
@@ -1339,7 +1442,7 @@ public class ResolverImpl implements Resolver
                 Set<Capability> candidates = candidateMap.get(req);
                 if ((candidates != null) && (candidates.size() > 0))
                 {
-                        System.out.println("    " + req + ": " + candidates);
+                    System.out.println("    " + req + ": " + candidates);
                 }
             }
             for (Requirement req : module.getDynamicRequirements())
@@ -1390,31 +1493,34 @@ public class ResolverImpl implements Resolver
 
     private static class Packages
     {
+        private final Module m_module;
         public final Map<String, Blame> m_exportedPkgs = new HashMap();
         public final Map<String, List<Blame>> m_importedPkgs = new HashMap();
         public final Map<String, List<Blame>> m_requiredPkgs = new HashMap();
         public final Map<String, List<Blame>> m_usedPkgs = new HashMap();
 
-        public Packages()
+        public Packages(Module module)
         {
-        }
-
-        public Packages(Packages packages)
-        {
-            m_exportedPkgs.putAll(packages.m_exportedPkgs);
-            m_importedPkgs.putAll(packages.m_importedPkgs);
-            m_requiredPkgs.putAll(packages.m_requiredPkgs);
-            m_usedPkgs.putAll(packages.m_usedPkgs);
+            m_module = module;
         }
 
         public List<String> getExportedAndReexportedPackages()
         {
             List<String> pkgs = new ArrayList();
-            for (Entry<String, Blame> entry : m_exportedPkgs.entrySet())
+            // Grab the module's actual exported packages.
+            // Note that we ignore the calculated exported packages here,
+            // because bundles that import their own exports still continue
+            // to provide access to their exports when they are required; i.e.,
+            // the implicitly reexport the packages if wired to another provider.
+            for (Capability cap : m_module.getCapabilities())
             {
-                pkgs.add((String)
-                    entry.getValue().m_cap.getAttribute(Capability.PACKAGE_ATTR).getValue());
+                if (cap.getNamespace().equals(Capability.PACKAGE_NAMESPACE))
+                {
+                    pkgs.add((String)
+                        cap.getAttribute(Capability.PACKAGE_ATTR).getValue());
+                }
             }
+            // Grab all required and reexported required packages.
             for (Entry<String, List<Blame>> entry : m_requiredPkgs.entrySet())
             {
                 for (Blame blame : entry.getValue())

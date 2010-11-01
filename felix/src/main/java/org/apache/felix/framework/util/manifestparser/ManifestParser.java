@@ -1142,21 +1142,26 @@ public class ManifestParser
                             + headerMap.get(Constants.FRAGMENT_HOST));
                 }
 
-                // If the bundle version matching attribute is specified, then
-                // convert it to the proper type.
-                for (int attrIdx = 0;
-                    attrIdx < clauses.get(0).m_attrs.size();
-                    attrIdx++)
+                // Strip all attributes other than bundle-version.
+                for (Iterator<Attribute> it = clauses.get(0).m_attrs.iterator(); it.hasNext(); )
                 {
-                    Attribute attr = clauses.get(0).m_attrs.get(attrIdx);
-                    if (attr.getName().equals(Constants.BUNDLE_VERSION_ATTRIBUTE))
+                    Attribute attr = it.next();
+                    if (!attr.getName().equals(Constants.BUNDLE_VERSION_ATTRIBUTE))
                     {
-                        clauses.get(0).m_attrs.set(attrIdx,
-                            new Attribute(
-                                Constants.BUNDLE_VERSION_ATTRIBUTE,
-                                VersionRange.parse(attr.getValue().toString()),
-                                attr.isMandatory()));
+                        it.remove();
                     }
+                }
+
+                // If the bundle-version attribute is specified, then convert
+                // it to the proper type.
+                if (clauses.get(0).m_attrs.size() == 1)
+                {
+                    Attribute attr = clauses.get(0).m_attrs.get(0);
+                    clauses.get(0).m_attrs.set(0,
+                        new Attribute(
+                            Constants.BUNDLE_VERSION_ATTRIBUTE,
+                            VersionRange.parse(attr.getValue().toString()),
+                            attr.isMandatory()));
                 }
 
                 // Prepend the host symbolic name to the array of attributes.
@@ -1178,7 +1183,10 @@ public class ManifestParser
             String s = (String) headerMap.get(Constants.BUNDLE_SYMBOLICNAME);
             s = (s == null) ? (String) headerMap.get(Constants.BUNDLE_NAME) : s;
             s = (s == null) ? headerMap.toString() : s;
-            logger.log(Logger.LOG_WARNING, "Only R4 bundles can be fragments: " + s);
+            logger.log(
+                owner.getBundle(),
+                Logger.LOG_WARNING,
+                "Only R4 bundles can be fragments: " + s);
         }
 
         return reqs;

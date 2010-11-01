@@ -21,6 +21,7 @@
  */
 package org.jboss.osgi.resolver.felix;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,15 @@ public class FelixResolver extends AbstractResolver implements XResolver
    {
       ModuleExt hostModule = (ModuleExt)resolverState.findHost(fragModule);
       return hostModule;
+   }
+
+   public List<ModuleExt> findFragments(ModuleExt hostModule)
+   {
+      List<ModuleExt> frags = new ArrayList<ModuleExt>();
+      for (Module m : resolverState.findFragments(hostModule))
+         frags.add((ModuleExt)m);
+
+      return frags;
    }
 
    @Override

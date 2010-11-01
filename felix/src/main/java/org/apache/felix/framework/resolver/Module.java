@@ -61,7 +61,7 @@ public interface Module
     boolean isStale();
     boolean isRemovalPending();
     boolean impliesDirect(Permission permission);
-    
+
     // Fragment access methods.
     void attachFragments(List<Module> fragments) throws Exception;
     List<Module> getFragments();

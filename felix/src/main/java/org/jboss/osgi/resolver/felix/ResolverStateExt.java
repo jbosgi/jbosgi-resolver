@@ -21,6 +21,7 @@
  */
 package org.jboss.osgi.resolver.felix;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.framework.FelixResolverState;
@@ -87,6 +88,11 @@ public class ResolverStateExt implements ResolverState
    public Module findHost(Module rootModule) throws ResolveException
    {
       return delegate.findHost(rootModule);
+   }
+
+   public List<Module> findFragments(Module hostModule) throws ResolveException
+   {
+      return delegate.getMatchingFragments(hostModule);
    }
 
    public void moduleResolved(Module module)

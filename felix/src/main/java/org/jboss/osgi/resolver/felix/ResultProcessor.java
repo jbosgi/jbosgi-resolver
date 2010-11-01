@@ -30,6 +30,7 @@ import org.apache.felix.framework.capabilityset.Requirement;
 import org.apache.felix.framework.resolver.FragmentRequirement;
 import org.apache.felix.framework.resolver.Module;
 import org.apache.felix.framework.resolver.Wire;
+import org.apache.felix.framework.util.Util;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XFragmentHostRequirement;
@@ -103,25 +104,56 @@ public class ResultProcessor
       {
          AbstractModule importer = (AbstractModule)req.getModule();
          XPackageCapability cap = getMatchingPackageCapability(importer, req);
-         
-         // If the importer is a fragment, scan the host's wires
-         if (cap == null && importer.isFragment())
+         XModule exporter = null;
+
+         if (cap == null)
          {
             Requirement freq = req.getAttachment(Requirement.class);
-            
-            XModule host = getFragmentHost(importer);
-            ModuleExt hostExt = host.getAttachment(ModuleExt.class);
-            Wire fwire = findWireForRequirement(hostExt.getWires(), freq);
-            if (fwire != null)
+            if (importer.isFragment())
             {
-               cap = (XPackageCapability)findCapability((ModuleExt)fwire.getExporter(), fwire.getCapability());
+               XModule host = getFragmentHost(importer);
+               ModuleExt hostExt = host.getAttachment(ModuleExt.class);
+               Wire fwire = findWireForRequirement(hostExt.getWires(), freq);
+               if (fwire != null)
+               {
+                  cap = (XPackageCapability)findCapability((ModuleExt)fwire.getExporter(), fwire.getCapability());
+               }
+               else
+               {
+                  // If the host has the capability but nobody imports it, there is no wire yet
+                  // in that case find the capability directly in the host.
+                  Capability fcap = Util.getSatisfyingCapability(hostExt, freq);
+                  if (fcap != null)
+                     cap = (XPackageCapability)findCapability(hostExt, fcap);
+               }
+            }
+            else
+            {
+               // If the importer is not a fragment, but the capability is provided by its fragments...
+               for (XModule frag : getFragments(importer))
+               {
+                  ModuleExt fragExt = frag.getAttachment(ModuleExt.class);
+                  Capability fcap = Util.getSatisfyingCapability(fragExt, freq);
+                  if (fcap != null)
+                  {
+                     cap = (XPackageCapability)findCapability(fragExt, fcap);
+                     if (cap != null)
+                     {
+                        // The actual wire is exported by the host, not the fragment
+                        exporter = importer;
+                        break;
+                     }
+                  }
+               }
             }
          }
-         
+
          // Add the additional wire
          if (cap != null)
          {
-            XModule exporter = cap.getModule();
+            if (exporter == null)
+               exporter = cap.getModule();
+
             wire = resolver.addWire(importer, req, exporter, cap);
          }
       }
@@ -156,6 +188,16 @@ public class ResultProcessor
       ModuleExt fHost = resolver.findHost(ffrag);
       XModule hostModule = fHost.getModule();
       return hostModule;
+   }
+
+   private List<XModule> getFragments(XModule hostModule)
+   {
+      ModuleExt host = hostModule.getAttachment(ModuleExt.class);
+      List<XModule> fragModules = new ArrayList<XModule>();
+      for (ModuleExt frag : resolver.findFragments(host))
+         fragModules.add(frag.getModule());
+
+      return fragModules;
    }
 
    public void setResolved(ModuleExt moduleExt)

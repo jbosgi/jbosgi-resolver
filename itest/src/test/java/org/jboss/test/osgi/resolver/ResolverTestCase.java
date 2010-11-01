@@ -31,6 +31,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -40,7 +41,6 @@ import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResolverException;
 import org.jboss.osgi.resolver.XWire;
 import org.jboss.shrinkwrap.api.Archive;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -907,7 +907,6 @@ public class ResolverTestCase extends AbstractResolverTestCase
       assertEquals(moduleH, bundleWire.getExporter());
    }
 
-   @Ignore("JBOSGI-402")
    @Test
    public void testHostDependsOnFragmentPackage() throws Exception
    {
@@ -930,5 +929,31 @@ public class ResolverTestCase extends AbstractResolverTestCase
       List<XModule> resolved = new ArrayList<XModule>();
       resolver.setCallbackHandler(new ResolverCallback(resolved));
       assertTrue(resolver.resolveAll(null));
+
+      assertTrue(moduleH.isResolved());
+      assertTrue(moduleF.isResolved());
+
+      assertEquals(1, moduleH.getWires().size());
+      XWire hostWire = moduleH.getWires().get(0);
+      assertTrue(hostWire.getRequirement() instanceof XPackageRequirement);
+      assertEquals(moduleF, hostWire.getCapability().getModule());
+      assertEquals("Fragment wire is exported by module itself", moduleH, hostWire.getExporter());
+      assertEquals(2, moduleF.getWires().size());
+      List<XWire> wires = new ArrayList<XWire>(moduleF.getWires());
+      for (Iterator<XWire> it = wires.iterator(); it.hasNext();)
+      {
+         XWire wire = it.next();
+         if (wire.getRequirement() instanceof XFragmentHostRequirement)
+         {
+            assertEquals(moduleH, wire.getExporter());
+            it.remove();
+         }
+      }
+
+      assertEquals(1, wires.size());
+      XWire fragWire = wires.get(0);
+      assertTrue(fragWire.getRequirement() instanceof XPackageRequirement);
+      assertEquals(moduleH, fragWire.getCapability().getModule());
+      assertEquals(moduleH, fragWire.getExporter());
    }
 }

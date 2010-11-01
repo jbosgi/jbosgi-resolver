@@ -71,15 +71,15 @@ public class FelixResolverState implements Resolver.ResolverState
 
         List<String> indices = new ArrayList<String>();
         indices.add(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE);
-        m_capSets.put(Capability.MODULE_NAMESPACE, new CapabilitySet(indices));
+        m_capSets.put(Capability.MODULE_NAMESPACE, new CapabilitySet(indices, true));
 
         indices = new ArrayList<String>();
         indices.add(Capability.PACKAGE_ATTR);
-        m_capSets.put(Capability.PACKAGE_NAMESPACE, new CapabilitySet(indices));
+        m_capSets.put(Capability.PACKAGE_NAMESPACE, new CapabilitySet(indices, true));
 
         indices = new ArrayList<String>();
         indices.add(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE);
-        m_capSets.put(Capability.HOST_NAMESPACE,  new CapabilitySet(indices));
+        m_capSets.put(Capability.HOST_NAMESPACE, new CapabilitySet(indices, true));
     }
 
     public synchronized void addModule(Module module)
@@ -140,7 +140,7 @@ public class FelixResolverState implements Resolver.ResolverState
         if (modules != null)
         {
             modules.remove(module);
-            if (modules.size() == 0)
+            if (modules.isEmpty())
             {
                 m_singletons.remove(module.getSymbolicName());
             }
@@ -175,7 +175,7 @@ public class FelixResolverState implements Resolver.ResolverState
             {
                 // Ignore
             }
-            m_logger.log(Logger.LOG_ERROR,
+            m_logger.log(host.getBundle(), Logger.LOG_ERROR,
                 "Serious error attaching fragments.", ex);
         }
     }
@@ -302,7 +302,7 @@ public class FelixResolverState implements Resolver.ResolverState
                     {
                         // Ignore
                     }
-                    m_logger.log(Logger.LOG_ERROR,
+                    m_logger.log(host.getBundle(), Logger.LOG_ERROR,
                         "Serious error attaching fragments.", ex);
                 }
 
@@ -361,7 +361,7 @@ public class FelixResolverState implements Resolver.ResolverState
                         {
                             // Ignore
                         }
-                        m_logger.log(Logger.LOG_ERROR,
+                        m_logger.log(host.getBundle(), Logger.LOG_ERROR,
                             "Serious error attaching fragments.", ex);
                     }
 
@@ -382,7 +382,7 @@ public class FelixResolverState implements Resolver.ResolverState
                 CapabilitySet capSet = m_capSets.get(cap.getNamespace());
                 if (capSet == null)
                 {
-                    capSet = new CapabilitySet(null);
+                    capSet = new CapabilitySet(null, true);
                     m_capSets.put(cap.getNamespace(), capSet);
                 }
                 capSet.addCapability(cap);
@@ -450,7 +450,8 @@ public class FelixResolverState implements Resolver.ResolverState
             }
             else if ((sm != null) && (hostCap.getModule().getSymbolicName() != null))
             {
-                if (!hostCap.getModule().impliesDirect(
+            if (!hostCap.getModule()
+                    .impliesDirect(
                         new BundlePermission(hostCap.getModule().getSymbolicName(),
                             BundlePermission.HOST)))
                 {
@@ -499,7 +500,7 @@ public class FelixResolverState implements Resolver.ResolverState
                 {
                     // Ignore
                 }
-                m_logger.log(Logger.LOG_ERROR,
+                m_logger.log(host.getBundle(), Logger.LOG_ERROR,
                     "Serious error attaching fragments.", ex);
             }
         }
@@ -538,14 +539,15 @@ public class FelixResolverState implements Resolver.ResolverState
         }
         catch (Exception ex)
         {
-            m_logger.log(Logger.LOG_ERROR, "Error detaching fragments.", ex);
+            m_logger.log(
+                host.getBundle(), Logger.LOG_ERROR, "Error detaching fragments.", ex);
         }
         // Set wires to null, which will remove the module from all
         // of its dependent modules.
         host.setWires(null);
     }
 
-    private List<Module> getMatchingFragments(Module host)
+    public List<Module> getMatchingFragments(Module host)
     {
         // Find the host capability for the current host.
         List<Capability> caps = Util.getCapabilityByNamespace(host, Capability.HOST_NAMESPACE);
