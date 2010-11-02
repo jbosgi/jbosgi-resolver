@@ -225,7 +225,7 @@ public class AbstractModuleBuilder implements XModuleBuilder
       }
       catch (RuntimeException ex)
       {
-         throw new BundleException("Cannot initialize XModule from: " + metadata);
+         throw new BundleException("Cannot initialize XModule from: " + metadata, ex);
       }
    }
 
@@ -241,7 +241,7 @@ public class AbstractModuleBuilder implements XModuleBuilder
       for (String key : attribs.getDirectives().keySet())
       {
          Parameter param = attribs.getDirective(key);
-         dirs.put(key, param.getValue().toString());
+         dirs.put(key.trim(), param.getValue().toString().trim());
       }
       return dirs;
    }
@@ -252,7 +252,7 @@ public class AbstractModuleBuilder implements XModuleBuilder
       for (String key : attribs.getAttributes().keySet())
       {
          Parameter param = attribs.getAttribute(key);
-         atts.put(key, param.getValue().toString());
+         atts.put(key.trim(), param.getValue().toString().trim());
       }
       return atts;
    }

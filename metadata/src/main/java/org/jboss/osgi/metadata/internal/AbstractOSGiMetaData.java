@@ -271,4 +271,9 @@ public abstract class AbstractOSGiMetaData implements OSGiMetaData
    {
       initialStartLevel = sl;
    }
+
+   @Override
+   public String toString() {
+      return cachedAttributes.toString();
+   }
 }
