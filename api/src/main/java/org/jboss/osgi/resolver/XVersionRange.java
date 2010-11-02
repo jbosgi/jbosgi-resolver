@@ -83,6 +83,8 @@ public class XVersionRange
 
     public static XVersionRange parse(String range)
     {
+        range = range.trim();
+        
         // Check if the version is an interval.
         if (range.indexOf(',') >= 0)
         {
