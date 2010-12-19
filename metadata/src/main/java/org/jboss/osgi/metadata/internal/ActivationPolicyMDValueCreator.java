@@ -62,13 +62,23 @@ class ActivationPolicyMDValueCreator extends AbstractValueCreator<ActivationPoli
    {
       if (directive.startsWith(INCLUDE))
       {
-         String[] includes = directive.substring(INCLUDE.length() + 1, directive.length() - 1).split(",");
+         String[] includes = getPackageList(INCLUDE, directive);
          aap.setIncludes(Arrays.asList(includes));
       }
       else if (directive.startsWith(EXCLUDE))
       {
-         String[] excludes = directive.substring(EXCLUDE.length() + 1, directive.length() - 1).split(",");
+         String[] excludes = getPackageList(EXCLUDE, directive);
          aap.setExcludes(Arrays.asList(excludes));
       }
+   }
+
+   private String[] getPackageList(String prefix, String directive)
+   {
+      directive = directive.substring(prefix.length());
+      if (directive.startsWith("\"") && directive.endsWith("\""))
+         directive = directive.substring(1, directive.length() - 1);
+      if (directive.startsWith("'") && directive.endsWith("'"))
+         directive = directive.substring(1, directive.length() - 1);
+      return directive.split(",");
    }
 }
