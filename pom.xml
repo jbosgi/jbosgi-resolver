@@ -35,8 +35,8 @@
   <!-- Properties -->
   <properties>
     <version.jboss.common.core>2.2.17.GA</version.jboss.common.core>
-    <version.jboss.osgi.spi>1.0.20</version.jboss.osgi.spi>
-    <version.jboss.osgi.vfs>1.0.4</version.jboss.osgi.vfs>
+    <version.jboss.osgi.spi>1.0.21-SNAPSHOT</version.jboss.osgi.spi>
+    <version.jboss.osgi.vfs>1.0.5-SNAPSHOT</version.jboss.osgi.vfs>
     <version.jboss.shrinkwrap>1.0.0-alpha-11</version.jboss.shrinkwrap>
     <version.mockito>1.8.4</version.mockito>
     <version.osgi>4.2.0</version.osgi>
@@ -61,7 +61,7 @@
       <!-- Test Dependencies -->
       <dependency>
         <groupId>org.jboss.osgi.vfs</groupId>
-        <artifactId>jboss-osgi-vfs30</artifactId>
+        <artifactId>jbosgi-vfs30</artifactId>
         <version>${version.jboss.osgi.vfs}</version>
       </dependency>
       <dependency>
