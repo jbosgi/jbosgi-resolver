@@ -21,7 +21,8 @@
 */
 package org.jboss.osgi.metadata.internal;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jboss.osgi.metadata.ActivationPolicyMetaData;
 
@@ -46,9 +47,9 @@ class ActivationPolicyMDValueCreator extends AbstractValueCreator<ActivationPoli
       String[] split = attibute.split(";");
       aap.setType(split[0]);
       if (split.length > 1)
-         readDirective(aap, split[1]);
+         readDirective(aap, split[1].trim());
       if (split.length > 2)
-         readDirective(aap, split[2]);
+         readDirective(aap, split[2].trim());
       return aap;
    }
 
@@ -62,23 +63,28 @@ class ActivationPolicyMDValueCreator extends AbstractValueCreator<ActivationPoli
    {
       if (directive.startsWith(INCLUDE))
       {
-         String[] includes = getPackageList(INCLUDE, directive);
-         aap.setIncludes(Arrays.asList(includes));
+         List<String> list = getPackageList(INCLUDE, directive);
+         aap.setIncludes(list);
       }
       else if (directive.startsWith(EXCLUDE))
       {
-         String[] excludes = getPackageList(EXCLUDE, directive);
-         aap.setExcludes(Arrays.asList(excludes));
+         List<String> list = getPackageList(EXCLUDE, directive);
+         aap.setExcludes(list);
       }
    }
 
-   private String[] getPackageList(String prefix, String directive)
+   private List<String> getPackageList(String prefix, String directive)
    {
       directive = directive.substring(prefix.length());
       if (directive.startsWith("\"") && directive.endsWith("\""))
          directive = directive.substring(1, directive.length() - 1);
       if (directive.startsWith("'") && directive.endsWith("'"))
          directive = directive.substring(1, directive.length() - 1);
-      return directive.split(",");
+      
+      List<String> result = new ArrayList<String>();
+      for (String packname : directive.split(","))
+         result.add(packname.trim());
+      
+      return result;
    }
 }
