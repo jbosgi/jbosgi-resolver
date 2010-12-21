@@ -88,9 +88,9 @@ public abstract class AbstractOSGiMetaData implements OSGiMetaData
    protected transient int initialStartLevel = START_LEVEL_NOT_DEFINED;
 
    protected abstract Map<Name, String> getMainAttributes();
-   
+
    protected abstract String getMainAttribute(String key);
-   
+
    @SuppressWarnings({ "unchecked" })
    public Dictionary<String, String> getHeaders()
    {
@@ -164,8 +164,25 @@ public abstract class AbstractOSGiMetaData implements OSGiMetaData
       ParameterizedAttribute parameters = parseSymbolicName();
       if (parameters != null)
          symbolicName = parameters.getAttribute();
+      else if (getBundleManifestVersion() == 1)
+         symbolicName = ANONYMOUS_BUNDLE_SYMBOLIC_NAME;
 
       return symbolicName;
+   }
+
+   public Version getBundleVersion()
+   {
+      try
+      {
+         return get(BUNDLE_VERSION, VERSION_VC, Version.emptyVersion);
+      }
+      catch (NumberFormatException ex)
+      {
+         if (getBundleManifestVersion() == 2)
+            throw ex;
+
+         return Version.emptyVersion;
+      }
    }
 
    public ParameterizedAttribute getBundleParameters()
@@ -176,11 +193,6 @@ public abstract class AbstractOSGiMetaData implements OSGiMetaData
    public URL getBundleUpdateLocation()
    {
       return get(BUNDLE_UPDATELOCATION, URL_VC);
-   }
-
-   public Version getBundleVersion()
-   {
-      return get(BUNDLE_VERSION, VERSION_VC, Version.emptyVersion);
    }
 
    public List<PackageAttribute> getDynamicImports()
@@ -273,7 +285,8 @@ public abstract class AbstractOSGiMetaData implements OSGiMetaData
    }
 
    @Override
-   public String toString() {
+   public String toString()
+   {
       return cachedAttributes.toString();
    }
 }

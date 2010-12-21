@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.Dictionary;
 import java.util.List;
 
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
 /**
@@ -35,6 +36,9 @@ import org.osgi.framework.Version;
  */
 public interface OSGiMetaData 
 {
+   /** The fallback {@link Constants#BUNDLE_SYMBOLICNAME} for a v4.1 bundle */
+   final String ANONYMOUS_BUNDLE_SYMBOLIC_NAME = "anonymous-bundle-symbolic-name";
+   
    /**
     * Get the headers in raw unlocalized format.
     * 
