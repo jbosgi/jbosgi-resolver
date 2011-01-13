@@ -27,34 +27,33 @@ import org.osgi.framework.Version;
 
 /**
  * A package capability
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XPackageCapability extends XCapability 
-{
-   /**
-    * Get the package version
-    */
-   Version getVersion();
+public interface XPackageCapability extends XCapability {
+    /**
+     * Get the package version
+     */
+    Version getVersion();
 
-   /**
-    * Get the package names used by this package capability
-    */
-   List<String> getUses();
+    /**
+     * Get the package names used by this package capability
+     */
+    List<String> getUses();
 
-   /**
-    * Get the list of mandatory attriutes
-    */
-   List<String> getMandatory();
-   
-   /**
-    * Classes that must be visible to an importer
-    */
-   List<String> getInclude();
-   
-   /**
-    * Classes that must not be visible to an importer
-    */
-   List<String> getExclude();
+    /**
+     * Get the list of mandatory attriutes
+     */
+    List<String> getMandatory();
+
+    /**
+     * Classes that must be visible to an importer
+     */
+    List<String> getInclude();
+
+    /**
+     * Classes that must not be visible to an importer
+     */
+    List<String> getExclude();
 }

@@ -18,37 +18,33 @@
  */
 package org.jboss.osgi.resolver;
 
-
 /**
  * A resolver exception.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
 @SuppressWarnings("serial")
-public class XResolverException extends RuntimeException
-{
+public class XResolverException extends RuntimeException {
     private final XModule module;
     private final Object req;
 
     /**
      * Constructs an instance of <code>ResolverException</code> with the specified detail message.
+     * 
      * @param msg the detail message.
      */
-    public XResolverException(String msg, XModule module, Object req)
-    {
+    public XResolverException(String msg, XModule module, Object req) {
         super(msg);
         this.module = module;
         this.req = req;
     }
 
-    public XModule getModule()
-    {
+    public XModule getModule() {
         return module;
     }
 
-    public Object getRequirement()
-    {
+    public Object getRequirement() {
         return req;
     }
 }

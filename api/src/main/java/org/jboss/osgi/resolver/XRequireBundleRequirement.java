@@ -23,15 +23,14 @@ package org.jboss.osgi.resolver;
 
 /**
  * A bundle requirement
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XRequireBundleRequirement extends XRequirement 
-{
-   XVersionRange getVersionRange();
-   
-   String getVisibility();
-   
-   String getResolution();
+public interface XRequireBundleRequirement extends XRequirement {
+    XVersionRange getVersionRange();
+
+    String getVisibility();
+
+    String getResolution();
 }

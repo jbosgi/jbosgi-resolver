@@ -27,7 +27,6 @@ package org.jboss.osgi.resolver;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XResolverCallback 
-{
-   void markResolved(XModule module);
+public interface XResolverCallback {
+    void markResolved(XModule module);
 }

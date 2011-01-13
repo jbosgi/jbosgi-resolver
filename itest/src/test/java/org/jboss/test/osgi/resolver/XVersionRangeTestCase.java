@@ -38,8 +38,7 @@ import org.osgi.framework.Version;
  */
 public class XVersionRangeTestCase {
     @Test
-    public void testParseVersionRange1() 
-    {
+    public void testParseVersionRange1() {
         XVersionRange vr = XVersionRange.parse("1.6.0");
         assertEquals(Version.parseVersion("1.6.0"), vr.getFloor());
         assertTrue(vr.isFloorInclusive());
@@ -47,17 +46,15 @@ public class XVersionRangeTestCase {
     }
 
     @Test
-    public void testParseVersionRange2() 
-    {
+    public void testParseVersionRange2() {
         XVersionRange vr = XVersionRange.parse(" 1.6.0 ");
         assertEquals(Version.parseVersion("1.6.0"), vr.getFloor());
         assertTrue(vr.isFloorInclusive());
         assertNull(vr.getCeiling());
     }
-    
+
     @Test
-    public void testParseVersionRange3() 
-    {
+    public void testParseVersionRange3() {
         XVersionRange vr = XVersionRange.parse("[1,2]");
         assertEquals(Version.parseVersion("1"), vr.getFloor());
         assertTrue(vr.isFloorInclusive());
@@ -66,8 +63,7 @@ public class XVersionRangeTestCase {
     }
 
     @Test
-    public void testParseVersionRange4() 
-    {
+    public void testParseVersionRange4() {
         XVersionRange vr = XVersionRange.parse(" ( 1,2 ) ");
         assertEquals(Version.parseVersion("1"), vr.getFloor());
         assertFalse(vr.isFloorInclusive());

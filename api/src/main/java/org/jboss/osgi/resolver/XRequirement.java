@@ -23,30 +23,30 @@ package org.jboss.osgi.resolver;
 
 /**
  * A requirement
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XRequirement extends XElement, XAttributeSupport, XDirectiveSupport, XAttachmentSupport
-{
-   /**
-    * Get associated module.
-    */
-   XModule getModule();
+public interface XRequirement extends XElement, XAttributeSupport, XDirectiveSupport, XAttachmentSupport {
+    /**
+     * Get associated module.
+     */
+    XModule getModule();
 
-   /**
-    * True if this requirement is optional
-    */
-   boolean isOptional();
-   
-   /**
-    * True if this is a dynamic requirement.
-    */
-   boolean isDynamic();
-   
-   /**
-    * Get the wired capbillity for this requirement.
-    * @return The wired capabillity or null
-    */
-   XCapability getWiredCapability();
+    /**
+     * True if this requirement is optional
+     */
+    boolean isOptional();
+
+    /**
+     * True if this is a dynamic requirement.
+     */
+    boolean isDynamic();
+
+    /**
+     * Get the wired capbillity for this requirement.
+     * 
+     * @return The wired capabillity or null
+     */
+    XCapability getWiredCapability();
 }

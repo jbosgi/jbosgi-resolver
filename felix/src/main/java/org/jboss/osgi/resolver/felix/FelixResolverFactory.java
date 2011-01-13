@@ -32,17 +32,14 @@ import org.jboss.osgi.resolver.spi.AbstractModuleBuilder;
  * @author thomas.diesler@jboss.com
  * @since 28-Sep-2010
  */
-public class FelixResolverFactory extends XResolverFactory
-{
-   @Override
-   public XResolver newResolver()
-   {
-      return new FelixResolver();
-   }
+public class FelixResolverFactory extends XResolverFactory {
+    @Override
+    public XResolver newResolver() {
+        return new FelixResolver();
+    }
 
-   @Override
-   public XModuleBuilder newModuleBuilder()
-   {
-      return new AbstractModuleBuilder();
-   }
+    @Override
+    public XModuleBuilder newModuleBuilder() {
+        return new AbstractModuleBuilder();
+    }
 }

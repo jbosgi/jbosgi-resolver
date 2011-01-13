@@ -1,24 +1,24 @@
 /*
-* JBoss, Home of Professional Open Source
-* Copyright 2009, Red Hat Middleware LLC, and individual contributors
-* as indicated by the @author tags. See the copyright.txt file in the
-* distribution for a full listing of individual contributors.
-*
-* This is free software; you can redistribute it and/or modify it
-* under the terms of the GNU Lesser General Public License as
-* published by the Free Software Foundation; either version 2.1 of
-* the License, or (at your option) any later version.
-*
-* This software is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with this software; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-* 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-*/
+ * JBoss, Home of Professional Open Source
+ * Copyright 2009, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.jboss.osgi.metadata;
 
 import java.util.Collections;
@@ -37,148 +37,127 @@ import java.util.Vector;
  * @version $Revision: 1.1 $
  */
 @SuppressWarnings("rawtypes")
-public class CaseInsensitiveDictionary extends Hashtable
-{
-   private static final long serialVersionUID = 5802491129524016545L;
+public class CaseInsensitiveDictionary extends Hashtable {
+    private static final long serialVersionUID = 5802491129524016545L;
 
-   /** The delegate dictionary */
-   private Dictionary<String, Object> delegate;
+    /** The delegate dictionary */
+    private Dictionary<String, Object> delegate;
 
-   /** The original keys */
-   private Set<String> originalKeys;
+    /** The original keys */
+    private Set<String> originalKeys;
 
-   /**
-    * Create a new CaseInsensitiveDictionary.
-    * 
-    * @param delegate the delegate
-    */
-   @SuppressWarnings("unchecked")
-   public CaseInsensitiveDictionary(Dictionary delegate)
-   {
-      if (delegate == null)
-         throw new IllegalArgumentException("Null delegaqte");
+    /**
+     * Create a new CaseInsensitiveDictionary.
+     * 
+     * @param delegate the delegate
+     */
+    @SuppressWarnings("unchecked")
+    public CaseInsensitiveDictionary(Dictionary delegate) {
+        if (delegate == null)
+            throw new IllegalArgumentException("Null delegaqte");
 
-      this.delegate = new Hashtable<String, Object>(delegate.size());
-      this.originalKeys = Collections.synchronizedSet(new HashSet<String>());
-      Enumeration<String> e = delegate.keys();
-      while (e.hasMoreElements())
-      {
-         String key = e.nextElement();
-         if (get(key) != null)
-            throw new IllegalArgumentException("Properties contain duplicates with varying case for key=" + key + " : " + delegate);
+        this.delegate = new Hashtable<String, Object>(delegate.size());
+        this.originalKeys = Collections.synchronizedSet(new HashSet<String>());
+        Enumeration<String> e = delegate.keys();
+        while (e.hasMoreElements()) {
+            String key = e.nextElement();
+            if (get(key) != null)
+                throw new IllegalArgumentException("Properties contain duplicates with varying case for key=" + key + " : " + delegate);
 
-         this.delegate.put(key.toLowerCase(), delegate.get(key));
-         originalKeys.add(key);
-      }
-   }
+            this.delegate.put(key.toLowerCase(), delegate.get(key));
+            originalKeys.add(key);
+        }
+    }
 
-   public Enumeration<Object> elements()
-   {
-      return delegate.elements();
-   }
+    public Enumeration<Object> elements() {
+        return delegate.elements();
+    }
 
-   @SuppressWarnings("unchecked")
-   public synchronized boolean equals(Object obj)
-   {
-      if (obj == this)
-         return true;
-      if (obj == null || obj instanceof Dictionary == false)
-         return false;
-
-      Dictionary<String, Object> other = (Dictionary)obj;
-
-      if (size() != other.size())
-         return false;
-      if (isEmpty())
-         return true;
-
-      for (String key : originalKeys)
-      {
-         if (get(key).equals(other.get(key)))
+    @SuppressWarnings("unchecked")
+    public synchronized boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj instanceof Dictionary == false)
             return false;
-      }
-      return true;
-   }
 
-   public Object get(Object key)
-   {
-      if (key instanceof String)
-         key = ((String)key).toLowerCase();
-      return delegate.get(key);
-   }
+        Dictionary<String, Object> other = (Dictionary) obj;
 
-   public int hashCode()
-   {
-      return delegate.hashCode();
-   }
+        if (size() != other.size())
+            return false;
+        if (isEmpty())
+            return true;
 
-   public boolean isEmpty()
-   {
-      return delegate.isEmpty();
-   }
+        for (String key : originalKeys) {
+            if (get(key).equals(other.get(key)))
+                return false;
+        }
+        return true;
+    }
 
-   @SuppressWarnings("unchecked")
-   public Enumeration<String> keys()
-   {
-      return new Vector(originalKeys).elements();
-   }
+    public Object get(Object key) {
+        if (key instanceof String)
+            key = ((String) key).toLowerCase();
+        return delegate.get(key);
+    }
 
-   public Object put(Object key, Object value)
-   {
-      throw new UnsupportedOperationException("immutable");
-   }
+    public int hashCode() {
+        return delegate.hashCode();
+    }
 
-   public Object remove(Object key)
-   {
-      throw new UnsupportedOperationException("immutable");
-   }
+    public boolean isEmpty() {
+        return delegate.isEmpty();
+    }
 
-   @Override
-   public Set keySet()
-   {
-      return originalKeys;
-   }
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> keys() {
+        return new Vector(originalKeys).elements();
+    }
 
-   @Override
-   public Set entrySet()
-   {
-      Set<Map.Entry> entrySet = new HashSet<Map.Entry>();
-      for (final String key : originalKeys)
-      {
-         final Object value = get(key);
-         Map.Entry entry = new Map.Entry()
-         {
+    public Object put(Object key, Object value) {
+        throw new UnsupportedOperationException("immutable");
+    }
 
-            @Override
-            public Object getKey()
-            {
-               return key;
-            }
+    public Object remove(Object key) {
+        throw new UnsupportedOperationException("immutable");
+    }
 
-            @Override
-            public Object getValue()
-            {
-               return value;
-            }
+    @Override
+    public Set keySet() {
+        return originalKeys;
+    }
 
-            @Override
-            public Object setValue(Object value)
-            {
-               throw new UnsupportedOperationException("immutable");
-            }
-         };
-         entrySet.add(entry);
-      }
-      return entrySet;
-   }
+    @Override
+    public Set entrySet() {
+        Set<Map.Entry> entrySet = new HashSet<Map.Entry>();
+        for (final String key : originalKeys) {
+            final Object value = get(key);
+            Map.Entry entry = new Map.Entry() {
 
-   public int size()
-   {
-      return delegate.size();
-   }
+                @Override
+                public Object getKey() {
+                    return key;
+                }
 
-   public String toString()
-   {
-      return delegate.toString();
-   }
+                @Override
+                public Object getValue() {
+                    return value;
+                }
+
+                @Override
+                public Object setValue(Object value) {
+                    throw new UnsupportedOperationException("immutable");
+                }
+            };
+            entrySet.add(entry);
+        }
+        return entrySet;
+    }
+
+    public int size() {
+        return delegate.size();
+    }
+
+    public String toString() {
+        return delegate.toString();
+    }
 }

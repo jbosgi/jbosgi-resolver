@@ -28,44 +28,37 @@ import org.jboss.osgi.metadata.ActivationPolicyMetaData;
 
 /**
  * Activation policy impl.
- *
+ * 
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
  */
-public class AbstractActivationPolicyMetaData implements ActivationPolicyMetaData, Serializable
-{
-   private static final long serialVersionUID = 1L;
+public class AbstractActivationPolicyMetaData implements ActivationPolicyMetaData, Serializable {
+    private static final long serialVersionUID = 1L;
 
-   private String type = "lazy";
-   private List<String> includes;
-   private List<String> excludes;
+    private String type = "lazy";
+    private List<String> includes;
+    private List<String> excludes;
 
-   public String getType()
-   {
-      return type;
-   }
+    public String getType() {
+        return type;
+    }
 
-   public void setType(String type)
-   {
-      this.type = type;
-   }
+    public void setType(String type) {
+        this.type = type;
+    }
 
-   public List<String> getIncludes()
-   {
-      return includes;
-   }
+    public List<String> getIncludes() {
+        return includes;
+    }
 
-   public void setIncludes(List<String> includes)
-   {
-      this.includes = includes;
-   }
+    public void setIncludes(List<String> includes) {
+        this.includes = includes;
+    }
 
-   public List<String> getExcludes()
-   {
-      return excludes;
-   }
+    public List<String> getExcludes() {
+        return excludes;
+    }
 
-   public void setExcludes(List<String> excludes)
-   {
-      this.excludes = excludes;
-   }
+    public void setExcludes(List<String> excludes) {
+        this.excludes = excludes;
+    }
 }

@@ -30,90 +30,97 @@ import org.osgi.framework.Version;
 
 /**
  * A builder for resolver modules
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XModuleBuilder
-{
-   /**
-    * Create a module builder from OSGi metadata
-    * @param metadata The OSGi metadata
-    * @param revision The bundle revision
-    */
+public interface XModuleBuilder {
+    /**
+     * Create a module builder from OSGi metadata
+     * 
+     * @param metadata The OSGi metadata
+     * @param revision The bundle revision
+     */
     XModuleBuilder createModule(OSGiMetaData metadata, int revision) throws BundleException;
 
     /**
-    * Create an empty module builder
-    * @param name The module name
-    * @param version The module version
-    * @param revision The bundle revision
+     * Create an empty module builder
+     * 
+     * @param name The module name
+     * @param version The module version
+     * @param revision The bundle revision
      */
     XModuleBuilder createModule(String name, Version version, int revision);
 
-   /**
-    * Add a bundle capability
-    * @param symbolicName The bundle symbolic name
-    * @param version The bundle version
-    */
-   XBundleCapability addBundleCapability(String symbolicName, Version version);
+    /**
+     * Add a bundle capability
+     * 
+     * @param symbolicName The bundle symbolic name
+     * @param version The bundle version
+     */
+    XBundleCapability addBundleCapability(String symbolicName, Version version);
 
-   /**
-    * Add a {@link Constants#REQUIRE_BUNDLE} requirement
-    * @param symbolicName The bundle symbolic name
-    * @param dirs The directives
-    * @param atts The attributes
-    */
-   XRequireBundleRequirement addBundleRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts);
+    /**
+     * Add a {@link Constants#REQUIRE_BUNDLE} requirement
+     * 
+     * @param symbolicName The bundle symbolic name
+     * @param dirs The directives
+     * @param atts The attributes
+     */
+    XRequireBundleRequirement addBundleRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts);
 
-   /**
-    * Add a {@link Constants#FRAGMENT_HOST} requirement
-    * @param symbolicName The bundle symbolic name
-    * @param dirs The directives
-    * @param atts The attributes
-    */
-   XFragmentHostRequirement addFragmentHostRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts);
+    /**
+     * Add a {@link Constants#FRAGMENT_HOST} requirement
+     * 
+     * @param symbolicName The bundle symbolic name
+     * @param dirs The directives
+     * @param atts The attributes
+     */
+    XFragmentHostRequirement addFragmentHostRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts);
 
-   /**
-    * Add a {@link Constants#EXPORT_PACKAGE} capability
-    * @param name The package name
-    * @param dirs The directives
-    * @param atts The attributes
-    */
-   XPackageCapability addPackageCapability(String name, Map<String, String> dirs, Map<String, Object> atts);
+    /**
+     * Add a {@link Constants#EXPORT_PACKAGE} capability
+     * 
+     * @param name The package name
+     * @param dirs The directives
+     * @param atts The attributes
+     */
+    XPackageCapability addPackageCapability(String name, Map<String, String> dirs, Map<String, Object> atts);
 
-   /**
-    * Add a {@link Constants#IMPORT_PACKAGE} requirement
-    * @param name The package name
-    * @param dirs The directives
-    * @param atts The attributes
-    */
-   XPackageRequirement addPackageRequirement(String name, Map<String, String> dirs, Map<String, Object> atts);
+    /**
+     * Add a {@link Constants#IMPORT_PACKAGE} requirement
+     * 
+     * @param name The package name
+     * @param dirs The directives
+     * @param atts The attributes
+     */
+    XPackageRequirement addPackageRequirement(String name, Map<String, String> dirs, Map<String, Object> atts);
 
-   /**
-    * Add a {@link Constants#DYNAMICIMPORT_PACKAGE} requirement
-    * @param name The package name
-    * @param atts The attributes
-    */
-   XPackageRequirement addDynamicPackageRequirement(String name, Map<String, Object> atts);
+    /**
+     * Add a {@link Constants#DYNAMICIMPORT_PACKAGE} requirement
+     * 
+     * @param name The package name
+     * @param atts The attributes
+     */
+    XPackageRequirement addDynamicPackageRequirement(String name, Map<String, Object> atts);
 
-   /**
-    * Add a {@link Constants#BUNDLE_CLASSPATH} element
-    */
-   XModuleBuilder addBundleClassPath(String... path);
+    /**
+     * Add a {@link Constants#BUNDLE_CLASSPATH} element
+     */
+    XModuleBuilder addBundleClassPath(String... path);
 
-   /**
-    * Add a {@link Constants#BUNDLE_ACTIVATOR} element
-    */
-   XModuleBuilder addModuleActivator(String moduleActivator);
+    /**
+     * Add a {@link Constants#BUNDLE_ACTIVATOR} element
+     */
+    XModuleBuilder addModuleActivator(String moduleActivator);
 
-   /**
-    * Get the module identity from the builder
-    */
-   XModuleIdentity getModuleIdentity();
+    /**
+     * Get the module identity from the builder
+     */
+    XModuleIdentity getModuleIdentity();
 
-   /**
-    * Get the final module from the builder
-    */
-   XModule getModule();
+    /**
+     * Get the final module from the builder
+     */
+    XModule getModule();
 }

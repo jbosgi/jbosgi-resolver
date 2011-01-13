@@ -32,28 +32,24 @@ import org.apache.felix.framework.resolver.Wire;
 
 /**
  * An extension to the Apache Felix Resolver.
- *  
+ * 
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
-class ResolverExt implements Resolver
-{
-   private Resolver delegate;
+class ResolverExt implements Resolver {
+    private Resolver delegate;
 
-   public ResolverExt(Logger logger)
-   {
-      this.delegate = new ResolverImpl(logger);
-   }
+    public ResolverExt(Logger logger) {
+        this.delegate = new ResolverImpl(logger);
+    }
 
-   @Override
-   public Map<Module, List<Wire>> resolve(ResolverState state, Module module)
-   {
-      return delegate.resolve(state, module);
-   }
+    @Override
+    public Map<Module, List<Wire>> resolve(ResolverState state, Module module) {
+        return delegate.resolve(state, module);
+    }
 
-   @Override
-   public Map<Module, List<Wire>> resolve(ResolverState state, Module module, String pkgName)
-   {
-      return delegate.resolve(state, module, pkgName);
-   }
+    @Override
+    public Map<Module, List<Wire>> resolve(ResolverState state, Module module, String pkgName) {
+        return delegate.resolve(state, module, pkgName);
+    }
 }

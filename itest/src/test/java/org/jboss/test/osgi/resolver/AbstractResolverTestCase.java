@@ -44,61 +44,59 @@ import org.osgi.framework.Bundle;
 
 /**
  * The abstract resolver test.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
-public abstract class AbstractResolverTestCase extends OSGiTest
-{
-   XResolverFactory factory;
-   XResolver resolver;
+public abstract class AbstractResolverTestCase extends OSGiTest {
+    XResolverFactory factory;
+    XResolver resolver;
 
-   @Before
-   public void setUp()
-   {
-      factory = XResolverFactory.getInstance();
-      resolver = factory.newResolver();
-   }
+    @Before
+    public void setUp() {
+        factory = XResolverFactory.getInstance();
+        resolver = factory.newResolver();
+    }
 
-   XModule installModule(Archive<?> archive) throws Exception
-   {
-      VirtualFile virtualFile = toVirtualFile(archive);
-      Manifest manifest = VFSUtils.getManifest(virtualFile);
-      OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
+    XModule installModule(Archive<?> archive) throws Exception {
+        VirtualFile virtualFile = toVirtualFile(archive);
+        try {
+            Manifest manifest = VFSUtils.getManifest(virtualFile);
+            OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
 
-      // Setup the headers
-      Hashtable<String, String> headers = new Hashtable<String, String>();
-      Attributes attributes = manifest.getMainAttributes();
-      for (Object key : attributes.keySet())
-      {
-         String value = attributes.getValue(key.toString());
-         headers.put(key.toString(), value);
-      }
+            // Setup the headers
+            Hashtable<String, String> headers = new Hashtable<String, String>();
+            Attributes attributes = manifest.getMainAttributes();
+            for (Object key : attributes.keySet()) {
+                String value = attributes.getValue(key.toString());
+                headers.put(key.toString(), value);
+            }
 
-      XModuleBuilder builder = factory.newModuleBuilder();
-      XModule module = builder.createModule(metadata, 0).getModule();
+            XModuleBuilder builder = factory.newModuleBuilder();
+            XModule module = builder.createModule(metadata, 0).getModule();
 
-      Bundle bundle = Mockito.mock(Bundle.class);
-      Mockito.when(bundle.getHeaders()).thenReturn(headers);
-      module.addAttachment(Bundle.class, bundle);
+            Bundle bundle = Mockito.mock(Bundle.class);
+            Mockito.when(bundle.getHeaders()).thenReturn(headers);
+            module.addAttachment(Bundle.class, bundle);
 
-      resolver.addModule(module);
-      return module;
-   }
+            resolver.addModule(module);
+            return module;
+        } finally {
+            virtualFile.close();
 
-   class ResolverCallback implements XResolverCallback
-   {
-      private List<XModule> resolved;
+        }
+    }
 
-      ResolverCallback(List<XModule> resolved)
-      {
-         this.resolved = resolved;
-      }
+    class ResolverCallback implements XResolverCallback {
+        private List<XModule> resolved;
 
-      @Override
-      public void markResolved(XModule resModule)
-      {
-         resolved.add(resModule);
-      }
-   }
+        ResolverCallback(List<XModule> resolved) {
+            this.resolved = resolved;
+        }
+
+        @Override
+        public void markResolved(XModule resModule) {
+            resolved.add(resModule);
+        }
+    }
 }

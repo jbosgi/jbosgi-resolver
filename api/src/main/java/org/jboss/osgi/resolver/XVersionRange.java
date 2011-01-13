@@ -20,119 +20,88 @@ package org.jboss.osgi.resolver;
 
 import org.osgi.framework.Version;
 
-public class XVersionRange
-{
+public class XVersionRange {
     private final Version m_floor;
     private final boolean m_isFloorInclusive;
     private final Version m_ceiling;
     private final boolean m_isCeilingInclusive;
-    public static final XVersionRange infiniteRange
-        = new XVersionRange(Version.emptyVersion, true, null, true);
+    public static final XVersionRange infiniteRange = new XVersionRange(Version.emptyVersion, true, null, true);
 
-    public XVersionRange(
-        Version low, boolean isLowInclusive,
-        Version high, boolean isHighInclusive)
-    {
+    public XVersionRange(Version low, boolean isLowInclusive, Version high, boolean isHighInclusive) {
         m_floor = low;
         m_isFloorInclusive = isLowInclusive;
         m_ceiling = high;
         m_isCeilingInclusive = isHighInclusive;
     }
 
-    public Version getFloor()
-    {
+    public Version getFloor() {
         return m_floor;
     }
 
-    public boolean isFloorInclusive()
-    {
+    public boolean isFloorInclusive() {
         return m_isFloorInclusive;
     }
 
-    public Version getCeiling()
-    {
+    public Version getCeiling() {
         return m_ceiling;
     }
 
-    public boolean isCeilingInclusive()
-    {
+    public boolean isCeilingInclusive() {
         return m_isCeilingInclusive;
     }
 
-    public boolean isInRange(Version version)
-    {
+    public boolean isInRange(Version version) {
         // We might not have an upper end to the range.
-        if (m_ceiling == null)
-        {
+        if (m_ceiling == null) {
             return (version.compareTo(m_floor) >= 0);
-        }
-        else if (isFloorInclusive() && isCeilingInclusive())
-        {
+        } else if (isFloorInclusive() && isCeilingInclusive()) {
             return (version.compareTo(m_floor) >= 0) && (version.compareTo(m_ceiling) <= 0);
-        }
-        else if (isCeilingInclusive())
-        {
+        } else if (isCeilingInclusive()) {
             return (version.compareTo(m_floor) > 0) && (version.compareTo(m_ceiling) <= 0);
-        }
-        else if (isFloorInclusive())
-        {
+        } else if (isFloorInclusive()) {
             return (version.compareTo(m_floor) >= 0) && (version.compareTo(m_ceiling) < 0);
         }
         return (version.compareTo(m_floor) > 0) && (version.compareTo(m_ceiling) < 0);
     }
 
-    public static XVersionRange parse(String range)
-    {
+    public static XVersionRange parse(String range) {
         range = range.trim();
-        
+
         // Check if the version is an interval.
-        if (range.indexOf(',') >= 0)
-        {
+        if (range.indexOf(',') >= 0) {
             String s = range.substring(1, range.length() - 1);
             String vlo = s.substring(0, s.indexOf(',')).trim();
             String vhi = s.substring(s.indexOf(',') + 1, s.length()).trim();
-            return new XVersionRange (
-                new Version(vlo), (range.charAt(0) == '['),
-                new Version(vhi), (range.charAt(range.length() - 1) == ']'));
-        }
-        else
-        {
+            return new XVersionRange(new Version(vlo), (range.charAt(0) == '['), new Version(vhi), (range.charAt(range.length() - 1) == ']'));
+        } else {
             return new XVersionRange(new Version(range), true, null, false);
         }
     }
 
-    public boolean equals(Object obj)
-    {
-        if (obj == null)
-        {
+    public boolean equals(Object obj) {
+        if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass())
-        {
+        if (getClass() != obj.getClass()) {
             return false;
         }
         final XVersionRange other = (XVersionRange) obj;
-        if (m_floor != other.m_floor && (m_floor == null || !m_floor.equals(other.m_floor)))
-        {
+        if (m_floor != other.m_floor && (m_floor == null || !m_floor.equals(other.m_floor))) {
             return false;
         }
-        if (m_isFloorInclusive != other.m_isFloorInclusive)
-        {
+        if (m_isFloorInclusive != other.m_isFloorInclusive) {
             return false;
         }
-        if (m_ceiling != other.m_ceiling && (m_ceiling == null || !m_ceiling.equals(other.m_ceiling)))
-        {
+        if (m_ceiling != other.m_ceiling && (m_ceiling == null || !m_ceiling.equals(other.m_ceiling))) {
             return false;
         }
-        if (m_isCeilingInclusive != other.m_isCeilingInclusive)
-        {
+        if (m_isCeilingInclusive != other.m_isCeilingInclusive) {
             return false;
         }
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int hash = 5;
         hash = 97 * hash + (m_floor != null ? m_floor.hashCode() : 0);
         hash = 97 * hash + (m_isFloorInclusive ? 1 : 0);
@@ -141,10 +110,8 @@ public class XVersionRange
         return hash;
     }
 
-    public String toString()
-    {
-        if (m_ceiling != null)
-        {
+    public String toString() {
+        if (m_ceiling != null) {
             StringBuffer sb = new StringBuffer();
             sb.append(m_isFloorInclusive ? '[' : '(');
             sb.append(m_floor.toString());
@@ -152,9 +119,7 @@ public class XVersionRange
             sb.append(m_ceiling.toString());
             sb.append(m_isCeilingInclusive ? ']' : ')');
             return sb.toString();
-        }
-        else
-        {
+        } else {
             return m_floor.toString();
         }
     }

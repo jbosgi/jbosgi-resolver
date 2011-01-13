@@ -30,51 +30,40 @@ import org.osgi.framework.ServiceReference;
 /**
  * An integration with the Felix Logger.
  * 
- * This Logger gets registered with the Felix framework and 
- * delegates framework log messages to JBoss Logging.
+ * This Logger gets registered with the Felix framework and delegates framework log messages to JBoss Logging.
  * 
  * @author thomas.diesler@jboss.com
  * @since 04-Mar-2009
  */
-public class LoggerDelegate extends org.apache.felix.framework.Logger
-{
-   // Provide logging
-   private static final Logger log = Logger.getLogger(LoggerDelegate.class);
+public class LoggerDelegate extends org.apache.felix.framework.Logger {
+    // Provide logging
+    private static final Logger log = Logger.getLogger(LoggerDelegate.class);
 
-   public LoggerDelegate()
-   {
-      setLogLevel(LOG_DEBUG);
-   }
+    public LoggerDelegate() {
+        setLogLevel(LOG_DEBUG);
+    }
 
-   @Override
-   protected void doLog(Bundle bundle, ServiceReference sref, int level, String msg, Throwable throwable)
-   {
-      if (bundle != null)
-         msg = "[" + bundle + "] " + msg;
+    @Override
+    protected void doLog(Bundle bundle, ServiceReference sref, int level, String msg, Throwable throwable) {
+        if (bundle != null)
+            msg = "[" + bundle + "] " + msg;
 
-      if (sref != null)
-         msg = sref + ": " + msg;
+        if (sref != null)
+            msg = sref + ": " + msg;
 
-      // An unresolved bundle causes a WARNING that comes with an exception
-      // Currently we log WARNING exceptions at DEBUG level      
-      
-      if (level == LOG_DEBUG)
-      {
-         log.debug(msg, throwable);
-      }
-      else if (level == LOG_INFO)
-      {
-         log.info(msg, throwable);
-      }
-      else if (level == LOG_WARNING)
-      {
-         log.warn(msg);
-         if (throwable != null)
+        // An unresolved bundle causes a WARNING that comes with an exception
+        // Currently we log WARNING exceptions at DEBUG level
+
+        if (level == LOG_DEBUG) {
             log.debug(msg, throwable);
-      }
-      else if (level == LOG_ERROR)
-      {
-         log.error(msg, throwable);
-      }
-   }
+        } else if (level == LOG_INFO) {
+            log.info(msg, throwable);
+        } else if (level == LOG_WARNING) {
+            log.warn(msg);
+            if (throwable != null)
+                log.debug(msg, throwable);
+        } else if (level == LOG_ERROR) {
+            log.error(msg, throwable);
+        }
+    }
 }

@@ -23,45 +23,41 @@ package org.jboss.osgi.resolver;
 
 import org.jboss.osgi.spi.util.ServiceLoader;
 
-
 /**
  * A factory for resolver instances.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class XResolverFactory
-{
-   /**
-    * Get an instance of the resolver factory
-    */
-   public static XResolverFactory getInstance()
-   {
-      return getInstance(null);
-   }
-   
-   /**
-    * Get an instance of the resolver factory
-    */
-   public static XResolverFactory getInstance(ClassLoader classloader)
-   {
-      XResolverFactory factory = ServiceLoader.loadService(XResolverFactory.class);
-      if (factory == null)
-         throw new IllegalStateException("Cannot load service: " + XResolverFactory.class.getName());
-      return factory;
+public abstract class XResolverFactory {
+    /**
+     * Get an instance of the resolver factory
+     */
+    public static XResolverFactory getInstance() {
+        return getInstance(null);
+    }
 
-      // [JBAS-8458] Cannot use java.util.ServiceLoader in subsystem
-      //ServiceLoader<XResolver> loader = ServiceLoader.load(XResolver.class, classloader);
-      //return loader.iterator().next();
-   }
+    /**
+     * Get an instance of the resolver factory
+     */
+    public static XResolverFactory getInstance(ClassLoader classloader) {
+        XResolverFactory factory = ServiceLoader.loadService(XResolverFactory.class);
+        if (factory == null)
+            throw new IllegalStateException("Cannot load service: " + XResolverFactory.class.getName());
+        return factory;
 
-   /**
-    * Get a new instance of an {@link XResolver} 
-    */
-   public abstract XResolver newResolver();
-   
-   /**
-    * Get a new instance of an {@link XModuleBuilder} 
-    */
-   public abstract XModuleBuilder newModuleBuilder();
+        // [JBAS-8458] Cannot use java.util.ServiceLoader in subsystem
+        // ServiceLoader<XResolver> loader = ServiceLoader.load(XResolver.class, classloader);
+        // return loader.iterator().next();
+    }
+
+    /**
+     * Get a new instance of an {@link XResolver}
+     */
+    public abstract XResolver newResolver();
+
+    /**
+     * Get a new instance of an {@link XModuleBuilder}
+     */
+    public abstract XModuleBuilder newModuleBuilder();
 }

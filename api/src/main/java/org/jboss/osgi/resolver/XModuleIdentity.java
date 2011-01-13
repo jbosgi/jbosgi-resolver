@@ -25,15 +25,14 @@ import org.osgi.framework.Version;
 
 /**
  * An {@link XModule} identity.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 20-Sep-2010
  */
-public interface XModuleIdentity
-{
-   String getName();
+public interface XModuleIdentity {
+    String getName();
 
-   Version getVersion();
+    Version getVersion();
 
-   int getRevision();
+    int getRevision();
 }

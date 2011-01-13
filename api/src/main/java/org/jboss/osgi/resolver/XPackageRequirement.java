@@ -25,35 +25,35 @@ import org.osgi.framework.Version;
 
 /**
  * A package requirement
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XPackageRequirement extends XRequirement 
-{
-   /**
-    * The required resolution
-    * @return the resolution or null for dynamic package requirements
-    */
-   String getResolution();
-   
-   /**
-    * Get the required version range
-    */
-   XVersionRange getVersionRange();
+public interface XPackageRequirement extends XRequirement {
+    /**
+     * The required resolution
+     * 
+     * @return the resolution or null for dynamic package requirements
+     */
+    String getResolution();
 
-   /**
-    * The bundle symbolic name of the exporting bundle
-    */
-   String getBundleSymbolicName();
+    /**
+     * Get the required version range
+     */
+    XVersionRange getVersionRange();
 
-   /**
-    * The bundle version of the exporting bundle
-    */
-   Version getBundleVersion();
-   
-   /**
-    * True if this is a dynamic package requirement.
-    */
-   boolean isDynamic();
+    /**
+     * The bundle symbolic name of the exporting bundle
+     */
+    String getBundleSymbolicName();
+
+    /**
+     * The bundle version of the exporting bundle
+     */
+    Version getBundleVersion();
+
+    /**
+     * True if this is a dynamic package requirement.
+     */
+    boolean isDynamic();
 }

@@ -25,20 +25,20 @@ import java.util.Map;
 
 /**
  * Adds support for directives
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XDirectiveSupport 
-{
-   /**
-    * Get the directives
-    */
-   Map<String, String> getDirectives();
-   
-   /**
-    * Get the value of the given directive 
-    * @return null if no such directive is associated with this capability
-    */
-   String getDirective(String key);
+public interface XDirectiveSupport {
+    /**
+     * Get the directives
+     */
+    Map<String, String> getDirectives();
+
+    /**
+     * Get the value of the given directive
+     * 
+     * @return null if no such directive is associated with this capability
+     */
+    String getDirective(String key);
 }

@@ -23,13 +23,12 @@ package org.jboss.osgi.resolver;
 
 /**
  * A Fragment-Host requirement
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XFragmentHostRequirement extends XRequirement 
-{
-   XVersionRange getVersionRange();
-   
-   String getExtension();
+public interface XFragmentHostRequirement extends XRequirement {
+    XVersionRange getVersionRange();
+
+    String getExtension();
 }

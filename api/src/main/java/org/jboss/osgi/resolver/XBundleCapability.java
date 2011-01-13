@@ -25,14 +25,13 @@ import org.osgi.framework.Version;
 
 /**
  * A host bundle capability
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XBundleCapability extends XCapability 
-{
-   /**
-    * Get the bundle version
-    */
-   Version getVersion();
+public interface XBundleCapability extends XCapability {
+    /**
+     * Get the bundle version
+     */
+    Version getVersion();
 }

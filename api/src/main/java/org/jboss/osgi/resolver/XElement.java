@@ -23,14 +23,13 @@ package org.jboss.osgi.resolver;
 
 /**
  * The base of all resolver elements
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XElement
-{
-   /**
-    * Get the name for this capability.
-    */
-   String getName();
+public interface XElement {
+    /**
+     * Get the name for this capability.
+     */
+    String getName();
 }

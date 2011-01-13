@@ -34,69 +34,57 @@ import org.apache.felix.framework.resolver.Resolver.ResolverState;
 
 /**
  * An extension to the Apache Felix ResolverState.
- *  
+ * 
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
-public class ResolverStateExt implements ResolverState
-{
-   private FelixResolverState delegate;
+public class ResolverStateExt implements ResolverState {
+    private FelixResolverState delegate;
 
-   public ResolverStateExt(Logger logger)
-   {
-      delegate = new FelixResolverState(logger, null);
-   }
+    public ResolverStateExt(Logger logger) {
+        delegate = new FelixResolverState(logger, null);
+    }
 
-   public void addModule(Module module)
-   {
-      delegate.addModule(module);
-   }
+    public void addModule(Module module) {
+        delegate.addModule(module);
+    }
 
-   public void removeModule(Module module)
-   {
-      delegate.removeModule(module);
-   }
+    public void removeModule(Module module) {
+        delegate.removeModule(module);
+    }
 
-   public void detachFragment(Module host, Module fragment)
-   {
-      delegate.detachFragment(host, fragment);
-   }
+    public void detachFragment(Module host, Module fragment) {
+        delegate.detachFragment(host, fragment);
+    }
 
-   @Override
-   public Set<Capability> getCandidates(Module module, Requirement req, boolean obeyMandatory)
-   {
-      return delegate.getCandidates(module, req, obeyMandatory);
-   }
+    @Override
+    public Set<Capability> getCandidates(Module module, Requirement req, boolean obeyMandatory) {
+        return delegate.getCandidates(module, req, obeyMandatory);
+    }
 
-   @Override
-   public void checkExecutionEnvironment(Module module) throws ResolveException
-   {
-      delegate.checkExecutionEnvironment(module);
-   }
+    @Override
+    public void checkExecutionEnvironment(Module module) throws ResolveException {
+        delegate.checkExecutionEnvironment(module);
+    }
 
-   @Override
-   public void checkNativeLibraries(Module module) throws ResolveException
-   {
-      delegate.checkExecutionEnvironment(module);
-   }
+    @Override
+    public void checkNativeLibraries(Module module) throws ResolveException {
+        delegate.checkExecutionEnvironment(module);
+    }
 
-   public void checkSingleton(Module module)
-   {
-      delegate.checkSingleton(module);
-   }
+    public void checkSingleton(Module module) {
+        delegate.checkSingleton(module);
+    }
 
-   public Module findHost(Module rootModule) throws ResolveException
-   {
-      return delegate.findHost(rootModule);
-   }
+    public Module findHost(Module rootModule) throws ResolveException {
+        return delegate.findHost(rootModule);
+    }
 
-   public List<Module> findFragments(Module hostModule) throws ResolveException
-   {
-      return delegate.getMatchingFragments(hostModule);
-   }
+    public List<Module> findFragments(Module hostModule) throws ResolveException {
+        return delegate.getMatchingFragments(hostModule);
+    }
 
-   public void moduleResolved(Module module)
-   {
-      delegate.moduleResolved(module);
-   }
+    public void moduleResolved(Module module) {
+        delegate.moduleResolved(module);
+    }
 }

@@ -26,97 +26,98 @@ import java.util.List;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
-
 /**
  * A Module for the {@link XResolver}.
- *
+ * 
  * This is the resolver representation of a {@link Bundle}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XModule extends XElement, XAttachmentSupport
-{
-   /**
-    * Get the resolver that is controlling this module.
-    * @return The resolver or null if this module has not been added to a resolver
-    */
-   XResolver getResolver();
+public interface XModule extends XElement, XAttachmentSupport {
+    /**
+     * Get the resolver that is controlling this module.
+     * 
+     * @return The resolver or null if this module has not been added to a resolver
+     */
+    XResolver getResolver();
 
-   /**
-    * Get the module id
-    */
-   XModuleIdentity getModuleId();
+    /**
+     * Get the module id
+     */
+    XModuleIdentity getModuleId();
 
-   /**
-    * Get the module version
-    */
-   Version getVersion();
+    /**
+     * Get the module version
+     */
+    Version getVersion();
 
-   /**
-    * Get the optional module activator
-    */
-   String getModuleActivator();
+    /**
+     * Get the optional module activator
+     */
+    String getModuleActivator();
 
-   /**
-    * Get this modules host capability
-    */
-   XBundleCapability getBundleCapability();
+    /**
+     * Get this modules host capability
+     */
+    XBundleCapability getBundleCapability();
 
-   /**
-    * Get the package capabilities
-    */
-   List<XPackageCapability> getPackageCapabilities();
+    /**
+     * Get the package capabilities
+     */
+    List<XPackageCapability> getPackageCapabilities();
 
-   /**
-    * Get all module capabilities
-    */
-   List<XCapability> getCapabilities();
+    /**
+     * Get all module capabilities
+     */
+    List<XCapability> getCapabilities();
 
-   /**
-    * Get the bundle requirements
-    */
-   List<XRequireBundleRequirement> getBundleRequirements();
+    /**
+     * Get the bundle requirements
+     */
+    List<XRequireBundleRequirement> getBundleRequirements();
 
-   /**
-    * Get the non-dynamic package requirements
-    */
-   List<XPackageRequirement> getPackageRequirements();
+    /**
+     * Get the non-dynamic package requirements
+     */
+    List<XPackageRequirement> getPackageRequirements();
 
-   /**
-    * Get the dynamic package requirements
-    */
-   List<XPackageRequirement> getDynamicPackageRequirements();
+    /**
+     * Get the dynamic package requirements
+     */
+    List<XPackageRequirement> getDynamicPackageRequirements();
 
-   /**
-    * Get all module requirements
-    */
-   List<XRequirement> getRequirements();
+    /**
+     * Get all module requirements
+     */
+    List<XRequirement> getRequirements();
 
-   /**
-    * Get the fragment host requirement if this module is a fragment
-    * @return null if this module is not a fragment
-    */
-   XFragmentHostRequirement getHostRequirement();
+    /**
+     * Get the fragment host requirement if this module is a fragment
+     * 
+     * @return null if this module is not a fragment
+     */
+    XFragmentHostRequirement getHostRequirement();
 
-   /**
-    * True is this module represents a fragment
-    */
-   boolean isFragment();
+    /**
+     * True is this module represents a fragment
+     */
+    boolean isFragment();
 
-   /**
-    * Get the bundle class paths
-    */
-   List<String> getBundleClassPath();
+    /**
+     * Get the bundle class paths
+     */
+    List<String> getBundleClassPath();
 
-   /**
-    * True if this module is resolved
-    */
-   boolean isResolved();
+    /**
+     * True if this module is resolved
+     */
+    boolean isResolved();
 
-   /**
-    * Get the list of wires for this module
-    * @return The list of wires when the module is resolved, otherwise null.
-    */
-   List<XWire> getWires();
+    /**
+     * Get the list of wires for this module
+     * 
+     * @return The list of wires when the module is resolved, otherwise null.
+     */
+    List<XWire> getWires();
 }
