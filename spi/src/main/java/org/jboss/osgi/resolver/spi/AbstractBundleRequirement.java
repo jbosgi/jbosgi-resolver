@@ -29,56 +29,50 @@ import org.osgi.framework.Constants;
 
 /**
  * The abstract implementation of a {@link XRequireBundleRequirement}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractBundleRequirement extends AbstractRequirement implements XRequireBundleRequirement
-{
-   private XVersionRange versionRange = XVersionRange.infiniteRange;
-   private String visibility = Constants.VISIBILITY_PRIVATE;
-   private String resolution = Constants.RESOLUTION_MANDATORY;
+class AbstractBundleRequirement extends AbstractRequirement implements XRequireBundleRequirement {
+    private XVersionRange versionRange = XVersionRange.infiniteRange;
+    private String visibility = Constants.VISIBILITY_PRIVATE;
+    private String resolution = Constants.RESOLUTION_MANDATORY;
 
-   public AbstractBundleRequirement(AbstractModule module, String symbolicName, Map<String, String> dirs, Map<String, Object> atts)
-   {
-      super(module, symbolicName, dirs, atts);
+    public AbstractBundleRequirement(AbstractModule module, String symbolicName, Map<String, String> dirs, Map<String, Object> atts) {
+        super(module, symbolicName, dirs, atts);
 
-      Object att = getAttribute(Constants.BUNDLE_VERSION_ATTRIBUTE);
-      if (att != null)
-         versionRange = XVersionRange.parse(att.toString());
+        Object att = getAttribute(Constants.BUNDLE_VERSION_ATTRIBUTE);
+        if (att != null)
+            versionRange = XVersionRange.parse(att.toString());
 
-      String dir = getDirective(Constants.VISIBILITY_DIRECTIVE);
-      if (dir != null)
-         visibility = dir;
+        String dir = getDirective(Constants.VISIBILITY_DIRECTIVE);
+        if (dir != null)
+            visibility = dir;
 
-      dir = getDirective(Constants.RESOLUTION_DIRECTIVE);
-      if (dir != null)
-         resolution = dir;
-      
-      setOptional(resolution.equals(Constants.RESOLUTION_OPTIONAL));
-   }
+        dir = getDirective(Constants.RESOLUTION_DIRECTIVE);
+        if (dir != null)
+            resolution = dir;
 
-   @Override
-   public XVersionRange getVersionRange()
-   {
-      return versionRange;
-   }
+        setOptional(resolution.equals(Constants.RESOLUTION_OPTIONAL));
+    }
 
-   @Override
-   public String getVisibility()
-   {
-      return visibility;
-   }
+    @Override
+    public XVersionRange getVersionRange() {
+        return versionRange;
+    }
 
-   @Override
-   public String getResolution()
-   {
-      return resolution;
-   }
+    @Override
+    public String getVisibility() {
+        return visibility;
+    }
 
-   @Override
-   public String toString()
-   {
-      return Constants.REQUIRE_BUNDLE + "[" + getName() + ":" + versionRange + ";resolution:=" + resolution + "]";
-   }
+    @Override
+    public String getResolution() {
+        return resolution;
+    }
+
+    @Override
+    public String toString() {
+        return Constants.REQUIRE_BUNDLE + "[" + getName() + ":" + versionRange + ";resolution:=" + resolution + "]";
+    }
 }

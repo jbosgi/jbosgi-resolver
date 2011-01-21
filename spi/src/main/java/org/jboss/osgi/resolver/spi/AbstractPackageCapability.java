@@ -33,76 +33,68 @@ import org.osgi.framework.Version;
 
 /**
  * The abstract implementation of a {@link XBundleCapability}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractPackageCapability extends AbstractCapability implements XPackageCapability
-{
-   private Version version = Version.emptyVersion;
+class AbstractPackageCapability extends AbstractCapability implements XPackageCapability {
+    private Version version = Version.emptyVersion;
 
-   public AbstractPackageCapability(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts)
-   {
-      super(module, name, dirs, atts);
-      
-      Object att = getAttribute(Constants.VERSION_ATTRIBUTE);
-      if (att != null)
-         version = Version.parseVersion(att.toString());
-   }
+    public AbstractPackageCapability(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts) {
+        super(module, name, dirs, atts);
 
-   @Override
-   public Version getVersion()
-   {
-      return version;
-   }
+        Object att = getAttribute(Constants.VERSION_ATTRIBUTE);
+        if (att != null)
+            version = Version.parseVersion(att.toString());
+    }
 
-   @Override
-   public List<String> getUses()
-   {
-      String dir = getDirective(Constants.USES_DIRECTIVE);
-      if (dir == null)
-         return Collections.emptyList();
-      
-      String[] split = dir.split(",");
-      return Arrays.asList(split);
-   }
+    @Override
+    public Version getVersion() {
+        return version;
+    }
 
-   @Override
-   public List<String> getMandatory()
-   {
-      String dir = getDirective(Constants.MANDATORY_DIRECTIVE);
-      if (dir == null)
-         return Collections.emptyList();
-      
-      String[] split = dir.split(",");
-      return Arrays.asList(split);
-   }
+    @Override
+    public List<String> getUses() {
+        String dir = getDirective(Constants.USES_DIRECTIVE);
+        if (dir == null)
+            return Collections.emptyList();
 
-   @Override
-   public List<String> getInclude()
-   {
-      String dir = getDirective(Constants.INCLUDE_DIRECTIVE);
-      if (dir == null)
-         return Collections.emptyList();
-      
-      String[] split = dir.split(",");
-      return Arrays.asList(split);
-   }
+        String[] split = dir.split(",");
+        return Arrays.asList(split);
+    }
 
-   @Override
-   public List<String> getExclude()
-   {
-      String dir = getDirective(Constants.EXCLUDE_DIRECTIVE);
-      if (dir == null)
-         return Collections.emptyList();
-      
-      String[] split = dir.split(",");
-      return Arrays.asList(split);
-   }
+    @Override
+    public List<String> getMandatory() {
+        String dir = getDirective(Constants.MANDATORY_DIRECTIVE);
+        if (dir == null)
+            return Collections.emptyList();
 
-   @Override
-   public String toString()
-   {
-      return Constants.EXPORT_PACKAGE + "[" + getName() + ":" + version + "]";
-   }
+        String[] split = dir.split(",");
+        return Arrays.asList(split);
+    }
+
+    @Override
+    public List<String> getInclude() {
+        String dir = getDirective(Constants.INCLUDE_DIRECTIVE);
+        if (dir == null)
+            return Collections.emptyList();
+
+        String[] split = dir.split(",");
+        return Arrays.asList(split);
+    }
+
+    @Override
+    public List<String> getExclude() {
+        String dir = getDirective(Constants.EXCLUDE_DIRECTIVE);
+        if (dir == null)
+            return Collections.emptyList();
+
+        String[] split = dir.split(",");
+        return Arrays.asList(split);
+    }
+
+    @Override
+    public String toString() {
+        return Constants.EXPORT_PACKAGE + "[" + getName() + ":" + version + "]";
+    }
 }

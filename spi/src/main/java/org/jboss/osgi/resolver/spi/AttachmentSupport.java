@@ -21,33 +21,34 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-
 /**
  * Adds attachment support to an element
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface AttachmentSupport 
-{
-   /**
-    * Attach an arbirtary object with this element.
-    * @param clazz key for the attachment
-    * @return The previously attachment object or null
-    */
-   <T> T addAttachment(Class<T> clazz, T value);
-   
-   /**
-    * Get the attached object for a given key
-    * @param clazz key for the attachment
-    * @return The attached object or null
-    */
-   <T> T getAttachment(Class<T> clazz);
-   
-   /**
-    * Remove an attached object for a given key
-    * @param clazz key for the attachment
-    * @return The attached object or null
-    */
-   <T> T removeAttachment(Class<T> clazz);
+public interface AttachmentSupport {
+    /**
+     * Attach an arbirtary object with this element.
+     * 
+     * @param clazz key for the attachment
+     * @return The previously attachment object or null
+     */
+    <T> T addAttachment(Class<T> clazz, T value);
+
+    /**
+     * Get the attached object for a given key
+     * 
+     * @param clazz key for the attachment
+     * @return The attached object or null
+     */
+    <T> T getAttachment(Class<T> clazz);
+
+    /**
+     * Remove an attached object for a given key
+     * 
+     * @param clazz key for the attachment
+     * @return The attached object or null
+     */
+    <T> T removeAttachment(Class<T> clazz);
 }

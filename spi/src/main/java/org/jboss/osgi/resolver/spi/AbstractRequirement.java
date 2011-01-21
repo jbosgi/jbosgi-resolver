@@ -33,122 +33,107 @@ import org.jboss.osgi.resolver.XRequirement;
 
 /**
  * The abstract implementation of a {@link XCapability}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractRequirement extends AbstractElement implements XRequirement
-{
-   private XModule module;
-   private XDirectiveSupport directives;
-   private XAttributeSupport attributes;
-   private XAttachmentSupport attachments;
-   private boolean optional, dynamic;
+class AbstractRequirement extends AbstractElement implements XRequirement {
+    private XModule module;
+    private XDirectiveSupport directives;
+    private XAttributeSupport attributes;
+    private XAttachmentSupport attachments;
+    private boolean optional, dynamic;
 
-   public AbstractRequirement(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts)
-   {
-      super(name);
-      this.module = module;
-      
-      if (dirs != null)
-         directives = new DirectiveSupporter(dirs);
-      if (atts != null)
-         attributes = new AttributeSupporter(atts);
-   }
+    public AbstractRequirement(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts) {
+        super(name);
+        this.module = module;
 
-   @Override
-   public XModule getModule()
-   {
-      return module;
-   }
-   
-   public boolean isOptional()
-   {
-      return optional;
-   }
+        if (dirs != null)
+            directives = new DirectiveSupporter(dirs);
+        if (atts != null)
+            attributes = new AttributeSupporter(atts);
+    }
 
-   void setOptional(boolean optional)
-   {
-      this.optional = optional;
-   }
+    @Override
+    public XModule getModule() {
+        return module;
+    }
 
-   public boolean isDynamic()
-   {
-      return dynamic;
-   }
+    public boolean isOptional() {
+        return optional;
+    }
 
-   void setDynamic(boolean dynamic)
-   {
-      this.dynamic = dynamic;
-   }
+    void setOptional(boolean optional) {
+        this.optional = optional;
+    }
 
-   @Override
-   public XCapability getWiredCapability()
-   {
-      AbstractResolver resolver = (AbstractResolver)getModule().getResolver();
-      return resolver.getWiredCapability(this);
-   }
-   
-   @Override
-   public Object getAttribute(String key)
-   {
-      if (attributes == null)
-         return null;
-      
-      return attributes.getAttribute(key);
-   }
+    public boolean isDynamic() {
+        return dynamic;
+    }
 
-   @Override
-   public Map<String, Object> getAttributes()
-   {
-      if (attributes == null)
-         return Collections.emptyMap();
-      
-      return attributes.getAttributes();
-   }
+    void setDynamic(boolean dynamic) {
+        this.dynamic = dynamic;
+    }
 
-   @Override
-   public String getDirective(String key)
-   {
-      if (directives == null)
-         return null;
+    @Override
+    public XCapability getWiredCapability() {
+        AbstractResolver resolver = (AbstractResolver) getModule().getResolver();
+        return resolver.getWiredCapability(this);
+    }
 
-      return directives.getDirective(key);
-   }
+    @Override
+    public Object getAttribute(String key) {
+        if (attributes == null)
+            return null;
 
-   @Override
-   public Map<String, String> getDirectives()
-   {
-      if (directives == null)
-         return Collections.emptyMap();
+        return attributes.getAttribute(key);
+    }
 
-      return directives.getDirectives();
-   }
+    @Override
+    public Map<String, Object> getAttributes() {
+        if (attributes == null)
+            return Collections.emptyMap();
 
-   @Override
-   public <T> T addAttachment(Class<T> clazz, T value)
-   {
-      if (attachments  == null)
-         attachments = new AttachmentSupporter();
-      
-      return attachments.addAttachment(clazz, value);
-   }
+        return attributes.getAttributes();
+    }
 
-   @Override
-   public <T> T getAttachment(Class<T> clazz)
-   {
-      if (attachments  == null)
-         return null;
-      
-      return attachments.getAttachment(clazz);
-   }
+    @Override
+    public String getDirective(String key) {
+        if (directives == null)
+            return null;
 
-   @Override
-   public <T> T removeAttachment(Class<T> clazz)
-   {
-      if (attachments  == null)
-         return null;
-      
-      return attachments.removeAttachment(clazz);
-   }
+        return directives.getDirective(key);
+    }
+
+    @Override
+    public Map<String, String> getDirectives() {
+        if (directives == null)
+            return Collections.emptyMap();
+
+        return directives.getDirectives();
+    }
+
+    @Override
+    public <T> T addAttachment(Class<T> clazz, T value) {
+        if (attachments == null)
+            attachments = new AttachmentSupporter();
+
+        return attachments.addAttachment(clazz, value);
+    }
+
+    @Override
+    public <T> T getAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
+
+        return attachments.getAttachment(clazz);
+    }
+
+    @Override
+    public <T> T removeAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
+
+        return attachments.removeAttachment(clazz);
+    }
 }

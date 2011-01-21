@@ -34,108 +34,97 @@ import org.jboss.osgi.resolver.XRequirement;
 
 /**
  * The abstract implementation of a {@link XCapability}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractCapability extends AbstractElement implements XCapability
-{
-   private XModule module;
-   private XDirectiveSupport directives;
-   private XAttributeSupport attributes;
-   private XAttachmentSupport attachments;
+class AbstractCapability extends AbstractElement implements XCapability {
+    private XModule module;
+    private XDirectiveSupport directives;
+    private XAttributeSupport attributes;
+    private XAttachmentSupport attachments;
 
-   public AbstractCapability(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts)
-   {
-      super(name);
-      this.module = module;
-      
-      if (dirs != null)
-         directives = new DirectiveSupporter(dirs);
-      if (atts != null)
-         attributes = new AttributeSupporter(atts);
-   }
+    public AbstractCapability(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts) {
+        super(name);
+        this.module = module;
 
-   @Override
-   public XModule getModule()
-   {
-      return module;
-   }
-   
-   @Override
-   public Set<XRequirement> getWiredRequirements()
-   {
-      if (getModule().isResolved() == false)
-         return null;
-      
-      // The resolver may be null if this capability has already been removed from the resolver
-      AbstractResolver resolver = (AbstractResolver)getModule().getResolver();
-      if (resolver == null)
-         return Collections.emptySet();
-      
-      return resolver.getWiredRequirements(this);
-   }
+        if (dirs != null)
+            directives = new DirectiveSupporter(dirs);
+        if (atts != null)
+            attributes = new AttributeSupporter(atts);
+    }
 
-   @Override
-   public Object getAttribute(String key)
-   {
-      if (attributes == null)
-         return null;
-      
-      return attributes.getAttribute(key);
-   }
+    @Override
+    public XModule getModule() {
+        return module;
+    }
 
-   @Override
-   public Map<String, Object> getAttributes()
-   {
-      if (attributes == null)
-         return Collections.emptyMap();
-      
-      return attributes.getAttributes();
-   }
+    @Override
+    public Set<XRequirement> getWiredRequirements() {
+        if (getModule().isResolved() == false)
+            return null;
 
-   @Override
-   public String getDirective(String key)
-   {
-      if (directives == null)
-         return null;
-      
-      return directives.getDirective(key);
-   }
+        // The resolver may be null if this capability has already been removed from the resolver
+        AbstractResolver resolver = (AbstractResolver) getModule().getResolver();
+        if (resolver == null)
+            return Collections.emptySet();
 
-   @Override
-   public Map<String, String> getDirectives()
-   {
-      if (directives == null)
-         return Collections.emptyMap();
-      
-      return directives.getDirectives();
-   }
+        return resolver.getWiredRequirements(this);
+    }
 
-   @Override
-   public <T> T addAttachment(Class<T> clazz, T value)
-   {
-      if (attachments  == null)
-         attachments = new AttachmentSupporter();
-      
-      return attachments.addAttachment(clazz, value);
-   }
+    @Override
+    public Object getAttribute(String key) {
+        if (attributes == null)
+            return null;
 
-   @Override
-   public <T> T getAttachment(Class<T> clazz)
-   {
-      if (attachments  == null)
-         return null;
-      
-      return attachments.getAttachment(clazz);
-   }
+        return attributes.getAttribute(key);
+    }
 
-   @Override
-   public <T> T removeAttachment(Class<T> clazz)
-   {
-      if (attachments  == null)
-         return null;
-      
-      return attachments.removeAttachment(clazz);
-   }
+    @Override
+    public Map<String, Object> getAttributes() {
+        if (attributes == null)
+            return Collections.emptyMap();
+
+        return attributes.getAttributes();
+    }
+
+    @Override
+    public String getDirective(String key) {
+        if (directives == null)
+            return null;
+
+        return directives.getDirective(key);
+    }
+
+    @Override
+    public Map<String, String> getDirectives() {
+        if (directives == null)
+            return Collections.emptyMap();
+
+        return directives.getDirectives();
+    }
+
+    @Override
+    public <T> T addAttachment(Class<T> clazz, T value) {
+        if (attachments == null)
+            attachments = new AttachmentSupporter();
+
+        return attachments.addAttachment(clazz, value);
+    }
+
+    @Override
+    public <T> T getAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
+
+        return attachments.getAttachment(clazz);
+    }
+
+    @Override
+    public <T> T removeAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
+
+        return attachments.removeAttachment(clazz);
+    }
 }

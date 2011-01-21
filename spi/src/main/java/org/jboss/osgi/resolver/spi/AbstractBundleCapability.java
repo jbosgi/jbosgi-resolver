@@ -26,29 +26,25 @@ import org.osgi.framework.Version;
 
 /**
  * The abstract implementation of a {@link XBundleCapability}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractBundleCapability extends AbstractCapability implements XBundleCapability
-{
-   private final Version version;
+class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
+    private final Version version;
 
-   public AbstractBundleCapability(AbstractModule module, String symbolicName, Version version)
-   {
-      super(module, symbolicName, null, null);
-      this.version = (version != null ? version : Version.emptyVersion);
-   }
+    public AbstractBundleCapability(AbstractModule module, String symbolicName, Version version) {
+        super(module, symbolicName, null, null);
+        this.version = (version != null ? version : Version.emptyVersion);
+    }
 
-   @Override
-   public Version getVersion()
-   {
-      return version;
-   }
+    @Override
+    public Version getVersion() {
+        return version;
+    }
 
-   @Override
-   public String toString()
-   {
-      return "Bundle[" + getName() + ":" + getVersion() + "]";
-   }
+    @Override
+    public String toString() {
+        return "Bundle[" + getName() + ":" + getVersion() + "]";
+    }
 }

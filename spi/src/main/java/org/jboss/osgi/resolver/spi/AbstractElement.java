@@ -30,115 +30,98 @@ import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XElement;
 
-
 /**
  * The abstract implementation of an {@link XElement}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractElement implements XElement
-{
-   private String name;
+class AbstractElement implements XElement {
+    private String name;
 
-   AbstractElement(String name)
-   {
-      if (name == null)
-         throw new IllegalArgumentException("Null name");
-      this.name = name;
-   }
+    AbstractElement(String name) {
+        if (name == null)
+            throw new IllegalArgumentException("Null name");
+        this.name = name;
+    }
 
-   @Override
-   public String getName()
-   {
-      return name;
-   }
+    @Override
+    public String getName() {
+        return name;
+    }
 
-   void setName(String name)
-   {
-      this.name = name;
-   }
+    void setName(String name) {
+        this.name = name;
+    }
 
-   static class AttachmentSupporter implements XAttachmentSupport
-   {
-      private Map<Class<?>, Object> attachments;
+    static class AttachmentSupporter implements XAttachmentSupport {
+        private Map<Class<?>, Object> attachments;
 
-      @Override
-      @SuppressWarnings("unchecked")
-      public <T> T addAttachment(Class<T> clazz, T value)
-      {
-         if (attachments == null)
-            attachments = new HashMap<Class<?>, Object>();
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T addAttachment(Class<T> clazz, T value) {
+            if (attachments == null)
+                attachments = new HashMap<Class<?>, Object>();
 
-         T result = (T)attachments.get(clazz);
-         attachments.put(clazz, value);
-         return result;
-      }
+            T result = (T) attachments.get(clazz);
+            attachments.put(clazz, value);
+            return result;
+        }
 
-      @Override
-      @SuppressWarnings("unchecked")
-      public <T> T getAttachment(Class<T> clazz)
-      {
-         if (attachments == null)
-            return null;
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T getAttachment(Class<T> clazz) {
+            if (attachments == null)
+                return null;
 
-         T result = (T)attachments.get(clazz);
-         return result;
-      }
+            T result = (T) attachments.get(clazz);
+            return result;
+        }
 
-      @Override
-      @SuppressWarnings("unchecked")
-      public <T> T removeAttachment(Class<T> clazz)
-      {
-         if (attachments == null)
-            return null;
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T removeAttachment(Class<T> clazz) {
+            if (attachments == null)
+                return null;
 
-         T result = (T)attachments.remove(clazz);
-         return result;
-      }
-   }
+            T result = (T) attachments.remove(clazz);
+            return result;
+        }
+    }
 
-   static class AttributeSupporter implements XAttributeSupport
-   {
-      private Map<String, Object> attributes;
+    static class AttributeSupporter implements XAttributeSupport {
+        private Map<String, Object> attributes;
 
-      AttributeSupporter(Map<String, Object> attributes)
-      {
-         this.attributes = attributes;
-      }
+        AttributeSupporter(Map<String, Object> attributes) {
+            this.attributes = attributes;
+        }
 
-      @Override
-      public Object getAttribute(String key)
-      {
-         return attributes != null ? attributes.get(key) : null;
-      }
+        @Override
+        public Object getAttribute(String key) {
+            return attributes != null ? attributes.get(key) : null;
+        }
 
-      @Override
-      public Map<String, Object> getAttributes()
-      {
-         return Collections.unmodifiableMap(attributes);
-      }
-   }
+        @Override
+        public Map<String, Object> getAttributes() {
+            return Collections.unmodifiableMap(attributes);
+        }
+    }
 
-   static class DirectiveSupporter implements XDirectiveSupport
-   {
-      private Map<String, String> directives;
+    static class DirectiveSupporter implements XDirectiveSupport {
+        private Map<String, String> directives;
 
-      DirectiveSupporter(Map<String, String> directives)
-      {
-         this.directives = directives;
-      }
+        DirectiveSupporter(Map<String, String> directives) {
+            this.directives = directives;
+        }
 
-      @Override
-      public String getDirective(String key)
-      {
-         return directives != null ? directives.get(key) : null;
-      }
+        @Override
+        public String getDirective(String key) {
+            return directives != null ? directives.get(key) : null;
+        }
 
-      @Override
-      public Map<String, String> getDirectives()
-      {
-         return Collections.unmodifiableMap(directives);
-      }
-   }
+        @Override
+        public Map<String, String> getDirectives() {
+            return Collections.unmodifiableMap(directives);
+        }
+    }
 }

@@ -29,43 +29,38 @@ import org.osgi.framework.Constants;
 
 /**
  * The abstract implementation of a {@link XFragmentHostRequirement}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractFragmentHostRequirement extends AbstractRequirement implements XFragmentHostRequirement
-{
-   private XVersionRange versionRange = XVersionRange.infiniteRange;
-   private String extension;
+class AbstractFragmentHostRequirement extends AbstractRequirement implements XFragmentHostRequirement {
+    private XVersionRange versionRange = XVersionRange.infiniteRange;
+    private String extension;
 
-   public AbstractFragmentHostRequirement(AbstractModule module, String symbolicName, Map<String, String> dirs, Map<String, Object> atts)
-   {
-      super(module, symbolicName, dirs, atts);
+    public AbstractFragmentHostRequirement(AbstractModule module, String symbolicName, Map<String, String> dirs, Map<String, Object> atts) {
+        super(module, symbolicName, dirs, atts);
 
-      Object att = getAttribute(Constants.BUNDLE_VERSION_ATTRIBUTE);
-      if (att != null)
-         versionRange = XVersionRange.parse(att.toString());
+        Object att = getAttribute(Constants.BUNDLE_VERSION_ATTRIBUTE);
+        if (att != null)
+            versionRange = XVersionRange.parse(att.toString());
 
-      String dir = getDirective(Constants.EXTENSION_DIRECTIVE);
-      if (dir != null)
-         extension = dir;
-   }
+        String dir = getDirective(Constants.EXTENSION_DIRECTIVE);
+        if (dir != null)
+            extension = dir;
+    }
 
-   @Override
-   public XVersionRange getVersionRange()
-   {
-      return versionRange;
-   }
+    @Override
+    public XVersionRange getVersionRange() {
+        return versionRange;
+    }
 
-   @Override
-   public String getExtension()
-   {
-      return extension;
-   }
+    @Override
+    public String getExtension() {
+        return extension;
+    }
 
-   @Override
-   public String toString()
-   {
-      return Constants.FRAGMENT_HOST + "[" + getName() + ":" + versionRange + "]";
-   }
+    @Override
+    public String toString() {
+        return Constants.FRAGMENT_HOST + "[" + getName() + ":" + versionRange + "]";
+    }
 }

@@ -43,328 +43,285 @@ import org.osgi.framework.Version;
 
 /**
  * The abstract implementation of an {@link XModule}.
- *
+ * 
  * This is the resolver representation of a {@link Bundle}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractModule extends AbstractElement implements XModule
-{
-   private XResolver resolver;
-   private XModuleIdentity moduleId;
-   private String moduleActivator;
-   private XBundleCapability bundleCapability;
-   private List<XCapability> capabilities;
-   private List<XRequirement> requirements;
-   private List<String> classPaths;
-   private XFragmentHostRequirement hostRequirement;
-   private XAttachmentSupport attachments;
-   private List<XWire> wires;
-   private boolean resolved;
+public class AbstractModule extends AbstractElement implements XModule {
+    private XResolver resolver;
+    private XModuleIdentity moduleId;
+    private String moduleActivator;
+    private XBundleCapability bundleCapability;
+    private List<XCapability> capabilities;
+    private List<XRequirement> requirements;
+    private List<String> classPaths;
+    private XFragmentHostRequirement hostRequirement;
+    private XAttachmentSupport attachments;
+    private List<XWire> wires;
+    private boolean resolved;
 
-   AbstractModule(XModuleIdentity moduleId)
-   {
-      super(moduleId.getName());
-      this.moduleId = moduleId;
-   }
+    AbstractModule(XModuleIdentity moduleId) {
+        super(moduleId.getName());
+        this.moduleId = moduleId;
+    }
 
-   public XResolver getResolver()
-   {
-      return resolver;
-   }
+    public XResolver getResolver() {
+        return resolver;
+    }
 
-   void setResolver(XResolver resolver)
-   {
-      this.resolver = resolver;
-   }
+    void setResolver(XResolver resolver) {
+        this.resolver = resolver;
+    }
 
-   @Override
-   public XModuleIdentity getModuleId()
-   {
-      return moduleId;
-   }
+    @Override
+    public XModuleIdentity getModuleId() {
+        return moduleId;
+    }
 
-   @Override
-   public Version getVersion()
-   {
-      return moduleId.getVersion();
-   }
+    @Override
+    public Version getVersion() {
+        return moduleId.getVersion();
+    }
 
-   @Override
-   public String getModuleActivator()
-   {
-      return moduleActivator;
-   }
+    @Override
+    public String getModuleActivator() {
+        return moduleActivator;
+    }
 
-   void setModuleActivator(String moduleActivator)
-   {
-      this.moduleActivator = moduleActivator;
-   }
+    void setModuleActivator(String moduleActivator) {
+        this.moduleActivator = moduleActivator;
+    }
 
-   @Override
-   public boolean isResolved()
-   {
-      return resolved;
-   }
+    @Override
+    public boolean isResolved() {
+        return resolved;
+    }
 
-   void setResolved()
-   {
-      this.resolved = true;
-   }
+    void setResolved() {
+        this.resolved = true;
+    }
 
-   @Override
-   public List<XCapability> getCapabilities()
-   {
-      if (capabilities == null)
-         return Collections.emptyList();
+    @Override
+    public List<XCapability> getCapabilities() {
+        if (capabilities == null)
+            return Collections.emptyList();
 
-      return Collections.unmodifiableList(capabilities);
-   }
+        return Collections.unmodifiableList(capabilities);
+    }
 
-   @Override
-   public List<XRequirement> getRequirements()
-   {
-      if (requirements == null)
-         return Collections.emptyList();
+    @Override
+    public List<XRequirement> getRequirements() {
+        if (requirements == null)
+            return Collections.emptyList();
 
-      return Collections.unmodifiableList(requirements);
-   }
+        return Collections.unmodifiableList(requirements);
+    }
 
-   @Override
-   public List<XRequireBundleRequirement> getBundleRequirements()
-   {
-      if (requirements == null)
-         return Collections.emptyList();
+    @Override
+    public List<XRequireBundleRequirement> getBundleRequirements() {
+        if (requirements == null)
+            return Collections.emptyList();
 
-      List<XRequireBundleRequirement> result = new ArrayList<XRequireBundleRequirement>();
-      for (XRequirement aux : requirements)
-      {
-         if (aux instanceof XRequireBundleRequirement)
-            result.add((XRequireBundleRequirement)aux);
-      }
-      return Collections.unmodifiableList(result);
-   }
+        List<XRequireBundleRequirement> result = new ArrayList<XRequireBundleRequirement>();
+        for (XRequirement aux : requirements) {
+            if (aux instanceof XRequireBundleRequirement)
+                result.add((XRequireBundleRequirement) aux);
+        }
+        return Collections.unmodifiableList(result);
+    }
 
-   @Override
-   public XBundleCapability getBundleCapability()
-   {
-      return bundleCapability;
-   }
+    @Override
+    public XBundleCapability getBundleCapability() {
+        return bundleCapability;
+    }
 
-   @Override
-   public List<XPackageCapability> getPackageCapabilities()
-   {
-      if (capabilities == null)
-         return Collections.emptyList();
+    @Override
+    public List<XPackageCapability> getPackageCapabilities() {
+        if (capabilities == null)
+            return Collections.emptyList();
 
-      List<XPackageCapability> result = new ArrayList<XPackageCapability>();
-      for (XCapability aux : capabilities)
-      {
-         if (aux instanceof XPackageCapability)
-         {
-            XPackageCapability packcap = (XPackageCapability)aux;
-            result.add(packcap);
-         }
-      }
-      return Collections.unmodifiableList(result);
-   }
-
-   @Override
-   public List<XPackageRequirement> getPackageRequirements()
-   {
-      if (requirements == null)
-         return Collections.emptyList();
-
-      List<XPackageRequirement> result = new ArrayList<XPackageRequirement>();
-      for (XRequirement aux : requirements)
-      {
-         if (aux instanceof XPackageRequirement)
-         {
-            XPackageRequirement packreq = (XPackageRequirement)aux;
-            if (packreq.isDynamic() == false)
-               result.add(packreq);
-         }
-      }
-      return Collections.unmodifiableList(result);
-   }
-
-   @Override
-   public List<XPackageRequirement> getDynamicPackageRequirements()
-   {
-      if (requirements == null)
-         return Collections.emptyList();
-
-      List<XPackageRequirement> result = new ArrayList<XPackageRequirement>();
-      for (XRequirement aux : requirements)
-      {
-         if (aux instanceof XPackageRequirement)
-         {
-            XPackageRequirement packreq = (XPackageRequirement)aux;
-            if (packreq.isDynamic() == true)
-               result.add(packreq);
-         }
-      }
-      return Collections.unmodifiableList(result);
-   }
-
-   @Override
-   public XFragmentHostRequirement getHostRequirement()
-   {
-      if (hostRequirement != null)
-         return hostRequirement;
-
-      if (requirements != null)
-      {
-         for (XRequirement aux : requirements)
-         {
-            if (aux instanceof XFragmentHostRequirement)
-            {
-               hostRequirement = (XFragmentHostRequirement)aux;
-               break;
+        List<XPackageCapability> result = new ArrayList<XPackageCapability>();
+        for (XCapability aux : capabilities) {
+            if (aux instanceof XPackageCapability) {
+                XPackageCapability packcap = (XPackageCapability) aux;
+                result.add(packcap);
             }
-         }
-      }
+        }
+        return Collections.unmodifiableList(result);
+    }
 
-      return hostRequirement;
-   }
+    @Override
+    public List<XPackageRequirement> getPackageRequirements() {
+        if (requirements == null)
+            return Collections.emptyList();
 
-   @Override
-   public boolean isFragment()
-   {
-      return getHostRequirement() != null;
-   }
+        List<XPackageRequirement> result = new ArrayList<XPackageRequirement>();
+        for (XRequirement aux : requirements) {
+            if (aux instanceof XPackageRequirement) {
+                XPackageRequirement packreq = (XPackageRequirement) aux;
+                if (packreq.isDynamic() == false)
+                    result.add(packreq);
+            }
+        }
+        return Collections.unmodifiableList(result);
+    }
 
-   @Override
-   public List<String> getBundleClassPath()
-   {
-      if (classPaths == null)
-         return Collections.emptyList();
+    @Override
+    public List<XPackageRequirement> getDynamicPackageRequirements() {
+        if (requirements == null)
+            return Collections.emptyList();
 
-      return Collections.unmodifiableList(classPaths);
-   }
+        List<XPackageRequirement> result = new ArrayList<XPackageRequirement>();
+        for (XRequirement aux : requirements) {
+            if (aux instanceof XPackageRequirement) {
+                XPackageRequirement packreq = (XPackageRequirement) aux;
+                if (packreq.isDynamic() == true)
+                    result.add(packreq);
+            }
+        }
+        return Collections.unmodifiableList(result);
+    }
 
-   void addBundleClassPath(String... paths)
-   {
-      if (classPaths == null)
-         classPaths = new ArrayList<String>();
+    @Override
+    public XFragmentHostRequirement getHostRequirement() {
+        if (hostRequirement != null)
+            return hostRequirement;
 
-      classPaths.addAll(Arrays.asList(paths));
-   }
+        if (requirements != null) {
+            for (XRequirement aux : requirements) {
+                if (aux instanceof XFragmentHostRequirement) {
+                    hostRequirement = (XFragmentHostRequirement) aux;
+                    break;
+                }
+            }
+        }
 
-   @Override
-   public List<XWire> getWires()
-   {
-      if (resolved == false)
-         return null;
+        return hostRequirement;
+    }
 
-      if (wires == null)
-         return Collections.emptyList();
+    @Override
+    public boolean isFragment() {
+        return getHostRequirement() != null;
+    }
 
-      return Collections.unmodifiableList(wires);
-   }
+    @Override
+    public List<String> getBundleClassPath() {
+        if (classPaths == null)
+            return Collections.emptyList();
 
-   protected void addWire(AbstractWire wire)
-   {
-      if (wires == null)
-         wires = new ArrayList<XWire>();
+        return Collections.unmodifiableList(classPaths);
+    }
 
-      wires.add(wire);
-   }
+    void addBundleClassPath(String... paths) {
+        if (classPaths == null)
+            classPaths = new ArrayList<String>();
 
-   void addCapability(XCapability capability)
-   {
-      if (capabilities == null)
-         capabilities = new ArrayList<XCapability>();
+        classPaths.addAll(Arrays.asList(paths));
+    }
 
-      if (capability instanceof XBundleCapability)
-         bundleCapability = (XBundleCapability)capability;
+    @Override
+    public List<XWire> getWires() {
+        if (resolved == false)
+            return null;
 
-      capabilities.add(capability);
-   }
+        if (wires == null)
+            return Collections.emptyList();
 
-   void addRequirement(XRequirement requirement)
-   {
-      if (requirements == null)
-         requirements = new ArrayList<XRequirement>();
+        return Collections.unmodifiableList(wires);
+    }
 
-      requirements.add(requirement);
-   }
+    protected void addWire(AbstractWire wire) {
+        if (wires == null)
+            wires = new ArrayList<XWire>();
 
-   @Override
-   public <T> T addAttachment(Class<T> clazz, T value)
-   {
-      if (attachments  == null)
-         attachments = new AttachmentSupporter();
+        wires.add(wire);
+    }
 
-      return attachments.addAttachment(clazz, value);
-   }
+    void addCapability(XCapability capability) {
+        if (capabilities == null)
+            capabilities = new ArrayList<XCapability>();
 
-   @Override
-   public <T> T getAttachment(Class<T> clazz)
-   {
-      if (attachments  == null)
-         return null;
+        if (capability instanceof XBundleCapability)
+            bundleCapability = (XBundleCapability) capability;
 
-      return attachments.getAttachment(clazz);
-   }
+        capabilities.add(capability);
+    }
 
-   @Override
-   public <T> T removeAttachment(Class<T> clazz)
-   {
-      if (attachments  == null)
-         return null;
+    void addRequirement(XRequirement requirement) {
+        if (requirements == null)
+            requirements = new ArrayList<XRequirement>();
 
-      return attachments.removeAttachment(clazz);
-   }
+        requirements.add(requirement);
+    }
 
-   @Override
-   public int hashCode()
-   {
-      return (getName() + ":" + getVersion()).hashCode();
-   }
+    @Override
+    public <T> T addAttachment(Class<T> clazz, T value) {
+        if (attachments == null)
+            attachments = new AttachmentSupporter();
 
-   @Override
-   public boolean equals(Object obj)
-   {
-      if (obj instanceof AbstractModule == false)
-         return false;
-      if (obj == this)
-         return true;
-      AbstractModule other = (AbstractModule)obj;
-      return moduleId == other.moduleId;
-   }
+        return attachments.addAttachment(clazz, value);
+    }
 
-   public StringBuffer toLongString(StringBuffer buffer)
-   {
-      if (buffer == null)
-         throw new IllegalArgumentException("Null buffer");
+    @Override
+    public <T> T getAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
 
-      String simpleName = getClass().getSimpleName();
-      buffer.append("\n" + simpleName + ": " + toString());
-      if (resolved)
-         buffer.append(" - resolved");
+        return attachments.getAttachment(clazz);
+    }
 
-      buffer.append("\nCapabilities");
-      for (XCapability cap : getCapabilities())
-         buffer.append("\n " + cap);
+    @Override
+    public <T> T removeAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
 
-      buffer.append("\nRequirements");
-      for (XRequirement req : getRequirements())
-         buffer.append("\n " + req);
+        return attachments.removeAttachment(clazz);
+    }
 
-      if (wires != null)
-      {
-         buffer.append("\nWires");
-         for (XWire wire : getWires())
-            buffer.append("\n " + wire);
-      }
-      return buffer;
-   }
+    @Override
+    public int hashCode() {
+        return (getName() + ":" + getVersion()).hashCode();
+    }
 
-   @Override
-   public String toString()
-   {
-      return "[" + getModuleId() + "]";
-   }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof AbstractModule == false)
+            return false;
+        if (obj == this)
+            return true;
+        AbstractModule other = (AbstractModule) obj;
+        return moduleId == other.moduleId;
+    }
+
+    public StringBuffer toLongString(StringBuffer buffer) {
+        if (buffer == null)
+            throw new IllegalArgumentException("Null buffer");
+
+        String simpleName = getClass().getSimpleName();
+        buffer.append("\n" + simpleName + ": " + toString());
+        if (resolved)
+            buffer.append(" - resolved");
+
+        buffer.append("\nCapabilities");
+        for (XCapability cap : getCapabilities())
+            buffer.append("\n " + cap);
+
+        buffer.append("\nRequirements");
+        for (XRequirement req : getRequirements())
+            buffer.append("\n " + req);
+
+        if (wires != null) {
+            buffer.append("\nWires");
+            for (XWire wire : getWires())
+                buffer.append("\n " + wire);
+        }
+        return buffer;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + getModuleId() + "]";
+    }
 }

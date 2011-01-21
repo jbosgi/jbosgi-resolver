@@ -28,83 +28,72 @@ import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XWire;
 import org.jboss.osgi.resolver.spi.AbstractElement.AttachmentSupporter;
 
-
 /**
  * The abstract implementation of a {@link XCapability}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractWire implements XWire, XAttachmentSupport
-{
-   private XModule importer;
-   private XRequirement requirement;
-   private XModule exporter;
-   private XCapability capability;
-   private XAttachmentSupport attachments;
-   
-   AbstractWire(XModule importer, XRequirement requirement, XModule exporter, XCapability capability)
-   {
-      this.importer = importer;
-      this.requirement = requirement;
-      this.exporter = exporter;
-      this.capability = capability;
-   }
+class AbstractWire implements XWire, XAttachmentSupport {
+    private XModule importer;
+    private XRequirement requirement;
+    private XModule exporter;
+    private XCapability capability;
+    private XAttachmentSupport attachments;
 
-   @Override
-   public XModule getImporter()
-   {
-      return importer;
-   }
+    AbstractWire(XModule importer, XRequirement requirement, XModule exporter, XCapability capability) {
+        this.importer = importer;
+        this.requirement = requirement;
+        this.exporter = exporter;
+        this.capability = capability;
+    }
 
-   @Override
-   public XRequirement getRequirement()
-   {
-      return requirement;
-   }
+    @Override
+    public XModule getImporter() {
+        return importer;
+    }
 
-   @Override
-   public XModule getExporter()
-   {
-      return exporter;
-   }
+    @Override
+    public XRequirement getRequirement() {
+        return requirement;
+    }
 
-   @Override
-   public XCapability getCapability()
-   {
-      return capability;
-   }
+    @Override
+    public XModule getExporter() {
+        return exporter;
+    }
 
-   @Override
-   public <T> T addAttachment(Class<T> clazz, T value)
-   {
-      if (attachments  == null)
-         attachments = new AttachmentSupporter();
-      
-      return attachments.addAttachment(clazz, value);
-   }
+    @Override
+    public XCapability getCapability() {
+        return capability;
+    }
 
-   @Override
-   public <T> T getAttachment(Class<T> clazz)
-   {
-      if (attachments  == null)
-         return null;
-      
-      return attachments.getAttachment(clazz);
-   }
+    @Override
+    public <T> T addAttachment(Class<T> clazz, T value) {
+        if (attachments == null)
+            attachments = new AttachmentSupporter();
 
-   @Override
-   public <T> T removeAttachment(Class<T> clazz)
-   {
-      if (attachments  == null)
-         return null;
-      
-      return attachments.removeAttachment(clazz);
-   }
+        return attachments.addAttachment(clazz, value);
+    }
 
-   @Override
-   public String toString()
-   {
-      return "Wire[" + importer + "," + requirement + " --> " + exporter + "," + capability + "]";
-   }
+    @Override
+    public <T> T getAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
+
+        return attachments.getAttachment(clazz);
+    }
+
+    @Override
+    public <T> T removeAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
+
+        return attachments.removeAttachment(clazz);
+    }
+
+    @Override
+    public String toString() {
+        return "Wire[" + importer + "," + requirement + " --> " + exporter + "," + capability + "]";
+    }
 }

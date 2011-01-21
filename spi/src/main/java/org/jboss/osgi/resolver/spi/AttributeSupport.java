@@ -25,20 +25,20 @@ import java.util.Map;
 
 /**
  * Adds support for attributes
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface AttributeSupport 
-{
-   /**
-    * Get the attributes
-    */
-   Map<String, Object> getAttributes();
-   
-   /**
-    * Get the value of the given attribute 
-    * @return null if no such attribute is associated with this capability
-    */
-   Object getAttribute(String key);
+public interface AttributeSupport {
+    /**
+     * Get the attributes
+     */
+    Map<String, Object> getAttributes();
+
+    /**
+     * Get the value of the given attribute
+     * 
+     * @return null if no such attribute is associated with this capability
+     */
+    Object getAttribute(String key);
 }
