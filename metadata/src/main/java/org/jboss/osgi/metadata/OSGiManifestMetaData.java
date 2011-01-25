@@ -60,7 +60,8 @@ class OSGiManifestMetaData extends AbstractOSGiMetaData implements Externalizabl
 
     @Override
     public String getMainAttribute(String key) {
-        return manifest.getMainAttributes().getValue(key);
+        String value = manifest.getMainAttributes().getValue(key);
+        return value != null ? value.trim() : null;
     }
 
     @Override
