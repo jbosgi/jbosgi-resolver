@@ -56,7 +56,7 @@ public class AbstractPackageAttribute extends AbstractParameterizedAttribute imp
                     throw new IllegalArgumentException("Duplicate version parameter.");
                 Object value = parameter.getValue();
                 if (value != null) {
-                    versionRange = AbstractVersionRange.parseRangeSpec(value.toString());
+                    versionRange = VersionRange.parse(value.toString());
                 }
             }
         }

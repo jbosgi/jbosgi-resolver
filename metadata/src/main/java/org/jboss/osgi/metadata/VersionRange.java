@@ -1,59 +1,132 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2006, JBoss Inc., and individual contributors as indicated
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+/* 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.jboss.osgi.metadata;
 
-import org.jboss.osgi.metadata.internal.AbstractVersionRange;
 import org.osgi.framework.Version;
 
 /**
- * Version range. [floor, ceiling]
+ * Represents an OSGi version range.
  * 
- * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
+ * This code originally comes from Apache Felix.
+ * 
+ * @author Thomas.Diesler@jboss.com
+ * @since 26-Jan-2011
  */
-public interface VersionRange {
-    /**
-     * The version range that matches all versions
-     */
-    static VersionRange allVersions = AbstractVersionRange.valueOf("0.0.0");
+public class VersionRange {
+    private final Version m_floor;
+    private final boolean m_isFloorInclusive;
+    private final Version m_ceiling;
+    private final boolean m_isCeilingInclusive;
+    public static final VersionRange infiniteRange = new VersionRange(Version.emptyVersion, true, null, true);
 
-    /**
-     * Get the floor version.
-     * 
-     * @return floor version
-     */
-    Version getFloor();
+    public VersionRange(Version low, boolean isLowInclusive, Version high, boolean isHighInclusive) {
+        m_floor = low;
+        m_isFloorInclusive = isLowInclusive;
+        m_ceiling = high;
+        m_isCeilingInclusive = isHighInclusive;
+    }
 
-    /**
-     * Get the ceiling version.
-     * 
-     * @return ceiling version
-     */
-    Version getCeiling();
+    public Version getFloor() {
+        return m_floor;
+    }
 
-    /**
-     * Is param verision between (including) floor and ceiling.
-     * 
-     * @param version version parameter to compare
-     * @return true if version param in version range interval
-     */
-    boolean isInRange(Version version);
+    public boolean isFloorInclusive() {
+        return m_isFloorInclusive;
+    }
+
+    public Version getCeiling() {
+        return m_ceiling;
+    }
+
+    public boolean isCeilingInclusive() {
+        return m_isCeilingInclusive;
+    }
+
+    public boolean isInRange(Version version) {
+        // We might not have an upper end to the range.
+        if (m_ceiling == null) {
+            return (version.compareTo(m_floor) >= 0);
+        } else if (isFloorInclusive() && isCeilingInclusive()) {
+            return (version.compareTo(m_floor) >= 0) && (version.compareTo(m_ceiling) <= 0);
+        } else if (isCeilingInclusive()) {
+            return (version.compareTo(m_floor) > 0) && (version.compareTo(m_ceiling) <= 0);
+        } else if (isFloorInclusive()) {
+            return (version.compareTo(m_floor) >= 0) && (version.compareTo(m_ceiling) < 0);
+        }
+        return (version.compareTo(m_floor) > 0) && (version.compareTo(m_ceiling) < 0);
+    }
+
+    public static VersionRange parse(String range) {
+        // Check if the version is an interval.
+        if (range.indexOf(',') >= 0) {
+            String s = range.substring(1, range.length() - 1);
+            String vlo = s.substring(0, s.indexOf(',')).trim();
+            String vhi = s.substring(s.indexOf(',') + 1, s.length()).trim();
+            return new VersionRange(new Version(vlo), (range.charAt(0) == '['), new Version(vhi), (range.charAt(range.length() - 1) == ']'));
+        } else {
+            return new VersionRange(new Version(range), true, null, false);
+        }
+    }
+
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final VersionRange other = (VersionRange) obj;
+        if (m_floor != other.m_floor && (m_floor == null || !m_floor.equals(other.m_floor))) {
+            return false;
+        }
+        if (m_isFloorInclusive != other.m_isFloorInclusive) {
+            return false;
+        }
+        if (m_ceiling != other.m_ceiling && (m_ceiling == null || !m_ceiling.equals(other.m_ceiling))) {
+            return false;
+        }
+        if (m_isCeilingInclusive != other.m_isCeilingInclusive) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        int hash = 5;
+        hash = 97 * hash + (m_floor != null ? m_floor.hashCode() : 0);
+        hash = 97 * hash + (m_isFloorInclusive ? 1 : 0);
+        hash = 97 * hash + (m_ceiling != null ? m_ceiling.hashCode() : 0);
+        hash = 97 * hash + (m_isCeilingInclusive ? 1 : 0);
+        return hash;
+    }
+
+    public String toString() {
+        if (m_ceiling != null) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(m_isFloorInclusive ? '[' : '(');
+            sb.append(m_floor.toString());
+            sb.append(',');
+            sb.append(m_ceiling.toString());
+            sb.append(m_isCeilingInclusive ? ']' : ')');
+            return sb.toString();
+        } else {
+            return m_floor.toString();
+        }
+    }
 }

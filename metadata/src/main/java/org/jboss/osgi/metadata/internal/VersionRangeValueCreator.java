@@ -38,6 +38,6 @@ class VersionRangeValueCreator extends AbstractValueCreator<VersionRange> {
     }
 
     public VersionRange useString(String attribute) {
-        return AbstractVersionRange.parseRangeSpec(attribute);
+        return VersionRange.parse(attribute);
     }
 }
