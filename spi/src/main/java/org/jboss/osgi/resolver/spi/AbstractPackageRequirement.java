@@ -40,17 +40,14 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     private XVersionRange versionRange = XVersionRange.infiniteRange;
     private String resolution;
 
-    public AbstractPackageRequirement(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts, boolean dynamic) {
+    public AbstractPackageRequirement(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts) {
         super(module, name, dirs, atts);
 
-        setDynamic(dynamic);
-        if (dynamic == false) {
-            String dir = getDirective(Constants.RESOLUTION_DIRECTIVE);
-            resolution = (dir != null ? dir : Constants.RESOLUTION_MANDATORY);
-        }
+        String dir = getDirective(Constants.RESOLUTION_DIRECTIVE);
+        resolution = (dir != null ? dir : Constants.RESOLUTION_MANDATORY);
 
         // A dynamic requirement is also optional
-        setOptional(dynamic || resolution.equals(Constants.RESOLUTION_OPTIONAL));
+        setOptional(resolution.equals(Constants.RESOLUTION_OPTIONAL));
 
         Object att = getAttribute(Constants.VERSION_ATTRIBUTE);
         if (att != null)
@@ -78,13 +75,15 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
         return (att != null ? Version.parseVersion(att.toString()) : null);
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
     public boolean match(XPackageCapability cap) {
-        // Match the package name
-        if (getName().equals(cap.getName()) == false)
+        
+        if (matchPackageName(cap) == false)
             return false;
 
         // Match the version range
-        if (getVersionRange().isInRange(cap.getVersion()) == false)
+        if (matchPackageVersion(cap) == false)
             return false;
 
         boolean validMatch = true;
@@ -92,18 +91,35 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
         // Match attributes
         for (Entry<String, Object> entry : getAttributes().entrySet()) {
             String key = entry.getKey();
-            Object reqValue = entry.getValue();
-            if (key.equals("version") || key.equals("specification-version"))
+            String reqValue = (String) entry.getValue();
+            
+            if (Constants.VERSION_ATTRIBUTE.equals(key) || Constants.PACKAGE_SPECIFICATION_VERSION.equals(key))
                 continue;
-
-            Object capValue = cap.getAttribute(key);
-            if (capValue == null || capValue.equals(reqValue) == false) {
-                validMatch = false;
-                break;
+            
+            if (Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE.equals(key)) {
+                String capModuleName = cap.getModule().getName();
+                if (reqValue.equals(capModuleName) == false) {
+                    validMatch = false;
+                    break;
+                }
+            } else {
+                String capValue = (String) cap.getAttribute(key);
+                if (reqValue.equals(capValue) == false) {
+                    validMatch = false;
+                    break;
+                }
             }
         }
 
         return validMatch;
+    }
+
+    public boolean matchPackageName(XPackageCapability cap) {
+        return getName().equals(cap.getName());
+    }
+
+    private boolean matchPackageVersion(XPackageCapability cap) {
+        return getVersionRange().isInRange(cap.getVersion());
     }
 
     @Override

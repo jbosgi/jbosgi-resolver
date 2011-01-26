@@ -105,7 +105,7 @@ public class AbstractModuleBuilder implements XModuleBuilder {
     @Override
     public XPackageRequirement addPackageRequirement(String name, Map<String, String> dirs, Map<String, Object> atts) {
         assertModuleCreated();
-        XPackageRequirement req = new AbstractPackageRequirement(module, name, dirs, atts, false);
+        XPackageRequirement req = new AbstractPackageRequirement(module, name, dirs, atts);
         module.addRequirement(req);
         return req;
     }
@@ -113,7 +113,7 @@ public class AbstractModuleBuilder implements XModuleBuilder {
     @Override
     public XPackageRequirement addDynamicPackageRequirement(String name, Map<String, Object> atts) {
         assertModuleCreated();
-        XPackageRequirement req = new AbstractPackageRequirement(module, name, null, atts, true);
+        XPackageRequirement req = new AbstractDynamicPackageRequirement(module, name, null, atts);
         module.addRequirement(req);
         return req;
     }

@@ -56,4 +56,9 @@ public interface XPackageRequirement extends XRequirement {
      * True if this is a dynamic package requirement.
      */
     boolean isDynamic();
+
+    /**
+     * True if the given capability matches this requirement
+     */
+    boolean match(XPackageCapability cap);
 }
