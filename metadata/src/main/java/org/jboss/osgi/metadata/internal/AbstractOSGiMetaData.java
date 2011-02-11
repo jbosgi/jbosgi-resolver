@@ -23,9 +23,9 @@ package org.jboss.osgi.metadata.internal;
 
 import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.ACTIVATION_POLICY_VC;
 import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.INTEGER_VC;
+import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.NATIVE_CODE_ATTRIB_LIST_VC;
 import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.PACKAGE_LIST_VC;
 import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.PARAM_ATTRIB_VC;
-import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.PATH_ATTRIB_LIST_VC;
 import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.QNAME_ATTRIB_LIST_VC;
 import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.STRING_LIST_VC;
 import static org.jboss.osgi.metadata.internal.ValueCreatorUtil.STRING_VC;
@@ -74,6 +74,7 @@ import org.osgi.framework.Version;
  * 
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
  * @author Thomas.Diesler@jboss.com
+ * @author David Bosschaert
  */
 public abstract class AbstractOSGiMetaData implements OSGiMetaData {
     private static final long serialVersionUID = 1L;
@@ -137,7 +138,7 @@ public abstract class AbstractOSGiMetaData implements OSGiMetaData {
     }
 
     public List<ParameterizedAttribute> getBundleNativeCode() {
-        return get(BUNDLE_NATIVECODE, PATH_ATTRIB_LIST_VC);
+        return get(BUNDLE_NATIVECODE, NATIVE_CODE_ATTRIB_LIST_VC);
     }
 
     public List<String> getRequiredExecutionEnvironment() {
