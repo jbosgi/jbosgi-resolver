@@ -111,10 +111,10 @@ public class FelixResolver extends AbstractResolver implements XResolver {
         } catch (ResolveException ex) {
             String msg = ex.getMessage();
             ModuleExt exmod = (ModuleExt) ex.getModule();
+            XModule xmod = exmod != null ? exmod.getModule() : null;
             Requirement exreq = ex.getRequirement();
             Throwable cause = ex.getCause();
-
-            XResolverException resex = new XResolverException(msg, exmod.getModule(), exreq);
+            XResolverException resex = new XResolverException(msg, xmod, exreq);
             resex.initCause(cause);
             throw resex;
         }
