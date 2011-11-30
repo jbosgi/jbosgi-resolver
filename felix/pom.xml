@@ -31,6 +31,10 @@
   
   <dependencies>
     <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.framework.resolver</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.osgi.resolver</groupId>
       <artifactId>jbosgi-resolver-api</artifactId>
       <version>${project.version}</version>

@@ -57,7 +57,7 @@ public abstract class XResolverFactory {
     public abstract XResolver newResolver();
 
     /**
-     * Get a new instance of an {@link XModuleBuilder}
+     * Get a new instance of an {@link XResourceBuilder}
      */
-    public abstract XModuleBuilder newModuleBuilder();
+    public abstract XResourceBuilder newModuleBuilder();
 }

@@ -22,7 +22,6 @@
 package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XBundleCapability;
-import org.osgi.framework.Version;
 
 /**
  * The abstract implementation of a {@link XBundleCapability}.
@@ -31,20 +30,7 @@ import org.osgi.framework.Version;
  * @since 02-Jul-2010
  */
 class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
-    private final Version version;
-
-    public AbstractBundleCapability(AbstractModule module, String symbolicName, Version version) {
-        super(module, symbolicName, null, null);
-        this.version = (version != null ? version : Version.emptyVersion);
-    }
-
-    @Override
-    public Version getVersion() {
-        return version;
-    }
-
-    @Override
-    public String toString() {
-        return "Bundle[" + getName() + ":" + getVersion() + "]";
+    AbstractBundleCapability() {
+        super(attributes);
     }
 }

@@ -28,31 +28,13 @@ import java.util.Map;
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XDirectiveSupport;
-import org.jboss.osgi.resolver.XElement;
 
 /**
- * The abstract implementation of an {@link XElement}.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractElement implements XElement {
-    private String name;
-
-    AbstractElement(String name) {
-        if (name == null)
-            throw new IllegalArgumentException("Null name");
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    void setName(String name) {
-        this.name = name;
-    }
+class AbstractElement {
 
     static class AttachmentSupporter implements XAttachmentSupport {
         private Map<Class<?>, Object> attachments;

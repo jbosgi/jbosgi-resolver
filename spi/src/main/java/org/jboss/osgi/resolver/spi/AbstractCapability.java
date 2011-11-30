@@ -21,16 +21,14 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
-import org.jboss.osgi.resolver.XModule;
-import org.jboss.osgi.resolver.XRequirement;
+import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.resource.Resource;
+
+import java.util.Map;
 
 /**
  * The abstract implementation of a {@link XCapability}.
@@ -39,76 +37,54 @@ import org.jboss.osgi.resolver.XRequirement;
  * @since 02-Jul-2010
  */
 class AbstractCapability extends AbstractElement implements XCapability {
-    private XModule module;
-    private XDirectiveSupport directives;
-    private XAttributeSupport attributes;
+
+    private final XResource resource;
+    private final String namespace;
+    private final XAttributeSupport attributes;
+    private final XDirectiveSupport directives;
     private XAttachmentSupport attachments;
 
-    public AbstractCapability(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts) {
-        super(name);
-        this.module = module;
-
-        if (dirs != null)
-            directives = new DirectiveSupporter(dirs);
-        if (atts != null)
-            attributes = new AttributeSupporter(atts);
+    public AbstractCapability(String namespace, XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+        this.namespace = namespace;
+        this.resource = resource;
+        this.attributes = new AttributeSupporter(attributes);
+        this.directives = new DirectiveSupporter(directives);
     }
 
     @Override
-    public XModule getModule() {
-        return module;
+    public Resource getResource() {
+        return resource;
     }
 
     @Override
-    public Set<XRequirement> getWiredRequirements() {
-        if (getModule().isResolved() == false)
-            return null;
-
-        // The resolver may be null if this capability has already been removed from the resolver
-        AbstractResolver resolver = (AbstractResolver) getModule().getResolver();
-        if (resolver == null)
-            return Collections.emptySet();
-
-        return resolver.getWiredRequirements(this);
-    }
-
-    @Override
-    public Object getAttribute(String key) {
-        if (attributes == null)
-            return null;
-
-        return attributes.getAttribute(key);
-    }
-
-    @Override
-    public Map<String, Object> getAttributes() {
-        if (attributes == null)
-            return Collections.emptyMap();
-
-        return attributes.getAttributes();
-    }
-
-    @Override
-    public String getDirective(String key) {
-        if (directives == null)
-            return null;
-
-        return directives.getDirective(key);
+    public String getNamespace() {
+        return namespace;
     }
 
     @Override
     public Map<String, String> getDirectives() {
-        if (directives == null)
-            return Collections.emptyMap();
-
         return directives.getDirectives();
+    }
+
+    @Override
+    public String getDirective(String key) {
+        return directives.getDirective(key);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes.getAttributes();
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return attributes.getAttribute(key);
     }
 
     @Override
     public <T> T addAttachment(Class<T> clazz, T value) {
         if (attachments == null)
             attachments = new AttachmentSupporter();
-
         return attachments.addAttachment(clazz, value);
     }
 
@@ -116,7 +92,6 @@ class AbstractCapability extends AbstractElement implements XCapability {
     public <T> T getAttachment(Class<T> clazz) {
         if (attachments == null)
             return null;
-
         return attachments.getAttachment(clazz);
     }
 
@@ -124,7 +99,6 @@ class AbstractCapability extends AbstractElement implements XCapability {
     public <T> T removeAttachment(Class<T> clazz) {
         if (attachments == null)
             return null;
-
         return attachments.removeAttachment(clazz);
     }
 }

@@ -33,28 +33,28 @@ import junit.framework.Assert;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
-import org.jboss.osgi.resolver.XModule;
-import org.jboss.osgi.resolver.XModuleBuilder;
+import org.jboss.osgi.resolver.XResourceBuilder;
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XVersionRange;
-import org.jboss.osgi.resolver.spi.AbstractModuleBuilder;
+import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
 import org.junit.Test;
 
 /**
- * Unit tests for the {@link AbstractModuleBuilder} class
+ * Unit tests for the {@link org.jboss.osgi.resolver.spi.AbstractResourceBuilder} class
  * 
  * @author <a href="david@redhat.com">David Bosschaert</a>
  */
 public class AbstractModuleBuilderTestCase {
     @Test
     public void testAttributDirectiveTrimming() throws Exception {
-        AbstractModuleBuilder amb = new AbstractModuleBuilder();
+        AbstractResourceBuilder amb = new AbstractResourceBuilder();
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1," + "value2; version= 1.0.1," + "value3;resolution:= optional," + "value4;version = 3 ; resolution := optional ");
         OSGiMetaData md = new TestOSGiMetaData(attrs);
-        XModuleBuilder builder = amb.createModule(md, 1);
-        XModule m = builder.getModule();
+        XResourceBuilder builder = amb.createResource(md, 1);
+        XResource m = builder.getResource();
 
         for (XPackageRequirement preq : m.getPackageRequirements()) {
             if (preq.getName().equals("value1")) {
@@ -77,13 +77,13 @@ public class AbstractModuleBuilderTestCase {
 
     @Test
     public void testAttributDirectiveNoTrimming() throws Exception {
-        AbstractModuleBuilder amb = new AbstractModuleBuilder();
+        AbstractResourceBuilder amb = new AbstractResourceBuilder();
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1," + "value2;version=1.0.1," + "value3;resolution:=optional," + "value4;version=3;resolution:=optional");
         OSGiMetaData md = new TestOSGiMetaData(attrs);
-        XModuleBuilder builder = amb.createModule(md, 1);
-        XModule m = builder.getModule();
+        XResourceBuilder builder = amb.createResource(md, 1);
+        XResource m = builder.getResource();
 
         for (XPackageRequirement preq : m.getPackageRequirements()) {
             if (preq.getName().equals("value1")) {

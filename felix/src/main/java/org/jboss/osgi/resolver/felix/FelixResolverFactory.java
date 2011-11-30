@@ -21,10 +21,10 @@
  */
 package org.jboss.osgi.resolver.felix;
 
-import org.jboss.osgi.resolver.XModuleBuilder;
+import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResolverFactory;
-import org.jboss.osgi.resolver.spi.AbstractModuleBuilder;
+import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
 
 /**
  * An implementation of the {@link XResolverFactory}.
@@ -39,7 +39,7 @@ public class FelixResolverFactory extends XResolverFactory {
     }
 
     @Override
-    public XModuleBuilder newModuleBuilder() {
-        return new AbstractModuleBuilder();
+    public XResourceBuilder newModuleBuilder() {
+        return new AbstractResourceBuilder();
     }
 }

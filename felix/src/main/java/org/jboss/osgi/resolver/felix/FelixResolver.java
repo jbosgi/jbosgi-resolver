@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.resolver.felix;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,13 +33,13 @@ import org.apache.felix.framework.resolver.Module;
 import org.apache.felix.framework.resolver.ResolveException;
 import org.apache.felix.framework.resolver.Wire;
 import org.apache.felix.framework.util.Util;
+import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XCapability;
-import org.jboss.osgi.resolver.XModule;
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XRequirement;
-import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResolverException;
 import org.jboss.osgi.resolver.XWire;
-import org.jboss.osgi.resolver.spi.AbstractModule;
+import org.jboss.osgi.resolver.spi.AbstractResource;
 import org.jboss.osgi.resolver.spi.AbstractResolver;
 
 /**
@@ -51,7 +50,7 @@ import org.jboss.osgi.resolver.spi.AbstractResolver;
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
-public class FelixResolver extends AbstractResolver implements XResolver {
+public class FelixResolver extends AbstractResolver {
     private Logger logger;
 
     private ResolverExt resolver;
@@ -59,59 +58,35 @@ public class FelixResolver extends AbstractResolver implements XResolver {
     private ResultProcessor resultProcessor;
 
     public FelixResolver() {
+        super(resolver);
         logger = new LoggerDelegate();
         resolver = new ResolverExt(logger);
-        resolverState = new ResolverStateExt(logger);
+        resolverState = new ResolverStateExt(null);
         resultProcessor = new ResultProcessor(this);
     }
 
-    @Override
-    public void addModule(XModule module) {
-        super.addModule(module);
-        ModuleExt fmod = new ModuleExt((AbstractModule) module);
-        module.addAttachment(ModuleExt.class, fmod);
-        resolverState.addModule(fmod);
+    public void addModuleRevision(XBundleRevision module) {
+        super.addModuleRevision(module);
+        resolverState.addRevision(module);
+    }
+
+    public void removeModuleRevision(XBundleRevision module) {
+        super.removeModuleRevision(module);
+        resolverState.removeRevision(module);
     }
 
     @Override
-    public void removeModule(XModule module) {
-        super.removeModule(module);
-        ModuleExt fmod = module.getAttachment(ModuleExt.class);
-        if (fmod != null) {
-            resolverState.removeModule(fmod);
-        }
-    }
+    protected void resolveInternal(XResource resource) throws XResolverException {
+        if (resource == null)
+            throw new IllegalArgumentException("Null resource");
 
-    public ModuleExt findHost(ModuleExt fragModule) {
-        ModuleExt hostModule = (ModuleExt) resolverState.findHost(fragModule);
-        return hostModule;
-    }
-
-    public List<ModuleExt> findFragments(ModuleExt hostModule) {
-        List<ModuleExt> frags = new ArrayList<ModuleExt>();
-        for (Module m : resolverState.findFragments(hostModule))
-            frags.add((ModuleExt) m);
-
-        return frags;
-    }
-
-    @Override
-    protected void setResolved(AbstractModule module) {
-        super.setResolved(module);
-    }
-
-    @Override
-    protected void resolveInternal(XModule module) throws XResolverException {
-        if (module == null)
-            throw new IllegalArgumentException("Null module");
-
-        ModuleExt rootModule = module.getAttachment(ModuleExt.class);
+        ModuleExt rootModule = resource.getAttachment(ModuleExt.class);
         try {
             resolveInternal(rootModule);
         } catch (ResolveException ex) {
             String msg = ex.getMessage();
             ModuleExt exmod = (ModuleExt) ex.getModule();
-            XModule xmod = exmod != null ? exmod.getModule() : null;
+            XResource xmod = exmod != null ? exmod.getModule() : null;
             Requirement exreq = ex.getRequirement();
             Throwable cause = ex.getCause();
             XResolverException resex = new XResolverException(msg, xmod, exreq);
@@ -191,7 +166,7 @@ public class FelixResolver extends AbstractResolver implements XResolver {
         }
     }
 
-    protected XWire addWire(AbstractModule importer, XRequirement requirement, XModule exporter, XCapability capability) {
+    protected XWire addWire(AbstractResource importer, XRequirement requirement, XResource exporter, XCapability capability) {
         return super.addWire(importer, requirement, exporter, capability);
     }
 }

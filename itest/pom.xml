@@ -42,13 +42,7 @@
       <artifactId>jbosgi-spi</artifactId>
     </dependency>
     
-    <!-- OSGi Dependencies -->
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-    </dependency>
-
-    <!-- Test Dependencies -->    
+    <!-- Test Dependencies -->
     <dependency>
       <groupId>org.jboss.osgi.resolver</groupId>
       <artifactId>jbosgi-resolver-felix</artifactId>

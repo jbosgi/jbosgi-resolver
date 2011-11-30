@@ -21,14 +21,15 @@
  */
 package org.jboss.osgi.resolver.felix;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.felix.framework.Logger;
-import org.apache.felix.framework.resolver.Module;
 import org.apache.felix.framework.resolver.Resolver;
 import org.apache.felix.framework.resolver.ResolverImpl;
-import org.apache.felix.framework.resolver.Wire;
+import org.apache.felix.framework.resolver.ResolverWire;
+import org.osgi.framework.wiring.BundleRevision;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * An extension to the Apache Felix Resolver.
@@ -44,12 +45,12 @@ class ResolverExt implements Resolver {
     }
 
     @Override
-    public Map<Module, List<Wire>> resolve(ResolverState state, Module module) {
-        return delegate.resolve(state, module);
+    public Map<BundleRevision, List<ResolverWire>> resolve(ResolverState state, Set<BundleRevision> mandatoryRevisions, Set<BundleRevision> optionalRevisions, Set<BundleRevision> ondemandFragments) {
+        return delegate.resolve(state, mandatoryRevisions, optionalRevisions, ondemandFragments);
     }
 
     @Override
-    public Map<Module, List<Wire>> resolve(ResolverState state, Module module, String pkgName) {
-        return delegate.resolve(state, module, pkgName);
+    public Map<BundleRevision, List<ResolverWire>> resolve(ResolverState state, BundleRevision revision, String pkgName, Set<BundleRevision> ondemandFragments) {
+        return delegate.resolve(state, revision, pkgName, ondemandFragments);
     }
 }

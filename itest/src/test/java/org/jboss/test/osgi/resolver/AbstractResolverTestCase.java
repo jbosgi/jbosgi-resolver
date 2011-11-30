@@ -29,8 +29,8 @@ import java.util.jar.Manifest;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
-import org.jboss.osgi.resolver.XModule;
-import org.jboss.osgi.resolver.XModuleBuilder;
+import org.jboss.osgi.resolver.XResourceBuilder;
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResolverCallback;
 import org.jboss.osgi.resolver.XResolverFactory;
@@ -58,7 +58,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
         resolver = factory.newResolver();
     }
 
-    XModule installModule(Archive<?> archive) throws Exception {
+    XResource installModule(Archive<?> archive) throws Exception {
         VirtualFile virtualFile = toVirtualFile(archive);
         try {
             Manifest manifest = VFSUtils.getManifest(virtualFile);
@@ -72,15 +72,15 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
                 headers.put(key.toString(), value);
             }
 
-            XModuleBuilder builder = factory.newModuleBuilder();
-            XModule module = builder.createModule(metadata, 0).getModule();
+            XResourceBuilder builder = factory.newModuleBuilder();
+            XResource resource = builder.createResource(metadata, 0).getResource();
 
             Bundle bundle = Mockito.mock(Bundle.class);
             Mockito.when(bundle.getHeaders()).thenReturn(headers);
-            module.addAttachment(Bundle.class, bundle);
+            resource.addAttachment(Bundle.class, bundle);
 
-            resolver.addModule(module);
-            return module;
+            resolver.addModuleRevision(resource);
+            return resource;
         } finally {
             virtualFile.close();
 
@@ -88,15 +88,15 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
     }
 
     class ResolverCallback implements XResolverCallback {
-        private List<XModule> resolved;
+        private List<XResource> resolved;
 
-        ResolverCallback(List<XModule> resolved) {
+        ResolverCallback(List<XResource> resolved) {
             this.resolved = resolved;
         }
 
         @Override
-        public void markResolved(XModule resModule) {
-            resolved.add(resModule);
+        public void markResolved(XResource resResource) {
+            resolved.add(resResource);
         }
     }
 }

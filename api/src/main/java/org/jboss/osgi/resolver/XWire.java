@@ -21,34 +21,13 @@
  */
 package org.jboss.osgi.resolver;
 
+import org.osgi.framework.resource.Wire;
+
 /**
  * Wires a requirement to a capability.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XWire {
-    /**
-     * Returns the importing module.
-     * 
-     * @return The importing module.
-     */
-    XModule getImporter();
-
-    /**
-     * Returns the associated requirement from the importing module that resulted in the creation of this wire.
-     **/
-    XRequirement getRequirement();
-
-    /**
-     * Returns the exporting module.
-     * 
-     * @return The exporting module.
-     */
-    XModule getExporter();
-
-    /**
-     * Returns the associated capability from the exporting module that satisfies the requirement of the importing module.
-     */
-    XCapability getCapability();
+public interface XWire extends Wire {
 }

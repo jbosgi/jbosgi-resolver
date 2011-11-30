@@ -21,15 +21,22 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
-import org.jboss.osgi.resolver.XModule;
 import org.jboss.osgi.resolver.XRequirement;
+import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Resource;
+
+import java.util.Map;
+
+import static org.osgi.framework.resource.ResourceConstants.CAPABILITY_MANDATORY_DIRECTIVE;
 
 /**
  * The abstract implementation of a {@link XCapability}.
@@ -38,86 +45,64 @@ import org.jboss.osgi.resolver.XRequirement;
  * @since 02-Jul-2010
  */
 class AbstractRequirement extends AbstractElement implements XRequirement {
-    private XModule module;
-    private XDirectiveSupport directives;
-    private XAttributeSupport attributes;
+
+    private final XResource resource;
+    private final String namespace;
+    private final XAttributeSupport attributes;
+    private final XDirectiveSupport directives;
     private XAttachmentSupport attachments;
-    private boolean optional, dynamic;
+    private Filter filter;
 
-    public AbstractRequirement(AbstractModule module, String name, Map<String, String> dirs, Map<String, Object> atts) {
-        super(name);
-        this.module = module;
+    public AbstractRequirement(String namespace, XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+        this.namespace = namespace;
+        this.resource = resource;
+        this.attributes = new AttributeSupporter(attributes);
+        this.directives = new DirectiveSupporter(directives);
 
-        if (dirs != null)
-            directives = new DirectiveSupporter(dirs);
-        if (atts != null)
-            attributes = new AttributeSupporter(atts);
+        String filterdir = getDirective(Constants.FILTER_DIRECTIVE);
+        if (filterdir != null) {
+            try {
+                filter = FrameworkUtil.createFilter(filterdir);
+            } catch (InvalidSyntaxException e) {
+                throw new IllegalArgumentException("Invalid filter directive: " + filterdir);
+            }
+        }
     }
 
     @Override
-    public XModule getModule() {
-        return module;
-    }
-
-    public boolean isOptional() {
-        return optional;
-    }
-
-    void setOptional(boolean optional) {
-        this.optional = optional;
-    }
-
-    public boolean isDynamic() {
-        return dynamic;
-    }
-
-    void setDynamic(boolean dynamic) {
-        this.dynamic = dynamic;
+    public Resource getResource() {
+        return resource;
     }
 
     @Override
-    public XCapability getWiredCapability() {
-        AbstractResolver resolver = (AbstractResolver) getModule().getResolver();
-        return resolver.getWiredCapability(this);
-    }
-
-    @Override
-    public Object getAttribute(String key) {
-        if (attributes == null)
-            return null;
-
-        return attributes.getAttribute(key);
-    }
-
-    @Override
-    public Map<String, Object> getAttributes() {
-        if (attributes == null)
-            return Collections.emptyMap();
-
-        return attributes.getAttributes();
-    }
-
-    @Override
-    public String getDirective(String key) {
-        if (directives == null)
-            return null;
-
-        return directives.getDirective(key);
+    public String getNamespace() {
+        return namespace;
     }
 
     @Override
     public Map<String, String> getDirectives() {
-        if (directives == null)
-            return Collections.emptyMap();
-
         return directives.getDirectives();
+    }
+
+    @Override
+    public String getDirective(String key) {
+        return directives.getDirective(key);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes.getAttributes();
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return attributes.getAttribute(key);
     }
 
     @Override
     public <T> T addAttachment(Class<T> clazz, T value) {
         if (attachments == null)
             attachments = new AttachmentSupporter();
-
         return attachments.addAttachment(clazz, value);
     }
 
@@ -125,7 +110,6 @@ class AbstractRequirement extends AbstractElement implements XRequirement {
     public <T> T getAttachment(Class<T> clazz) {
         if (attachments == null)
             return null;
-
         return attachments.getAttachment(clazz);
     }
 
@@ -133,7 +117,17 @@ class AbstractRequirement extends AbstractElement implements XRequirement {
     public <T> T removeAttachment(Class<T> clazz) {
         if (attachments == null)
             return null;
-
         return attachments.removeAttachment(clazz);
+    }
+
+    @Override
+    public boolean matches(Capability capability) {
+        boolean match = namespace.equals(capability.getNamespace());
+        if (match && filter != null) {
+            match = filter.matches(capability.getAttributes());
+        }
+        // [TODO] CAPABILITY_MANDATORY_DIRECTIVE
+        String mandatoryAttrs = capability.getDirectives().get(CAPABILITY_MANDATORY_DIRECTIVE);
+        return match;
     }
 }

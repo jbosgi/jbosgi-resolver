@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver;
 
 import org.osgi.framework.Version;
+import org.osgi.framework.wiring.BundleCapability;
 
 /**
  * A host bundle capability
@@ -29,9 +30,5 @@ import org.osgi.framework.Version;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XBundleCapability extends XCapability {
-    /**
-     * Get the bundle version
-     */
-    Version getVersion();
+public interface XBundleCapability extends XCapability, BundleCapability {
 }

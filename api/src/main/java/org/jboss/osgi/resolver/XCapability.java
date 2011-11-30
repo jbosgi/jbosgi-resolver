@@ -21,7 +21,7 @@
  */
 package org.jboss.osgi.resolver;
 
-import java.util.Set;
+import org.osgi.framework.resource.Capability;
 
 /**
  * A capability
@@ -29,16 +29,5 @@ import java.util.Set;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XCapability extends XElement, XAttributeSupport, XDirectiveSupport, XAttachmentSupport {
-    /**
-     * Get associated module.
-     */
-    XModule getModule();
-
-    /**
-     * Get the set of requirements that this capability is wired to
-     * 
-     * @return The requirements or null if the capbility belongs to an unresolved module.
-     */
-    Set<XRequirement> getWiredRequirements();
+public interface XCapability extends XAttributeSupport, XDirectiveSupport, XAttachmentSupport, Capability {
 }

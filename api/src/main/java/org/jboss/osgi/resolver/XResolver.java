@@ -21,6 +21,8 @@
  */
 package org.jboss.osgi.resolver;
 
+import org.osgi.service.resolver.Resolver;
+
 import java.util.Set;
 
 /**
@@ -29,44 +31,5 @@ import java.util.Set;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XResolver {
-    /**
-     * Add a module to the resolver.
-     */
-    void addModule(XModule module);
-
-    /**
-     * Remove a module from the resolver.
-     */
-    void removeModule(XModule module);
-
-    /**
-     * Get the list of registered modules
-     */
-    Set<XModule> getModules();
-
-    /**
-     * Find the a module for a given id.
-     */
-    XModule getModuleById(XModuleIdentity moduleId);
-
-    /**
-     * Resolve the given root module
-     * 
-     * @throws XResolverException if the module cannot be resolved
-     */
-    void resolve(XModule rootModule) throws XResolverException;
-
-    /**
-     * Resolve the given set of modules
-     * 
-     * @param modules The set of modules or null for all modules
-     * @return True if all modules could be resolved
-     */
-    boolean resolveAll(Set<XModule> modules);
-
-    /**
-     * The the optional callback handler on the resolver
-     */
-    void setCallbackHandler(XResolverCallback callback);
+public interface XResolver extends Resolver {
 }

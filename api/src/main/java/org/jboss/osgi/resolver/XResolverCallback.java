@@ -28,5 +28,5 @@ package org.jboss.osgi.resolver;
  * @since 02-Jul-2010
  */
 public interface XResolverCallback {
-    void markResolved(XModule module);
+    void markResolved(XResource resource);
 }

@@ -23,22 +23,22 @@ package org.jboss.osgi.resolver.spi;
 
 import java.util.Map;
 
-import org.jboss.osgi.resolver.XRequireBundleRequirement;
+import org.jboss.osgi.resolver.XBundleRequirement;
 import org.jboss.osgi.resolver.XVersionRange;
 import org.osgi.framework.Constants;
 
 /**
- * The abstract implementation of a {@link XRequireBundleRequirement}.
+ * The abstract implementation of a {@link org.jboss.osgi.resolver.XBundleRequirement}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractBundleRequirement extends AbstractRequirement implements XRequireBundleRequirement {
+class AbstractBundleRequirement extends AbstractRequirement implements XBundleRequirement {
     private XVersionRange versionRange = XVersionRange.infiniteRange;
     private String visibility = Constants.VISIBILITY_PRIVATE;
     private String resolution = Constants.RESOLUTION_MANDATORY;
 
-    public AbstractBundleRequirement(AbstractModule module, String symbolicName, Map<String, String> dirs, Map<String, Object> atts) {
+    public AbstractBundleRequirement(AbstractResource module, String symbolicName, Map<String, String> dirs, Map<String, Object> atts) {
         super(module, symbolicName, dirs, atts);
 
         Object att = getAttribute(Constants.BUNDLE_VERSION_ATTRIBUTE);
