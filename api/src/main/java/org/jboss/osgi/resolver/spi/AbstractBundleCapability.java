@@ -19,27 +19,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.resolver.felix;
+package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XResourceBuilder;
-import org.jboss.osgi.resolver.XResolver;
-import org.jboss.osgi.resolver.XResolverFactory;
-import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
+import org.jboss.osgi.resolver.XBundleCapability;
+import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.wiring.BundleRevision;
+
+import java.util.Map;
+
+import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 
 /**
- * An implementation of the {@link XResolverFactory}.
+ * The abstract implementation of a {@link org.jboss.osgi.resolver.XBundleCapability}.
  * 
  * @author thomas.diesler@jboss.com
- * @since 28-Sep-2010
+ * @since 02-Jul-2010
  */
-public class FelixResolverFactory extends XResolverFactory {
-    @Override
-    public XResolver newResolver() {
-        return new FelixResolver();
+class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
+
+    public AbstractBundleCapability(XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+        super(WIRING_BUNDLE_NAMESPACE, resource, attributes, directives);
     }
 
     @Override
-    public XResourceBuilder newResourceBuilder() {
-        return new AbstractResourceBuilder();
+    public BundleRevision getRevision() {
+        return (BundleRevision) super.getResource();
+    }
+
+    @Override
+    public BundleRevision getResource() {
+        return (BundleRevision) super.getResource();
     }
 }

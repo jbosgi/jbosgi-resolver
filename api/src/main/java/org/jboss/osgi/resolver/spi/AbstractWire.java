@@ -19,27 +19,46 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.resolver.felix;
+package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XResourceBuilder;
-import org.jboss.osgi.resolver.XResolver;
-import org.jboss.osgi.resolver.XResolverFactory;
-import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
+import org.jboss.osgi.resolver.XWire;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.resource.Resource;
 
 /**
- * An implementation of the {@link XResolverFactory}.
+ * The abstract implementation of a {@link org.jboss.osgi.resolver.XCapability}.
  * 
  * @author thomas.diesler@jboss.com
- * @since 28-Sep-2010
+ * @since 02-Jul-2010
  */
-public class FelixResolverFactory extends XResolverFactory {
-    @Override
-    public XResolver newResolver() {
-        return new FelixResolver();
+class AbstractWire implements XWire {
+
+    private final Capability capability;
+    private final Requirement requirement;
+    private final Resource provider;
+    private final Resource requirer;
+
+    AbstractWire(Capability capability, Requirement requirement, Resource provider, Resource requirer) {
+        this.capability = capability;
+        this.requirement = requirement;
+        this.provider = provider;
+        this.requirer = requirer;
     }
 
-    @Override
-    public XResourceBuilder newResourceBuilder() {
-        return new AbstractResourceBuilder();
+    public Capability getCapability() {
+        return capability;
+    }
+
+    public Requirement getRequirement() {
+        return requirement;
+    }
+
+    public Resource getProvider() {
+        return provider;
+    }
+
+    public Resource getRequirer() {
+        return requirer;
     }
 }

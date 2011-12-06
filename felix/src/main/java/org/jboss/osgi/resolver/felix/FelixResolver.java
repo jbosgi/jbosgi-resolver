@@ -21,152 +21,140 @@
  */
 package org.jboss.osgi.resolver.felix;
 
-import java.util.Iterator;
+import org.apache.felix.framework.resolver.ResolveException;
+import org.apache.felix.framework.resolver.Resolver.ResolverState;
+import org.apache.felix.framework.resolver.ResolverImpl;
+import org.apache.felix.framework.resolver.ResolverWire;
+import org.jboss.osgi.resolver.XResolver;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.service.resolver.Environment;
+import org.osgi.service.resolver.ResolutionException;
+import org.osgi.service.resolver.Resolver;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.felix.framework.Logger;
-import org.apache.felix.framework.capabilityset.Requirement;
-import org.apache.felix.framework.resolver.FragmentRequirement;
-import org.apache.felix.framework.resolver.Module;
-import org.apache.felix.framework.resolver.ResolveException;
-import org.apache.felix.framework.resolver.Wire;
-import org.apache.felix.framework.util.Util;
-import org.jboss.osgi.resolver.XBundleRevision;
-import org.jboss.osgi.resolver.XCapability;
-import org.jboss.osgi.resolver.XResource;
-import org.jboss.osgi.resolver.XRequirement;
-import org.jboss.osgi.resolver.XResolverException;
-import org.jboss.osgi.resolver.XWire;
-import org.jboss.osgi.resolver.spi.AbstractResource;
-import org.jboss.osgi.resolver.spi.AbstractResolver;
+import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * An implementation of the Resolver.
- * 
+ * <p/>
  * This implemantion should use no framework specific API. It is the extension point for a framework specific Resolver.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
-public class FelixResolver extends AbstractResolver {
-    private Logger logger;
+public class FelixResolver implements XResolver {
 
-    private ResolverExt resolver;
-    private ResolverStateExt resolverState;
-    private ResultProcessor resultProcessor;
-
-    public FelixResolver() {
-        super(resolver);
-        logger = new LoggerDelegate();
-        resolver = new ResolverExt(logger);
-        resolverState = new ResolverStateExt(null);
-        resultProcessor = new ResultProcessor(this);
-    }
-
-    public void addModuleRevision(XBundleRevision module) {
-        super.addModuleRevision(module);
-        resolverState.addRevision(module);
-    }
-
-    public void removeModuleRevision(XBundleRevision module) {
-        super.removeModuleRevision(module);
-        resolverState.removeRevision(module);
-    }
+    private ResolverImpl delegate = new ResolverImpl(new LoggerDelegate());
 
     @Override
-    protected void resolveInternal(XResource resource) throws XResolverException {
-        if (resource == null)
-            throw new IllegalArgumentException("Null resource");
-
-        ModuleExt rootModule = resource.getAttachment(ModuleExt.class);
-        try {
-            resolveInternal(rootModule);
-        } catch (ResolveException ex) {
-            String msg = ex.getMessage();
-            ModuleExt exmod = (ModuleExt) ex.getModule();
-            XResource xmod = exmod != null ? exmod.getModule() : null;
-            Requirement exreq = ex.getRequirement();
-            Throwable cause = ex.getCause();
-            XResolverException resex = new XResolverException(msg, xmod, exreq);
-            resex.initCause(cause);
-            throw resex;
-        }
+    public Map<Resource, List<Wire>> resolve(Environment environment, Collection<? extends Resource> mandatoryResources, Collection<? extends Resource> optionalResources) throws ResolutionException {
+        ResolverState state = new EnvironmentDelegate(environment);
+        Set<BundleRevision> mandatory = bundleRevisions(mandatoryResources);
+        Set<BundleRevision> optional = bundleRevisions(optionalResources);
+        Map<BundleRevision, List<ResolverWire>> result = delegate.resolve(state, mandatory, optional, null);
+        return processResult(result);
     }
 
-    private void resolveInternal(ModuleExt rootModule) {
-        if (!rootModule.isResolved()) {
-            synchronized (resolverState) {
-                // If the root module to resolve is a fragment, then we
-                // must find a host to attach it to and resolve the host
-                // instead, since the underlying resolver doesn't know
-                // how to deal with fragments.
-                Module newRootModule = resolverState.findHost(rootModule);
-                if (!Util.isFragment(newRootModule)) {
-                    // Check singleton status.
-                    resolverState.checkSingleton(newRootModule);
+    private Map<Resource, List<Wire>> processResult(Map<BundleRevision, List<ResolverWire>> felixresult) {
+        Map<Resource, List<Wire>> result = new LinkedHashMap<Resource, List<Wire>>();
+        for (Map.Entry<BundleRevision, List<ResolverWire>> entry : felixresult.entrySet()) {
+            Resource key = entry.getKey();
+            List<ResolverWire> value = entry.getValue();
+            result.put(key, toWireList(value));
+        }
+        return result;
+    }
 
-                    boolean repeat;
-                    do {
-                        repeat = false;
-                        try {
-                            // Resolve the module.
-                            Map<Module, List<Wire>> wireMap = resolver.resolve(resolverState, newRootModule);
+    private List<Wire> toWireList(List<ResolverWire> felixwires) {
+        List<Wire> result = new ArrayList<Wire>();
+        for (ResolverWire felixwire : felixwires) {
+            result.add(new ResolverWireDelegate(felixwire));
+        }
+        return result;
+    }
 
-                            // Mark all modules as resolved.
-                            markResolvedModules(wireMap);
-                        } catch (ResolveException ex) {
-                            Requirement req = ex.getRequirement();
-                            if (req != null && (req instanceof FragmentRequirement) && (rootModule != ((FragmentRequirement) req).getFragment())) {
-                                resolverState.detachFragment(newRootModule, ((FragmentRequirement) req).getFragment());
-                                repeat = true;
-                            } else {
-                                throw ex;
-                            }
-                        }
-                    } while (repeat);
-                }
+
+    private Set<BundleRevision> bundleRevisions(Collection<? extends Resource> resources) {
+        if (resources == null)
+            return null;
+        if (resources.isEmpty())
+            return Collections.emptySet();
+
+        Set<BundleRevision> result = new HashSet();
+        for (Resource res : resources) {
+            if (res instanceof BundleRevision) {
+                result.add((BundleRevision) res);
             }
         }
+        return result;
     }
 
-    private void markResolvedModules(Map<Module, List<Wire>> wireMap) {
-        if (wireMap != null) {
-            Iterator<Entry<Module, List<Wire>>> iter = wireMap.entrySet().iterator();
-            // Iterate over the map to mark the modules as resolved and
-            // update our resolver data structures.
-            while (iter.hasNext()) {
-                Entry<Module, List<Wire>> entry = iter.next();
-                ModuleExt moduleExt = (ModuleExt) entry.getKey();
-                List<Wire> wires = entry.getValue();
+    static class EnvironmentDelegate implements ResolverState {
 
-                // Only add wires attribute if some exist; export
-                // only modules may not have wires.
-                for (int wireIdx = 0; wireIdx < wires.size(); wireIdx++) {
-                    logger.log(Logger.LOG_DEBUG, "WIRE: " + wires.get(wireIdx));
-                }
+        private final Environment environment;
 
-                resultProcessor.setModuleWires(moduleExt, wires);
+        EnvironmentDelegate(Environment environment) {
+            this.environment = environment;
+        }
 
-                // Resolve all attached fragments.
-                List<Module> fragments = moduleExt.getFragments();
-                for (int i = 0; (fragments != null) && (i < fragments.size()); i++) {
-                    ModuleExt frag = (ModuleExt) fragments.get(i);
-                    frag.setResolved();
+        @Override
+        public boolean isEffective(BundleRequirement req) {
+            return false;
+        }
 
-                    resultProcessor.setModuleWires(frag, null);
-                    resultProcessor.setResolved(frag);
-                    logger.log(Logger.LOG_DEBUG, "FRAGMENT WIRE: " + frag + " -> hosted by -> " + moduleExt);
-                }
-                // Update the resolver state to show the module as resolved.
-                resultProcessor.setResolved(moduleExt);
-                resolverState.moduleResolved(moduleExt);
-            }
+        @Override
+        public SortedSet<BundleCapability> getCandidates(BundleRequirement req, boolean obeyMandatory) {
+            return null;
+        }
+
+        @Override
+        public void checkExecutionEnvironment(BundleRevision revision) throws ResolveException {
+        }
+
+        @Override
+        public void checkNativeLibraries(BundleRevision revision) throws ResolveException {
         }
     }
 
-    protected XWire addWire(AbstractResource importer, XRequirement requirement, XResource exporter, XCapability capability) {
-        return super.addWire(importer, requirement, exporter, capability);
+    static class ResolverWireDelegate implements Wire {
+
+        private final ResolverWire delegate;
+
+        ResolverWireDelegate(ResolverWire delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public Capability getCapability() {
+            return (Capability) delegate.getCapability();
+        }
+
+        @Override
+        public Requirement getRequirement() {
+            return (Requirement) delegate.getRequirement();
+        }
+
+        @Override
+        public Resource getProvider() {
+            return (Resource) delegate.getProvider();
+        }
+
+        @Override
+        public Resource getRequirer() {
+            return (Resource) delegate.getRequirer();
+        }
     }
 }

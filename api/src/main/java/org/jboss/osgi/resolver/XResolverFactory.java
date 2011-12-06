@@ -21,7 +21,7 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.jboss.osgi.spi.util.ServiceLoader;
+import java.util.ServiceLoader;
 
 /**
  * A factory for resolver instances.
@@ -41,14 +41,8 @@ public abstract class XResolverFactory {
      * Get an instance of the resolver factory
      */
     public static XResolverFactory getInstance(ClassLoader classloader) {
-        XResolverFactory factory = ServiceLoader.loadService(XResolverFactory.class);
-        if (factory == null)
-            throw new IllegalStateException("Cannot load service: " + XResolverFactory.class.getName());
-        return factory;
-
-        // [JBAS-8458] Cannot use java.util.ServiceLoader in subsystem
-        // ServiceLoader<XResolver> loader = ServiceLoader.load(XResolver.class, classloader);
-        // return loader.iterator().next();
+        ServiceLoader<XResolverFactory> loader = ServiceLoader.load(XResolverFactory.class, classloader);
+        return loader.iterator().next();
     }
 
     /**
@@ -59,5 +53,5 @@ public abstract class XResolverFactory {
     /**
      * Get a new instance of an {@link XResourceBuilder}
      */
-    public abstract XResourceBuilder newModuleBuilder();
+    public abstract XResourceBuilder newResourceBuilder();
 }

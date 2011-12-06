@@ -19,27 +19,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.resolver.felix;
+package org.jboss.osgi.resolver;
 
-import org.jboss.osgi.resolver.XResourceBuilder;
-import org.jboss.osgi.resolver.XResolver;
-import org.jboss.osgi.resolver.XResolverFactory;
-import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
+import org.osgi.framework.VersionRange;
+import org.osgi.framework.resource.Requirement;
 
 /**
- * An implementation of the {@link XResolverFactory}.
+ * A package requirement
  * 
  * @author thomas.diesler@jboss.com
- * @since 28-Sep-2010
+ * @since 02-Jul-2010
  */
-public class FelixResolverFactory extends XResolverFactory {
-    @Override
-    public XResolver newResolver() {
-        return new FelixResolver();
-    }
+public interface XPackageRequirement extends XRequirement {
 
-    @Override
-    public XResourceBuilder newResourceBuilder() {
-        return new AbstractResourceBuilder();
-    }
+    String getPackageName();
+
+    VersionRange getVersionRange();
+
+    boolean isOptional();
 }

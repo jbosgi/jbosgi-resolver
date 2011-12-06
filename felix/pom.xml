@@ -9,46 +9,60 @@
 <!--                                                                        -->
 <!-- ====================================================================== -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <name>JBossOSGi Resolver Felix</name>
-  <groupId>org.jboss.osgi.resolver</groupId>
-  <artifactId>jbosgi-resolver-felix</artifactId>
-  <packaging>jar</packaging>
-
-  <parent>
+    <name>JBossOSGi Resolver Felix</name>
     <groupId>org.jboss.osgi.resolver</groupId>
-    <artifactId>jbosgi-resolver-parent</artifactId>
-    <version>1.0.11-SNAPSHOT</version>
-  </parent>
-  
-  <!-- Properties -->
-  <properties>
-    <!-- Sources @ http://github.com/jbosgi/felix-framework/tree/jbosgi363 -->
-    <version.apache.felix>3.0.1.SP1</version.apache.felix> 
-  </properties>
-  
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.framework.resolver</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.osgi.resolver</groupId>
-      <artifactId>jbosgi-resolver-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.osgi.resolver</groupId>
-      <artifactId>jbosgi-resolver-metadata</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.osgi.resolver</groupId>
-      <artifactId>jbosgi-resolver-spi</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
+    <artifactId>jbosgi-resolver-felix</artifactId>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>org.jboss.osgi.resolver</groupId>
+        <artifactId>jbosgi-resolver-parent</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+    </parent>
+
+    <!-- Properties -->
+    <properties>
+        <!-- Sources @ http://github.com/jbosgi/felix-framework/tree/jbosgi363 -->
+        <version.apache.felix>3.0.1.SP1</version.apache.felix>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.osgi.resolver</groupId>
+            <artifactId>jbosgi-resolver-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.osgi.metadata</groupId>
+            <artifactId>jbosgi-metadata</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.osgi.spi</groupId>
+            <artifactId>jbosgi-spi</artifactId>
+        </dependency>
+
+        <!-- OSGi Dependencies -->
+        <dependency>
+            <groupId>org.jboss.osgi.core</groupId>
+            <artifactId>jbosgi-core-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework.resolver</artifactId>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>

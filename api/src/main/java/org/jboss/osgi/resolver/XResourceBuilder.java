@@ -35,20 +35,18 @@ import org.osgi.framework.Version;
  * @since 02-Jul-2010
  */
 public interface XResourceBuilder {
+
     /**
-     * Create a module builder from OSGi metadata
+     * Create an empty resource builder
+     */
+    XResourceBuilder createResource();
+
+    /**
+     * Create a resource builder from OSGi metadata
      * 
      * @param metadata The OSGi metadata
      */
     XResourceBuilder createResource(OSGiMetaData metadata) throws BundleException;
-
-    /**
-     * Create an empty module builder
-     * 
-     * @param name The module name
-     * @param version The resource version
-     */
-    XResourceBuilder createResource(String name, Version version);
 
     /**
      * Add a bundle capability
@@ -86,20 +84,7 @@ public interface XResourceBuilder {
     XRequirement addPackageRequirement(String name, Map<String, String> dirs, Map<String, Object> atts);
 
     /**
-     * Add a {@link Constants#DYNAMICIMPORT_PACKAGE} requirement
-     * 
-     * @param name The package name
-     * @param atts The attributes
-     */
-    XRequirement addDynamicPackageRequirement(String name, Map<String, Object> atts);
-
-    /**
-     * Add a {@link Constants#BUNDLE_CLASSPATH} element
-     */
-    XResourceBuilder addBundleClassPath(String... path);
-
-    /**
-     * Get the final module from the builder
+     * Get the final resource from the builder
      */
     XResource getResource();
 }

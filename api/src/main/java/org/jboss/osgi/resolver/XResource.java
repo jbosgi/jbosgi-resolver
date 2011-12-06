@@ -38,4 +38,5 @@ import org.osgi.framework.resource.Resource;
  * @since 02-Jul-2010
  */
 public interface XResource extends XAttachmentSupport, Resource {
+
 }
