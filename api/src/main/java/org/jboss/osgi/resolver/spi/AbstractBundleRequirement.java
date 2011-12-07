@@ -54,6 +54,6 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
 
     @Override
     public boolean matches(BundleCapability capability) {
-        throw new NotImplementedException();
+        return super.matches(capability);
     }
 }

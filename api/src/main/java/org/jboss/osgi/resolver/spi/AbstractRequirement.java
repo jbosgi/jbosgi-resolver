@@ -121,13 +121,13 @@ class AbstractRequirement extends AbstractElement implements XRequirement {
 
     @Override
     public boolean matches(Capability capability) {
-        boolean match = namespace.equals(capability.getNamespace());
-        if (match && filter != null) {
-            match = filter.matches(capability.getAttributes());
+        boolean matches = namespace.equals(capability.getNamespace());
+        if (matches && filter != null) {
+            matches = filter.matches(capability.getAttributes());
         }
         // [TODO] CAPABILITY_MANDATORY_DIRECTIVE
         String mandatoryAttrs = capability.getDirectives().get(CAPABILITY_MANDATORY_DIRECTIVE);
-        return match;
+        return matches;
     }
 
     public String toString() {

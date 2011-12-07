@@ -22,21 +22,19 @@ package org.jboss.test.osgi.resolver;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-import junit.framework.Assert;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
-import org.jboss.osgi.resolver.XWire;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
-import java.util.ArrayList;
+import org.osgi.service.resolver.ResolutionException;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +44,7 @@ import java.util.Set;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.fail;
 
 /**
  * Test the default resolver integration.
@@ -99,18 +98,28 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertEquals(0, wiresB.size());
     }
 
-    /*
     @Test
     public void testSimpleImportPackageFails() throws Exception {
+
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
         XResource resourceA = createResource(assemblyA);
 
+        final Set<XResource> mandatory = new HashSet<XResource>();
+        mandatory.add(resourceA);
+
+        XEnvironment env = new AbstractEnvironment() {
+            @Override
+            public Collection<XResource> getResources(Requirement req) {
+                return mandatory;
+            }
+        };
+
         try {
-            resolver.resolve(resourceA);
-            fail("XResolverException expected");
-        } catch (XResolverException ex) {
+            resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected");
+        } catch (ResolutionException ex) {
             // expected;
         }
     }
@@ -127,34 +136,52 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         XResource resourceB = createResource(assemblyB);
 
-        // Only resolve resourceB
-        resolver.resolve(resourceB);
+        final Set<XResource> mandatory = new HashSet<XResource>();
+        mandatory.add(resourceA);
+        mandatory.add(resourceB);
 
-        // Verify bundle states
-        assertFalse("resourceA INSTALLED", resourceA.isResolved());
-        assertNull("resourceA null wires", resourceA.getWires());
-        assertTrue("resourceB RESOLVED", resourceB.isResolved());
-        assertNotNull("resourceB wires", resourceB.getWires());
+        XEnvironment env = new AbstractEnvironment() {
+            @Override
+            public Collection<XResource> getResources(Requirement req) {
+                return mandatory;
+            }
+        };
+
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        assertEquals(2, map.size());
     }
 
     @Test
     public void testSelfImportPackage() throws Exception {
+
         // Bundle-SymbolicName: selfimport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/selfimport");
         XResource resourceA = createResource(assemblyA);
 
-        resolver.resolve(resourceA);
+        final Set<XResource> mandatory = new HashSet<XResource>();
+        mandatory.add(resourceA);
 
-        List<XWire> wiresA = resourceA.getWires();
+        XEnvironment env = new AbstractEnvironment() {
+            @Override
+            public Collection<XResource> getResources(Requirement req) {
+                return mandatory;
+            }
+        };
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        assertEquals(1, map.size());
+
+        List<Wire> wiresA = map.get(resourceA);
         assertEquals(1, wiresA.size());
-        assertEquals(resourceA, wiresA.get(0).getExporter());
-        assertEquals(resourceA, wiresA.get(0).getImporter());
+        Wire wireA = wiresA.get(0);
+        assertEquals(resourceA, wireA.getRequirer());
+        assertEquals(resourceA, wireA.getProvider());
     }
 
     @Test
     public void testVersionImportPackage() throws Exception {
+
         // Bundle-SymbolicName: packageimportversion
         // Import-Package: org.jboss.test.osgi.classloader.support.a;version="[0.0.0,1.0.0]"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportversion");
@@ -165,25 +192,24 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageexportversion100");
         XResource resourceB = createResource(assemblyB);
 
-        // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        final Set<XResource> mandatory = new HashSet<XResource>();
+        mandatory.add(resourceA);
+        mandatory.add(resourceB);
 
-        assertEquals(2, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertTrue(resourceB.isResolved());
+        XEnvironment env = new AbstractEnvironment() {
+            @Override
+            public Collection<XResource> getResources(Requirement req) {
+                return mandatory;
+            }
+        };
 
-        List<XWire> wiresA = resourceA.getWires();
-        assertEquals(1, wiresA.size());
-        assertEquals(resourceB, wiresA.get(0).getExporter());
-
-        List<XWire> wiresB = resourceB.getWires();
-        assertEquals(0, wiresB.size());
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        assertEquals(2, map.size());
     }
 
     @Test
     public void testVersionImportPackageFails() throws Exception {
+
         // Bundle-SymbolicName: packageimportversionfails
         // Import-Package: org.jboss.test.osgi.classloader.support.a;version="[3.0,4.0)"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportversionfails");
@@ -194,16 +220,26 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageexportversion100");
         XResource resourceB = createResource(assemblyB);
 
-        // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertFalse(resolver.resolveAll(null));
+        final Set<XResource> mandatory = new HashSet<XResource>();
+        mandatory.add(resourceA);
+        mandatory.add(resourceB);
 
-        assertEquals(1, resolved.size());
-        assertFalse(resourceA.isResolved());
-        assertTrue(resourceB.isResolved());
+        XEnvironment env = new AbstractEnvironment() {
+            @Override
+            public Collection<XResource> getResources(Requirement req) {
+                return mandatory;
+            }
+        };
+
+        try {
+            resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected");
+        } catch (ResolutionException ex) {
+            // expected;
+        }
     }
 
+    /*
     @Test
     public void testOptionalImportPackage() throws Exception {
         // Bundle-SymbolicName: packageimportoptional

@@ -21,9 +21,13 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.wiring.BundleCapability;
 
 import java.util.Map;
 
@@ -69,5 +73,16 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
     @Override
     public boolean isOptional() {
         return optional;
+    }
+
+    @Override
+    public boolean matches(Capability capability) {
+        boolean matches = super.matches(capability);
+        VersionRange versionRange = getVersionRange();
+        if (versionRange != null) {
+            Version version = ((XPackageCapability) capability).getVersion();
+            matches &= versionRange.includes(version);
+        }
+        return matches;
     }
 }

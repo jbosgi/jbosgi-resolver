@@ -25,30 +25,32 @@ import org.apache.felix.framework.resolver.ResolveException;
 import org.apache.felix.framework.resolver.Resolver.ResolverState;
 import org.apache.felix.framework.resolver.ResolverImpl;
 import org.apache.felix.framework.resolver.ResolverWire;
+import org.jboss.osgi.resolver.XPackageCapability;
+import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResolver;
-import org.jboss.osgi.resolver.spi.NotImplementedException;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.ResourceConstants;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.service.resolver.Environment;
 import org.osgi.service.resolver.ResolutionException;
-import org.osgi.service.resolver.Resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
  * An implementation of the Resolver.
@@ -78,20 +80,40 @@ public class FelixResolver implements XResolver {
         return processResult(result);
     }
 
-    private Map<Resource, List<Wire>> processResult(Map<BundleRevision, List<ResolverWire>> felixresult) {
+    private Map<Resource, List<Wire>> processResult(Map<BundleRevision, List<ResolverWire>> map) {
         Map<Resource, List<Wire>> result = new LinkedHashMap<Resource, List<Wire>>();
-        for (Map.Entry<BundleRevision, List<ResolverWire>> entry : felixresult.entrySet()) {
-            Resource key = entry.getKey();
-            List<ResolverWire> value = entry.getValue();
-            result.put(key, toWireList(value));
+        for (Map.Entry<BundleRevision, List<ResolverWire>> entry : map.entrySet()) {
+            Resource res = entry.getKey();
+            List<ResolverWire> reswires = entry.getValue();
+            List<Wire> wires;
+            // If the res has non-optional requirements but felix
+            // returns no reswires, we assume that this is a self wire
+            if (reswires.isEmpty() && !res.getRequirements(null).isEmpty()) {
+                wires = new ArrayList<Wire>();
+                for(Requirement req : res.getRequirements(WIRING_PACKAGE_NAMESPACE)) {
+                    for(Capability cap : res.getCapabilities(WIRING_PACKAGE_NAMESPACE)) {
+                        if (req.matches(cap)) {
+                            wires.add(new SelfWire(req, cap));
+                        }
+                    }
+                }
+                if (wires.isEmpty()) {
+                    List<Requirement> exreqs = res.getRequirements(null);
+                    throw new ResolutionException("Cannot obtain self wiring capabilities", null, exreqs);
+                }
+            }
+            else {
+                wires = toWires(reswires);
+            }
+            result.put(res, wires);
         }
         return result;
     }
 
-    private List<Wire> toWireList(List<ResolverWire> felixwires) {
+    private List<Wire> toWires(List<ResolverWire> reswires) {
         List<Wire> result = new ArrayList<Wire>();
-        for (ResolverWire felixwire : felixwires) {
-            result.add(new ResolverWireDelegate(felixwire));
+        for (ResolverWire reswire : reswires) {
+            result.add(new ResolverWireDelegate(reswire));
         }
         return result;
     }
@@ -166,6 +188,37 @@ public class FelixResolver implements XResolver {
         @Override
         public Resource getRequirer() {
             return (Resource) delegate.getRequirer();
+        }
+    }
+
+    static class SelfWire implements Wire {
+
+        private final Requirement req;
+        private final Capability cap;
+
+        SelfWire(Requirement req, Capability cap) {
+            this.req = req;
+            this.cap = cap;
+        }
+
+        @Override
+        public Capability getCapability() {
+            return cap;
+        }
+
+        @Override
+        public Requirement getRequirement() {
+            return req;
+        }
+
+        @Override
+        public Resource getProvider() {
+            return cap.getResource();
+        }
+
+        @Override
+        public Resource getRequirer() {
+            return req.getResource();
         }
     }
 }

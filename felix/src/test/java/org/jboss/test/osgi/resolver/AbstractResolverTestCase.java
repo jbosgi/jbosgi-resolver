@@ -25,7 +25,6 @@ package org.jboss.test.osgi.resolver;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XResolver;
-import org.jboss.osgi.resolver.XResolverCallback;
 import org.jboss.osgi.resolver.XResolverFactory;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
@@ -36,7 +35,6 @@ import org.jboss.osgi.vfs.VirtualFile;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Before;
 
-import java.util.List;
 import java.util.jar.Manifest;
 
 /**
@@ -65,19 +63,6 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
             return builder.createResource(metadata).getResource();
         } finally {
             virtualFile.close();
-        }
-    }
-
-    class ResolverCallback implements XResolverCallback {
-        private List<XResource> resolved;
-
-        ResolverCallback(List<XResource> resolved) {
-            this.resolved = resolved;
-        }
-
-        @Override
-        public void markResolved(XResource resResource) {
-            resolved.add(resResource);
         }
     }
 }

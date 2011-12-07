@@ -21,8 +21,15 @@
  */
 package org.jboss.osgi.resolver;
 
+import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
+import org.osgi.service.resolver.Environment;
+import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.Resolver;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,4 +39,5 @@ import java.util.Set;
  * @since 02-Jul-2010
  */
 public interface XResolver extends Resolver {
+
 }
