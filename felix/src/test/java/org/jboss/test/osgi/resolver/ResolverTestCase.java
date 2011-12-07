@@ -22,10 +22,8 @@ package org.jboss.test.osgi.resolver;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
-import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
@@ -33,6 +31,7 @@ import org.osgi.framework.Version;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
+import org.osgi.service.resolver.Environment;
 import org.osgi.service.resolver.ResolutionException;
 
 import java.util.Collection;
@@ -61,20 +60,20 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
-        final Set<XResource> mandatory = new HashSet<XResource>();
+        final Set<Resource> mandatory = new HashSet<Resource>();
         mandatory.add(resourceA);
         mandatory.add(resourceB);
 
-        XEnvironment env = new AbstractEnvironment() {
+        Environment env = new AbstractEnvironment() {
             @Override
-            public Collection<XResource> getResources(Requirement req) {
+            public Collection<Resource> getResources(Requirement req) {
                 return mandatory;
             }
         };
@@ -104,14 +103,14 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
-        final Set<XResource> mandatory = new HashSet<XResource>();
+        final Set<Resource> mandatory = new HashSet<Resource>();
         mandatory.add(resourceA);
 
-        XEnvironment env = new AbstractEnvironment() {
+        Environment env = new AbstractEnvironment() {
             @Override
-            public Collection<XResource> getResources(Requirement req) {
+            public Collection<Resource> getResources(Requirement req) {
                 return mandatory;
             }
         };
@@ -129,20 +128,20 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
-        final Set<XResource> mandatory = new HashSet<XResource>();
+        final Set<Resource> mandatory = new HashSet<Resource>();
         mandatory.add(resourceA);
         mandatory.add(resourceB);
 
-        XEnvironment env = new AbstractEnvironment() {
+        Environment env = new AbstractEnvironment() {
             @Override
-            public Collection<XResource> getResources(Requirement req) {
+            public Collection<Resource> getResources(Requirement req) {
                 return mandatory;
             }
         };
@@ -158,14 +157,14 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/selfimport");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
-        final Set<XResource> mandatory = new HashSet<XResource>();
+        final Set<Resource> mandatory = new HashSet<Resource>();
         mandatory.add(resourceA);
 
-        XEnvironment env = new AbstractEnvironment() {
+        Environment env = new AbstractEnvironment() {
             @Override
-            public Collection<XResource> getResources(Requirement req) {
+            public Collection<Resource> getResources(Requirement req) {
                 return mandatory;
             }
         };
@@ -185,20 +184,20 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageimportversion
         // Import-Package: org.jboss.test.osgi.classloader.support.a;version="[0.0.0,1.0.0]"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportversion");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: packageexportversion100
         // Export-Package: org.jboss.test.osgi.classloader.support.a;version=1.0.0
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageexportversion100");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
-        final Set<XResource> mandatory = new HashSet<XResource>();
+        final Set<Resource> mandatory = new HashSet<Resource>();
         mandatory.add(resourceA);
         mandatory.add(resourceB);
 
-        XEnvironment env = new AbstractEnvironment() {
+        Environment env = new AbstractEnvironment() {
             @Override
-            public Collection<XResource> getResources(Requirement req) {
+            public Collection<Resource> getResources(Requirement req) {
                 return mandatory;
             }
         };
@@ -213,20 +212,20 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageimportversionfails
         // Import-Package: org.jboss.test.osgi.classloader.support.a;version="[3.0,4.0)"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportversionfails");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: packageexportversion100
         // Export-Package: org.jboss.test.osgi.classloader.support.a;version=1.0.0
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageexportversion100");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
-        final Set<XResource> mandatory = new HashSet<XResource>();
+        final Set<Resource> mandatory = new HashSet<Resource>();
         mandatory.add(resourceA);
         mandatory.add(resourceB);
 
-        XEnvironment env = new AbstractEnvironment() {
+        Environment env = new AbstractEnvironment() {
             @Override
-            public Collection<XResource> getResources(Requirement req) {
+            public Collection<Resource> getResources(Requirement req) {
                 return mandatory;
             }
         };
@@ -245,7 +244,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageimportoptional
         // Import-Package: org.jboss.test.osgi.classloader.support.a;resolution:=optional
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         resolver.resolve(resourceA);
         assertTrue(resourceA.isResolved());
@@ -257,15 +256,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageimportoptional
         // Import-Package: org.jboss.test.osgi.classloader.support.a;resolution:=optional
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -286,7 +285,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageimportoptional
         // Import-Package: org.jboss.test.osgi.classloader.support.a;resolution:=optional
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         resolver.resolve(resourceA);
         assertTrue(resourceA.isResolved());
@@ -294,7 +293,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Verify that the class cannot be loaded from resourceA
         // because the wire could not be established when resourceA was resolved
@@ -310,15 +309,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: bundlenameimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a;bundle-symbolic-name=simpleexport
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/bundlenameimport");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -339,15 +338,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: bundlenameimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a;bundle-symbolic-name=simpleexport
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/bundlenameimport");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: sigleton;singleton:=true
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/singleton");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertFalse(resolver.resolveAll(null));
 
@@ -361,15 +360,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: bundleversionimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a;bundle-version="[0.0.0,1.0.0)"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/bundleversionimport");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -390,15 +389,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: bundleversionimportfails
         // Import-Package: org.jboss.test.osgi.classloader.support.a;bundle-version="[1.0.0,2.0.0)"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/bundleversionimportfails");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertFalse(resolver.resolveAll(null));
 
@@ -414,15 +413,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: requirebundle
         // Require-Bundle: simpleexport
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundle");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -443,7 +442,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: requirebundle
         // Require-Bundle: simpleexport
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundle");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         try {
             resolver.resolve(resourceA);
@@ -458,7 +457,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: requirebundleoptional
         // Require-Bundle: simpleexport;resolution:=optional
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundleoptional");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         resolver.resolve(resourceA);
         assertTrue(resourceA.isResolved());
@@ -469,15 +468,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: requirebundleversion
         // Require-Bundle: simpleexport;bundle-version="[0.0.0,1.0.0]"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundleversion");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -498,15 +497,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: versionrequirebundlefails
         // Require-Bundle: simpleexport;bundle-version="[1.0.0,2.0.0)"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundleversionfails");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertFalse(resolver.resolveAll(null));
 
@@ -529,10 +528,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
 
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -540,12 +539,12 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertEquals(1, resolved.size());
         assertTrue(resourceA.isResolved());
 
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
-        XResource resourceC = createResource(assemblyC);
+        Resource resourceC = createResource(assemblyC);
 
         // Resolve all modules
-        resolved = new ArrayList<XResource>();
+        resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -575,10 +574,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
 
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -586,12 +585,12 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertEquals(1, resolved.size());
         assertTrue(resourceB.isResolved());
 
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
-        XResource resourceC = createResource(assemblyC);
+        Resource resourceC = createResource(assemblyC);
 
         // Resolve all modules
-        resolved = new ArrayList<XResource>();
+        resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -621,12 +620,12 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
 
-        XResource resourceA = createResource(assemblyA);
-        XResource resourceB = createResource(assemblyB);
-        XResource resourceC = createResource(assemblyC);
+        Resource resourceA = createResource(assemblyA);
+        Resource resourceB = createResource(assemblyB);
+        Resource resourceC = createResource(assemblyC);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -655,12 +654,12 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
 
-        XResource resourceA = createResource(assemblyA);
-        XResource resourceB = createResource(assemblyB);
-        XResource resourceC = createResource(assemblyC);
+        Resource resourceA = createResource(assemblyA);
+        Resource resourceB = createResource(assemblyB);
+        Resource resourceC = createResource(assemblyC);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -689,11 +688,11 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
 
-        XResource resourceA = createResource(assemblyA);
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceA = createResource(assemblyA);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -702,10 +701,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertTrue(resourceA.isResolved());
         assertTrue(resourceB.isResolved());
 
-        XResource resourceC = createResource(assemblyC);
+        Resource resourceC = createResource(assemblyC);
 
         // Resolve all modules
-        resolved = new ArrayList<XResource>();
+        resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -734,11 +733,11 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
 
-        XResource resourceB = createResource(assemblyB);
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceB = createResource(assemblyB);
+        Resource resourceA = createResource(assemblyA);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -747,10 +746,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertTrue(resourceB.isResolved());
         assertTrue(resourceA.isResolved());
 
-        XResource resourceC = createResource(assemblyC);
+        Resource resourceC = createResource(assemblyC);
 
         // Resolve all modules
-        resolved = new ArrayList<XResource>();
+        resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -770,15 +769,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageexportattribute
         // Export-Package: org.jboss.test.osgi.classloader.support.a;test=x
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportattribute");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleimport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -794,9 +793,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageimportattribute
         // Import-Package: org.jboss.test.osgi.classloader.support.a;test=x
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/packageimportattribute");
-        XResource resourceC = createResource(assemblyC);
+        Resource resourceC = createResource(assemblyC);
 
-        resolved = new ArrayList<XResource>();
+        resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -814,15 +813,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageexportattribute
         // Export-Package: org.jboss.test.osgi.classloader.support.a;test=x
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportattribute");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: packageimportattributefails
         // Import-Package: org.jboss.test.osgi.classloader.support.a;test=y
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageimportattributefails");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertFalse(resolver.resolveAll(null));
 
@@ -837,15 +836,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageexportattributemandatory
         // Export-Package: org.jboss.test.osgi.classloader.support.a;test=x;mandatory:=test
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportattributemandatory");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: packageimportattribute
         // Import-Package: org.jboss.test.osgi.classloader.support.a;test=x
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageimportattribute");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -864,15 +863,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: packageexportattributemandatory
         // Export-Package: org.jboss.test.osgi.classloader.support.a;test=x;mandatory:=test
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportattributemandatory");
-        XResource resourceA = createResource(assemblyA);
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleimport");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertFalse(resolver.resolveAll(null));
 
@@ -886,24 +885,24 @@ public class ResolverTestCase extends AbstractResolverTestCase {
     public void testFragmentAddsExport() throws Exception {
         // Bundle-SymbolicName: bundlefragmenthost
         Archive<?> assemblyH = assembleArchive("host", "/resolver/bundlefragmenthost");
-        XResource resourceH = createResource(assemblyH);
+        Resource resourceH = createResource(assemblyH);
         assertFalse(resourceH.isFragment());
 
         // Bundle-SymbolicName: fragmentaddsexport
         // Fragment-Host: bundlefragmenthost
         // Export-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyF = assembleArchive("fragment", "/resolver/fragmentaddsexport");
-        XResource resourceF = createResource(assemblyF);
+        Resource resourceF = createResource(assemblyF);
         assertTrue(resourceF.isFragment());
 
         // Bundle-SymbolicName: bundleimportfragmentpkg
         // Import-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyB = assembleArchive("bundle", "/resolver/bundleimportfragmentpkg");
-        XResource resourceB = createResource(assemblyB);
+        Resource resourceB = createResource(assemblyB);
         assertFalse(resourceB.isFragment());
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 
@@ -929,7 +928,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Export-Package: org.jboss.osgi.test.host.export
         // Import-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyH = assembleArchive("host", "/resolver/bundledependsfragment");
-        XResource resourceH = createResource(assemblyH);
+        Resource resourceH = createResource(assemblyH);
         assertFalse(resourceH.isFragment());
 
         // Bundle-SymbolicName: fragmentsdependshostexport
@@ -937,11 +936,11 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Import-Package: org.jboss.osgi.test.host.export
         // Fragment-Host: bundledependsfragment
         Archive<?> assemblyF = assembleArchive("fragment", "/resolver/fragmentdependshostexport");
-        XResource resourceF = createResource(assemblyF);
+        Resource resourceF = createResource(assemblyF);
         assertTrue(resourceF.isFragment());
 
         // Resolve all modules
-        List<XResource> resolved = new ArrayList<XResource>();
+        List<Resource> resolved = new ArrayList<Resource>();
         resolver.setCallbackHandler(new ResolverCallback(resolved));
         assertTrue(resolver.resolveAll(null));
 

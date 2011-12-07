@@ -24,9 +24,7 @@ package org.jboss.test.osgi.resolver.spi;
 import junit.framework.Assert;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
-import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
-import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
 import org.junit.Test;
@@ -35,6 +33,8 @@ import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.resource.Resource;
+import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.HashMap;
@@ -63,7 +63,7 @@ public class AbstractResourceBuilderTestCase {
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1,value2; version= 1.0.1,value3;resolution:= optional,value4;version = 3 ; resolution := optional ");
 
-        XResource resource = createResource(attrs);
+        Resource resource = createResource(attrs);
         validateRequirements(resource);
         validateCapabilities(resource);
     }
@@ -74,19 +74,19 @@ public class AbstractResourceBuilderTestCase {
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1,value2;version=1.0.1,value3;resolution:=optional,value4;version=3;resolution:=optional");
 
-        XResource resource = createResource(attrs);
+        Resource resource = createResource(attrs);
         validateRequirements(resource);
         validateCapabilities(resource);
     }
 
-    private XResource createResource(Map<String, String> attrs) throws BundleException {
+    private Resource createResource(Map<String, String> attrs) throws BundleException {
         XResourceBuilder amb = new AbstractResourceBuilder();
         OSGiMetaData metaData = new TestOSGiMetaData(attrs);
         XResourceBuilder builder = amb.createResource(metaData);
         return builder.getResource();
     }
 
-    private void validateRequirements(XResource resource) throws BundleException {
+    private void validateRequirements(Resource resource) throws BundleException {
         List<Requirement> reqs = resource.getRequirements(WIRING_PACKAGE_NAMESPACE);
         assertNotNull("Requirements not null", reqs);
         assertEquals(4, reqs.size());
@@ -111,11 +111,11 @@ public class AbstractResourceBuilderTestCase {
         }
     }
 
-    private void validateCapabilities(XResource resource) {
+    private void validateCapabilities(Resource resource) {
         List<Capability> caps = resource.getCapabilities(null);
         assertNotNull("Capabilities not null", caps);
         assertEquals(1, caps.size());
-        XBundleCapability cap = (XBundleCapability) caps.get(0);
+        BundleCapability cap = (BundleCapability) caps.get(0);
         BundleRevision rev = cap.getRevision();
         assertEquals("test1", rev.getSymbolicName());
         assertEquals(Version.emptyVersion, rev.getVersion());

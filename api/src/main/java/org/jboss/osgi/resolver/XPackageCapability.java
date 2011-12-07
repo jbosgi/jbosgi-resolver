@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver;
 
 import org.osgi.framework.Version;
+import org.osgi.framework.wiring.BundleCapability;
 
 /**
  * A package capability
@@ -29,7 +30,7 @@ import org.osgi.framework.Version;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XPackageCapability extends XCapability {
+public interface XPackageCapability {
 
     String getPackageName();
 

@@ -22,26 +22,25 @@
 package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XAttachmentSupport;
-import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.resource.Resource;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * The abstract implementation of an {@link org.jboss.osgi.resolver.XResource}.
+ * The abstract implementation of an {@link Resource}.
  *
  * This is the resolver representation of a {@link org.osgi.framework.Bundle}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractResource extends AbstractElement implements XResource {
+public class AbstractResource extends AbstractElement implements Resource, XAttachmentSupport {
 
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();

@@ -23,28 +23,27 @@ package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
-import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
-import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 
 import java.util.Map;
 
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.XCapability}.
+ * The abstract implementation of a {@link Capability}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractCapability extends AbstractElement implements XCapability {
+public class AbstractCapability extends AbstractElement implements XAttachmentSupport, XAttributeSupport, XDirectiveSupport, Capability {
 
-    private final XResource resource;
+    private final Resource resource;
     private final String namespace;
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
     private XAttachmentSupport attachments;
 
-    AbstractCapability(String namespace, XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+    protected AbstractCapability(String namespace, Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
         this.namespace = namespace;
         this.resource = resource;
         this.attributes = new AttributeSupporter(attributes);

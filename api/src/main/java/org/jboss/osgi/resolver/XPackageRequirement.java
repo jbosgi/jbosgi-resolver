@@ -23,6 +23,7 @@ package org.jboss.osgi.resolver;
 
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.wiring.BundleRequirement;
 
 /**
  * A package requirement
@@ -30,7 +31,7 @@ import org.osgi.framework.resource.Requirement;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XPackageRequirement extends XRequirement {
+public interface XPackageRequirement {
 
     String getPackageName();
 

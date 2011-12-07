@@ -21,31 +21,25 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XAttachmentSupport;
-import org.jboss.osgi.resolver.XAttributeSupport;
-import org.jboss.osgi.resolver.XDirectiveSupport;
-import org.jboss.osgi.resolver.XEnvironment;
-import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wiring;
+import org.osgi.service.resolver.Environment;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * The abstract implementation of a {@link XEnvironment}.
+ * The abstract implementation of a {@link Environment}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class AbstractEnvironment extends AbstractElement implements XEnvironment {
+public abstract class AbstractEnvironment extends AbstractElement implements Environment {
 
     @Override
     public Collection<Capability> findProviders(Requirement req) {
@@ -60,7 +54,7 @@ public abstract class AbstractEnvironment extends AbstractElement implements XEn
         return Collections.unmodifiableSet(result);
     }
 
-    public abstract Collection<XResource> getResources(Requirement req);
+    protected abstract Collection<Resource> getResources(Requirement req);
 
     @Override
     public boolean isEffective(Requirement req) {

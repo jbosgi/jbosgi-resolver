@@ -24,16 +24,16 @@ package org.jboss.test.osgi.resolver;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
-import org.jboss.osgi.resolver.XResolver;
-import org.jboss.osgi.resolver.XResolverFactory;
-import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
-import org.jboss.osgi.resolver.felix.FelixResolverFactory;
+import org.jboss.osgi.resolver.felix.FelixResolver;
+import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.osgi.vfs.VFSUtils;
 import org.jboss.osgi.vfs.VirtualFile;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Before;
+import org.osgi.framework.resource.Resource;
+import org.osgi.service.resolver.Resolver;
 
 import java.util.jar.Manifest;
 
@@ -45,21 +45,19 @@ import java.util.jar.Manifest;
  */
 public abstract class AbstractResolverTestCase extends OSGiTest {
 
-    XResolverFactory factory;
-    XResolver resolver;
+    Resolver resolver;
 
     @Before
     public void setUp() {
-        factory = new FelixResolverFactory();
-        resolver = factory.newResolver();
+        resolver = new FelixResolver();
     }
 
-    XResource createResource(Archive<?> archive) throws Exception {
+    Resource createResource(Archive<?> archive) throws Exception {
         VirtualFile virtualFile = toVirtualFile(archive);
         try {
             Manifest manifest = VFSUtils.getManifest(virtualFile);
             OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
-            XResourceBuilder builder = factory.newResourceBuilder();
+            XResourceBuilder builder = new AbstractResourceBuilder();
             return builder.createResource(metadata).getResource();
         } finally {
             virtualFile.close();

@@ -21,25 +21,25 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XWire;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
 
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.XCapability}.
+ * The abstract implementation of a {@link Wire}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractWire implements XWire {
+public class AbstractWire implements Wire {
 
     private final Capability capability;
     private final Requirement requirement;
     private final Resource provider;
     private final Resource requirer;
 
-    AbstractWire(Capability capability, Requirement requirement, Resource provider, Resource requirer) {
+    protected AbstractWire(Capability capability, Requirement requirement, Resource provider, Resource requirer) {
         this.capability = capability;
         this.requirement = requirement;
         this.provider = provider;

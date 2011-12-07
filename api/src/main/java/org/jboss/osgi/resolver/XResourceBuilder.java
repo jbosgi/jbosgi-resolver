@@ -21,12 +21,15 @@
  */
 package org.jboss.osgi.resolver;
 
-import java.util.Map;
-
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.resource.Resource;
+
+import java.util.Map;
 
 /**
  * A builder for resolver modules
@@ -54,7 +57,7 @@ public interface XResourceBuilder {
      * @param symbolicName The bundle symbolic name
      * @param version The bundle version
      */
-    XBundleCapability addBundleCapability(String symbolicName, Version version);
+    Capability addBundleCapability(String symbolicName, Version version);
 
     /**
      * Add a {@link Constants#REQUIRE_BUNDLE} requirement
@@ -63,7 +66,7 @@ public interface XResourceBuilder {
      * @param dirs The directives
      * @param atts The attributes
      */
-    XBundleRequirement addBundleRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts);
+    Requirement addBundleRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts);
 
     /**
      * Add a {@link Constants#EXPORT_PACKAGE} capability
@@ -72,7 +75,7 @@ public interface XResourceBuilder {
      * @param dirs The directives
      * @param atts The attributes
      */
-    XCapability addPackageCapability(String name, Map<String, String> dirs, Map<String, Object> atts);
+    Capability addPackageCapability(String name, Map<String, String> dirs, Map<String, Object> atts);
 
     /**
      * Add a {@link Constants#IMPORT_PACKAGE} requirement
@@ -81,10 +84,10 @@ public interface XResourceBuilder {
      * @param dirs The directives
      * @param atts The attributes
      */
-    XRequirement addPackageRequirement(String name, Map<String, String> dirs, Map<String, Object> atts);
+    Requirement addPackageRequirement(String name, Map<String, String> dirs, Map<String, Object> atts);
 
     /**
      * Get the final resource from the builder
      */
-    XResource getResource();
+    Resource getResource();
 }

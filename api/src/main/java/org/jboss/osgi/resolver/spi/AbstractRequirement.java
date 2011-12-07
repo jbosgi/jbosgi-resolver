@@ -24,13 +24,12 @@ package org.jboss.osgi.resolver.spi;
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XDirectiveSupport;
-import org.jboss.osgi.resolver.XRequirement;
-import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 
 import java.util.Map;
@@ -38,21 +37,21 @@ import java.util.Map;
 import static org.osgi.framework.resource.ResourceConstants.CAPABILITY_MANDATORY_DIRECTIVE;
 
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.XCapability}.
+ * The abstract implementation of a {@link Capability}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractRequirement extends AbstractElement implements XRequirement {
+public class AbstractRequirement extends AbstractElement implements XAttachmentSupport, XAttributeSupport, XDirectiveSupport, Requirement {
 
-    private final XResource resource;
+    private final Resource resource;
     private final String namespace;
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
     private XAttachmentSupport attachments;
     private Filter filter;
 
-    AbstractRequirement(String namespace, XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+    protected AbstractRequirement(String namespace, Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
         this.namespace = namespace;
         this.resource = resource;
         this.attributes = new AttributeSupporter(attributes);

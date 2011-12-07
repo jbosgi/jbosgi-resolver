@@ -23,11 +23,10 @@ package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
-import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
-import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.resource.Resource;
 
 import java.util.Map;
 
@@ -37,7 +36,7 @@ import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.XCapability}.
+ * The abstract implementation of a {@link org.jboss.osgi.resolver.XPackageRequirement}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
@@ -48,7 +47,7 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
     private final VersionRange versionrange;
     private final boolean optional;
 
-    AbstractPackageRequirement(XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+    protected AbstractPackageRequirement(Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
         super(WIRING_PACKAGE_NAMESPACE, resource, attributes, directives);
         packageName = (String) attributes.get(WIRING_PACKAGE_NAMESPACE);
         Object versionatt = attributes.get(VERSION_ATTRIBUTE);

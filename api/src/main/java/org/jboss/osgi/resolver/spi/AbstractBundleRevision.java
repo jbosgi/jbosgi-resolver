@@ -21,13 +21,13 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XBundleRevision;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
+import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWiring;
 
 import java.util.ArrayList;
@@ -36,19 +36,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.XBundleRequirement}.
+ * The abstract implementation of a {@link BundleRevision}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractBundleRevision extends AbstractResource implements XBundleRevision {
+public class AbstractBundleRevision extends AbstractResource implements BundleRevision {
 
     private final Map<String, List<BundleCapability>> capabilities = new HashMap<String, List<BundleCapability>>();
     private final Map<String, List<BundleRequirement>> requirements = new HashMap<String, List<BundleRequirement>>();
     private final String symbolicName;
     private final Version version;
 
-    public AbstractBundleRevision(String symbolicName, Version version) {
+    protected AbstractBundleRevision(String symbolicName, Version version) {
         this.symbolicName = symbolicName;
         this.version = version;
     }

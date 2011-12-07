@@ -25,19 +25,17 @@ import org.apache.felix.framework.resolver.ResolveException;
 import org.apache.felix.framework.resolver.Resolver.ResolverState;
 import org.apache.felix.framework.resolver.ResolverImpl;
 import org.apache.felix.framework.resolver.ResolverWire;
-import org.jboss.osgi.resolver.XPackageCapability;
-import org.jboss.osgi.resolver.XPackageRequirement;
-import org.jboss.osgi.resolver.XResolver;
+import org.jboss.osgi.resolver.spi.AbstractWire;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.ResourceConstants;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.service.resolver.Environment;
 import org.osgi.service.resolver.ResolutionException;
+import org.osgi.service.resolver.Resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,7 +58,7 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
-public class FelixResolver implements XResolver {
+public class FelixResolver implements Resolver {
 
     private ResolverImpl delegate = new ResolverImpl(new LoggerDelegate());
 
@@ -162,63 +160,15 @@ public class FelixResolver implements XResolver {
         }
     }
 
-    static class ResolverWireDelegate implements Wire {
-
-        private final ResolverWire delegate;
-
-        ResolverWireDelegate(ResolverWire delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public Capability getCapability() {
-            return (Capability) delegate.getCapability();
-        }
-
-        @Override
-        public Requirement getRequirement() {
-            return (Requirement) delegate.getRequirement();
-        }
-
-        @Override
-        public Resource getProvider() {
-            return (Resource) delegate.getProvider();
-        }
-
-        @Override
-        public Resource getRequirer() {
-            return (Resource) delegate.getRequirer();
+    static class ResolverWireDelegate extends AbstractWire {
+        ResolverWireDelegate(ResolverWire rw) {
+            super((Capability)rw.getCapability(), (Requirement)rw.getRequirement(), (Resource)rw.getProvider(), (Resource)rw.getRequirer());
         }
     }
 
-    static class SelfWire implements Wire {
-
-        private final Requirement req;
-        private final Capability cap;
-
+    static class SelfWire extends AbstractWire {
         SelfWire(Requirement req, Capability cap) {
-            this.req = req;
-            this.cap = cap;
-        }
-
-        @Override
-        public Capability getCapability() {
-            return cap;
-        }
-
-        @Override
-        public Requirement getRequirement() {
-            return req;
-        }
-
-        @Override
-        public Resource getProvider() {
-            return cap.getResource();
-        }
-
-        @Override
-        public Resource getRequirer() {
-            return req.getResource();
+            super(cap, req, cap.getResource(), req.getResource());
         }
     }
 }

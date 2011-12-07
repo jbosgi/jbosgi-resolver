@@ -21,26 +21,21 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XBundleCapability;
-import org.jboss.osgi.resolver.XResource;
-import org.osgi.framework.Constants;
-import org.osgi.framework.Version;
+import org.osgi.framework.resource.Resource;
+import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Map;
 
-import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
-
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.XBundleCapability}.
+ * The abstract implementation of a {@link BundleCapability}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
+public class AbstractBundleCapability extends AbstractCapability implements BundleCapability {
 
-    protected AbstractBundleCapability(String namespace, XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+    protected AbstractBundleCapability(String namespace, Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
         super(namespace, resource, attributes, directives);
     }
 

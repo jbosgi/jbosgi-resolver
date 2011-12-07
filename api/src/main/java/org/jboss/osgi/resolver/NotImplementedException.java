@@ -21,15 +21,23 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.framework.Version;
-import org.osgi.framework.wiring.BundleCapability;
-
 /**
- * A host bundle capability
+ * A RuntimeException that should be thrown for unimplemented features
  * 
  * @author thomas.diesler@jboss.com
- * @since 02-Jul-2010
+ * @since 18-Jun-2008
  */
-public interface XBundleCapability extends XCapability, BundleCapability {
+@SuppressWarnings("serial")
+public class NotImplementedException extends RuntimeException {
 
+    public NotImplementedException() {
+    }
+
+    public NotImplementedException(String message) {
+        super(message);
+    }
+
+    public NotImplementedException(String jiraIssue, String message) {
+        super("[" + jiraIssue + "] " + message);
+    }
 }
