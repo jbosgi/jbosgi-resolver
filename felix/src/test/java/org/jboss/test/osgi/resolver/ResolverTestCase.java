@@ -24,6 +24,7 @@ package org.jboss.test.osgi.resolver;
 
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
+import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
@@ -43,6 +44,7 @@ import java.util.Set;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 /**
@@ -238,21 +240,31 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         }
     }
 
-    /*
     @Test
     public void testOptionalImportPackage() throws Exception {
+
         // Bundle-SymbolicName: packageimportoptional
         // Import-Package: org.jboss.test.osgi.classloader.support.a;resolution:=optional
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
         Resource resourceA = createResource(assemblyA);
 
-        resolver.resolve(resourceA);
-        assertTrue(resourceA.isResolved());
-        assertEquals(0, resourceA.getWires().size());
+        final Set<Resource> mandatory = new HashSet<Resource>();
+        mandatory.add(resourceA);
+
+        Environment env = new AbstractEnvironment() {
+            @Override
+            public Collection<Resource> getResources(Requirement req) {
+                return mandatory;
+            }
+        };
+
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        assertEquals(1, map.size());
     }
 
     @Test
     public void testOptionalImportPackageWired() throws Exception {
+
         // Bundle-SymbolicName: packageimportoptional
         // Import-Package: org.jboss.test.osgi.classloader.support.a;resolution:=optional
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
@@ -263,23 +275,29 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        final Set<Resource> optional = new HashSet<Resource>();
+        optional.add(resourceA);
+        optional.add(resourceB);
 
-        assertEquals(2, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertTrue(resourceB.isResolved());
+        Environment env = new AbstractEnvironment() {
+            @Override
+            public Collection<Resource> getResources(Requirement req) {
+                return optional;
+            }
+        };
+        Map<Resource,List<Wire>> map = resolver.resolve(env, null, optional);
+        assertNotNull("Wire map not null", map);
+        assertEquals(2, map.size());
 
-        List<XWire> wiresA = resourceA.getWires();
+        List<Wire> wiresA = map.get(resourceA);
         assertEquals(1, wiresA.size());
-        assertEquals(resourceB, wiresA.get(0).getExporter());
-
-        List<XWire> wiresB = resourceB.getWires();
-        assertEquals(0, wiresB.size());
+        Wire wireA = wiresA.get(0);
+        assertEquals(resourceA, wireA.getRequirer());
+        assertEquals(resourceB, wireA.getProvider());
+        assertTrue(((XRequirement)wireA.getRequirement()).isOptional());
     }
 
+    /*
     @Test
     public void testOptionalImportPackageNotWired() throws Exception {
         // Bundle-SymbolicName: packageimportoptional

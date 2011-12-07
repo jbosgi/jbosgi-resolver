@@ -45,7 +45,6 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
 
     private final String packageName;
     private final VersionRange versionrange;
-    private final boolean optional;
 
     protected AbstractPackageRequirement(Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
         super(WIRING_PACKAGE_NAMESPACE, resource, attributes, directives);
@@ -55,8 +54,6 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
             versionatt = new VersionRange((String) versionatt);
         }
         versionrange = (VersionRange) versionatt;
-        String resdir = directives.get(RESOLUTION_DIRECTIVE);
-        optional = RESOLUTION_OPTIONAL.equals(resdir);
     }
 
     @Override
@@ -67,11 +64,6 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
     @Override
     public VersionRange getVersionRange() {
         return versionrange;
-    }
-
-    @Override
-    public boolean isOptional() {
-        return optional;
     }
 
     @Override

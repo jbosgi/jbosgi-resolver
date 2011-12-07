@@ -24,6 +24,7 @@ package org.jboss.osgi.resolver.spi;
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XDirectiveSupport;
+import org.jboss.osgi.resolver.XRequirement;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -31,9 +32,12 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.ResourceConstants;
 
 import java.util.Map;
 
+import static org.osgi.framework.Constants.RESOLUTION_DIRECTIVE;
+import static org.osgi.framework.Constants.RESOLUTION_OPTIONAL;
 import static org.osgi.framework.resource.ResourceConstants.CAPABILITY_MANDATORY_DIRECTIVE;
 
 /**
@@ -42,12 +46,13 @@ import static org.osgi.framework.resource.ResourceConstants.CAPABILITY_MANDATORY
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractRequirement extends AbstractElement implements XAttachmentSupport, XAttributeSupport, XDirectiveSupport, Requirement {
+public class AbstractRequirement extends AbstractElement implements XRequirement {
 
     private final Resource resource;
     private final String namespace;
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
+    private final boolean optional;
     private XAttachmentSupport attachments;
     private Filter filter;
 
@@ -65,6 +70,8 @@ public class AbstractRequirement extends AbstractElement implements XAttachmentS
                 throw new IllegalArgumentException("Invalid filter directive: " + filterdir);
             }
         }
+        String resdir = directives.get(ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE);
+        optional = ResourceConstants.REQUIREMENT_RESOLUTION_OPTIONAL.equals(resdir);
     }
 
     @Override
@@ -75,6 +82,11 @@ public class AbstractRequirement extends AbstractElement implements XAttachmentS
     @Override
     public String getNamespace() {
         return namespace;
+    }
+
+    @Override
+    public boolean isOptional() {
+        return optional;
     }
 
     @Override

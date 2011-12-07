@@ -25,6 +25,8 @@ import org.apache.felix.framework.resolver.ResolveException;
 import org.apache.felix.framework.resolver.Resolver.ResolverState;
 import org.apache.felix.framework.resolver.ResolverImpl;
 import org.apache.felix.framework.resolver.ResolverWire;
+import org.jboss.osgi.resolver.XDirectiveSupport;
+import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.spi.AbstractWire;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
@@ -83,29 +85,29 @@ public class FelixResolver implements Resolver {
         for (Map.Entry<BundleRevision, List<ResolverWire>> entry : map.entrySet()) {
             Resource res = entry.getKey();
             List<ResolverWire> reswires = entry.getValue();
-            List<Wire> wires;
+            List<Wire> wires = toWires(reswires);
             // If the res has non-optional requirements but felix
             // returns no reswires, we assume that this is a self wire
-            if (reswires.isEmpty() && !res.getRequirements(null).isEmpty()) {
-                wires = new ArrayList<Wire>();
-                for(Requirement req : res.getRequirements(WIRING_PACKAGE_NAMESPACE)) {
-                    for(Capability cap : res.getCapabilities(WIRING_PACKAGE_NAMESPACE)) {
-                        if (req.matches(cap)) {
-                            wires.add(new SelfWire(req, cap));
+            if (reswires.isEmpty()) {
+                boolean mandatory = false;
+                for(Requirement req : res.getRequirements(null)) {
+                    if (((XRequirement)req).isOptional() == false) {
+                        mandatory = true;
+                        for(Capability cap : res.getCapabilities(WIRING_PACKAGE_NAMESPACE)) {
+                            if (req.matches(cap)) {
+                                wires.add(new SelfWire(req, cap));
+                            }
                         }
                     }
                 }
-                if (wires.isEmpty()) {
+                if (mandatory && wires.isEmpty()) {
                     List<Requirement> exreqs = res.getRequirements(null);
                     throw new ResolutionException("Cannot obtain self wiring capabilities", null, exreqs);
                 }
             }
-            else {
-                wires = toWires(reswires);
-            }
-            result.put(res, wires);
+            result.put(res, Collections.unmodifiableList(wires));
         }
-        return result;
+        return Collections.unmodifiableMap(result);
     }
 
     private List<Wire> toWires(List<ResolverWire> reswires) {

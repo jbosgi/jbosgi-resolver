@@ -21,19 +21,15 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.wiring.BundleRequirement;
 
 /**
- * A package requirement
+ * An extension to the {@link Requirement}
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XPackageRequirement extends XRequirement {
+public interface XRequirement extends XAttachmentSupport, XAttributeSupport, XDirectiveSupport, Requirement {
 
-    String getPackageName();
-
-    VersionRange getVersionRange();
+    boolean isOptional();
 }
