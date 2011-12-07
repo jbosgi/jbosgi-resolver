@@ -40,7 +40,6 @@ class AbstractElement {
         private Map<Class<?>, Object> attachments;
 
         @Override
-        @SuppressWarnings("unchecked")
         public <T> T addAttachment(Class<T> clazz, T value) {
             if (attachments == null)
                 attachments = new HashMap<Class<?>, Object>();
@@ -51,7 +50,6 @@ class AbstractElement {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public <T> T getAttachment(Class<T> clazz) {
             if (attachments == null)
                 return null;
@@ -61,7 +59,6 @@ class AbstractElement {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public <T> T removeAttachment(Class<T> clazz) {
             if (attachments == null)
                 return null;
@@ -85,7 +82,11 @@ class AbstractElement {
 
         @Override
         public Map<String, Object> getAttributes() {
-            return Collections.unmodifiableMap(attributes);
+            return attributes != null ? Collections.unmodifiableMap(attributes) : Collections.<String, Object>emptyMap();
+        }
+
+        public String toString() {
+            return getAttributes().toString();
         }
     }
 
@@ -103,7 +104,11 @@ class AbstractElement {
 
         @Override
         public Map<String, String> getDirectives() {
-            return Collections.unmodifiableMap(directives);
+            return directives != null ? Collections.unmodifiableMap(directives) : Collections.<String, String>emptyMap();
+        }
+
+        public String toString() {
+            return getDirectives().toString();
         }
     }
 }

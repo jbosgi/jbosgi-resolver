@@ -22,15 +22,22 @@ package org.jboss.test.osgi.resolver;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
+import org.jboss.osgi.metadata.OSGiMetaData;
+import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResolverCallback;
 import org.jboss.osgi.resolver.XResolverFactory;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.felix.FelixResolverFactory;
 import org.jboss.osgi.testing.OSGiTest;
+import org.jboss.osgi.vfs.VFSUtils;
+import org.jboss.osgi.vfs.VirtualFile;
+import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Before;
 
 import java.util.List;
+import java.util.jar.Manifest;
 
 /**
  * The abstract resolver test.
@@ -49,36 +56,17 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
         resolver = factory.newResolver();
     }
 
-    /*
-    XResource installModule(Archive<?> archive) throws Exception {
+    XResource createResource(Archive<?> archive) throws Exception {
         VirtualFile virtualFile = toVirtualFile(archive);
         try {
             Manifest manifest = VFSUtils.getManifest(virtualFile);
             OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
-
-            // Setup the headers
-            Hashtable<String, String> headers = new Hashtable<String, String>();
-            Attributes attributes = manifest.getMainAttributes();
-            for (Object key : attributes.keySet()) {
-                String value = attributes.getValue(key.toString());
-                headers.put(key.toString(), value);
-            }
-
-            XResourceBuilder builder = factory.newModuleBuilder();
-            XResource resource = builder.createResource(metadata, 0).getResource();
-
-            Bundle bundle = Mockito.mock(Bundle.class);
-            Mockito.when(bundle.getHeaders()).thenReturn(headers);
-            resource.addAttachment(Bundle.class, bundle);
-
-            resolver.addModuleRevision(resource);
-            return resource;
+            XResourceBuilder builder = factory.newResourceBuilder();
+            return builder.createResource(metadata).getResource();
         } finally {
             virtualFile.close();
-
         }
     }
-    */
 
     class ResolverCallback implements XResolverCallback {
         private List<XResource> resolved;

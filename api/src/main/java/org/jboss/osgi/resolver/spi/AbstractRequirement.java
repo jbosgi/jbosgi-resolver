@@ -129,4 +129,10 @@ class AbstractRequirement extends AbstractElement implements XRequirement {
         String mandatoryAttrs = capability.getDirectives().get(CAPABILITY_MANDATORY_DIRECTIVE);
         return match;
     }
+
+    public String toString() {
+        String attstr = !getAttributes().isEmpty() ? ",attributes=" + attributes : "";
+        String dirstr = !getDirectives().isEmpty() ? ",directives=" + directives : "";
+        return getClass().getSimpleName() + "[" + namespace + attstr + dirstr + "]";
+    }
 }

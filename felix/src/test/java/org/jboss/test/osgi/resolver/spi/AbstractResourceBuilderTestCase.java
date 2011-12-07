@@ -35,6 +35,7 @@ import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,12 +50,12 @@ import static junit.framework.Assert.assertTrue;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
- * Unit tests for the {@link org.jboss.osgi.resolver.spi.AbstractResourceBuilder} class
+ * Unit tests for the {@link AbstractResourceBuilder} class
  * 
  * @author <a href="david@redhat.com">David Bosschaert</a>
  * @author Thomas.Diesler@jboss.com
  */
-public class AbstractModuleBuilderTestCase {
+public class AbstractResourceBuilderTestCase {
 
     @Test
     public void testAttributDirectiveTrimming() throws Exception {
@@ -115,8 +116,9 @@ public class AbstractModuleBuilderTestCase {
         assertNotNull("Capabilities not null", caps);
         assertEquals(1, caps.size());
         XBundleCapability cap = (XBundleCapability) caps.get(0);
-        assertEquals("test1", cap.getSymbolicName());
-        assertEquals(Version.emptyVersion, cap.getVersion());
+        BundleRevision rev = cap.getRevision();
+        assertEquals("test1", rev.getSymbolicName());
+        assertEquals(Version.emptyVersion, rev.getVersion());
     }
 
     private static class TestOSGiMetaData extends AbstractOSGiMetaData {

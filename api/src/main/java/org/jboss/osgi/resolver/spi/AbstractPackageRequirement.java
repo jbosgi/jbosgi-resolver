@@ -38,7 +38,7 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractPackageRequirement extends AbstractRequirement implements XPackageRequirement {
+public class AbstractPackageRequirement extends AbstractBundleRequirement implements XPackageRequirement {
 
     private final String packageName;
     private final VersionRange versionrange;

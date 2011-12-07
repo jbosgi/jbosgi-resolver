@@ -27,6 +27,7 @@ import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,14 +61,12 @@ class AbstractResource extends AbstractElement implements XResource {
 
     @Override
     public List<Capability> getCapabilities(String namespace) {
-        List<Capability> result = capabilities.get(namespace);
-        return result == null ? Collections.<Capability>emptyList() : Collections.unmodifiableList(result);
+        return Collections.unmodifiableList(getCaplist(namespace));
     }
 
     @Override
     public List<Requirement> getRequirements(String namespace) {
-        List<Requirement> result = requirements.get(namespace);
-        return result == null ? Collections.<Requirement>emptyList() : Collections.unmodifiableList(result);
+        return Collections.unmodifiableList(getReqlist(namespace));
     }
 
     @Override

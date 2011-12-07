@@ -21,7 +21,7 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.framework.resource.Capability;
+import org.osgi.framework.Version;
 
 /**
  * A package capability
@@ -30,4 +30,8 @@ import org.osgi.framework.resource.Capability;
  * @since 02-Jul-2010
  */
 public interface XPackageCapability extends XCapability {
+
+    String getPackageName();
+
+    Version getVersion();
 }

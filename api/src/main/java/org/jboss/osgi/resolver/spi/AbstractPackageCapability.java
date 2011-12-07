@@ -21,39 +21,40 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XBundleRequirement;
+import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XResource;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.Version;
 
 import java.util.Map;
 
-import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
+import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.XBundleRequirement}.
+ * The abstract implementation of a {@link org.jboss.osgi.resolver.XCapability}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractBundleRequirement extends AbstractRequirement implements XBundleRequirement {
+public class AbstractPackageCapability extends AbstractBundleCapability implements XPackageCapability {
 
-    AbstractBundleRequirement(String namespace, XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
-        super(namespace, resource, attributes, directives);
+    private final String packageName;
+    private final Version version;
+
+    AbstractPackageCapability(XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+        super(WIRING_PACKAGE_NAMESPACE, resource, attributes, directives);
+        packageName = (String) attributes.get(WIRING_PACKAGE_NAMESPACE);
+        String versionatt = (String) attributes.get(VERSION_ATTRIBUTE);
+        version = versionatt != null ? Version.parseVersion(versionatt) : Version.emptyVersion;
     }
 
     @Override
-    public BundleRevision getRevision() {
-        return (BundleRevision) super.getResource();
+    public String getPackageName() {
+        return packageName;
     }
 
     @Override
-    public BundleRevision getResource() {
-        return (BundleRevision) super.getResource();
-    }
-
-    @Override
-    public boolean matches(BundleCapability capability) {
-        throw new NotImplementedException();
+    public Version getVersion() {
+        return version;
     }
 }

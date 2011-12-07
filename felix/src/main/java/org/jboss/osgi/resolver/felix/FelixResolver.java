@@ -26,6 +26,7 @@ import org.apache.felix.framework.resolver.Resolver.ResolverState;
 import org.apache.felix.framework.resolver.ResolverImpl;
 import org.apache.felix.framework.resolver.ResolverWire;
 import org.jboss.osgi.resolver.XResolver;
+import org.jboss.osgi.resolver.spi.NotImplementedException;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
@@ -42,10 +43,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * An implementation of the Resolver.
@@ -64,7 +67,14 @@ public class FelixResolver implements XResolver {
         ResolverState state = new EnvironmentDelegate(environment);
         Set<BundleRevision> mandatory = bundleRevisions(mandatoryResources);
         Set<BundleRevision> optional = bundleRevisions(optionalResources);
-        Map<BundleRevision, List<ResolverWire>> result = delegate.resolve(state, mandatory, optional, null);
+        Set<BundleRevision> fragments = Collections.emptySet();
+        Map<BundleRevision, List<ResolverWire>> result = null;
+        try {
+            result = delegate.resolve(state, mandatory, optional, fragments);
+        } catch (ResolveException ex) {
+            Requirement req = (Requirement) ex.getRequirement();
+            throw new ResolutionException(ex.getMessage(), ex, Collections.singleton(req));
+        }
         return processResult(result);
     }
 
@@ -88,15 +98,12 @@ public class FelixResolver implements XResolver {
 
 
     private Set<BundleRevision> bundleRevisions(Collection<? extends Resource> resources) {
-        if (resources == null)
-            return null;
-        if (resources.isEmpty())
-            return Collections.emptySet();
-
         Set<BundleRevision> result = new HashSet();
-        for (Resource res : resources) {
-            if (res instanceof BundleRevision) {
-                result.add((BundleRevision) res);
+        if (resources != null && !resources.isEmpty()) {
+            for (Resource res : resources) {
+                if (res instanceof BundleRevision) {
+                    result.add((BundleRevision) res);
+                }
             }
         }
         return result;
@@ -112,12 +119,16 @@ public class FelixResolver implements XResolver {
 
         @Override
         public boolean isEffective(BundleRequirement req) {
-            return false;
+            return environment.isEffective(req);
         }
 
         @Override
         public SortedSet<BundleCapability> getCandidates(BundleRequirement req, boolean obeyMandatory) {
-            return null;
+            SortedSet<BundleCapability> result = new TreeSet<BundleCapability>();
+            for (Capability cap : environment.findProviders(req)) {
+                result.add((BundleCapability) cap);
+            }
+            return result;
         }
 
         @Override

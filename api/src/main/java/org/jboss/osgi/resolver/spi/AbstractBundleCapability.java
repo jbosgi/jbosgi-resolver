@@ -40,23 +40,8 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESP
  */
 public class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
 
-    private final String symbolicName;
-    private final Version version;
-
-    protected AbstractBundleCapability(XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
-        super(WIRING_BUNDLE_NAMESPACE, resource, attributes, directives);
-        symbolicName = (String) attributes.get(WIRING_BUNDLE_NAMESPACE);
-        version = (Version) attributes.get(VERSION_ATTRIBUTE);
-    }
-
-    @Override
-    public String getSymbolicName() {
-        return symbolicName;
-    }
-
-    @Override
-    public Version getVersion() {
-        return version;
+    protected AbstractBundleCapability(String namespace, XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+        super(namespace, resource, attributes, directives);
     }
 
     @Override

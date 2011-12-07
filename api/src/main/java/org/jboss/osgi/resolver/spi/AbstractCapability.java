@@ -101,4 +101,10 @@ public class AbstractCapability extends AbstractElement implements XCapability {
             return null;
         return attachments.removeAttachment(clazz);
     }
+
+    public String toString() {
+        String attstr = !getAttributes().isEmpty() ? ",attributes=" + attributes : "";
+        String dirstr = !getDirectives().isEmpty() ? ",directives=" + directives : "";
+        return getClass().getSimpleName() + "[" + namespace + attstr + dirstr + "]";
+    }
 }
