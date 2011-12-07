@@ -36,7 +36,7 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractCapability extends AbstractElement implements XCapability {
+public class AbstractCapability extends AbstractElement implements XCapability {
 
     private final XResource resource;
     private final String namespace;

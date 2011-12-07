@@ -24,21 +24,26 @@ package org.jboss.test.osgi.resolver.spi;
 import junit.framework.Assert;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
+import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
+import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes.Name;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
@@ -47,6 +52,7 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  * Unit tests for the {@link org.jboss.osgi.resolver.spi.AbstractResourceBuilder} class
  * 
  * @author <a href="david@redhat.com">David Bosschaert</a>
+ * @author Thomas.Diesler@jboss.com
  */
 public class AbstractModuleBuilderTestCase {
 
@@ -55,7 +61,10 @@ public class AbstractModuleBuilderTestCase {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1,value2; version= 1.0.1,value3;resolution:= optional,value4;version = 3 ; resolution := optional ");
-        validate(attrs);
+
+        XResource resource = createResource(attrs);
+        validateRequirements(resource);
+        validateCapabilities(resource);
     }
 
     @Test
@@ -63,15 +72,24 @@ public class AbstractModuleBuilderTestCase {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1,value2;version=1.0.1,value3;resolution:=optional,value4;version=3;resolution:=optional");
-        validate(attrs);
+
+        XResource resource = createResource(attrs);
+        validateRequirements(resource);
+        validateCapabilities(resource);
     }
 
-    private void validate(Map<String, String> attrs) throws BundleException {
+    private XResource createResource(Map<String, String> attrs) throws BundleException {
         XResourceBuilder amb = new AbstractResourceBuilder();
-        OSGiMetaData md = new TestOSGiMetaData(attrs);
-        XResourceBuilder builder = amb.createResource(md);
-        XResource resource = builder.getResource();
-        for (Requirement req : resource.getRequirements(WIRING_PACKAGE_NAMESPACE)) {
+        OSGiMetaData metaData = new TestOSGiMetaData(attrs);
+        XResourceBuilder builder = amb.createResource(metaData);
+        return builder.getResource();
+    }
+
+    private void validateRequirements(XResource resource) throws BundleException {
+        List<Requirement> reqs = resource.getRequirements(WIRING_PACKAGE_NAMESPACE);
+        assertNotNull("Requirements not null", reqs);
+        assertEquals(4, reqs.size());
+        for (Requirement req : reqs) {
             XPackageRequirement xreq = (XPackageRequirement) req;
             String packageName = xreq.getPackageName();
             if ("value1".equals(packageName)) {
@@ -90,6 +108,15 @@ public class AbstractModuleBuilderTestCase {
                 Assert.fail("Incorrect package name: " + req);
             }
         }
+    }
+
+    private void validateCapabilities(XResource resource) {
+        List<Capability> caps = resource.getCapabilities(null);
+        assertNotNull("Capabilities not null", caps);
+        assertEquals(1, caps.size());
+        XBundleCapability cap = (XBundleCapability) caps.get(0);
+        assertEquals("test1", cap.getSymbolicName());
+        assertEquals(Version.emptyVersion, cap.getVersion());
     }
 
     private static class TestOSGiMetaData extends AbstractOSGiMetaData {

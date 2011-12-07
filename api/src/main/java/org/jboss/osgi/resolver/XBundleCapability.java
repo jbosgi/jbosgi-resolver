@@ -31,4 +31,8 @@ import org.osgi.framework.wiring.BundleCapability;
  * @since 02-Jul-2010
  */
 public interface XBundleCapability extends XCapability, BundleCapability {
+
+    String getSymbolicName();
+
+    Version getVersion();
 }

@@ -47,21 +47,15 @@ class AbstractResource extends AbstractElement implements XResource {
     private XAttachmentSupport attachments;
 
     void addCapability(Capability cap) {
-        List<Capability> caplist = capabilities.get(cap.getNamespace());
-        if (caplist == null) {
-            caplist = new ArrayList<Capability>();
-            capabilities.put(cap.getNamespace(), caplist);
-        }
-        caplist.add(cap);
+        String namespace = cap.getNamespace();
+        getCaplist(namespace).add(cap);
+        getCaplist(null).add(cap);
     }
 
     void addRequirement(Requirement req) {
-        List<Requirement> reqlist = requirements.get(req.getNamespace());
-        if (reqlist == null) {
-            reqlist = new ArrayList<Requirement>();
-            requirements.put(req.getNamespace(), reqlist);
-        }
-        reqlist.add(req);
+        String namespace = req.getNamespace();
+        getReqlist(namespace).add(req);
+        getReqlist(null).add(req);
     }
 
     @Override
@@ -98,5 +92,23 @@ class AbstractResource extends AbstractElement implements XResource {
             return null;
 
         return attachments.removeAttachment(clazz);
+    }
+
+    private List<Capability> getCaplist(String namespace) {
+        List<Capability> caplist = capabilities.get(namespace);
+        if (caplist == null) {
+            caplist = new ArrayList<Capability>();
+            capabilities.put(namespace, caplist);
+        }
+        return caplist;
+    }
+
+    private List<Requirement> getReqlist(String namespace) {
+        List<Requirement> reqlist = requirements.get(namespace);
+        if (reqlist == null) {
+            reqlist = new ArrayList<Requirement>();
+            requirements.put(namespace, reqlist);
+        }
+        return reqlist;
     }
 }

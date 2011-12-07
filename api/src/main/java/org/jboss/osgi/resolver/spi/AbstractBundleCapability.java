@@ -23,10 +23,13 @@ package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Map;
 
+import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 
 /**
@@ -35,10 +38,25 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESP
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
+public class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
 
-    public AbstractBundleCapability(XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
+    private final String symbolicName;
+    private final Version version;
+
+    protected AbstractBundleCapability(XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
         super(WIRING_BUNDLE_NAMESPACE, resource, attributes, directives);
+        symbolicName = (String) attributes.get(WIRING_BUNDLE_NAMESPACE);
+        version = (Version) attributes.get(VERSION_ATTRIBUTE);
+    }
+
+    @Override
+    public String getSymbolicName() {
+        return symbolicName;
+    }
+
+    @Override
+    public Version getVersion() {
+        return version;
     }
 
     @Override

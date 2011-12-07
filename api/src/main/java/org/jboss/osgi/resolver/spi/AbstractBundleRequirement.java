@@ -36,7 +36,7 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESP
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractBundleRequirement extends AbstractRequirement implements XBundleRequirement {
+public class AbstractBundleRequirement extends AbstractRequirement implements XBundleRequirement {
 
     AbstractBundleRequirement(XResource resource, Map<String, Object> attributes, Map<String, String> directives) {
         super(WIRING_BUNDLE_NAMESPACE, resource, attributes, directives);
@@ -54,6 +54,6 @@ class AbstractBundleRequirement extends AbstractRequirement implements XBundleRe
 
     @Override
     public boolean matches(BundleCapability capability) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 }
