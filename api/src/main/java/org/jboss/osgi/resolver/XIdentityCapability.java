@@ -21,14 +21,17 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.framework.resource.Wiring;
+import org.osgi.framework.Version;
 
 /**
- * An extension to the {@link Wiring}
- *
+ * An identity capability
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XWiring extends Wiring {
+public interface XIdentityCapability extends XCapability {
 
+    String getSymbolicName();
+
+    Version getVersion();
 }

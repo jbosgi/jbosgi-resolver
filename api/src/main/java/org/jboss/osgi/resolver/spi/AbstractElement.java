@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * The abstract implementation of a {@link XElement}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010

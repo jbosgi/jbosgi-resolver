@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
-import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.wiring.BundleCapability;
@@ -62,10 +61,9 @@ public class AbstractResourceBuilderTestCase {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1,value2; version= 1.0.1,value3;resolution:= optional,value4;version = 3 ; resolution := optional ");
-
-        Resource resource = createResource(attrs);
-        validateRequirements(resource);
-        validateCapabilities(resource);
+        BundleRevision brev = createBundleRevision(attrs);
+        validateRequirements(brev);
+        validateCapabilities(brev);
     }
 
     @Test
@@ -73,17 +71,16 @@ public class AbstractResourceBuilderTestCase {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1,value2;version=1.0.1,value3;resolution:=optional,value4;version=3;resolution:=optional");
-
-        Resource resource = createResource(attrs);
-        validateRequirements(resource);
-        validateCapabilities(resource);
+        BundleRevision brev = createBundleRevision(attrs);
+        validateRequirements(brev);
+        validateCapabilities(brev);
     }
 
-    private Resource createResource(Map<String, String> attrs) throws BundleException {
+    private BundleRevision createBundleRevision(Map<String, String> attrs) throws BundleException {
         XResourceBuilder amb = new AbstractResourceBuilder();
         OSGiMetaData metaData = new TestOSGiMetaData(attrs);
         XResourceBuilder builder = amb.createResource(metaData);
-        return builder.getResource();
+        return (BundleRevision) builder.getResource();
     }
 
     private void validateRequirements(Resource resource) throws BundleException {
@@ -111,11 +108,11 @@ public class AbstractResourceBuilderTestCase {
         }
     }
 
-    private void validateCapabilities(Resource resource) {
-        List<Capability> caps = resource.getCapabilities(null);
+    private void validateCapabilities(BundleRevision resource) {
+        List<BundleCapability> caps = resource.getDeclaredCapabilities(null);
         assertNotNull("Capabilities not null", caps);
         assertEquals(1, caps.size());
-        BundleCapability cap = (BundleCapability) caps.get(0);
+        BundleCapability cap = caps.get(0);
         BundleRevision rev = cap.getRevision();
         assertEquals("test1", rev.getSymbolicName());
         assertEquals(Version.emptyVersion, rev.getVersion());

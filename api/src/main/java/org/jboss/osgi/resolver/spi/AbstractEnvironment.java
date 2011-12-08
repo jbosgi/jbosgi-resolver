@@ -39,7 +39,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * The abstract implementation of a {@link Environment}.
+ * The abstract implementation of a {@link XEnvironment}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
@@ -75,7 +75,7 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
 
     @Override
     public Collection<Capability> findProviders(Requirement req) {
-        Set<Capability> result = new TreeSet<Capability>();
+        List<Capability> result = new ArrayList<Capability>();
         synchronized (resources) {
             for (Resource res : resources) {
                 for (Capability cap : res.getCapabilities(req.getNamespace())) {
@@ -85,7 +85,7 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
                 }
             }
         }
-        return Collections.unmodifiableSet(result);
+        return Collections.unmodifiableList(result);
     }
 
     @Override

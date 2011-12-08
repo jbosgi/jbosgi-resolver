@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XWiring;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
@@ -38,7 +37,7 @@ import java.util.List;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractWiring implements XWiring {
+public class AbstractWiring implements Wiring {
 
     private static List<Wire> EMPTY_LIST = Collections.emptyList();
 

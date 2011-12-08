@@ -33,10 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The abstract implementation of an {@link Resource}.
+ * The abstract implementation of an {@link XResource}.
  *
- * This is the resolver representation of a {@link org.osgi.framework.Bundle}.
- * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */

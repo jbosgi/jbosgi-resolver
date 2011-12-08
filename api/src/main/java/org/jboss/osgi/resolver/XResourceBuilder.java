@@ -29,6 +29,7 @@ import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -38,6 +39,9 @@ import java.util.Map;
  * @since 02-Jul-2010
  */
 public interface XResourceBuilder {
+
+    static final Map<String, Object> EMPTY_ATTRIBUTES = Collections.emptyMap();
+    static final Map<String, String> EMPTY_DIRECTIVES = Collections.emptyMap();
 
     /**
      * Create an empty resource builder
@@ -52,39 +56,39 @@ public interface XResourceBuilder {
     XResourceBuilder createResource(OSGiMetaData metadata) throws BundleException;
 
     /**
-     * Add a bundle capability
+     * Add the identity capability
      * 
      * @param symbolicName The bundle symbolic name
      * @param version The bundle version
      */
-    Capability addBundleCapability(String symbolicName, Version version);
+    Capability addIdentityCapability(String symbolicName, Version version);
 
     /**
      * Add a {@link Constants#REQUIRE_BUNDLE} requirement
-     * 
+     *
      * @param symbolicName The bundle symbolic name
-     * @param dirs The directives
      * @param atts The attributes
+     * @param dirs The directives
      */
-    Requirement addBundleRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts);
+    Requirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#EXPORT_PACKAGE} capability
-     * 
+     *
      * @param name The package name
-     * @param dirs The directives
      * @param atts The attributes
+     * @param dirs The directives
      */
-    Capability addPackageCapability(String name, Map<String, String> dirs, Map<String, Object> atts);
+    Capability addPackageCapability(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#IMPORT_PACKAGE} requirement
-     * 
+     *
      * @param name The package name
-     * @param dirs The directives
      * @param atts The attributes
+     * @param dirs The directives
      */
-    Requirement addPackageRequirement(String name, Map<String, String> dirs, Map<String, Object> atts);
+    Requirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Get the final resource from the builder

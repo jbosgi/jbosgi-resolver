@@ -25,7 +25,9 @@ import org.apache.felix.framework.resolver.ResolveException;
 import org.apache.felix.framework.resolver.Resolver.ResolverState;
 import org.apache.felix.framework.resolver.ResolverImpl;
 import org.apache.felix.framework.resolver.ResolverWire;
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XRequirement;
+import org.jboss.osgi.resolver.spi.AbstractBundleCapability;
 import org.jboss.osgi.resolver.spi.AbstractWire;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
@@ -152,7 +154,8 @@ public class FelixResolver implements Resolver {
         public SortedSet<BundleCapability> getCandidates(BundleRequirement req, boolean obeyMandatory) {
             SortedSet<BundleCapability> result = new TreeSet<BundleCapability>();
             for (Capability cap : environment.findProviders(req)) {
-                result.add((BundleCapability) cap);
+                XCapability xcap = (XCapability) cap;
+                result.add(xcap.adapt(BundleCapability.class));
             }
             return result;
         }
@@ -168,7 +171,25 @@ public class FelixResolver implements Resolver {
 
     static class ResolverWireDelegate extends AbstractWire {
         ResolverWireDelegate(ResolverWire rw) {
-            super((Capability)rw.getCapability(), (Requirement)rw.getRequirement(), (Resource)rw.getProvider(), (Resource)rw.getRequirer());
+            super(toCapability(rw.getCapability()), toRequirement(rw.getRequirement()), (Resource)rw.getProvider(), (Resource)rw.getRequirer());
+        }
+
+        private static Capability toCapability(BundleCapability bcap) {
+            Capability cap = bcap;
+            if (bcap instanceof XCapability) {
+                XCapability xcap = (XCapability) bcap;
+                cap = xcap.adapt(Capability.class);
+            }
+            return cap;
+        }
+
+        private static Requirement toRequirement(BundleRequirement breq) {
+            Requirement req = breq;
+            if (breq instanceof XRequirement) {
+                XRequirement xreq = (XRequirement) breq;
+                req = xreq.adapt(Requirement.class);
+            }
+            return req;
         }
     }
 

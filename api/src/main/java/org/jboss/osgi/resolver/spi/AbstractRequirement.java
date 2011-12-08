@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XAttributeSupport;
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XRequirement;
 import org.osgi.framework.Constants;
@@ -34,10 +35,8 @@ import org.osgi.framework.resource.ResourceConstants;
 
 import java.util.Map;
 
-import static org.osgi.framework.resource.ResourceConstants.CAPABILITY_MANDATORY_DIRECTIVE;
-
 /**
- * The abstract implementation of a {@link Capability}.
+ * The abstract implementation of a {@link XRequirement}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
@@ -51,9 +50,21 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     private final boolean optional;
     private Filter filter;
 
-    protected AbstractRequirement(String namespace, Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
-        this.namespace = namespace;
+    protected AbstractRequirement(Resource resource, String namespace, Map<String, Object> attributes, Map<String, String> directives) {
+        if (resource == null)
+            throw new IllegalArgumentException("Null resource");
+        if (namespace == null)
+            throw new IllegalArgumentException("Null namespace");
+        if (attributes == null)
+            throw new IllegalArgumentException("Null attributes");
+        if (directives == null)
+            throw new IllegalArgumentException("Null directives");
+
+        if (attributes.get(namespace) == null)
+            throw new IllegalArgumentException("Cannot obtain attribute: " + namespace);
+
         this.resource = resource;
+        this.namespace = namespace;
         this.attributes = new AttributeSupporter(attributes);
         this.directives = new DirectiveSupporter(directives);
 
@@ -65,6 +76,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
                 throw new IllegalArgumentException("Invalid filter directive: " + filterdir);
             }
         }
+
         String resdir = directives.get(ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE);
         optional = ResourceConstants.REQUIREMENT_RESOLUTION_OPTIONAL.equals(resdir);
     }
@@ -105,13 +117,22 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     }
 
     @Override
-    public boolean matches(Capability capability) {
-        boolean matches = namespace.equals(capability.getNamespace());
-        if (matches && filter != null) {
-            matches = filter.matches(capability.getAttributes());
+    public boolean matches(Capability cap) {
+        boolean matches = namespace.equals(cap.getNamespace());
+
+        // match namespace value
+        if (matches && cap instanceof XCapability) {
+            XCapability xcap = (XCapability) cap;
+            Object thisatt = getAttribute(namespace);
+            Object otheratt = xcap.getAttribute(namespace);
+            matches = thisatt.equals(otheratt);
         }
-        // [TODO] CAPABILITY_MANDATORY_DIRECTIVE
-        String mandatoryAttrs = capability.getDirectives().get(CAPABILITY_MANDATORY_DIRECTIVE);
+
+        // match filter
+        if (matches && filter != null) {
+            matches = filter.matches(cap.getAttributes());
+        }
+
         return matches;
     }
 

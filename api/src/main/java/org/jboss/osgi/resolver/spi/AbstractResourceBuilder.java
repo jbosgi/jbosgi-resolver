@@ -25,7 +25,8 @@ import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.PackageAttribute;
 import org.jboss.osgi.metadata.Parameter;
 import org.jboss.osgi.metadata.ParameterizedAttribute;
-import org.jboss.osgi.resolver.NotImplementedException;
+import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
@@ -34,25 +35,22 @@ import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
+import org.osgi.framework.wiring.BundleRevision;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
- * A builder for resolver modules
- * 
+ * A builder for resolver resources
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
 public class AbstractResourceBuilder implements XResourceBuilder {
-
-    public static final Map<String, String> NODIRECTIVES = Collections.emptyMap();
 
     private AbstractResource resource;
 
@@ -72,52 +70,70 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     }
 
     @Override
-    public BundleCapability addBundleCapability(String symbolicName, Version version) {
+    public Capability addIdentityCapability(String symbolicName, Version version) {
         assertModuleCreated();
-        Map<String, Object> atts = new HashMap<String, Object>();
+        XCapability cap = new AbstractIdentityCapability(resource, symbolicName, version);
+        if (resource instanceof BundleRevision) {
+            BundleCapability bcap = new AbstractBundleCapability(cap);
+            cap.addAttachment(BundleCapability.class, bcap);
+        }
+        resource.addCapability(cap);
+        return cap;
+    }
+
+    @Override
+    public Requirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
+        assertModuleCreated();
         atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
-        atts.put(VERSION_ATTRIBUTE, version);
-        BundleCapability cap = new AbstractBundleCapability(WIRING_BUNDLE_NAMESPACE, resource, atts, NODIRECTIVES);
+        XRequirement req = new AbstractIdentityRequirement(resource, atts, dirs);
+        if (resource instanceof BundleRevision) {
+            BundleRequirement breq = new AbstractBundleRequirement(req);
+            req.addAttachment(BundleRequirement.class, breq);
+        }
+        resource.addRequirement(req);
+        return req;
+    }
+
+    @Override
+    public Capability addPackageCapability(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
+        assertModuleCreated();
+        atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
+        XCapability cap = new AbstractPackageCapability(resource, atts, dirs);
+        if (resource instanceof BundleRevision) {
+            BundleCapability bcap = new AbstractBundleCapability(cap);
+            cap.addAttachment(BundleCapability.class, bcap);
+        }
         resource.addCapability(cap);
         return cap;
     }
 
     @Override
-    public BundleRequirement addBundleRequirement(String symbolicName, Map<String, String> dirs, Map<String, Object> atts) {
-        assertModuleCreated();
-        //XBundleRequirement req = new AbstractBundleRequirement(module, symbolicName, dirs, atts);
-        //module.addRequirement(req);
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public Capability addPackageCapability(String packageName, Map<String, String> dirs, Map<String, Object> atts) {
+    public Requirement addPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertModuleCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
-        Capability cap = new AbstractPackageCapability(resource, atts, dirs);
-        resource.addCapability(cap);
-        return cap;
-    }
-
-    @Override
-    public Requirement addPackageRequirement(String packageName, Map<String, String> dirs, Map<String, Object> atts) {
-        assertModuleCreated();
-        atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
-        Requirement req = new AbstractPackageRequirement(resource, atts, dirs);
+        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
+        if (resource instanceof BundleRevision) {
+            BundleRequirement breq = new AbstractBundleRequirement(req);
+            req.addAttachment(BundleRequirement.class, breq);
+        }
         resource.addRequirement(req);
         return req;
     }
 
     @Override
     public Resource getResource() {
-        return resource;
+        try {
+            return resource;
+        } finally {
+            resource = null;
+        }
     }
 
     private void load(OSGiMetaData metadata) throws BundleException {
         try {
             String symbolicName = metadata.getBundleSymbolicName();
             Version bundleVersion = metadata.getBundleVersion();
-            addBundleCapability(symbolicName, bundleVersion);
+            addIdentityCapability(symbolicName, bundleVersion);
 
             // Required Bundles
             List<ParameterizedAttribute> requireBundles = metadata.getRequireBundles();
@@ -126,7 +142,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     String name = attribs.getAttribute();
                     Map<String, String> dirs = getDirectives(attribs);
                     Map<String, Object> atts = getAttributes(attribs);
-                    addBundleRequirement(name, dirs, atts);
+                    addIdentityRequirement(name, atts, dirs);
                 }
             }
 
@@ -137,7 +153,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     String name = attribs.getAttribute();
                     Map<String, String> dirs = getDirectives(attribs);
                     Map<String, Object> atts = getAttributes(attribs);
-                    addPackageCapability(name, dirs, atts);
+                    addPackageCapability(name, atts, dirs);
                 }
             }
 
@@ -148,7 +164,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     String name = attribs.getAttribute();
                     Map<String, String> dirs = getDirectives(attribs);
                     Map<String, Object> atts = getAttributes(attribs);
-                    addPackageRequirement(name, dirs, atts);
+                    addPackageRequirement(name, atts, dirs);
                 }
             }
 

@@ -31,7 +31,7 @@ import org.osgi.framework.resource.Resource;
 import java.util.Map;
 
 /**
- * The abstract implementation of a {@link Capability}.
+ * The abstract implementation of a {@link XCapability}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
@@ -43,9 +43,21 @@ public class AbstractCapability extends AbstractElement implements XCapability {
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
 
-    protected AbstractCapability(String namespace, Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
-        this.namespace = namespace;
+    protected AbstractCapability(Resource resource, String namespace, Map<String, Object> attributes, Map<String, String> directives) {
+        if (resource == null)
+            throw new IllegalArgumentException("Null resource");
+        if (namespace == null)
+            throw new IllegalArgumentException("Null namespace");
+        if (attributes == null)
+            throw new IllegalArgumentException("Null attributes");
+        if (directives == null)
+            throw new IllegalArgumentException("Null directives");
+
+        if (attributes.get(namespace) == null)
+            throw new IllegalArgumentException("Cannot obtain attribute: " + namespace);
+
         this.resource = resource;
+        this.namespace = namespace;
         this.attributes = new AttributeSupporter(attributes);
         this.directives = new DirectiveSupporter(directives);
     }

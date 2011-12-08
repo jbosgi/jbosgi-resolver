@@ -21,7 +21,9 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.osgi.framework.resource.Resource;
+import org.jboss.osgi.resolver.XRequirement;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
@@ -34,24 +36,78 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractBundleRequirement extends AbstractRequirement implements BundleRequirement {
+public class AbstractBundleRequirement extends AbstractElement implements XRequirement, BundleRequirement {
 
-    protected AbstractBundleRequirement(String namespace, Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
-        super(namespace, resource, attributes, directives);
+    private final XRequirement delegate;
+    
+    protected AbstractBundleRequirement(XRequirement delegate) {
+        addAttachment(Requirement.class, delegate);
+        this.delegate = delegate;
+    }
+
+    @Override
+    public String getNamespace() {
+        return delegate.getNamespace();
+    }
+
+    @Override
+    public boolean isOptional() {
+        return delegate.isOptional();
+    }
+
+    @Override
+    public Map<String, String> getDirectives() {
+        return delegate.getDirectives();
+    }
+
+    @Override
+    public String getDirective(String key) {
+        return delegate.getDirective(key);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return delegate.getAttributes();
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return delegate.getAttribute(key);
     }
 
     @Override
     public BundleRevision getRevision() {
-        return (BundleRevision) super.getResource();
+        return (BundleRevision) delegate.getResource();
     }
 
     @Override
     public BundleRevision getResource() {
-        return (BundleRevision) super.getResource();
+        return (BundleRevision) delegate.getResource();
     }
 
     @Override
     public boolean matches(BundleCapability capability) {
-        return super.matches(capability);
+        return delegate.matches(capability);
+    }
+
+    @Override
+    public boolean matches(Capability capability) {
+        return delegate.matches(capability);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return delegate.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ":" + delegate.toString();
     }
 }

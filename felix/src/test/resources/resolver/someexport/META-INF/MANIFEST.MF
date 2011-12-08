@@ -1,0 +1,3 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: somepackage
+Export-Package: org.jboss.test.osgi.somepackage

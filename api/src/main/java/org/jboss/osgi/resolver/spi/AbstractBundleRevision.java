@@ -21,6 +21,8 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XRequirement;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
@@ -69,7 +71,8 @@ public class AbstractBundleRevision extends AbstractResource implements BundleRe
         if (caplist == null) {
             caplist = new ArrayList<BundleCapability>();
             for (Capability cap : getCapabilities(namespace)) {
-                caplist.add((BundleCapability) cap);
+                XCapability xcap = (XCapability) cap;
+                caplist.add(xcap.adapt(BundleCapability.class));
             }
             capabilities.put(namespace, caplist);
         }
@@ -82,7 +85,8 @@ public class AbstractBundleRevision extends AbstractResource implements BundleRe
         if (reqlist == null) {
             reqlist = new ArrayList<BundleRequirement>();
             for (Requirement req : getRequirements(namespace)) {
-                reqlist.add((BundleRequirement) req);
+                XRequirement xreq = (XRequirement) req;
+                reqlist.add(xreq.adapt(BundleRequirement.class));
             }
             requirements.put(namespace, reqlist);
         }

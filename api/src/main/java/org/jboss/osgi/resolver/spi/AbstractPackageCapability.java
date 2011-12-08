@@ -31,19 +31,21 @@ import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.XPackageCapability}.
+ * The abstract implementation of a {@link XPackageCapability}.
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractPackageCapability extends AbstractBundleCapability implements XPackageCapability {
+public class AbstractPackageCapability extends AbstractCapability implements XPackageCapability {
 
     private final String packageName;
     private final Version version;
 
     protected AbstractPackageCapability(Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
-        super(WIRING_PACKAGE_NAMESPACE, resource, attributes, directives);
+        super(resource, WIRING_PACKAGE_NAMESPACE, attributes, directives);
         packageName = (String) attributes.get(WIRING_PACKAGE_NAMESPACE);
+        if (packageName == null)
+            throw new IllegalArgumentException("Null packageName");
         String versionatt = (String) attributes.get(VERSION_ATTRIBUTE);
         version = versionatt != null ? Version.parseVersion(versionatt) : Version.emptyVersion;
     }
