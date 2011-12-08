@@ -21,34 +21,14 @@
  */
 package org.jboss.osgi.resolver;
 
+import org.osgi.framework.resource.Wiring;
+
 /**
- * Adds attachment support
- * 
+ * An extension to the {@link Wiring}
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XAttachmentSupport {
-    /**
-     * Attach an arbirtary object with this element.
-     * 
-     * @param clazz key for the attachment
-     * @return The previously attachment object or null
-     */
-    <T> T addAttachment(Class<T> clazz, T value);
+public interface XWiring extends Wiring {
 
-    /**
-     * Get the attached object for a given key
-     * 
-     * @param clazz key for the attachment
-     * @return The attached object or null
-     */
-    <T> T getAttachment(Class<T> clazz);
-
-    /**
-     * Remove an attached object for a given key
-     * 
-     * @param clazz key for the attachment
-     * @return The attached object or null
-     */
-    <T> T removeAttachment(Class<T> clazz);
 }

@@ -22,20 +22,20 @@ package org.jboss.test.osgi.resolver;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
+import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequirement;
-import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
+import org.osgi.framework.resource.Wiring;
 import org.osgi.service.resolver.Environment;
 import org.osgi.service.resolver.ResolutionException;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +44,7 @@ import java.util.Set;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -73,12 +74,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         mandatory.add(resourceA);
         mandatory.add(resourceB);
 
-        Environment env = new AbstractEnvironment() {
-            @Override
-            public Collection<Resource> getResources(Requirement req) {
-                return mandatory;
-            }
-        };
+        Environment env = installResources(mandatory);
+
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertNotNull("Wire map not null", map);
         assertEquals(2, map.size());
@@ -107,15 +104,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
         Resource resourceA = createResource(assemblyA);
 
-        final Set<Resource> mandatory = new HashSet<Resource>();
-        mandatory.add(resourceA);
-
-        Environment env = new AbstractEnvironment() {
-            @Override
-            public Collection<Resource> getResources(Requirement req) {
-                return mandatory;
-            }
-        };
+        Set<Resource> mandatory = Collections.singleton(resourceA);
+        Environment env = installResources(mandatory);
 
         try {
             resolver.resolve(env, mandatory, null);
@@ -127,6 +117,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
 
     @Test
     public void testExplicitBundleResolve() throws Exception {
+        
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
@@ -137,19 +128,34 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        final Set<Resource> mandatory = new HashSet<Resource>();
-        mandatory.add(resourceA);
-        mandatory.add(resourceB);
-
-        Environment env = new AbstractEnvironment() {
-            @Override
-            public Collection<Resource> getResources(Requirement req) {
-                return mandatory;
-            }
-        };
+        Set<Resource> mandatory = Collections.singleton(resourceB);
+        XEnvironment env = installResources(mandatory);
 
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        assertEquals(2, map.size());
+        env.applyResolverResults(map);
+
+        Wiring wiringB = env.getWiring(resourceB);
+        assertNotNull("Wiring not null", wiringB);
+        assertTrue("No required resource wires", wiringB.getRequiredResourceWires(null).isEmpty());
+        assertTrue("No provided resource wires", wiringB.getProvidedResourceWires(null).isEmpty());
+
+        mandatory = Collections.singleton(resourceA);
+        installResources(mandatory);
+
+        map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
+
+        Wiring wiringA = env.getWiring(resourceA);
+        assertNotNull("Wiring not null", wiringA);
+        assertTrue("No provided resource wires", wiringA.getProvidedResourceWires(null).isEmpty());
+        Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
+        assertSame(resourceA, wireA.getRequirer());
+        assertSame(resourceB, wireA.getProvider());
+
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
+        assertSame(resourceA, wireB.getRequirer());
+        assertSame(resourceB, wireB.getProvider());
     }
 
     @Test
@@ -161,15 +167,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/selfimport");
         Resource resourceA = createResource(assemblyA);
 
-        final Set<Resource> mandatory = new HashSet<Resource>();
-        mandatory.add(resourceA);
+        Set<Resource> mandatory = Collections.singleton(resourceA);
+        Environment env = installResources(mandatory);
 
-        Environment env = new AbstractEnvironment() {
-            @Override
-            public Collection<Resource> getResources(Requirement req) {
-                return mandatory;
-            }
-        };
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertEquals(1, map.size());
 
@@ -197,12 +197,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         mandatory.add(resourceA);
         mandatory.add(resourceB);
 
-        Environment env = new AbstractEnvironment() {
-            @Override
-            public Collection<Resource> getResources(Requirement req) {
-                return mandatory;
-            }
-        };
+        Environment env = installResources(mandatory);
 
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertEquals(2, map.size());
@@ -225,12 +220,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         mandatory.add(resourceA);
         mandatory.add(resourceB);
 
-        Environment env = new AbstractEnvironment() {
-            @Override
-            public Collection<Resource> getResources(Requirement req) {
-                return mandatory;
-            }
-        };
+        Environment env = installResources(mandatory);
 
         try {
             resolver.resolve(env, mandatory, null);
@@ -248,15 +238,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
         Resource resourceA = createResource(assemblyA);
 
-        final Set<Resource> mandatory = new HashSet<Resource>();
-        mandatory.add(resourceA);
-
-        Environment env = new AbstractEnvironment() {
-            @Override
-            public Collection<Resource> getResources(Requirement req) {
-                return mandatory;
-            }
-        };
+        Set<Resource> mandatory = Collections.singleton(resourceA);
+        Environment env = installResources(mandatory);
 
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertEquals(1, map.size());
@@ -279,12 +262,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         optional.add(resourceA);
         optional.add(resourceB);
 
-        Environment env = new AbstractEnvironment() {
-            @Override
-            public Collection<Resource> getResources(Requirement req) {
-                return optional;
-            }
-        };
+        Environment env = installResources(optional);
+
         Map<Resource,List<Wire>> map = resolver.resolve(env, null, optional);
         assertNotNull("Wire map not null", map);
         assertEquals(2, map.size());
@@ -297,31 +276,48 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertTrue(((XRequirement)wireA.getRequirement()).isOptional());
     }
 
-    /*
     @Test
     public void testOptionalImportPackageNotWired() throws Exception {
+
         // Bundle-SymbolicName: packageimportoptional
         // Import-Package: org.jboss.test.osgi.classloader.support.a;resolution:=optional
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
         Resource resourceA = createResource(assemblyA);
 
-        resolver.resolve(resourceA);
-        assertTrue(resourceA.isResolved());
+        Set<Resource> mandatory = Collections.singleton(resourceA);
+        XEnvironment env = installResources(mandatory);
+
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        assertNotNull("Wire map not null", map);
+        assertEquals(1, map.size());
+        
+        env.applyResolverResults(map);
+        Wiring wiringA = env.getWiring(resourceA);
+        assertNotNull("Wiring not null", wiringA);
+        assertTrue("No required resource wires", wiringA.getRequiredResourceWires(null).isEmpty());
+        assertTrue("No provided resource wires", wiringA.getProvidedResourceWires(null).isEmpty());
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        // Verify that the class cannot be loaded from resourceA
-        // because the wire could not be established when resourceA was resolved
-        resolver.resolve(resourceB);
-        assertTrue(resourceB.isResolved());
+        mandatory = Collections.singleton(resourceB);
+        installResources(mandatory);
 
-        assertEquals(0, resourceA.getWires().size());
-        assertEquals(0, resourceB.getWires().size());
+        map = resolver.resolve(env, mandatory, null);
+        assertNotNull("Wire map not null", map);
+        assertEquals(1, map.size());
+        env.applyResolverResults(map);
+
+        // Verify that there is no wire to resourceB
+        Wiring wiringB = env.getWiring(resourceB);
+        assertNotNull("Wiring not null", wiringB);
+        assertTrue("No required resource wires", wiringB.getRequiredResourceWires(null).isEmpty());
+        assertTrue("No provided resource wires", wiringB.getProvidedResourceWires(null).isEmpty());
     }
 
+    /*
     @Test
     public void testBundleNameImportPackage() throws Exception {
         // Bundle-SymbolicName: bundlenameimport

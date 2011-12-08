@@ -1,0 +1,90 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2005, JBoss Inc., and individual contributors as indicated
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.jboss.osgi.resolver.spi;
+
+import org.jboss.osgi.resolver.XWiring;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
+import org.osgi.framework.resource.Wiring;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * The abstract implementation of a {@link Wiring}.
+ *
+ * @author thomas.diesler@jboss.com
+ * @since 02-Jul-2010
+ */
+public class AbstractWiring implements XWiring {
+
+    private static List<Wire> EMPTY_LIST = Collections.emptyList();
+
+    private final Resource resource;
+    private List<Wire> required;
+    private List<Wire> provided;
+
+    protected AbstractWiring(Resource resource) {
+        this.resource = resource;
+    }
+
+    void addRequiredWires(List<Wire> wires) {
+        if (required != null)
+            throw new IllegalStateException("Required wires already set");
+        required = wires;
+    }
+
+    void addProvidedWire(Wire wire) {
+        if (provided == null) {
+            provided = new ArrayList<Wire>();
+        }
+        provided.add(wire);
+    }
+
+    @Override
+    public List<Capability> getResourceCapabilities(String namespace) {
+        return resource.getCapabilities(namespace);
+    }
+
+    @Override
+    public List<Requirement> getResourceRequirements(String namespace) {
+        return resource.getRequirements(namespace);
+    }
+
+    @Override
+    public List<Wire> getProvidedResourceWires(String namespace) {
+        return provided != null ? Collections.unmodifiableList(provided) : EMPTY_LIST;
+    }
+
+    @Override
+    public List<Wire> getRequiredResourceWires(String namespace) {
+        return required != null ? Collections.unmodifiableList(required) : EMPTY_LIST;
+    }
+
+    @Override
+    public Resource getResource() {
+        return resource;
+    }
+}

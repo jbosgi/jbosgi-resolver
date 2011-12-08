@@ -29,7 +29,7 @@ import org.osgi.framework.resource.Requirement;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XRequirement extends XAttachmentSupport, XAttributeSupport, XDirectiveSupport, Requirement {
+public interface XRequirement extends XElement, XAttributeSupport, XDirectiveSupport, Requirement {
 
     boolean isOptional();
 }

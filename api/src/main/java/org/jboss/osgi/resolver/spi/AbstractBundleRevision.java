@@ -101,7 +101,7 @@ public class AbstractBundleRevision extends AbstractResource implements BundleRe
 
     @Override
     public Bundle getBundle() {
-        return getAttachment(Bundle.class);
+        return adapt(Bundle.class);
     }
 
     public String toString() {

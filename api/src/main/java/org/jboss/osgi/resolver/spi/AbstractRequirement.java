@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XRequirement;
@@ -30,14 +29,11 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.ResourceConstants;
 
 import java.util.Map;
 
-import static org.osgi.framework.Constants.RESOLUTION_DIRECTIVE;
-import static org.osgi.framework.Constants.RESOLUTION_OPTIONAL;
 import static org.osgi.framework.resource.ResourceConstants.CAPABILITY_MANDATORY_DIRECTIVE;
 
 /**
@@ -53,7 +49,6 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
     private final boolean optional;
-    private XAttachmentSupport attachments;
     private Filter filter;
 
     protected AbstractRequirement(String namespace, Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
@@ -107,27 +102,6 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     @Override
     public Object getAttribute(String key) {
         return attributes.getAttribute(key);
-    }
-
-    @Override
-    public <T> T addAttachment(Class<T> clazz, T value) {
-        if (attachments == null)
-            attachments = new AttachmentSupporter();
-        return attachments.addAttachment(clazz, value);
-    }
-
-    @Override
-    public <T> T getAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.getAttachment(clazz);
-    }
-
-    @Override
-    public <T> T removeAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.removeAttachment(clazz);
     }
 
     @Override

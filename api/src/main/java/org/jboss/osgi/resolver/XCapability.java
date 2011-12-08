@@ -29,6 +29,6 @@ import org.osgi.framework.resource.Capability;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XCapability extends XAttachmentSupport, XAttributeSupport, XDirectiveSupport, Capability {
+public interface XCapability extends XElement, XAttributeSupport, XDirectiveSupport, Capability {
 
 }

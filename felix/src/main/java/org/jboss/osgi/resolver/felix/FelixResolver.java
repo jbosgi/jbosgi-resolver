@@ -25,7 +25,6 @@ import org.apache.felix.framework.resolver.ResolveException;
 import org.apache.felix.framework.resolver.Resolver.ResolverState;
 import org.apache.felix.framework.resolver.ResolverImpl;
 import org.apache.felix.framework.resolver.ResolverWire;
-import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.spi.AbstractWire;
 import org.osgi.framework.resource.Capability;
@@ -85,7 +84,7 @@ public class FelixResolver implements Resolver {
         for (Map.Entry<BundleRevision, List<ResolverWire>> entry : map.entrySet()) {
             Resource res = entry.getKey();
             List<ResolverWire> reswires = entry.getValue();
-            List<Wire> wires = toWires(reswires);
+            List<Wire> wires = toWires(res, reswires);
             // If the res has non-optional requirements but felix
             // returns no reswires, we assume that this is a self wire
             if (reswires.isEmpty()) {
@@ -110,10 +109,15 @@ public class FelixResolver implements Resolver {
         return Collections.unmodifiableMap(result);
     }
 
-    private List<Wire> toWires(List<ResolverWire> reswires) {
+    private List<Wire> toWires(Resource requirer, List<ResolverWire> reswires) {
         List<Wire> result = new ArrayList<Wire>();
         for (ResolverWire reswire : reswires) {
-            result.add(new ResolverWireDelegate(reswire));
+            ResolverWireDelegate wire = new ResolverWireDelegate(reswire);
+            // we assume that every requirer is associated with the resource that is currently processed
+            if (!reswire.getRequirer().equals(requirer)) {
+                throw new IllegalStateException("Expected requirer: " + requirer + " but was: " + wire);
+            }
+            result.add(wire);
         }
         return result;
     }

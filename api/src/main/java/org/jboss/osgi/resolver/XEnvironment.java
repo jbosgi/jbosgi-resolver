@@ -19,51 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.resolver.spi;
+package org.jboss.osgi.resolver;
 
-import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
+import org.osgi.framework.resource.Wiring;
+import org.osgi.service.resolver.Environment;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * The abstract implementation of a {@link Wire}.
- * 
+ * An extension to the {@link Environment}
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractWire implements Wire {
+public interface XEnvironment extends XElement, Environment {
 
-    private final Capability capability;
-    private final Requirement requirement;
-    private final Resource provider;
-    private final Resource requirer;
+    Iterable<Resource> getResources();
 
-    protected AbstractWire(Capability capability, Requirement requirement, Resource provider, Resource requirer) {
-        this.capability = capability;
-        this.requirement = requirement;
-        this.provider = provider;
-        this.requirer = requirer;
-    }
+    void installResource(Resource resource);
 
-    public Capability getCapability() {
-        return capability;
-    }
+    void uninstallResource(Resource resource);
 
-    public Requirement getRequirement() {
-        return requirement;
-    }
+    Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap);
 
-    public Resource getProvider() {
-        return provider;
-    }
-
-    public Resource getRequirer() {
-        return requirer;
-    }
-
-    @Override
-    public String toString() {
-        return "Wire[" + requirer + "{" + requirement + "} => " + provider + "{" + capability + "}]";
-    }
+    Wiring getWiring(Resource resource);
 }

@@ -22,33 +22,10 @@
 package org.jboss.osgi.resolver;
 
 /**
- * Adds attachment support
- * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XAttachmentSupport {
-    /**
-     * Attach an arbirtary object with this element.
-     * 
-     * @param clazz key for the attachment
-     * @return The previously attachment object or null
-     */
-    <T> T addAttachment(Class<T> clazz, T value);
+public interface XElement extends XAttachmentSupport {
 
-    /**
-     * Get the attached object for a given key
-     * 
-     * @param clazz key for the attachment
-     * @return The attached object or null
-     */
-    <T> T getAttachment(Class<T> clazz);
-
-    /**
-     * Remove an attached object for a given key
-     * 
-     * @param clazz key for the attachment
-     * @return The attached object or null
-     */
-    <T> T removeAttachment(Class<T> clazz);
+    <T> T adapt(Class<T> clazz);
 }

@@ -42,7 +42,6 @@ public class AbstractCapability extends AbstractElement implements XCapability {
     private final String namespace;
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
-    private XAttachmentSupport attachments;
 
     protected AbstractCapability(String namespace, Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
         this.namespace = namespace;
@@ -79,27 +78,6 @@ public class AbstractCapability extends AbstractElement implements XCapability {
     @Override
     public Object getAttribute(String key) {
         return attributes.getAttribute(key);
-    }
-
-    @Override
-    public <T> T addAttachment(Class<T> clazz, T value) {
-        if (attachments == null)
-            attachments = new AttachmentSupporter();
-        return attachments.addAttachment(clazz, value);
-    }
-
-    @Override
-    public <T> T getAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.getAttachment(clazz);
-    }
-
-    @Override
-    public <T> T removeAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.removeAttachment(clazz);
     }
 
     public String toString() {

@@ -24,6 +24,7 @@ package org.jboss.osgi.resolver.spi;
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XDirectiveSupport;
+import org.jboss.osgi.resolver.XElement;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +35,35 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractElement {
+class AbstractElement implements XElement {
+
+    private XAttachmentSupport attachments;
+
+    @Override
+    public <T> T adapt(Class<T> clazz) {
+        return getAttachment(clazz);
+    }
+
+    @Override
+    public <T> T addAttachment(Class<T> clazz, T value) {
+        if (attachments == null)
+            attachments = new AttachmentSupporter();
+        return attachments.addAttachment(clazz, value);
+    }
+
+    @Override
+    public <T> T getAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
+        return attachments.getAttachment(clazz);
+    }
+
+    @Override
+    public <T> T removeAttachment(Class<T> clazz) {
+        if (attachments == null)
+            return null;
+        return attachments.removeAttachment(clazz);
+    }
 
     static class AttachmentSupporter implements XAttachmentSupport {
         private Map<Class<?>, Object> attachments;

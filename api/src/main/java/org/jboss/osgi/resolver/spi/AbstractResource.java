@@ -21,7 +21,7 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XAttachmentSupport;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
@@ -40,11 +40,10 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractResource extends AbstractElement implements Resource, XAttachmentSupport {
+public class AbstractResource extends AbstractElement implements XResource {
 
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
-    private XAttachmentSupport attachments;
 
     void addCapability(Capability cap) {
         String namespace = cap.getNamespace();
@@ -66,30 +65,6 @@ public class AbstractResource extends AbstractElement implements Resource, XAtta
     @Override
     public List<Requirement> getRequirements(String namespace) {
         return Collections.unmodifiableList(getReqlist(namespace));
-    }
-
-    @Override
-    public <T> T addAttachment(Class<T> clazz, T value) {
-        if (attachments == null)
-            attachments = new AttachmentSupporter();
-
-        return attachments.addAttachment(clazz, value);
-    }
-
-    @Override
-    public <T> T getAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-
-        return attachments.getAttachment(clazz);
-    }
-
-    @Override
-    public <T> T removeAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-
-        return attachments.removeAttachment(clazz);
     }
 
     private List<Capability> getCaplist(String namespace) {

@@ -24,8 +24,10 @@ package org.jboss.test.osgi.resolver;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
+import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.felix.FelixResolver;
+import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.osgi.vfs.VFSUtils;
@@ -33,8 +35,11 @@ import org.jboss.osgi.vfs.VirtualFile;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Before;
 import org.osgi.framework.resource.Resource;
+import org.osgi.service.resolver.Environment;
 import org.osgi.service.resolver.Resolver;
 
+import java.util.Collection;
+import java.util.Set;
 import java.util.jar.Manifest;
 
 /**
@@ -46,10 +51,12 @@ import java.util.jar.Manifest;
 public abstract class AbstractResolverTestCase extends OSGiTest {
 
     Resolver resolver;
+    XEnvironment environment;
 
     @Before
     public void setUp() {
         resolver = new FelixResolver();
+        environment = new AbstractEnvironment();
     }
 
     Resource createResource(Archive<?> archive) throws Exception {
@@ -62,5 +69,12 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
         } finally {
             virtualFile.close();
         }
+    }
+    
+    XEnvironment installResources(Collection<Resource> resources) {
+        for(Resource res : resources) {
+            environment.installResource(res);
+        }
+        return environment;
     }
 }
