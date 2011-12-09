@@ -24,22 +24,25 @@ package org.jboss.test.osgi.resolver;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
+import org.jboss.osgi.resolver.XCapabilityComparator;
 import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.felix.FelixResolver;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
+import org.jboss.osgi.resolver.spi.FrameworkPreferencesComparator;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.osgi.vfs.VFSUtils;
 import org.jboss.osgi.vfs.VirtualFile;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Before;
+import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
-import org.osgi.service.resolver.Environment;
 import org.osgi.service.resolver.Resolver;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 import java.util.jar.Manifest;
 
 /**
@@ -56,10 +59,15 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
     @Before
     public void setUp() {
         resolver = new FelixResolver();
-        environment = new AbstractEnvironment();
+        environment = new AbstractEnvironment(new FrameworkPreferencesComparator());
     }
 
-    Resource createResource(Archive<?> archive) throws Exception {
+    XEnvironment createEnvironment(XCapabilityComparator comparator) {
+        environment = new AbstractEnvironment(comparator);
+        return environment;
+    }
+    
+    XResource createResource(Archive<?> archive) throws Exception {
         VirtualFile virtualFile = toVirtualFile(archive);
         try {
             Manifest manifest = VFSUtils.getManifest(virtualFile);
@@ -71,10 +79,8 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
         }
     }
     
-    XEnvironment installResources(Collection<Resource> resources) {
-        for(Resource res : resources) {
-            environment.installResource(res);
-        }
+    XEnvironment installResources(Resource... resources) {
+        environment.installResources(resources);
         return environment;
     }
 }

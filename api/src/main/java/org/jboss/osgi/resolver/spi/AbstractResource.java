@@ -21,16 +21,18 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 
 /**
  * The abstract implementation of an {@link XResource}.
@@ -42,6 +44,7 @@ public class AbstractResource extends AbstractElement implements XResource {
 
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
+    private XIdentityCapability identityCapability;
 
     void addCapability(Capability cap) {
         String namespace = cap.getNamespace();
@@ -65,6 +68,17 @@ public class AbstractResource extends AbstractElement implements XResource {
         return Collections.unmodifiableList(getReqlist(namespace));
     }
 
+    @Override
+    public XIdentityCapability getIdentityCapability() {
+        if (identityCapability == null) {
+            List<Capability> caps = getCapabilities(WIRING_BUNDLE_NAMESPACE);
+            if (caps.size() == 1) {
+                identityCapability = (XIdentityCapability) caps.get(0);
+            }
+        }
+        return identityCapability;
+    }
+
     private List<Capability> getCaplist(String namespace) {
         List<Capability> caplist = capabilities.get(namespace);
         if (caplist == null) {
@@ -81,5 +95,11 @@ public class AbstractResource extends AbstractElement implements XResource {
             requirements.put(namespace, reqlist);
         }
         return reqlist;
+    }
+
+    public String toString() {
+        XIdentityCapability id = getIdentityCapability();
+        String idstr = (id != null ? id.getSymbolicName()+ ":" + id.getVersion() : "anonymous");
+        return getClass().getSimpleName() + "[" + idstr + "]";
     }
 }

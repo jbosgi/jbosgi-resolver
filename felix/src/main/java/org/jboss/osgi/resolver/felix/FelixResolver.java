@@ -26,8 +26,10 @@ import org.apache.felix.framework.resolver.Resolver.ResolverState;
 import org.apache.felix.framework.resolver.ResolverImpl;
 import org.apache.felix.framework.resolver.ResolverWire;
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XRequirement;
-import org.jboss.osgi.resolver.spi.AbstractBundleCapability;
+import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.spi.AbstractBundleRevision;
 import org.jboss.osgi.resolver.spi.AbstractWire;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
@@ -43,6 +45,7 @@ import org.osgi.service.resolver.Resolver;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,17 +87,17 @@ public class FelixResolver implements Resolver {
     private Map<Resource, List<Wire>> processResult(Map<BundleRevision, List<ResolverWire>> map) {
         Map<Resource, List<Wire>> result = new LinkedHashMap<Resource, List<Wire>>();
         for (Map.Entry<BundleRevision, List<ResolverWire>> entry : map.entrySet()) {
-            Resource res = entry.getKey();
+            BundleRevision brev = entry.getKey();
             List<ResolverWire> reswires = entry.getValue();
-            List<Wire> wires = toWires(res, reswires);
+            List<Wire> wires = toWires(brev, reswires);
             // If the res has non-optional requirements but felix
             // returns no reswires, we assume that this is a self wire
             if (reswires.isEmpty()) {
                 boolean mandatory = false;
-                for(Requirement req : res.getRequirements(null)) {
-                    if (((XRequirement)req).isOptional() == false) {
+                for (Requirement req : brev.getRequirements(null)) {
+                    if (((XRequirement) req).isOptional() == false) {
                         mandatory = true;
-                        for(Capability cap : res.getCapabilities(WIRING_PACKAGE_NAMESPACE)) {
+                        for (Capability cap : brev.getCapabilities(WIRING_PACKAGE_NAMESPACE)) {
                             if (req.matches(cap)) {
                                 wires.add(new SelfWire(req, cap));
                             }
@@ -102,10 +105,11 @@ public class FelixResolver implements Resolver {
                     }
                 }
                 if (mandatory && wires.isEmpty()) {
-                    List<Requirement> exreqs = res.getRequirements(null);
+                    List<Requirement> exreqs = brev.getRequirements(null);
                     throw new ResolutionException("Cannot obtain self wiring capabilities", null, exreqs);
                 }
             }
+            Resource res = ((XResource) brev).adapt(Resource.class);
             result.put(res, Collections.unmodifiableList(wires));
         }
         return Collections.unmodifiableMap(result);
@@ -129,9 +133,8 @@ public class FelixResolver implements Resolver {
         Set<BundleRevision> result = new HashSet();
         if (resources != null && !resources.isEmpty()) {
             for (Resource res : resources) {
-                if (res instanceof BundleRevision) {
-                    result.add((BundleRevision) res);
-                }
+                XResource xres = (XResource) res;
+                result.add(new AbstractBundleRevision(xres));
             }
         }
         return result;
@@ -152,7 +155,8 @@ public class FelixResolver implements Resolver {
 
         @Override
         public SortedSet<BundleCapability> getCandidates(BundleRequirement req, boolean obeyMandatory) {
-            SortedSet<BundleCapability> result = new TreeSet<BundleCapability>();
+            Comparator<Capability> comparator = ((XEnvironment) environment).getComparator();
+            SortedSet<BundleCapability> result = new TreeSet<BundleCapability>(comparator);
             for (Capability cap : environment.findProviders(req)) {
                 XCapability xcap = (XCapability) cap;
                 result.add(xcap.adapt(BundleCapability.class));
@@ -171,25 +175,22 @@ public class FelixResolver implements Resolver {
 
     static class ResolverWireDelegate extends AbstractWire {
         ResolverWireDelegate(ResolverWire rw) {
-            super(toCapability(rw.getCapability()), toRequirement(rw.getRequirement()), (Resource)rw.getProvider(), (Resource)rw.getRequirer());
+            super(toCapability(rw.getCapability()), toRequirement(rw.getRequirement()), toResource(rw.getProvider()), toResource(rw.getRequirer()));
         }
 
         private static Capability toCapability(BundleCapability bcap) {
-            Capability cap = bcap;
-            if (bcap instanceof XCapability) {
-                XCapability xcap = (XCapability) bcap;
-                cap = xcap.adapt(Capability.class);
-            }
-            return cap;
+            XCapability xcap = (XCapability) bcap;
+            return xcap.adapt(Capability.class);
         }
 
         private static Requirement toRequirement(BundleRequirement breq) {
-            Requirement req = breq;
-            if (breq instanceof XRequirement) {
                 XRequirement xreq = (XRequirement) breq;
-                req = xreq.adapt(Requirement.class);
-            }
-            return req;
+                return xreq.adapt(Requirement.class);
+        }
+        
+        private static Resource toResource(BundleRevision brev) {
+            XResource xres = (XResource) brev;
+            return xres.adapt(Resource.class);
         }
     }
 

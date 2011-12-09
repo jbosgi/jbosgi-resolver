@@ -32,22 +32,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An extension to the {@link Environment}
+ * A builder for the {@link XEnvironment}
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XEnvironment extends XElement, Environment {
+public interface XEnvironmentBuilder {
 
-    void installResources(Resource... resource);
+    XEnvironmentBuilder createEnvironment();
 
-    void uninstallResources(Resource... resource);
+    XEnvironmentBuilder addComparator(XCapabilityComparator comp);
 
-    long getResourceIndex(Resource resource);
-
-    Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap);
-
-    Wiring getWiring(Resource resource);
-
-    Comparator<Capability> getComparator();
+    XEnvironment getEnvironment();
 }

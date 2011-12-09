@@ -61,7 +61,7 @@ public interface XResourceBuilder {
      * @param symbolicName The bundle symbolic name
      * @param version The bundle version
      */
-    Capability addIdentityCapability(String symbolicName, Version version);
+    XCapability addIdentityCapability(String symbolicName, Version version);
 
     /**
      * Add a {@link Constants#REQUIRE_BUNDLE} requirement
@@ -70,7 +70,7 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    Requirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+    XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#EXPORT_PACKAGE} capability
@@ -79,7 +79,7 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    Capability addPackageCapability(String name, Map<String, Object> atts, Map<String, String> dirs);
+    XCapability addPackageCapability(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#IMPORT_PACKAGE} requirement
@@ -88,10 +88,10 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    Requirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
+    XRequirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Get the final resource from the builder
      */
-    Resource getResource();
+    XResource getResource();
 }

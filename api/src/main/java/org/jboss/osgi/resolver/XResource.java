@@ -31,4 +31,5 @@ import org.osgi.framework.resource.Resource;
  */
 public interface XResource extends XElement, Resource {
 
+    XIdentityCapability getIdentityCapability();
 }

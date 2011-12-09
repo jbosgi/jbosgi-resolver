@@ -21,21 +21,22 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XCapabilityComparator;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
@@ -46,36 +47,50 @@ import java.util.TreeSet;
  */
 public class AbstractEnvironment extends AbstractElement implements XEnvironment {
 
+    private final XCapabilityComparator comparator;
     private final List<Resource> resources = new ArrayList<Resource>();
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
-    @Override
-    public Iterable<Resource> getResources() {
-        return Collections.unmodifiableList(resources);
+    public AbstractEnvironment(XCapabilityComparator comp) {
+        comp.setEnvironment(this);
+        this.comparator = comp;
     }
 
     @Override
-    public void installResource(Resource resource) {
-        if (resource == null)
+    public Comparator<Capability> getComparator() {
+        return comparator;
+    }
+
+    @Override
+    public void installResources(Resource... resarr) {
+        if (resources == null)
             throw new IllegalArgumentException("Null resource");
         synchronized (resources) {
-            if (resources.contains(resource))
-                throw new IllegalArgumentException("Resource already installed: " + resource);
-            resources.add(resource);
+            for(Resource res : resarr) {
+                if (resources.contains(res))
+                    throw new IllegalArgumentException("Resource already installed: " + res);
+                resources.add(res);
+            }
         }
     }
 
     @Override
-    public void uninstallResource(Resource resource) {
+    public void uninstallResources(Resource... resarr) {
         synchronized (resources) {
-            if (!resources.remove(resource))
-                throw new IllegalArgumentException("Resource not installed: " + resource);
+            for(Resource res : resarr) {
+                resources.remove(res);
+            }
         }
+    }
+
+    @Override
+    public long getResourceIndex(Resource resource) {
+        return resources.indexOf(resource);
     }
 
     @Override
     public Collection<Capability> findProviders(Requirement req) {
-        List<Capability> result = new ArrayList<Capability>();
+        SortedSet<Capability> result = new TreeSet<Capability>(comparator);
         synchronized (resources) {
             for (Resource res : resources) {
                 for (Capability cap : res.getCapabilities(req.getNamespace())) {
@@ -85,7 +100,7 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
                 }
             }
         }
-        return Collections.unmodifiableList(result);
+        return Collections.unmodifiableSet(result);
     }
 
     @Override

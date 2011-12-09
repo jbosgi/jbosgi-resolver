@@ -36,6 +36,7 @@ import org.osgi.service.resolver.Environment;
 import org.osgi.service.resolver.ResolutionException;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -68,9 +69,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA, resourceB);
 
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertNotNull("Wire map not null", map);
         assertEquals(2, map.size());
@@ -104,10 +105,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/someexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA, resourceB);
 
         try {
+            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
             resolver.resolve(env, mandatory, null);
             fail("ResolutionException expected");
         } catch (ResolutionException ex) {
@@ -128,26 +129,27 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceB);
-        XEnvironment env = installResources(mandatory);
+        XEnvironment env = installResources(resourceB);
 
+        List<Resource> mandatory = Collections.singletonList(resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         env.applyResolverResults(map);
 
         Wiring wiringB = env.getWiring(resourceB);
         assertNotNull("Wiring not null", wiringB);
-        assertTrue("No required resource wires", wiringB.getRequiredResourceWires(null).isEmpty());
-        assertTrue("No provided resource wires", wiringB.getProvidedResourceWires(null).isEmpty());
+        assertTrue(wiringB.getRequiredResourceWires(null).isEmpty());
+        assertTrue(wiringB.getProvidedResourceWires(null).isEmpty());
 
-        mandatory = Arrays.asList(resourceA);
-        installResources(mandatory);
+        installResources(resourceA);
 
+        mandatory = Collections.singletonList(resourceA);
         map = resolver.resolve(env, mandatory, null);
         env.applyResolverResults(map);
 
         Wiring wiringA = env.getWiring(resourceA);
         assertNotNull("Wiring not null", wiringA);
-        assertTrue("No provided resource wires", wiringA.getProvidedResourceWires(null).isEmpty());
+        assertTrue(wiringA.getProvidedResourceWires(null).isEmpty());
+        assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
@@ -167,9 +169,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/selfimport");
         Resource resourceA = createResource(assemblyA);
 
-        List<Resource> mandatory = Arrays.asList(resourceA);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA);
 
+        List<Resource> mandatory = Collections.singletonList(resourceA);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertEquals(1, map.size());
 
@@ -193,9 +195,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageexportversion100");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA, resourceB);
 
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertEquals(2, map.size());
     }
@@ -213,10 +215,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageexportversion100");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA, resourceB);
 
         try {
+            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
             resolver.resolve(env, mandatory, null);
             fail("ResolutionException expected");
         } catch (ResolutionException ex) {
@@ -232,9 +234,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
         Resource resourceA = createResource(assemblyA);
 
-        List<Resource> mandatory = Arrays.asList(resourceA);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA);
 
+        List<Resource> mandatory = Collections.singletonList(resourceA);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertEquals(1, map.size());
     }
@@ -252,9 +254,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> optional = Arrays.asList(resourceA, resourceB);
-        Environment env = installResources(optional);
+        Environment env = installResources(resourceA, resourceB);
 
+        List<Resource> optional = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, null, optional);
         assertNotNull("Wire map not null", map);
         assertEquals(2, map.size());
@@ -275,9 +277,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
         Resource resourceA = createResource(assemblyA);
 
-        List<Resource> mandatory = Arrays.asList(resourceA);
-        XEnvironment env = installResources(mandatory);
+        XEnvironment env = installResources(resourceA);
 
+        List<Resource> mandatory = Collections.singletonList(resourceA);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertNotNull("Wire map not null", map);
         assertEquals(1, map.size());
@@ -285,17 +287,17 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         env.applyResolverResults(map);
         Wiring wiringA = env.getWiring(resourceA);
         assertNotNull("Wiring not null", wiringA);
-        assertTrue("No required resource wires", wiringA.getRequiredResourceWires(null).isEmpty());
-        assertTrue("No provided resource wires", wiringA.getProvidedResourceWires(null).isEmpty());
+        assertTrue(wiringA.getRequiredResourceWires(null).isEmpty());
+        assertTrue(wiringA.getProvidedResourceWires(null).isEmpty());
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        mandatory = Arrays.asList(resourceB);
-        installResources(mandatory);
+        installResources(resourceB);
 
+        mandatory = Arrays.asList(resourceB);
         map = resolver.resolve(env, mandatory, null);
         assertNotNull("Wire map not null", map);
         assertEquals(1, map.size());
@@ -304,8 +306,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Verify that there is no wire to resourceB
         Wiring wiringB = env.getWiring(resourceB);
         assertNotNull("Wiring not null", wiringB);
-        assertTrue("No required resource wires", wiringB.getRequiredResourceWires(null).isEmpty());
-        assertTrue("No provided resource wires", wiringB.getProvidedResourceWires(null).isEmpty());
+        assertTrue(wiringB.getRequiredResourceWires(null).isEmpty());
+        assertTrue(wiringB.getProvidedResourceWires(null).isEmpty());
     }
 
     @Test
@@ -321,18 +323,20 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        XEnvironment env = installResources(mandatory);
+        XEnvironment env = installResources(resourceA, resourceB);
 
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         env.applyResolverResults(map);
 
         Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
         Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
         assertSame(resourceB, wireB.getProvider());
@@ -351,10 +355,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/singleton");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA, resourceB);
 
         try {
+            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
             resolver.resolve(env, mandatory, null);
             fail("ResolutionException expected");
         } catch (ResolutionException ex) {
@@ -375,18 +379,20 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        XEnvironment env = installResources(mandatory);
+        XEnvironment env = installResources(resourceA, resourceB);
 
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         env.applyResolverResults(map);
 
         Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
         Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
         assertSame(resourceB, wireB.getProvider());
@@ -404,10 +410,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA, resourceB);
 
         try {
+            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
             resolver.resolve(env, mandatory, null);
             fail("ResolutionException expected");
         } catch (ResolutionException ex) {
@@ -428,18 +434,20 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        XEnvironment env = installResources(mandatory);
+        XEnvironment env = installResources(resourceA, resourceB);
 
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         env.applyResolverResults(map);
 
         Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
         Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
         assertSame(resourceB, wireB.getProvider());
@@ -458,10 +466,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/someexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA, resourceB);
 
         try {
+            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
             resolver.resolve(env, mandatory, null);
             fail("ResolutionException expected");
         } catch (ResolutionException ex) {
@@ -477,9 +485,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundleoptional");
         Resource resourceA = createResource(assemblyA);
 
-        List<Resource> mandatory = Arrays.asList(resourceA);
-        XEnvironment env = installResources(mandatory);
+        XEnvironment env = installResources(resourceA);
 
+        List<Resource> mandatory = Collections.singletonList(resourceA);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         env.applyResolverResults(map);
 
@@ -501,18 +509,20 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        XEnvironment env = installResources(mandatory);
+        XEnvironment env = installResources(resourceA, resourceB);
 
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         env.applyResolverResults(map);
 
         Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
         Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
         assertSame(resourceB, wireB.getProvider());
@@ -531,10 +541,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Environment env = installResources(mandatory);
+        Environment env = installResources(resourceA, resourceB);
 
         try {
+            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
             resolver.resolve(env, mandatory, null);
             fail("ResolutionException expected");
         } catch (ResolutionException ex) {
@@ -542,100 +552,94 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         }
     }
 
-    /*
     @Test
     public void testPreferredExporterResolved() throws Exception {
 
+        // Bundle-SymbolicName: simpleimport
+        // Import-Package: org.jboss.test.osgi.classloader.support.a
+        Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
+        Resource resourceA = createResource(assemblyA);
+
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
-        Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleexport");
+        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
+        Resource resourceB = createResource(assemblyB);
 
         // Bundle-SymbolicName: simpleexportother
         // Export-Package: org.jboss.test.osgi.classloader.support.a
-        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexportother");
-
-        // Bundle-SymbolicName: simpleimport
-        // Import-Package: org.jboss.test.osgi.classloader.support.a
-        Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
-
-        Resource resourceA = createResource(assemblyA);
-
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
-
-        // Verify bundle states
-        assertEquals(1, resolved.size());
-        assertTrue(resourceA.isResolved());
-
-        Resource resourceB = createResource(assemblyB);
-
+        Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleexportother");
         Resource resourceC = createResource(assemblyC);
 
-        // Resolve all modules
-        resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        // install C before B
+        XEnvironment env = installResources(resourceA, resourceC, resourceB);
 
-        // Verify bundle states
-        assertEquals(2, resolved.size());
-        assertTrue(resourceB.isResolved());
-        assertTrue(resourceC.isResolved());
+        // resolve B
+        List<Resource> mandatory = Collections.singletonList(resourceB);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        List<XWire> wiresC = resourceC.getWires();
-        assertEquals(1, wiresC.size());
+        // resolve A and C
+        mandatory = Arrays.asList(resourceA, resourceC);
+        map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        System.out.println("FIXME [JBOSGI-368] testPreferredExporterResolved fails occasionally");
-        // assertEquals(resourceA, wiresC.get(0).getExporter());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(1, wiringA.getRequiredResourceWires(null).size());
+        Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
+        assertSame(resourceA, wireA.getRequirer());
+        assertSame(resourceB, wireA.getProvider());
+
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
+        assertSame(resourceA, wireB.getRequirer());
+        assertSame(resourceB, wireB.getProvider());
     }
 
     @Test
     public void testPreferredExporterResolvedReverse() throws Exception {
+        // Bundle-SymbolicName: simpleimport
+        // Import-Package: org.jboss.test.osgi.classloader.support.a
+        Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
+        Resource resourceA = createResource(assemblyA);
+
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
-        Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleexport");
+        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
+        Resource resourceB = createResource(assemblyB);
 
         // Bundle-SymbolicName: simpleexportother
         // Export-Package: org.jboss.test.osgi.classloader.support.a
-        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexportother");
-
-        // Bundle-SymbolicName: simpleimport
-        // Import-Package: org.jboss.test.osgi.classloader.support.a
-        Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
-
-        Resource resourceB = createResource(assemblyB);
-
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
-
-        // Verify bundle states
-        assertEquals(1, resolved.size());
-        assertTrue(resourceB.isResolved());
-
-        Resource resourceA = createResource(assemblyA);
-
+        Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleexportother");
         Resource resourceC = createResource(assemblyC);
 
-        // Resolve all modules
-        resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        // install B before C
+        XEnvironment env = installResources(resourceA, resourceB, resourceC);
 
-        // Verify bundle states
-        assertEquals(2, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertTrue(resourceC.isResolved());
+        // resolve B
+        List<Resource> mandatory = Collections.singletonList(resourceB);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        List<XWire> wiresC = resourceC.getWires();
-        assertEquals(1, wiresC.size());
+        // resolve A and C
+        mandatory = Arrays.asList(resourceA, resourceC);
+        map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        System.out.println("FIXME [JBOSGI-368] testPreferredExporterResolvedReverse fails occasionally");
-        // assertEquals(resourceB, wiresC.get(0).getExporter());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(1, wiringA.getRequiredResourceWires(null).size());
+        Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
+        assertSame(resourceA, wireA.getRequirer());
+        assertSame(resourceB, wireA.getProvider());
+
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
+        assertSame(resourceA, wireB.getRequirer());
+        assertSame(resourceB, wireB.getProvider());
     }
 
+    /*
     @Test
     public void testPreferredExporterHigherVersion() throws Exception {
         // Bundle-SymbolicName: packageexportversion100

@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
@@ -38,9 +39,13 @@ public class AbstractBundleCapability extends AbstractElement implements XCapabi
 
     private final XCapability delegate;
 
-    protected AbstractBundleCapability(XCapability delegate) {
-        addAttachment(Capability.class, delegate);
-        this.delegate = delegate;
+    protected AbstractBundleCapability(XCapability capability) {
+        if (capability == null)
+            throw new IllegalArgumentException("Null capability");
+        this.delegate = capability;
+
+        capability.addAttachment(BundleCapability.class, this);
+        addAttachment(Capability.class, capability);
     }
 
     @Override
@@ -70,12 +75,14 @@ public class AbstractBundleCapability extends AbstractElement implements XCapabi
 
     @Override
     public BundleRevision getRevision() {
-        return (BundleRevision) delegate.getResource();
+        XResource xres = (XResource) delegate.getResource();
+        return xres.adapt(BundleRevision.class);
     }
 
     @Override
     public BundleRevision getResource() {
-        return (BundleRevision) delegate.getResource();
+        XResource xres = (XResource) delegate.getResource();
+        return xres.adapt(BundleRevision.class);
     }
 
     @Override
@@ -90,6 +97,6 @@ public class AbstractBundleCapability extends AbstractElement implements XCapabi
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ":" + delegate.toString();
+        return getClass().getSimpleName() + ":" + delegate;
     }
 }

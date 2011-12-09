@@ -19,35 +19,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.resolver;
+package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XEnvironment;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 /**
- * An extension to the {@link Environment}
+ * A comparator that uses the resource index in the environment.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XEnvironment extends XElement, Environment {
+public class ResourceIndexComparator extends AbstractCapabilityComparator {
 
-    void installResources(Resource... resource);
-
-    void uninstallResources(Resource... resource);
-
-    long getResourceIndex(Resource resource);
-
-    Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap);
-
-    Wiring getWiring(Resource resource);
-
-    Comparator<Capability> getComparator();
+    @Override
+    public int compare(Capability o1, Capability o2) {
+        long in1 = getEnvironment().getResourceIndex(o1.getResource());
+        long in2 = getEnvironment().getResourceIndex(o2.getResource());
+        return (int)(in1 - in2);
+    }
 }

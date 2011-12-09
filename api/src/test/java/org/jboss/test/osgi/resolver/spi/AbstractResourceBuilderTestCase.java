@@ -21,31 +21,22 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
-import junit.framework.Assert;
-import org.jboss.osgi.metadata.OSGiMetaData;
-import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
+import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
-import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
+import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
+import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.Attributes.Name;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
@@ -54,16 +45,16 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  * @author <a href="david@redhat.com">David Bosschaert</a>
  * @author Thomas.Diesler@jboss.com
  */
-public class AbstractResourceBuilderTestCase {
+public class AbstractResourceBuilderTestCase extends AbstractTestBase {
 
     @Test
     public void testAttributDirectiveTrimming() throws Exception {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1,value2; version= 1.0.1,value3;resolution:= optional,value4;version = 3 ; resolution := optional ");
-        BundleRevision brev = createBundleRevision(attrs);
-        validateRequirements(brev);
-        validateCapabilities(brev);
+        Resource resource = createResource(attrs);
+        validateRequirements(resource);
+        validateCapabilities(resource);
     }
 
     @Test
@@ -71,71 +62,42 @@ public class AbstractResourceBuilderTestCase {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("Bundle-SymbolicName", "test1");
         attrs.put("Import-Package", "value1,value2;version=1.0.1,value3;resolution:=optional,value4;version=3;resolution:=optional");
-        BundleRevision brev = createBundleRevision(attrs);
-        validateRequirements(brev);
-        validateCapabilities(brev);
-    }
-
-    private BundleRevision createBundleRevision(Map<String, String> attrs) throws BundleException {
-        XResourceBuilder amb = new AbstractResourceBuilder();
-        OSGiMetaData metaData = new TestOSGiMetaData(attrs);
-        XResourceBuilder builder = amb.createResource(metaData);
-        return (BundleRevision) builder.getResource();
+        Resource resource = createResource(attrs);
+        validateRequirements(resource);
+        validateCapabilities(resource);
     }
 
     private void validateRequirements(Resource resource) throws BundleException {
         List<Requirement> reqs = resource.getRequirements(WIRING_PACKAGE_NAMESPACE);
-        assertNotNull("Requirements not null", reqs);
-        assertEquals(4, reqs.size());
+        Assert.assertNotNull("Requirements not null", reqs);
+        Assert.assertEquals(4, reqs.size());
         for (Requirement req : reqs) {
             XPackageRequirement xreq = (XPackageRequirement) req;
             String packageName = xreq.getPackageName();
             if ("value1".equals(packageName)) {
-                assertNull(xreq.getVersionRange());
-                assertFalse(xreq.isOptional());
+                Assert.assertNull(xreq.getVersionRange());
+                Assert.assertFalse(xreq.isOptional());
             } else if ("value2".equals(packageName)) {
-                assertEquals(new VersionRange("1.0.1"), xreq.getVersionRange());
-                assertFalse(xreq.isOptional());
+                Assert.assertEquals(new VersionRange("1.0.1"), xreq.getVersionRange());
+                Assert.assertFalse(xreq.isOptional());
             } else if ("value3".equals(packageName)) {
-                assertNull(xreq.getVersionRange());
-                assertTrue(xreq.isOptional());
+                Assert.assertNull(xreq.getVersionRange());
+                Assert.assertTrue(xreq.isOptional());
             } else if ("value4".equals(packageName)) {
-                assertEquals(new VersionRange("3"), xreq.getVersionRange());
-                assertTrue(xreq.isOptional());
+                Assert.assertEquals(new VersionRange("3"), xreq.getVersionRange());
+                Assert.assertTrue(xreq.isOptional());
             } else {
                 Assert.fail("Incorrect package name: " + req);
             }
         }
     }
 
-    private void validateCapabilities(BundleRevision resource) {
-        List<BundleCapability> caps = resource.getDeclaredCapabilities(null);
-        assertNotNull("Capabilities not null", caps);
-        assertEquals(1, caps.size());
-        BundleCapability cap = caps.get(0);
-        BundleRevision rev = cap.getRevision();
-        assertEquals("test1", rev.getSymbolicName());
-        assertEquals(Version.emptyVersion, rev.getVersion());
-    }
-
-    private static class TestOSGiMetaData extends AbstractOSGiMetaData {
-        private final HashMap<Name, String> attributes;
-
-        TestOSGiMetaData(Map<String, String> attrMap) {
-            attributes = new HashMap<Name, String>();
-            for (Map.Entry<String, String> entry : attrMap.entrySet()) {
-                attributes.put(new Name(entry.getKey()), entry.getValue());
-            }
-        }
-
-        @Override
-        protected Map<Name, String> getMainAttributes() {
-            return attributes;
-        }
-
-        @Override
-        protected String getMainAttribute(String key) {
-            return attributes.get(new Name(key));
-        }
+    private void validateCapabilities(Resource resource) {
+        List<Capability> caps = resource.getCapabilities(null);
+        Assert.assertNotNull("Capabilities not null", caps);
+        Assert.assertEquals(1, caps.size());
+        XIdentityCapability cap = (XIdentityCapability) caps.get(0);
+        Assert.assertEquals("test1", cap.getSymbolicName());
+        Assert.assertEquals(Version.emptyVersion, cap.getVersion());
     }
 }

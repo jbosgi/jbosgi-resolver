@@ -21,14 +21,14 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
-import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Map;
 
@@ -83,24 +83,20 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
         // match package's bundle-symbolic-name
         String symbolicName = (String) getAttribute(BUNDLE_SYMBOLICNAME_ATTRIBUTE);
         if (matches && symbolicName != null) {
-            String targetSymbolicName = null;
-            Resource capres = cap.getResource();
-            if (capres instanceof BundleRevision) {
-                targetSymbolicName = ((BundleRevision) capres).getSymbolicName();
-            }
+            XResource capres = (XResource) cap.getResource();
+            XIdentityCapability idcap = capres.getIdentityCapability();
+            String targetSymbolicName = idcap != null ? idcap.getSymbolicName() : null;
             matches = symbolicName.equals(targetSymbolicName);
         }
 
         // match package's bundle-version
         String versionstr = (String) getAttribute(BUNDLE_VERSION_ATTRIBUTE);
         if (matches && versionstr != null) {
-            Version targetVersion = null;
-            Resource capres = cap.getResource();
-            if (capres instanceof BundleRevision) {
-                targetVersion = ((BundleRevision) capres).getVersion();
-            }
+            XResource capres = (XResource) cap.getResource();
+            XIdentityCapability idcap = capres.getIdentityCapability();
+            Version targetVersion = idcap != null ? idcap.getVersion() : null;
             VersionRange versionRange = new VersionRange(versionstr);
-            matches = targetVersion != null ? versionRange.includes(targetVersion) : false;
+            matches = targetVersion != null && versionRange.includes(targetVersion);
         }
         return matches;
     }

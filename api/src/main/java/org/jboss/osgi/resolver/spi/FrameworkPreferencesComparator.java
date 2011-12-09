@@ -19,35 +19,38 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.resolver;
+package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 /**
- * An extension to the {@link Environment}
+ * A comparator based on defined framework preferences.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XEnvironment extends XElement, Environment {
+public class FrameworkPreferencesComparator extends ResourceIndexComparator {
 
-    void installResources(Resource... resource);
+    @Override
+    public int compare(Capability o1, Capability o2) {
+        Resource res1 = o1.getResource();
+        Resource res2 = o2.getResource();
+        Wiring w1 = getEnvironment().getWiring(res1);
+        Wiring w2 = getEnvironment().getWiring(res2);
 
-    void uninstallResources(Resource... resource);
+        // prefer wired
+        if (w1 != null && w2 == null)
+            return -1;
+        if (w1 == null && w2 != null)
+            return +1;
 
-    long getResourceIndex(Resource resource);
-
-    Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap);
-
-    Wiring getWiring(Resource resource);
-
-    Comparator<Capability> getComparator();
+        return super.compare(o1, o2);
+    }
 }

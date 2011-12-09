@@ -27,15 +27,10 @@ import org.jboss.osgi.metadata.Parameter;
 import org.jboss.osgi.metadata.ParameterizedAttribute;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XRequirement;
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRequirement;
-import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.HashMap;
 import java.util.List;
@@ -62,66 +57,48 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
     @Override
     public XResourceBuilder createResource(OSGiMetaData metadata) throws BundleException {
-        String symbolicName = metadata.getBundleSymbolicName();
-        Version version = metadata.getBundleVersion();
-        resource = new AbstractBundleRevision(symbolicName, version);
+        resource = new AbstractResource();
         load(metadata);
         return this;
     }
 
     @Override
-    public Capability addIdentityCapability(String symbolicName, Version version) {
+    public XCapability addIdentityCapability(String symbolicName, Version version) {
         assertModuleCreated();
         XCapability cap = new AbstractIdentityCapability(resource, symbolicName, version);
-        if (resource instanceof BundleRevision) {
-            BundleCapability bcap = new AbstractBundleCapability(cap);
-            cap.addAttachment(BundleCapability.class, bcap);
-        }
         resource.addCapability(cap);
         return cap;
     }
 
     @Override
-    public Requirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
+    public XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
         assertModuleCreated();
         atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
         XRequirement req = new AbstractIdentityRequirement(resource, atts, dirs);
-        if (resource instanceof BundleRevision) {
-            BundleRequirement breq = new AbstractBundleRequirement(req);
-            req.addAttachment(BundleRequirement.class, breq);
-        }
         resource.addRequirement(req);
         return req;
     }
 
     @Override
-    public Capability addPackageCapability(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
+    public XCapability addPackageCapability(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertModuleCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
         XCapability cap = new AbstractPackageCapability(resource, atts, dirs);
-        if (resource instanceof BundleRevision) {
-            BundleCapability bcap = new AbstractBundleCapability(cap);
-            cap.addAttachment(BundleCapability.class, bcap);
-        }
         resource.addCapability(cap);
         return cap;
     }
 
     @Override
-    public Requirement addPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
+    public XRequirement addPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertModuleCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
         XRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
-        if (resource instanceof BundleRevision) {
-            BundleRequirement breq = new AbstractBundleRequirement(req);
-            req.addAttachment(BundleRequirement.class, breq);
-        }
         resource.addRequirement(req);
         return req;
     }
 
     @Override
-    public Resource getResource() {
+    public XResource getResource() {
         try {
             return resource;
         } finally {

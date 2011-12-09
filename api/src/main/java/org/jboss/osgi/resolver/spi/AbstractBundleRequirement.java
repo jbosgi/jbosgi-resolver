@@ -40,9 +40,13 @@ public class AbstractBundleRequirement extends AbstractElement implements XRequi
 
     private final XRequirement delegate;
     
-    protected AbstractBundleRequirement(XRequirement delegate) {
-        addAttachment(Requirement.class, delegate);
-        this.delegate = delegate;
+    protected AbstractBundleRequirement(XRequirement requirement) {
+        if (requirement == null)
+            throw new IllegalArgumentException("Null requirement");
+        this.delegate = requirement;
+
+        requirement.addAttachment(BundleRequirement.class, this);
+        addAttachment(Requirement.class, requirement);
     }
 
     @Override
@@ -108,6 +112,6 @@ public class AbstractBundleRequirement extends AbstractElement implements XRequi
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ":" + delegate.toString();
+        return getClass().getSimpleName() + ":" + delegate;
     }
 }

@@ -19,35 +19,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.resolver;
+package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XCapabilityComparator;
+import org.jboss.osgi.resolver.XEnvironment;
 import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
 
 import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 
 /**
- * An extension to the {@link Environment}
+ * An abstract capability comparator.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XEnvironment extends XElement, Environment {
+public abstract class AbstractCapabilityComparator implements XCapabilityComparator {
 
-    void installResources(Resource... resource);
+    private XEnvironment env;
 
-    void uninstallResources(Resource... resource);
+    @Override
+    public void setEnvironment(XEnvironment env) {
+        this.env = env;
+    }
 
-    long getResourceIndex(Resource resource);
-
-    Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap);
-
-    Wiring getWiring(Resource resource);
-
-    Comparator<Capability> getComparator();
+    @Override
+    public XEnvironment getEnvironment() {
+        return env;
+    }
 }

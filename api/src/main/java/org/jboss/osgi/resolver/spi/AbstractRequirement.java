@@ -121,7 +121,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         boolean matches = namespace.equals(cap.getNamespace());
 
         // match namespace value
-        if (matches && cap instanceof XCapability) {
+        if (matches) {
             XCapability xcap = (XCapability) cap;
             Object thisatt = getAttribute(namespace);
             Object otheratt = xcap.getAttribute(namespace);
