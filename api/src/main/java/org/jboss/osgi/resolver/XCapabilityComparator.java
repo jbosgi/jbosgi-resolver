@@ -34,7 +34,5 @@ import java.util.Comparator;
  */
 public interface XCapabilityComparator extends Comparator<Capability> {
 
-    void setEnvironment(XEnvironment env);
-
     XEnvironment getEnvironment();
 }

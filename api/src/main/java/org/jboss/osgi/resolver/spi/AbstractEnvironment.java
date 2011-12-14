@@ -52,11 +52,12 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
     public AbstractEnvironment(XCapabilityComparator comp) {
-        comp.setEnvironment(this);
+        if (comp instanceof AbstractCapabilityComparator) {
+            ((AbstractCapabilityComparator)comp).setEnvironment(this);
+        }
         this.comparator = comp;
     }
 
-    @Override
     public Comparator<Capability> getComparator() {
         return comparator;
     }

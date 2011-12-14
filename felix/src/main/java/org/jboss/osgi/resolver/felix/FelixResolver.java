@@ -70,7 +70,7 @@ public class FelixResolver implements Resolver {
 
     @Override
     public Map<Resource, List<Wire>> resolve(Environment environment, Collection<? extends Resource> mandatoryResources, Collection<? extends Resource> optionalResources) throws ResolutionException {
-        ResolverState state = new EnvironmentDelegate(environment);
+        ResolverState state = new EnvironmentDelegate((XEnvironment) environment);
         Set<BundleRevision> mandatory = bundleRevisions(mandatoryResources);
         Set<BundleRevision> optional = bundleRevisions(optionalResources);
         Set<BundleRevision> fragments = Collections.emptySet();
@@ -142,9 +142,9 @@ public class FelixResolver implements Resolver {
 
     static class EnvironmentDelegate implements ResolverState {
 
-        private final Environment environment;
+        private final XEnvironment environment;
 
-        EnvironmentDelegate(Environment environment) {
+        EnvironmentDelegate(XEnvironment environment) {
             this.environment = environment;
         }
 
@@ -155,7 +155,7 @@ public class FelixResolver implements Resolver {
 
         @Override
         public SortedSet<BundleCapability> getCandidates(BundleRequirement req, boolean obeyMandatory) {
-            Comparator<Capability> comparator = ((XEnvironment) environment).getComparator();
+            Comparator<Capability> comparator = environment.getComparator();
             SortedSet<BundleCapability> result = new TreeSet<BundleCapability>(comparator);
             for (Capability cap : environment.findProviders(req)) {
                 XCapability xcap = (XCapability) cap;

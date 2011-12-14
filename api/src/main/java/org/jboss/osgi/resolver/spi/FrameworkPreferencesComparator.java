@@ -22,7 +22,9 @@
 package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wiring;
@@ -51,6 +53,14 @@ public class FrameworkPreferencesComparator extends ResourceIndexComparator {
         if (w1 == null && w2 != null)
             return +1;
 
+        // prefer higher package version
+        if (o1 instanceof XPackageCapability && o2 instanceof XPackageCapability) {
+            Version v1 = ((XPackageCapability) o1).getVersion();
+            Version v2 = ((XPackageCapability) o2).getVersion();
+            if (!v1.equals(v2))
+                return v2.compareTo(v1);
+        }
+        
         return super.compare(o1, o2);
     }
 }

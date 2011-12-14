@@ -37,8 +37,7 @@ public abstract class AbstractCapabilityComparator implements XCapabilityCompara
 
     private XEnvironment env;
 
-    @Override
-    public void setEnvironment(XEnvironment env) {
+    void setEnvironment(XEnvironment env) {
         this.env = env;
     }
 

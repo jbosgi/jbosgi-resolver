@@ -639,73 +639,91 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertSame(resourceB, wireB.getProvider());
     }
 
-    /*
     @Test
     public void testPreferredExporterHigherVersion() throws Exception {
+
         // Bundle-SymbolicName: packageexportversion100
         // Export-Package: org.jboss.test.osgi.classloader.support.a;version=1.0.0
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportversion100");
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: packageexportversion200
         // Export-Package: org.jboss.test.osgi.classloader.support.a;version=2.0.0
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageexportversion200");
+        Resource resourceB = createResource(assemblyB);
 
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
-
-        Resource resourceA = createResource(assemblyA);
-        Resource resourceB = createResource(assemblyB);
         Resource resourceC = createResource(assemblyC);
 
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        // install A before B
+        XEnvironment env = installResources(resourceA, resourceB, resourceC);
 
-        // Verify bundle states
-        assertEquals(3, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertTrue(resourceB.isResolved());
-        assertTrue(resourceC.isResolved());
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        List<XWire> wiresC = resourceC.getWires();
-        assertEquals(1, wiresC.size());
-        assertEquals(resourceB, wiresC.get(0).getExporter());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringA.getProvidedResourceWires(null).size());
+
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(0, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
+        assertSame(resourceC, wireB.getRequirer());
+        assertSame(resourceB, wireB.getProvider());
+
+        Wiring wiringC = env.getWiring(resourceC);
+        assertEquals(1, wiringC.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringC.getProvidedResourceWires(null).size());
+        Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
+        assertSame(resourceC, wireC.getRequirer());
+        assertSame(resourceB, wireC.getProvider());
     }
 
     @Test
     public void testPreferredExporterHigherVersionReverse() throws Exception {
-        // Bundle-SymbolicName: packageexportversion200
-        // Export-Package: org.jboss.test.osgi.classloader.support.a;version=2.0.0
-        Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportversion200");
-
         // Bundle-SymbolicName: packageexportversion100
         // Export-Package: org.jboss.test.osgi.classloader.support.a;version=1.0.0
-        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageexportversion100");
+        Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportversion100");
+        Resource resourceA = createResource(assemblyA);
+
+        // Bundle-SymbolicName: packageexportversion200
+        // Export-Package: org.jboss.test.osgi.classloader.support.a;version=2.0.0
+        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageexportversion200");
+        Resource resourceB = createResource(assemblyB);
 
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
-
-        Resource resourceA = createResource(assemblyA);
-        Resource resourceB = createResource(assemblyB);
         Resource resourceC = createResource(assemblyC);
 
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        // install B before A
+        XEnvironment env = installResources(resourceB, resourceA, resourceC);
 
-        // Verify bundle states
-        assertEquals(3, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertTrue(resourceB.isResolved());
-        assertTrue(resourceC.isResolved());
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        List<XWire> wiresC = resourceC.getWires();
-        assertEquals(1, wiresC.size());
-        assertEquals(resourceA, wiresC.get(0).getExporter());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringA.getProvidedResourceWires(null).size());
+
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(0, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
+        assertSame(resourceC, wireB.getRequirer());
+        assertSame(resourceB, wireB.getProvider());
+
+        Wiring wiringC = env.getWiring(resourceC);
+        assertEquals(1, wiringC.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringC.getProvidedResourceWires(null).size());
+        Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
+        assertSame(resourceC, wireC.getRequirer());
+        assertSame(resourceB, wireC.getProvider());
     }
 
     @Test
@@ -713,44 +731,39 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleexport");
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexportother
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexportother");
+        Resource resourceB = createResource(assemblyB);
 
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
-
-        Resource resourceA = createResource(assemblyA);
-        Resource resourceB = createResource(assemblyB);
-
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
-
-        // Verify bundle states
-        assertEquals(2, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertTrue(resourceB.isResolved());
-
         Resource resourceC = createResource(assemblyC);
 
-        // Resolve all modules
-        resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        // install A before B
+        XEnvironment env = installResources(resourceA, resourceB, resourceC);
 
-        // Verify bundle states
-        assertEquals(1, resolved.size());
-        assertTrue(resourceC.isResolved());
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        List<XWire> wiresC = resourceC.getWires();
-        assertEquals(1, wiresC.size());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(null).size());
 
-        System.out.println("FIXME [JBOSGI-368] testPreferredExporterLowerId fails occasionally");
-        // assertEquals(resourceA, wiresC.get(0).getExporter());
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(0, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+
+        Wiring wiringC = env.getWiring(resourceC);
+        assertEquals(1, wiringC.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringC.getProvidedResourceWires(null).size());
+        Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
+        assertSame(resourceC, wireC.getRequirer());
+        assertSame(resourceA, wireC.getProvider());
     }
 
     @Test
@@ -758,48 +771,44 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         // Bundle-SymbolicName: simpleexportother
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceA", "/resolver/simpleexportother");
+        Resource resourceB = createResource(assemblyB);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceB", "/resolver/simpleexport");
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/simpleimport");
-
-        Resource resourceB = createResource(assemblyB);
-        Resource resourceA = createResource(assemblyA);
-
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
-
-        // Verify bundle states
-        assertEquals(2, resolved.size());
-        assertTrue(resourceB.isResolved());
-        assertTrue(resourceA.isResolved());
-
         Resource resourceC = createResource(assemblyC);
 
-        // Resolve all modules
-        resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        // install B before A
+        XEnvironment env = installResources(resourceB, resourceA, resourceC);
 
-        // Verify bundle states
-        assertEquals(1, resolved.size());
-        assertTrue(resourceC.isResolved());
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        List<XWire> wiresC = resourceC.getWires();
-        assertEquals(1, wiresC.size());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringA.getProvidedResourceWires(null).size());
 
-        System.out.println("FIXME [JBOSGI-368] testPreferredExporterLowerIdReverse fails occasionally");
-        // assertEquals(resourceB, wiresC.get(0).getExporter());
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(0, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
+
+        Wiring wiringC = env.getWiring(resourceC);
+        assertEquals(1, wiringC.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringC.getProvidedResourceWires(null).size());
+        Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
+        assertSame(resourceC, wireC.getRequirer());
+        assertSame(resourceB, wireC.getProvider());
     }
 
     @Test
     public void testPackageAttribute() throws Exception {
+
         // Bundle-SymbolicName: packageexportattribute
         // Export-Package: org.jboss.test.osgi.classloader.support.a;test=x
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportattribute");
@@ -810,40 +819,38 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleimport");
         Resource resourceB = createResource(assemblyB);
 
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
-
-        // Verify bundle states
-        assertEquals(2, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertTrue(resourceB.isResolved());
-
-        List<XWire> wiresB = resourceB.getWires();
-        assertEquals(1, wiresB.size());
-        assertEquals(resourceA, wiresB.get(0).getExporter());
-
         // Bundle-SymbolicName: packageimportattribute
         // Import-Package: org.jboss.test.osgi.classloader.support.a;test=x
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/packageimportattribute");
         Resource resourceC = createResource(assemblyC);
 
-        resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        XEnvironment env = installResources(resourceA, resourceB, resourceC);
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        // Verify bundle states
-        assertEquals(1, resolved.size());
-        assertTrue(resourceC.isResolved());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(2, wiringA.getProvidedResourceWires(null).size());
 
-        List<XWire> wiresC = resourceC.getWires();
-        assertEquals(1, wiresC.size());
-        assertEquals(resourceA, wiresC.get(0).getExporter());
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(1, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getRequiredResourceWires(null).get(0);
+        assertSame(resourceB, wireB.getRequirer());
+        assertSame(resourceA, wireB.getProvider());
+
+        Wiring wiringC = env.getWiring(resourceC);
+        assertEquals(1, wiringC.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringC.getProvidedResourceWires(null).size());
+        Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
+        assertSame(resourceC, wireC.getRequirer());
+        assertSame(resourceA, wireC.getProvider());
     }
 
     @Test
     public void testPackageAttributeFails() throws Exception {
+
         // Bundle-SymbolicName: packageexportattribute
         // Export-Package: org.jboss.test.osgi.classloader.support.a;test=x
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportattribute");
@@ -854,19 +861,19 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageimportattributefails");
         Resource resourceB = createResource(assemblyB);
 
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertFalse(resolver.resolveAll(null));
-
-        // Verify bundle states
-        assertEquals(1, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertFalse(resourceB.isResolved());
+        XEnvironment env = installResources(resourceA, resourceB);
+        try {
+            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
+            resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected");
+        } catch (ResolutionException ex) {
+            // expected;
+        }
     }
 
     @Test
     public void testPackageAttributeMandatory() throws Exception {
+
         // Bundle-SymbolicName: packageexportattributemandatory
         // Export-Package: org.jboss.test.osgi.classloader.support.a;test=x;mandatory:=test
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportattributemandatory");
@@ -877,23 +884,26 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageimportattribute");
         Resource resourceB = createResource(assemblyB);
 
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        XEnvironment env = installResources(resourceA, resourceB);
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        // Verify bundle states
-        assertEquals(2, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertTrue(resourceB.isResolved());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(null).size());
 
-        List<XWire> wiresB = resourceB.getWires();
-        assertEquals(1, wiresB.size());
-        assertEquals(resourceA, wiresB.get(0).getExporter());
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(1, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getRequiredResourceWires(null).get(0);
+        assertSame(resourceB, wireB.getRequirer());
+        assertSame(resourceA, wireB.getProvider());
     }
 
     @Test
     public void testPackageAttributeMandatoryFails() throws Exception {
+
         // Bundle-SymbolicName: packageexportattributemandatory
         // Export-Package: org.jboss.test.osgi.classloader.support.a;test=x;mandatory:=test
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportattributemandatory");
@@ -904,17 +914,17 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleimport");
         Resource resourceB = createResource(assemblyB);
 
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertFalse(resolver.resolveAll(null));
-
-        // Verify bundle states
-        assertEquals(1, resolved.size());
-        assertTrue(resourceA.isResolved());
-        assertFalse(resourceB.isResolved());
+        XEnvironment env = installResources(resourceA, resourceB);
+        try {
+            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
+            resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected");
+        } catch (ResolutionException ex) {
+            // expected;
+        }
     }
 
+    /*
     @Test
     public void testFragmentAddsExport() throws Exception {
         // Bundle-SymbolicName: bundlefragmenthost
