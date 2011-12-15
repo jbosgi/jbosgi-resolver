@@ -22,19 +22,16 @@
 package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XIdentityCapability;
-import org.jboss.osgi.resolver.XResourceBuilder;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
-import static org.jboss.osgi.resolver.XResourceBuilder.EMPTY_DIRECTIVES;
-import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
 
 /**
  * The abstract implementation of a {@link XIdentityCapability}.
@@ -46,24 +43,18 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
 
     private final String symbolicName;
     private final Version version;
+    private final String type;
 
-    protected AbstractIdentityCapability(Resource resource, String symbolicName, Version version) {
-        super(resource, WIRING_BUNDLE_NAMESPACE, initAttributes(symbolicName, version), EMPTY_DIRECTIVES);
-        this.symbolicName = symbolicName;
-        if (symbolicName == null)
-            throw new IllegalArgumentException("Null symbolicName");
-        this.version = version;
+    protected AbstractIdentityCapability(Resource resource, Map<String, Object> atts, Map<String, String> dirs) {
+        super(resource, IDENTITY_NAMESPACE, atts, dirs);
+        this.symbolicName = (String) atts.get(IDENTITY_NAMESPACE);
+        this.version = (Version) atts.get(IDENTITY_VERSION_ATTRIBUTE);
+        this.type = (String) atts.get(IDENTITY_TYPE_ATTRIBUTE);
     }
-    
-    private static Map<String, Object> initAttributes(String symbolicName, Version version) {
-        if (symbolicName == null)
-            throw new IllegalArgumentException("Null symbolic name");
-        if (version == null)
-            throw new IllegalArgumentException("Null version");
-        Map<String, Object> atts = new HashMap<String, Object>();
-        atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
-        atts.put(VERSION_ATTRIBUTE, version);
-        return atts;
+
+    @Override
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(IDENTITY_NAMESPACE, IDENTITY_VERSION_ATTRIBUTE, IDENTITY_TYPE_ATTRIBUTE);
     }
 
     @Override
@@ -74,5 +65,10 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
     @Override
     public Version getVersion() {
         return version;
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 }

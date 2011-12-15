@@ -30,6 +30,7 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.ResourceConstants;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
 import org.osgi.service.resolver.Environment;
@@ -46,6 +47,8 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
  * Test the default resolver integration.
@@ -109,8 +112,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
 
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-            resolver.resolve(env, mandatory, null);
-            fail("ResolutionException expected");
+            Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
             // expected;
         }
@@ -219,8 +222,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
 
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-            resolver.resolve(env, mandatory, null);
-            fail("ResolutionException expected");
+            Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
             // expected;
         }
@@ -359,8 +362,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
 
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-            resolver.resolve(env, mandatory, null);
-            fail("ResolutionException expected");
+            Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
             // expected;
         }
@@ -414,8 +417,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
 
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-            resolver.resolve(env, mandatory, null);
-            fail("ResolutionException expected");
+            Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
             // expected;
         }
@@ -470,8 +473,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
 
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-            resolver.resolve(env, mandatory, null);
-            fail("ResolutionException expected");
+            Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
             // expected;
         }
@@ -545,8 +548,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
 
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-            resolver.resolve(env, mandatory, null);
-            fail("ResolutionException expected");
+            Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
             // expected;
         }
@@ -864,8 +867,8 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         XEnvironment env = installResources(resourceA, resourceB);
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-            resolver.resolve(env, mandatory, null);
-            fail("ResolutionException expected");
+            Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
             // expected;
         }
@@ -917,55 +920,66 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         XEnvironment env = installResources(resourceA, resourceB);
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-            resolver.resolve(env, mandatory, null);
-            fail("ResolutionException expected");
+            Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
             // expected;
         }
     }
 
-    /*
     @Test
     public void testFragmentAddsExport() throws Exception {
+
         // Bundle-SymbolicName: bundlefragmenthost
-        Archive<?> assemblyH = assembleArchive("host", "/resolver/bundlefragmenthost");
-        Resource resourceH = createResource(assemblyH);
-        assertFalse(resourceH.isFragment());
+        Archive<?> assemblyA = assembleArchive("host", "/resolver/bundlefragmenthost");
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: fragmentaddsexport
         // Fragment-Host: bundlefragmenthost
         // Export-Package: org.jboss.osgi.test.fragment.export
-        Archive<?> assemblyF = assembleArchive("fragment", "/resolver/fragmentaddsexport");
-        Resource resourceF = createResource(assemblyF);
-        assertTrue(resourceF.isFragment());
+        Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentaddsexport");
+        Resource resourceB = createResource(assemblyB);
 
         // Bundle-SymbolicName: bundleimportfragmentpkg
         // Import-Package: org.jboss.osgi.test.fragment.export
-        Archive<?> assemblyB = assembleArchive("bundle", "/resolver/bundleimportfragmentpkg");
-        Resource resourceB = createResource(assemblyB);
-        assertFalse(resourceB.isFragment());
+        Archive<?> assemblyC = assembleArchive("bundle", "/resolver/bundleimportfragmentpkg");
+        Resource resourceC = createResource(assemblyC);
 
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        XEnvironment env = installResources(resourceA, resourceB, resourceC);
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        assertTrue(resourceH.isResolved());
-        assertTrue(resourceF.isResolved());
-        assertTrue(resourceB.isResolved());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(2, wiringA.getProvidedResourceWires(null).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).size());
+        Wire pwireA = wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
+        assertSame(resourceA, pwireA.getProvider());
+        assertSame(resourceC, pwireA.getRequirer());
+        Wire hwireA = wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        assertSame(resourceA, hwireA.getProvider());
+        assertSame(resourceB, hwireA.getRequirer());
 
-        assertEquals(0, resourceH.getWires().size());
-        assertEquals(1, resourceF.getWires().size());
-        XWire fragWire = resourceF.getWires().get(0);
-        assertTrue(fragWire.getRequirement() instanceof XFragmentHostRequirement);
-        assertEquals(resourceH, fragWire.getExporter());
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(1, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).size());
+        assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        assertSame(resourceB, wireB.getRequirer());
+        assertSame(resourceA, wireB.getProvider());
 
-        assertEquals(1, resourceB.getWires().size());
-        XWire bundleWire = resourceB.getWires().get(0);
-        assertTrue(bundleWire.getRequirement() instanceof XPackageRequirement);
-        assertEquals(resourceH, bundleWire.getExporter());
+        Wiring wiringC = env.getWiring(resourceC);
+        assertEquals(1, wiringC.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringC.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
+        assertEquals(0, wiringC.getProvidedResourceWires(null).size());
+        Wire wireC = wiringC.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
+        assertSame(resourceC, wireC.getRequirer());
+        assertSame(resourceA, wireC.getProvider());
     }
 
+    /*
     @Test
     public void testHostDependsOnFragmentPackage() throws Exception {
         // Bundle-SymbolicName: bundledependsfragment

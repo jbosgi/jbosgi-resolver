@@ -24,16 +24,14 @@ package org.jboss.osgi.resolver;
 import org.osgi.framework.Version;
 
 /**
- * An identity capability
+ * A fragment host capability
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XIdentityCapability extends XCapability {
+public interface XFragmentHostCapability extends XCapability {
 
     String getSymbolicName();
 
     Version getVersion();
-
-    String getType();
 }

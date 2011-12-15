@@ -21,6 +21,7 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XFragmentHostCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
@@ -32,11 +33,14 @@ import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.ResourceConstants;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
@@ -93,11 +97,16 @@ public class AbstractResourceBuilderTestCase extends AbstractTestBase {
     }
 
     private void validateCapabilities(Resource resource) {
-        List<Capability> caps = resource.getCapabilities(null);
-        Assert.assertNotNull("Capabilities not null", caps);
+        List<Capability> caps = resource.getCapabilities(IDENTITY_NAMESPACE);
         Assert.assertEquals(1, caps.size());
-        XIdentityCapability cap = (XIdentityCapability) caps.get(0);
-        Assert.assertEquals("test1", cap.getSymbolicName());
-        Assert.assertEquals(Version.emptyVersion, cap.getVersion());
+        XIdentityCapability icap = (XIdentityCapability) caps.get(0);
+        Assert.assertEquals("test1", icap.getSymbolicName());
+        Assert.assertEquals(Version.emptyVersion, icap.getVersion());
+
+        caps = resource.getCapabilities(WIRING_HOST_NAMESPACE);
+        Assert.assertEquals(1, caps.size());
+        XFragmentHostCapability hcap = (XFragmentHostCapability) caps.get(0);
+        Assert.assertEquals("test1", hcap.getSymbolicName());
+        Assert.assertEquals(Version.emptyVersion, hcap.getVersion());
     }
 }

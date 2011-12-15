@@ -22,8 +22,10 @@
 package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XRequirement;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.resource.Resource;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
@@ -81,12 +83,14 @@ public class AbstractBundleRequirement extends AbstractElement implements XRequi
 
     @Override
     public BundleRevision getRevision() {
-        return (BundleRevision) delegate.getResource();
+        XResource xres = (XResource) delegate.getResource();
+        return xres.adapt(BundleRevision.class);
     }
 
     @Override
     public BundleRevision getResource() {
-        return (BundleRevision) delegate.getResource();
+        XResource xres = (XResource) delegate.getResource();
+        return xres.adapt(BundleRevision.class);
     }
 
     @Override

@@ -21,46 +21,53 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
-import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * The abstract implementation of a {@link XCapability}.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractCapability extends AbstractElement implements XCapability {
+public abstract class AbstractCapability extends AbstractElement implements XCapability {
 
     private final Resource resource;
     private final String namespace;
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
 
-    protected AbstractCapability(Resource resource, String namespace, Map<String, Object> attributes, Map<String, String> directives) {
+    protected AbstractCapability(Resource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
             throw new IllegalArgumentException("Null resource");
         if (namespace == null)
             throw new IllegalArgumentException("Null namespace");
-        if (attributes == null)
+        if (atts == null)
             throw new IllegalArgumentException("Null attributes");
-        if (directives == null)
+        if (dirs == null)
             throw new IllegalArgumentException("Null directives");
-
-        if (attributes.get(namespace) == null)
-            throw new IllegalArgumentException("Cannot obtain attribute: " + namespace);
 
         this.resource = resource;
         this.namespace = namespace;
-        this.attributes = new AttributeSupporter(attributes);
-        this.directives = new DirectiveSupporter(directives);
+        this.attributes = new AttributeSupporter(atts);
+        this.directives = new DirectiveSupporter(dirs);
+
+        validateAttributes(atts);
     }
+
+    protected void validateAttributes(Map<String, Object> atts) {
+        for (String name : getMandatoryAttributes()) {
+            if (atts.get(name) == null)
+                throw new IllegalArgumentException("Cannot obtain attribute: " + name);
+        }
+    }
+
+    protected abstract List<String> getMandatoryAttributes();
 
     @Override
     public Resource getResource() {

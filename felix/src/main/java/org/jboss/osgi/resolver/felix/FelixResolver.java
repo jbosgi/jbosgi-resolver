@@ -34,6 +34,7 @@ import org.jboss.osgi.resolver.spi.AbstractWire;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.ResourceConstants;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
@@ -71,10 +72,10 @@ public class FelixResolver implements Resolver {
     @Override
     public Map<Resource, List<Wire>> resolve(Environment environment, Collection<? extends Resource> mandatoryResources, Collection<? extends Resource> optionalResources) throws ResolutionException {
         ResolverState state = new EnvironmentDelegate((XEnvironment) environment);
-        Set<BundleRevision> mandatory = bundleRevisions(mandatoryResources);
-        Set<BundleRevision> optional = bundleRevisions(optionalResources);
-        Set<BundleRevision> fragments = Collections.emptySet();
-        Map<BundleRevision, List<ResolverWire>> result = null;
+        Set<BundleRevision> fragments = new HashSet();
+        Set<BundleRevision> mandatory = bundleRevisions(mandatoryResources, fragments);
+        Set<BundleRevision> optional = bundleRevisions(optionalResources, fragments);
+        Map<BundleRevision, List<ResolverWire>> result;
         try {
             result = delegate.resolve(state, mandatory, optional, fragments);
         } catch (ResolveException ex) {
@@ -129,12 +130,17 @@ public class FelixResolver implements Resolver {
     }
 
 
-    private Set<BundleRevision> bundleRevisions(Collection<? extends Resource> resources) {
+    private Set<BundleRevision> bundleRevisions(Collection<? extends Resource> resources, Set<BundleRevision> fragments) {
         Set<BundleRevision> result = new HashSet();
         if (resources != null && !resources.isEmpty()) {
             for (Resource res : resources) {
                 XResource xres = (XResource) res;
-                result.add(new AbstractBundleRevision(xres));
+                String type = xres.getIdentityCapability().getType();
+                if (ResourceConstants.IDENTITY_TYPE_FRAGMENT.equals(type)) {
+                    fragments.add(new AbstractBundleRevision(xres));
+                } else {
+                    result.add(new AbstractBundleRevision(xres));
+                }
             }
         }
         return result;
@@ -184,10 +190,10 @@ public class FelixResolver implements Resolver {
         }
 
         private static Requirement toRequirement(BundleRequirement breq) {
-                XRequirement xreq = (XRequirement) breq;
-                return xreq.adapt(Requirement.class);
+            XRequirement xreq = (XRequirement) breq;
+            return xreq.adapt(Requirement.class);
         }
-        
+
         private static Resource toResource(BundleRevision brev) {
             XResource xres = (XResource) brev;
             return xres.adapt(Resource.class);

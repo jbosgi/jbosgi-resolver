@@ -58,19 +58,41 @@ public interface XResourceBuilder {
     /**
      * Add the identity capability
      * 
-     * @param symbolicName The bundle symbolic name
-     * @param version The bundle version
+     * @param symbolicName The resource symbolic name
+     * @param version The resource version
+     * @param type The resource type
+     * @param atts The attributes
+     * @param dirs The directives
      */
-    XCapability addIdentityCapability(String symbolicName, Version version);
+    XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
-     * Add a {@link Constants#REQUIRE_BUNDLE} requirement
+     * Add identity requirement
      *
      * @param symbolicName The bundle symbolic name
      * @param atts The attributes
      * @param dirs The directives
      */
     XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+
+    /**
+     * Add the fragment host capability
+     *
+     * @param symbolicName The resource symbolic name
+     * @param version The resource version
+     * @param atts The attributes
+     * @param dirs The directives
+     */
+    XCapability addFragmentHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
+
+    /**
+     * Add fragment host requirement
+     *
+     * @param symbolicName The bundle symbolic name
+     * @param atts The attributes
+     * @param dirs The directives
+     */
+    XRequirement addFragmentHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#EXPORT_PACKAGE} capability

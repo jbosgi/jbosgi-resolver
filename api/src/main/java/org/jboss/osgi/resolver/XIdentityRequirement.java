@@ -24,7 +24,7 @@ package org.jboss.osgi.resolver;
 import org.osgi.framework.VersionRange;
 
 /**
- * A package requirement
+ * An identity requirement
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010

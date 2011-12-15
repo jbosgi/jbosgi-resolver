@@ -34,21 +34,22 @@ import java.util.Map;
 
 import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 
 /**
- * The abstract implementation of a {@link XIdentityRequirement}.
+ * The abstract implementation of a {@link org.jboss.osgi.resolver.XIdentityRequirement}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractIdentityRequirement extends AbstractRequirement implements XIdentityRequirement {
+public class AbstractFragmentHostRequirement extends AbstractRequirement implements XIdentityRequirement {
 
     private final String symbolicName;
     private final VersionRange versionrange;
 
-    protected AbstractIdentityRequirement(Resource resource, Map<String, Object> atts, Map<String, String> dirs) {
-        super(resource, IDENTITY_NAMESPACE, atts, dirs);
-        this.symbolicName = (String) getAttribute(IDENTITY_NAMESPACE);
+    protected AbstractFragmentHostRequirement(Resource resource, Map<String, Object> atts, Map<String, String> dirs) {
+        super(resource, WIRING_HOST_NAMESPACE, atts, dirs);
+        this.symbolicName = (String) getAttribute(WIRING_HOST_NAMESPACE);
         Object versionatt = atts.get(BUNDLE_VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
             versionatt = new VersionRange((String) versionatt);
@@ -58,7 +59,7 @@ public class AbstractIdentityRequirement extends AbstractRequirement implements 
 
     @Override
     protected List<String> getMandatoryAttributes() {
-        return Arrays.asList(IDENTITY_NAMESPACE);
+        return Arrays.asList(WIRING_HOST_NAMESPACE);
     }
 
     @Override
@@ -73,10 +74,6 @@ public class AbstractIdentityRequirement extends AbstractRequirement implements 
 
     @Override
     public boolean matches(Capability cap) {
-
-        // cannot require itself
-        if (getResource() == cap.getResource())
-            return false;
 
         if (super.matches(cap) == false)
             return false;

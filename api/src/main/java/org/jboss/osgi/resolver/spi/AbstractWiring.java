@@ -74,12 +74,30 @@ public class AbstractWiring implements Wiring {
 
     @Override
     public List<Wire> getProvidedResourceWires(String namespace) {
-        return provided != null ? Collections.unmodifiableList(provided) : EMPTY_LIST;
+        List<Wire> result = new ArrayList<Wire>();
+        if (provided != null) {
+            for (Wire wire : provided) {
+                Capability cap = wire.getCapability();
+                if (namespace == null || namespace.equals(cap.getNamespace())) {
+                    result.add(wire);
+                }
+            }
+        }
+        return Collections.unmodifiableList(result);
     }
 
     @Override
     public List<Wire> getRequiredResourceWires(String namespace) {
-        return required != null ? Collections.unmodifiableList(required) : EMPTY_LIST;
+        List<Wire> result = new ArrayList<Wire>();
+        if (required != null) {
+            for (Wire wire : required) {
+                Requirement req = wire.getRequirement();
+                if (namespace == null || namespace.equals(req.getNamespace())) {
+                    result.add(wire);
+                }
+            }
+        }
+        return Collections.unmodifiableList(result);
     }
 
     @Override

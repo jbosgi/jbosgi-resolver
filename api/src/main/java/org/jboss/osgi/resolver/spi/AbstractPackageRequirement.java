@@ -32,7 +32,9 @@ import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,13 +58,16 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     protected AbstractPackageRequirement(Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
         super(resource, WIRING_PACKAGE_NAMESPACE, attributes, directives);
         packageName = (String) attributes.get(WIRING_PACKAGE_NAMESPACE);
-        if (packageName == null)
-            throw new IllegalArgumentException("Null packageName");
         Object versionatt = attributes.get(VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
             versionatt = new VersionRange((String) versionatt);
         }
         versionrange = (VersionRange) versionatt;
+    }
+
+    @Override
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(WIRING_PACKAGE_NAMESPACE);
     }
 
     @Override

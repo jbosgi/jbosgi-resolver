@@ -25,6 +25,8 @@ import org.jboss.osgi.resolver.XPackageCapability;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
@@ -41,13 +43,16 @@ public class AbstractPackageCapability extends AbstractCapability implements XPa
     private final String packageName;
     private final Version version;
 
-    protected AbstractPackageCapability(Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
-        super(resource, WIRING_PACKAGE_NAMESPACE, attributes, directives);
-        packageName = (String) attributes.get(WIRING_PACKAGE_NAMESPACE);
-        if (packageName == null)
-            throw new IllegalArgumentException("Null packageName");
-        String versionatt = (String) attributes.get(VERSION_ATTRIBUTE);
+    protected AbstractPackageCapability(Resource resource, Map<String, Object> attrs, Map<String, String> dirs) {
+        super(resource, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
+        packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
+        String versionatt = (String) attrs.get(VERSION_ATTRIBUTE);
         version = versionatt != null ? Version.parseVersion(versionatt) : Version.emptyVersion;
+    }
+
+    @Override
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(WIRING_PACKAGE_NAMESPACE);
     }
 
     @Override

@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
 
 /**
  * The abstract implementation of an {@link XResource}.
@@ -71,7 +71,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     @Override
     public XIdentityCapability getIdentityCapability() {
         if (identityCapability == null) {
-            List<Capability> caps = getCapabilities(WIRING_BUNDLE_NAMESPACE);
+            List<Capability> caps = getCapabilities(IDENTITY_NAMESPACE);
             if (caps.size() == 1) {
                 identityCapability = (XIdentityCapability) caps.get(0);
             }

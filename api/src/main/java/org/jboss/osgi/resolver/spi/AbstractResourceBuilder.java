@@ -36,7 +36,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
+import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_BUNDLE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_FRAGMENT;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_UNKNOWN;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
@@ -63,9 +70,12 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     }
 
     @Override
-    public XCapability addIdentityCapability(String symbolicName, Version version) {
+    public XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
         assertModuleCreated();
-        XCapability cap = new AbstractIdentityCapability(resource, symbolicName, version);
+        atts.put(IDENTITY_NAMESPACE, symbolicName);
+        atts.put(IDENTITY_VERSION_ATTRIBUTE, version);
+        atts.put(IDENTITY_TYPE_ATTRIBUTE, type != null ? type : IDENTITY_TYPE_UNKNOWN);
+        XCapability cap = new AbstractIdentityCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
     }
@@ -73,8 +83,27 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     @Override
     public XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
         assertModuleCreated();
-        atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
+        atts.put(IDENTITY_NAMESPACE, symbolicName);
         XRequirement req = new AbstractIdentityRequirement(resource, atts, dirs);
+        resource.addRequirement(req);
+        return req;
+    }
+
+    @Override
+    public XCapability addFragmentHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs) {
+        assertModuleCreated();
+        atts.put(WIRING_HOST_NAMESPACE, symbolicName);
+        atts.put(BUNDLE_VERSION_ATTRIBUTE, version);
+        XCapability cap = new AbstractFragmentHostCapability(resource, atts, dirs);
+        resource.addCapability(cap);
+        return cap;
+    }
+
+    @Override
+    public XRequirement addFragmentHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
+        assertModuleCreated();
+        atts.put(WIRING_HOST_NAMESPACE, symbolicName);
+        XRequirement req = new AbstractFragmentHostRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
     }
@@ -110,15 +139,32 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         try {
             String symbolicName = metadata.getBundleSymbolicName();
             Version bundleVersion = metadata.getBundleVersion();
-            addIdentityCapability(symbolicName, bundleVersion);
+            ParameterizedAttribute idparams = metadata.getBundleParameters();
+            Map<String, Object> idatts = getAttributes(idparams);
+            Map<String, String> iddirs = getDirectives(idparams);
+
+            // Fragment Host Capability 
+            ParameterizedAttribute fragmentHost = metadata.getFragmentHost();
+            if (fragmentHost == null) {
+                addIdentityCapability(symbolicName, bundleVersion, IDENTITY_TYPE_BUNDLE, idatts, iddirs);
+                Map<String, Object> atts = getAttributes(idparams);
+                Map<String, String> dirs = getDirectives(idparams);
+                addFragmentHostCapability(symbolicName, bundleVersion, atts, dirs);
+            } else {
+                String hostName = fragmentHost.getAttribute();
+                addIdentityCapability(symbolicName, bundleVersion, IDENTITY_TYPE_FRAGMENT, idatts, iddirs);
+                Map<String, Object> atts = getAttributes(fragmentHost);
+                Map<String, String> dirs = getDirectives(fragmentHost);
+                addFragmentHostRequirement(hostName, atts, dirs);
+            }
 
             // Required Bundles
             List<ParameterizedAttribute> requireBundles = metadata.getRequireBundles();
             if (requireBundles != null && requireBundles.isEmpty() == false) {
-                for (ParameterizedAttribute attribs : requireBundles) {
-                    String name = attribs.getAttribute();
-                    Map<String, String> dirs = getDirectives(attribs);
-                    Map<String, Object> atts = getAttributes(attribs);
+                for (ParameterizedAttribute attr : requireBundles) {
+                    String name = attr.getAttribute();
+                    Map<String, Object> atts = getAttributes(attr);
+                    Map<String, String> dirs = getDirectives(attr);
                     addIdentityRequirement(name, atts, dirs);
                 }
             }
@@ -126,10 +172,10 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             // Export-Package
             List<PackageAttribute> exports = metadata.getExportPackages();
             if (exports != null && exports.isEmpty() == false) {
-                for (PackageAttribute attribs : exports) {
-                    String name = attribs.getAttribute();
-                    Map<String, String> dirs = getDirectives(attribs);
-                    Map<String, Object> atts = getAttributes(attribs);
+                for (PackageAttribute attr : exports) {
+                    String name = attr.getAttribute();
+                    Map<String, Object> atts = getAttributes(attr);
+                    Map<String, String> dirs = getDirectives(attr);
                     addPackageCapability(name, atts, dirs);
                 }
             }
@@ -137,10 +183,10 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             // Import-Package
             List<PackageAttribute> imports = metadata.getImportPackages();
             if (imports != null && imports.isEmpty() == false) {
-                for (PackageAttribute attribs : imports) {
-                    String name = attribs.getAttribute();
-                    Map<String, String> dirs = getDirectives(attribs);
-                    Map<String, Object> atts = getAttributes(attribs);
+                for (PackageAttribute attr : imports) {
+                    String name = attr.getAttribute();
+                    Map<String, Object> atts = getAttributes(attr);
+                    Map<String, String> dirs = getDirectives(attr);
                     addPackageRequirement(name, atts, dirs);
                 }
             }
@@ -148,21 +194,12 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             // DynamicImport-Package
             List<PackageAttribute> dynamicImports = metadata.getDynamicImports();
             if (dynamicImports != null && dynamicImports.isEmpty() == false) {
-                for (PackageAttribute attribs : dynamicImports) {
-                    String name = attribs.getAttribute();
-                    Map<String, Object> atts = getAttributes(attribs);
+                for (PackageAttribute attr : dynamicImports) {
+                    String name = attr.getAttribute();
                     //addDynamicPackageRequirement(name, atts);
                 }
             }
 
-            // Fragment-Host
-            ParameterizedAttribute fragmentHost = metadata.getFragmentHost();
-            if (fragmentHost != null) {
-                String hostName = fragmentHost.getAttribute();
-                Map<String, String> dirs = getDirectives(fragmentHost);
-                Map<String, Object> atts = getAttributes(fragmentHost);
-                //addFragmentHostRequirement(hostName, dirs, atts);
-            }
         } catch (RuntimeException ex) {
             throw new BundleException("Cannot initialize XResource from: " + metadata, ex);
         }
@@ -171,8 +208,8 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     private Map<String, String> getDirectives(ParameterizedAttribute attribs) {
         Map<String, String> dirs = new HashMap<String, String>();
         for (String key : attribs.getDirectives().keySet()) {
-            Parameter param = attribs.getDirective(key);
-            dirs.put(key.trim(), param.getValue().toString().trim());
+            String value = attribs.getDirectiveValue(key, String.class);
+            dirs.put(key.trim(), value.trim());
         }
         return dirs;
     }
