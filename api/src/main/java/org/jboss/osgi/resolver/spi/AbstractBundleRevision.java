@@ -41,6 +41,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_FRAGMENT;
+
 /**
  * The abstract implementation of a {@link BundleRevision}.
  *
@@ -52,10 +54,12 @@ public class AbstractBundleRevision extends AbstractElement implements XResource
     private final XResource delegate;
     private final Map<String, List<BundleCapability>> capabilities = new HashMap<String, List<BundleCapability>>();
     private final Map<String, List<BundleRequirement>> requirements = new HashMap<String, List<BundleRequirement>>();
+    private final int types;
 
     public AbstractBundleRevision(XResource resource) {
         if (resource == null)
             throw new IllegalArgumentException("Null resource");
+        
         delegate = resource;
 
         resource.addAttachment(BundleRevision.class, this);
@@ -71,6 +75,10 @@ public class AbstractBundleRevision extends AbstractElement implements XResource
             getReqlist(req.getNamespace()).add(breq);
             getReqlist(null).add(breq);
         }
+
+        XIdentityCapability idcap = delegate.getIdentityCapability();
+        boolean isfragment = IDENTITY_TYPE_FRAGMENT.equals(idcap.getType());
+        types = isfragment ? TYPE_FRAGMENT : 0;
     }
 
     @Override
@@ -112,7 +120,7 @@ public class AbstractBundleRevision extends AbstractElement implements XResource
 
     @Override
     public int getTypes() {
-        return 0;
+        return types;
     }
 
     @Override

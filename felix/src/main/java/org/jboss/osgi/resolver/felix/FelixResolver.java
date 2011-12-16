@@ -55,7 +55,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
+import static org.osgi.framework.wiring.BundleRevision.TYPE_FRAGMENT;
 
 /**
  * An implementation of the Resolver.
@@ -72,7 +74,7 @@ public class FelixResolver implements Resolver {
     @Override
     public Map<Resource, List<Wire>> resolve(Environment environment, Collection<? extends Resource> mandatoryResources, Collection<? extends Resource> optionalResources) throws ResolutionException {
         ResolverState state = new EnvironmentDelegate((XEnvironment) environment);
-        Set<BundleRevision> fragments = new HashSet();
+        Set<BundleRevision> fragments = new HashSet<BundleRevision>();
         Set<BundleRevision> mandatory = bundleRevisions(mandatoryResources, fragments);
         Set<BundleRevision> optional = bundleRevisions(optionalResources, fragments);
         Map<BundleRevision, List<ResolverWire>> result;
@@ -82,56 +84,108 @@ public class FelixResolver implements Resolver {
             Requirement req = (Requirement) ex.getRequirement();
             throw new ResolutionException(ex.getMessage(), ex, Collections.singleton(req));
         }
-        return processResult(result);
+        return processResult(result, fragments);
     }
 
-    private Map<Resource, List<Wire>> processResult(Map<BundleRevision, List<ResolverWire>> map) {
+    private Map<Resource, List<Wire>> processResult(Map<BundleRevision, List<ResolverWire>> map, Set<BundleRevision> fragments) {
         Map<Resource, List<Wire>> result = new LinkedHashMap<Resource, List<Wire>>();
+        List<Requirement> unresolved = new ArrayList<Requirement>();
         for (Map.Entry<BundleRevision, List<ResolverWire>> entry : map.entrySet()) {
             BundleRevision brev = entry.getKey();
+            BundleRevision bhost = brev;
+
             List<ResolverWire> reswires = entry.getValue();
-            List<Wire> wires = toWires(brev, reswires);
-            // If the res has non-optional requirements but felix
-            // returns no reswires, we assume that this is a self wire
-            if (reswires.isEmpty()) {
-                boolean mandatory = false;
-                for (Requirement req : brev.getRequirements(null)) {
-                    if (((XRequirement) req).isOptional() == false) {
-                        mandatory = true;
-                        for (Capability cap : brev.getCapabilities(WIRING_PACKAGE_NAMESPACE)) {
-                            if (req.matches(cap)) {
-                                wires.add(new SelfWire(req, cap));
+            Map<BundleRequirement, Wire> wiremap = toWireMap(brev, reswires);
+
+            // If the resource has non-optional requirements but felix
+            // returns no reswires, we search for a self wire
+            for (BundleRequirement breq : brev.getDeclaredRequirements(null)) {
+                XRequirement xreq = (XRequirement) breq;
+                xreq = (XRequirement) xreq.adapt(Requirement.class);
+                if (wiremap.get(breq) == null && xreq.isOptional() == false) {
+
+                    // Find self matching capability
+                    BundleCapability bcap = findMatchingCapability(brev, breq);
+
+                    // Find capability from attached fragments
+                    if (bcap == null) {
+                        outerfor:
+                        for (BundleRevision frag : fragments) {
+                            List<ResolverWire> fragWires = map.get(frag);
+                            if (fragWires != null) {
+                                for (ResolverWire fragwire : fragWires) {
+                                    BundleRevision fragprov = fragwire.getProvider();
+                                    String reqns = fragwire.getRequirement().getNamespace();
+                                    if (WIRING_HOST_NAMESPACE.equals(reqns) && fragprov == brev) {
+                                        bcap = findMatchingCapability(frag, breq);
+                                        if (bcap != null) {
+                                            break outerfor;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                }
-                if (mandatory && wires.isEmpty()) {
-                    List<Requirement> exreqs = brev.getRequirements(null);
-                    throw new ResolutionException("Cannot obtain self wiring capabilities", null, exreqs);
+
+                    // If the the requirement comes from a fragment look for the 
+                    // capability in the attached host
+                    if (bcap == null && (brev.getTypes() & TYPE_FRAGMENT) != 0) {
+                        BundleRequirement hostreq = brev.getDeclaredRequirements(WIRING_HOST_NAMESPACE).get(0);
+                        XResource hostres = (XResource) wiremap.get(hostreq).getProvider();
+                        bhost = hostres.adapt(BundleRevision.class);
+                        bcap = findMatchingCapability(bhost, breq);
+                    }
+                    
+                    // Add a self wire to the wire map
+                    if (bcap != null) {
+                        Wire wire = new SelfWire(bhost, breq, bcap);
+                        wiremap.put(breq, wire);
+                    } else {
+                        unresolved.add(xreq);
+                    }
                 }
             }
+
             Resource res = ((XResource) brev).adapt(Resource.class);
+            List<Wire> wires = new ArrayList<Wire>(wiremap.values());
             result.put(res, Collections.unmodifiableList(wires));
         }
+
+        // Throw a ResolutionException if there were mandatory requirements
+        // that could not get associated with a capability
+        if (unresolved.isEmpty() == false)
+            throw new ResolutionException("Cannot obtain self wiring capabilities: " + unresolved, null, unresolved);
+
         return Collections.unmodifiableMap(result);
     }
 
-    private List<Wire> toWires(Resource requirer, List<ResolverWire> reswires) {
-        List<Wire> result = new ArrayList<Wire>();
+    private BundleCapability findMatchingCapability(BundleRevision brev, BundleRequirement breq) {
+        BundleCapability result = null;
+        for (BundleCapability bcap : brev.getDeclaredCapabilities(WIRING_PACKAGE_NAMESPACE)) {
+            if (breq.matches(bcap)) {
+                result = bcap;
+                break;
+            }
+        }
+        return result;
+    }
+
+    private Map<BundleRequirement, Wire> toWireMap(Resource requirer, List<ResolverWire> reswires) {
+        Map<BundleRequirement, Wire> result = new LinkedHashMap<BundleRequirement, Wire>();
         for (ResolverWire reswire : reswires) {
             ResolverWireDelegate wire = new ResolverWireDelegate(reswire);
             // we assume that every requirer is associated with the resource that is currently processed
             if (!reswire.getRequirer().equals(requirer)) {
-                throw new IllegalStateException("Expected requirer: " + requirer + " but was: " + wire);
+                throw new IllegalStateException("Expected requirer: " + requirer + " but was: " + reswire.getRequirer());
             }
-            result.add(wire);
+            result.put(reswire.getRequirement(), wire);
         }
         return result;
     }
 
 
     private Set<BundleRevision> bundleRevisions(Collection<? extends Resource> resources, Set<BundleRevision> fragments) {
-        Set<BundleRevision> result = new HashSet();
+        Set<BundleRevision> result = new HashSet<BundleRevision>();
         if (resources != null && !resources.isEmpty()) {
             for (Resource res : resources) {
                 XResource xres = (XResource) res;
@@ -183,26 +237,26 @@ public class FelixResolver implements Resolver {
         ResolverWireDelegate(ResolverWire rw) {
             super(toCapability(rw.getCapability()), toRequirement(rw.getRequirement()), toResource(rw.getProvider()), toResource(rw.getRequirer()));
         }
-
-        private static Capability toCapability(BundleCapability bcap) {
-            XCapability xcap = (XCapability) bcap;
-            return xcap.adapt(Capability.class);
-        }
-
-        private static Requirement toRequirement(BundleRequirement breq) {
-            XRequirement xreq = (XRequirement) breq;
-            return xreq.adapt(Requirement.class);
-        }
-
-        private static Resource toResource(BundleRevision brev) {
-            XResource xres = (XResource) brev;
-            return xres.adapt(Resource.class);
-        }
     }
 
     static class SelfWire extends AbstractWire {
-        SelfWire(Requirement req, Capability cap) {
-            super(cap, req, cap.getResource(), req.getResource());
+        SelfWire(BundleRevision bhost, BundleRequirement breq, BundleCapability bcap) {
+            super(toCapability(bcap), toRequirement(breq), toResource(bhost), toResource(bhost));
         }
+    }
+
+    private static Capability toCapability(BundleCapability bcap) {
+        XCapability xcap = (XCapability) bcap;
+        return xcap.adapt(Capability.class);
+    }
+
+    private static Requirement toRequirement(BundleRequirement breq) {
+        XRequirement xreq = (XRequirement) breq;
+        return xreq.adapt(Requirement.class);
+    }
+
+    private static Resource toResource(BundleRevision brev) {
+        XResource xres = (XResource) brev;
+        return xres.adapt(Resource.class);
     }
 }

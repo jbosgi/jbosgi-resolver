@@ -30,7 +30,6 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.ResourceConstants;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
 import org.osgi.service.resolver.Environment;
@@ -979,52 +978,54 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertSame(resourceA, wireC.getProvider());
     }
 
-    /*
     @Test
-    public void testHostDependsOnFragmentPackage() throws Exception {
+    public void testFragmentDependsOnHostExport() throws Exception {
+
         // Bundle-SymbolicName: bundledependsfragment
         // Export-Package: org.jboss.osgi.test.host.export
         // Import-Package: org.jboss.osgi.test.fragment.export
-        Archive<?> assemblyH = assembleArchive("host", "/resolver/bundledependsfragment");
-        Resource resourceH = createResource(assemblyH);
-        assertFalse(resourceH.isFragment());
+        Archive<?> assemblyA = assembleArchive("host", "/resolver/bundledependsfragment");
+        Resource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: fragmentsdependshostexport
         // Export-Package: org.jboss.osgi.test.fragment.export
         // Import-Package: org.jboss.osgi.test.host.export
         // Fragment-Host: bundledependsfragment
-        Archive<?> assemblyF = assembleArchive("fragment", "/resolver/fragmentdependshostexport");
-        Resource resourceF = createResource(assemblyF);
-        assertTrue(resourceF.isFragment());
+        Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentdependshostexport");
+        Resource resourceB = createResource(assemblyB);
 
-        // Resolve all modules
-        List<Resource> resolved = new ArrayList<Resource>();
-        resolver.setCallbackHandler(new ResolverCallback(resolved));
-        assertTrue(resolver.resolveAll(null));
+        XEnvironment env = installResources(resourceA, resourceB);
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        env.applyResolverResults(map);
 
-        assertTrue(resourceH.isResolved());
-        assertTrue(resourceF.isResolved());
+        Wiring wiringA = env.getWiring(resourceA);
+        assertEquals(1, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(3, wiringA.getProvidedResourceWires(null).size());
+        assertEquals(2, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).size());
+        Wire hwireA = wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        assertSame(resourceA, hwireA.getProvider());
+        assertSame(resourceB, hwireA.getRequirer());
+        Wire pwireA = wiringA.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
+        assertSame(resourceA, pwireA.getProvider());
+        assertSame(resourceA, pwireA.getRequirer());
+        assertSame(resourceA, pwireA.getRequirement().getResource());
+        assertSame(resourceB, pwireA.getCapability().getResource());
+        pwireA = wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
+        assertSame(resourceA, pwireA.getProvider());
+        assertSame(resourceA, pwireA.getRequirer());
 
-        assertEquals(1, resourceH.getWires().size());
-        XWire hostWire = resourceH.getWires().get(0);
-        assertTrue(hostWire.getRequirement() instanceof XPackageRequirement);
-        assertEquals(resourceF, hostWire.getCapability().getModuleRevision());
-        assertEquals("Fragment wire is exported by module itself", resourceH, hostWire.getExporter());
-        assertEquals(2, resourceF.getWires().size());
-        List<XWire> wires = new ArrayList<XWire>(resourceF.getWires());
-        for (Iterator<XWire> it = wires.iterator(); it.hasNext();) {
-            XWire wire = it.next();
-            if (wire.getRequirement() instanceof XFragmentHostRequirement) {
-                assertEquals(resourceH, wire.getExporter());
-                it.remove();
-            }
-        }
-
-        assertEquals(1, wires.size());
-        XWire fragWire = wires.get(0);
-        assertTrue(fragWire.getRequirement() instanceof XPackageRequirement);
-        assertEquals(resourceH, fragWire.getCapability().getModuleRevision());
-        assertEquals(resourceH, fragWire.getExporter());
+        Wiring wiringB = env.getWiring(resourceB);
+        assertEquals(2, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).size());
+        assertEquals(1, wiringB.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
+        assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+        Wire hwireB = wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        assertSame(resourceB, hwireB.getRequirer());
+        assertSame(resourceA, hwireB.getProvider());
+        Wire pwireB = wiringB.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
+        assertSame(resourceA, pwireB.getProvider());
+        assertSame(resourceA, pwireB.getRequirer());
     }
-    */
 }
