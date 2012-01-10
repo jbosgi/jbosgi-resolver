@@ -54,7 +54,7 @@ import java.util.jar.Manifest;
 public abstract class AbstractResolverTestCase extends OSGiTest {
 
     Resolver resolver;
-    XEnvironment environment;
+    AbstractEnvironment environment;
 
     @Before
     public void setUp() {

@@ -30,6 +30,7 @@ import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.spi.AbstractBundleRevision;
+import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.osgi.resolver.spi.AbstractWire;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
@@ -73,7 +74,7 @@ public class FelixResolver implements Resolver {
 
     @Override
     public Map<Resource, List<Wire>> resolve(Environment environment, Collection<? extends Resource> mandatoryResources, Collection<? extends Resource> optionalResources) throws ResolutionException {
-        ResolverState state = new EnvironmentDelegate((XEnvironment) environment);
+        ResolverState state = new EnvironmentDelegate((AbstractEnvironment) environment);
         Set<BundleRevision> fragments = new HashSet<BundleRevision>();
         Set<BundleRevision> mandatory = bundleRevisions(mandatoryResources, fragments);
         Set<BundleRevision> optional = bundleRevisions(optionalResources, fragments);
@@ -202,9 +203,9 @@ public class FelixResolver implements Resolver {
 
     static class EnvironmentDelegate implements ResolverState {
 
-        private final XEnvironment environment;
+        private final AbstractEnvironment environment;
 
-        EnvironmentDelegate(XEnvironment environment) {
+        EnvironmentDelegate(AbstractEnvironment environment) {
             this.environment = environment;
         }
 

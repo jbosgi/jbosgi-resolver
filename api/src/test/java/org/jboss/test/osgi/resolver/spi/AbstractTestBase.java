@@ -42,7 +42,7 @@ import java.util.jar.Attributes.Name;
  */
 public abstract class AbstractTestBase {
 
-    private XEnvironment environment;
+    private AbstractEnvironment environment;
 
     @Before
     public void setUp() {

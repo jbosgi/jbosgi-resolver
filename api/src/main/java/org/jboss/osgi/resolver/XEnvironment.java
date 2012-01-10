@@ -39,15 +39,7 @@ import java.util.Map;
  */
 public interface XEnvironment extends XElement, Environment {
 
-    void installResources(Resource... resource);
-
-    void uninstallResources(Resource... resource);
-
-    long getResourceIndex(Resource resource);
-
     Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap);
 
     Wiring getWiring(Resource resource);
-
-    Comparator<Capability> getComparator();
 }

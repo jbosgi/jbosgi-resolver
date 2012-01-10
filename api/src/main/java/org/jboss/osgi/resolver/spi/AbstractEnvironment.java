@@ -62,7 +62,6 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
         return comparator;
     }
 
-    @Override
     public void installResources(Resource... resarr) {
         if (resources == null)
             throw new IllegalArgumentException("Null resource");
@@ -75,7 +74,6 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
         }
     }
 
-    @Override
     public void uninstallResources(Resource... resarr) {
         synchronized (resources) {
             for(Resource res : resarr) {
@@ -84,7 +82,6 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
         }
     }
 
-    @Override
     public long getResourceIndex(Resource resource) {
         return resources.indexOf(resource);
     }

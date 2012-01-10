@@ -37,8 +37,9 @@ public class ResourceIndexComparator extends AbstractCapabilityComparator {
 
     @Override
     public int compare(Capability o1, Capability o2) {
-        long in1 = getEnvironment().getResourceIndex(o1.getResource());
-        long in2 = getEnvironment().getResourceIndex(o2.getResource());
+        AbstractEnvironment env = (AbstractEnvironment) getEnvironment();
+        long in1 = env.getResourceIndex(o1.getResource());
+        long in2 = env.getResourceIndex(o2.getResource());
         return (int)(in1 - in2);
     }
 }
