@@ -35,9 +35,9 @@
 
     <!-- Properties -->
     <properties>
-        <version.apache.felix.resolver>4.1.0-SNAPSHOT</version.apache.felix.resolver>
-        <version.jboss.osgi.core>4.4-SNAPSHOT</version.jboss.osgi.core>
-        <version.jboss.osgi.metadata>2.0.0-SNAPSHOT</version.jboss.osgi.metadata>
+        <version.apache.felix.resolver>4.1.0.CR1</version.apache.felix.resolver>
+        <version.jboss.osgi.core>5.0.CR1</version.jboss.osgi.core>
+        <version.jboss.osgi.metadata>2.0.0.CR1</version.jboss.osgi.metadata>
         <version.jboss.osgi.spi>1.0.24</version.jboss.osgi.spi>
         <version.jboss.osgi.vfs>1.0.6</version.jboss.osgi.vfs>
         <version.jboss.shrinkwrap>1.0.0-alpha-11</version.jboss.shrinkwrap>

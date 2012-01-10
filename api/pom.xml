@@ -29,7 +29,6 @@
         <dependency>
             <groupId>org.jboss.osgi.metadata</groupId>
             <artifactId>jbosgi-metadata</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- OSGi Dependencies -->
