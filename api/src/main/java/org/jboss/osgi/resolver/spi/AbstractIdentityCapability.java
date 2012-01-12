@@ -23,7 +23,7 @@ package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,14 +39,14 @@ import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATT
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractIdentityCapability extends AbstractCapability implements XIdentityCapability {
+public class AbstractIdentityCapability extends AbstractBundleCapability implements XIdentityCapability {
 
     private final String symbolicName;
     private final Version version;
     private final String type;
 
-    protected AbstractIdentityCapability(Resource resource, Map<String, Object> atts, Map<String, String> dirs) {
-        super(resource, IDENTITY_NAMESPACE, atts, dirs);
+    protected AbstractIdentityCapability(BundleRevision brev, Map<String, Object> atts, Map<String, String> dirs) {
+        super(brev, IDENTITY_NAMESPACE, atts, dirs);
         this.symbolicName = (String) atts.get(IDENTITY_NAMESPACE);
         this.version = (Version) atts.get(IDENTITY_VERSION_ATTRIBUTE);
         this.type = (String) atts.get(IDENTITY_TYPE_ATTRIBUTE);

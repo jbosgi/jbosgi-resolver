@@ -41,11 +41,6 @@ class AbstractElement implements XElement {
     private XAttachmentSupport attachments;
 
     @Override
-    public <T> T adapt(Class<T> clazz) {
-        return getAttachment(clazz);
-    }
-
-    @Override
     public <T> T addAttachment(Class<T> clazz, T value) {
         if (attachments == null)
             attachments = new AttachmentSupporter();

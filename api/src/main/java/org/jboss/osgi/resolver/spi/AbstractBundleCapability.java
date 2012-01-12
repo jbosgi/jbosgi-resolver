@@ -27,6 +27,7 @@ import org.osgi.framework.resource.Capability;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,68 +36,19 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractBundleCapability extends AbstractElement implements XCapability, BundleCapability {
+public abstract class AbstractBundleCapability extends AbstractCapability implements BundleCapability {
 
-    private final XCapability delegate;
-
-    protected AbstractBundleCapability(XCapability capability) {
-        if (capability == null)
-            throw new IllegalArgumentException("Null capability");
-        this.delegate = capability;
-
-        capability.addAttachment(BundleCapability.class, this);
-        addAttachment(Capability.class, capability);
-    }
-
-    @Override
-    public String getNamespace() {
-        return delegate.getNamespace();
-    }
-
-    @Override
-    public Map<String, String> getDirectives() {
-        return delegate.getDirectives();
-    }
-
-    @Override
-    public String getDirective(String key) {
-        return delegate.getDirective(key);
-    }
-
-    @Override
-    public Map<String, Object> getAttributes() {
-        return delegate.getAttributes();
-    }
-
-    @Override
-    public Object getAttribute(String key) {
-        return delegate.getAttribute(key);
+    protected AbstractBundleCapability(BundleRevision brev, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        super(brev, namespace, atts, dirs);
     }
 
     @Override
     public BundleRevision getRevision() {
-        XResource xres = (XResource) delegate.getResource();
-        return xres.adapt(BundleRevision.class);
+        return (BundleRevision) super.getResource();
     }
 
     @Override
     public BundleRevision getResource() {
-        XResource xres = (XResource) delegate.getResource();
-        return xres.adapt(BundleRevision.class);
-    }
-
-    @Override
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + ":" + delegate;
+        return (BundleRevision) super.getResource();
     }
 }

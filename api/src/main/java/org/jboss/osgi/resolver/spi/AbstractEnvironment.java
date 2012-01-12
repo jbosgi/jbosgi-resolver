@@ -32,7 +32,6 @@ import org.osgi.framework.resource.Wiring;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,10 +55,6 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
             ((AbstractCapabilityComparator)comp).setEnvironment(this);
         }
         this.comparator = comp;
-    }
-
-    public Comparator<Capability> getComparator() {
-        return comparator;
     }
 
     public void installResources(Resource... resarr) {
@@ -87,7 +82,7 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
     }
 
     @Override
-    public Collection<Capability> findProviders(Requirement req) {
+    public SortedSet<Capability> findProviders(Requirement req) {
         SortedSet<Capability> result = new TreeSet<Capability>(comparator);
         synchronized (resources) {
             for (Resource res : resources) {
@@ -98,7 +93,7 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
                 }
             }
         }
-        return Collections.unmodifiableSet(result);
+        return result;
     }
 
     @Override

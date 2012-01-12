@@ -21,11 +21,6 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XRequirement;
-import org.jboss.osgi.resolver.XResource;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
@@ -38,84 +33,24 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractBundleRequirement extends AbstractElement implements XRequirement, BundleRequirement {
+public abstract class AbstractBundleRequirement extends AbstractRequirement implements BundleRequirement {
 
-    private final XRequirement delegate;
-    
-    protected AbstractBundleRequirement(XRequirement requirement) {
-        if (requirement == null)
-            throw new IllegalArgumentException("Null requirement");
-        this.delegate = requirement;
-
-        requirement.addAttachment(BundleRequirement.class, this);
-        addAttachment(Requirement.class, requirement);
-    }
-
-    @Override
-    public String getNamespace() {
-        return delegate.getNamespace();
-    }
-
-    @Override
-    public boolean isOptional() {
-        return delegate.isOptional();
-    }
-
-    @Override
-    public Map<String, String> getDirectives() {
-        return delegate.getDirectives();
-    }
-
-    @Override
-    public String getDirective(String key) {
-        return delegate.getDirective(key);
-    }
-
-    @Override
-    public Map<String, Object> getAttributes() {
-        return delegate.getAttributes();
-    }
-
-    @Override
-    public Object getAttribute(String key) {
-        return delegate.getAttribute(key);
+    protected AbstractBundleRequirement(BundleRevision brev, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        super(brev, namespace, atts, dirs);
     }
 
     @Override
     public BundleRevision getRevision() {
-        XResource xres = (XResource) delegate.getResource();
-        return xres.adapt(BundleRevision.class);
+        return (BundleRevision) super.getResource();
     }
 
     @Override
     public BundleRevision getResource() {
-        XResource xres = (XResource) delegate.getResource();
-        return xres.adapt(BundleRevision.class);
+        return (BundleRevision) super.getResource();
     }
 
     @Override
-    public boolean matches(BundleCapability capability) {
-        return delegate.matches(capability);
-    }
-
-    @Override
-    public boolean matches(Capability capability) {
-        return delegate.matches(capability);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return delegate.equals(obj);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + ":" + delegate;
+    public boolean matches(BundleCapability cap) {
+        return super.matches(cap);
     }
 }

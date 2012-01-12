@@ -26,17 +26,15 @@ import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE;
 import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
@@ -50,13 +48,13 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractPackageRequirement extends AbstractRequirement implements XPackageRequirement {
+public class AbstractPackageRequirement extends AbstractBundleRequirement implements XPackageRequirement {
 
     private final String packageName;
     private final VersionRange versionrange;
 
-    protected AbstractPackageRequirement(Resource resource, Map<String, Object> attributes, Map<String, String> directives) {
-        super(resource, WIRING_PACKAGE_NAMESPACE, attributes, directives);
+    protected AbstractPackageRequirement(BundleRevision brev, Map<String, Object> attributes, Map<String, String> directives) {
+        super(brev, WIRING_PACKAGE_NAMESPACE, attributes, directives);
         packageName = (String) attributes.get(WIRING_PACKAGE_NAMESPACE);
         Object versionatt = attributes.get(VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {

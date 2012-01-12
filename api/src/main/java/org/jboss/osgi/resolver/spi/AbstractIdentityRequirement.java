@@ -26,7 +26,7 @@ import org.jboss.osgi.resolver.XIdentityRequirement;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,13 +41,13 @@ import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractIdentityRequirement extends AbstractRequirement implements XIdentityRequirement {
+public class AbstractIdentityRequirement extends AbstractBundleRequirement implements XIdentityRequirement {
 
     private final String symbolicName;
     private final VersionRange versionrange;
 
-    protected AbstractIdentityRequirement(Resource resource, Map<String, Object> atts, Map<String, String> dirs) {
-        super(resource, IDENTITY_NAMESPACE, atts, dirs);
+    protected AbstractIdentityRequirement(BundleRevision brev, Map<String, Object> atts, Map<String, String> dirs) {
+        super(brev, IDENTITY_NAMESPACE, atts, dirs);
         this.symbolicName = (String) getAttribute(IDENTITY_NAMESPACE);
         Object versionatt = atts.get(BUNDLE_VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {

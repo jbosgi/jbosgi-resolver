@@ -178,10 +178,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertEquals(1, map.size());
 
         List<Wire> wiresA = map.get(resourceA);
-        assertEquals(1, wiresA.size());
-        Wire wireA = wiresA.get(0);
-        assertEquals(resourceA, wireA.getRequirer());
-        assertEquals(resourceA, wireA.getProvider());
+        assertEquals(0, wiresA.size());
     }
 
     @Test
@@ -1000,32 +997,21 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         env.applyResolverResults(map);
 
         Wiring wiringA = env.getWiring(resourceA);
-        assertEquals(1, wiringA.getRequiredResourceWires(null).size());
-        assertEquals(3, wiringA.getProvidedResourceWires(null).size());
-        assertEquals(2, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(null).size());
+        assertEquals(0, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
         assertEquals(1, wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).size());
         Wire hwireA = wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).get(0);
         assertSame(resourceA, hwireA.getProvider());
         assertSame(resourceB, hwireA.getRequirer());
-        Wire pwireA = wiringA.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
-        assertSame(resourceA, pwireA.getProvider());
-        assertSame(resourceA, pwireA.getRequirer());
-        assertSame(resourceA, pwireA.getRequirement().getResource());
-        assertSame(resourceB, pwireA.getCapability().getResource());
-        pwireA = wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
-        assertSame(resourceA, pwireA.getProvider());
-        assertSame(resourceA, pwireA.getRequirer());
 
         Wiring wiringB = env.getWiring(resourceB);
-        assertEquals(2, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringB.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
         assertEquals(1, wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).size());
-        assertEquals(1, wiringB.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
         assertEquals(0, wiringB.getProvidedResourceWires(null).size());
         Wire hwireB = wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).get(0);
         assertSame(resourceB, hwireB.getRequirer());
         assertSame(resourceA, hwireB.getProvider());
-        Wire pwireB = wiringB.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
-        assertSame(resourceA, pwireB.getProvider());
-        assertSame(resourceA, pwireB.getRequirer());
     }
 }

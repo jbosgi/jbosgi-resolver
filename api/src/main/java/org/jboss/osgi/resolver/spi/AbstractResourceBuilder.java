@@ -54,17 +54,17 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  */
 public class AbstractResourceBuilder implements XResourceBuilder {
 
-    private AbstractResource resource;
+    private AbstractBundleRevision resource;
 
     @Override
     public XResourceBuilder createResource() {
-        resource = new AbstractResource();
+        resource = new AbstractBundleRevision();
         return this;
     }
 
     @Override
     public XResourceBuilder createResource(OSGiMetaData metadata) throws BundleException {
-        resource = new AbstractResource();
+        resource = new AbstractBundleRevision();
         load(metadata);
         return this;
     }

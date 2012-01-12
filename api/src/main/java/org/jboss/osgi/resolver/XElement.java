@@ -27,5 +27,4 @@ package org.jboss.osgi.resolver;
  */
 public interface XElement extends XAttachmentSupport {
 
-    <T> T adapt(Class<T> clazz);
 }

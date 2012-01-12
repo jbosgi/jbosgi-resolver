@@ -26,6 +26,7 @@ import org.jboss.osgi.resolver.XFragmentHostCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,13 +44,13 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPAC
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractFragmentHostCapability extends AbstractCapability implements XFragmentHostCapability {
+public class AbstractFragmentHostCapability extends AbstractBundleCapability implements XFragmentHostCapability {
 
     private final String symbolicName;
     private final Version version;
 
-    protected AbstractFragmentHostCapability(Resource resource, Map<String, Object> atts, Map<String, String> dirs) {
-        super(resource, WIRING_HOST_NAMESPACE, atts, dirs);
+    protected AbstractFragmentHostCapability(BundleRevision brev, Map<String, Object> atts, Map<String, String> dirs) {
+        super(brev, WIRING_HOST_NAMESPACE, atts, dirs);
         this.symbolicName = (String) atts.get(WIRING_HOST_NAMESPACE);
         this.version = (Version) atts.get(BUNDLE_VERSION_ATTRIBUTE);
     }

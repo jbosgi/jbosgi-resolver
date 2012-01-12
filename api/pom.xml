@@ -33,7 +33,7 @@
         <!-- OSGi Dependencies -->
         <dependency>
             <groupId>org.jboss.osgi.core</groupId>
-            <artifactId>jbosgi-core-api</artifactId>
+            <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
 
