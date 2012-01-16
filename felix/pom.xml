@@ -14,7 +14,7 @@
 
     <name>JBossOSGi Resolver Felix</name>
     <groupId>org.jboss.osgi.resolver</groupId>
-    <artifactId>jbosgi-resolver-felix</artifactId>
+    <artifactId>jbosgi-resolver</artifactId>
     <packaging>jar</packaging>
 
     <parent>

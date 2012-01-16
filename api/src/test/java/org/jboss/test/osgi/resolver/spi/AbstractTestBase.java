@@ -46,7 +46,7 @@ public abstract class AbstractTestBase {
 
     @Before
     public void setUp() {
-        environment = new AbstractEnvironment(new ResourceIndexComparator());
+        environment = new AbstractEnvironment();
     }
 
     XEnvironment installResources(List<Resource> resources) {
@@ -57,9 +57,9 @@ public abstract class AbstractTestBase {
     }
 
     Resource createResource(Map<String, String> attrs) throws BundleException {
-        XResourceBuilder amb = new AbstractResourceBuilder();
+        XResourceBuilder amb = XResourceBuilder.INSTANCE.createResource();
         OSGiMetaData metaData = new TestOSGiMetaData(attrs);
-        XResourceBuilder builder = amb.createResource(metaData);
+        XResourceBuilder builder = amb.load(metaData);
         return builder.getResource();
     }
 

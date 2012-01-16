@@ -26,6 +26,7 @@ import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,19 +41,19 @@ import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractResource extends AbstractElement implements XResource {
+public abstract class AbstractResource extends AbstractElement implements XResource {
 
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
     private XIdentityCapability identityCapability;
 
-    void addCapability(Capability cap) {
+    protected void addCapability(Capability cap) {
         String namespace = cap.getNamespace();
         getCaplist(namespace).add(cap);
         getCaplist(null).add(cap);
     }
 
-    void addRequirement(Requirement req) {
+    protected void addRequirement(Requirement req) {
         String namespace = req.getNamespace();
         getReqlist(namespace).add(req);
         getReqlist(null).add(req);
@@ -67,6 +68,9 @@ public class AbstractResource extends AbstractElement implements XResource {
     public List<Requirement> getRequirements(String namespace) {
         return Collections.unmodifiableList(getReqlist(namespace));
     }
+
+    @Override
+    public abstract InputStream getContent();
 
     @Override
     public XIdentityCapability getIdentityCapability() {

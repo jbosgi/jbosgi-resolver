@@ -21,25 +21,25 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XEnvironment;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 
-import java.util.List;
+import java.util.Comparator;
 
 /**
- * A comparator that uses the resource index in the environment.
+ * A comparator that uses the provided resource index.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class ResourceIndexComparator extends AbstractCapabilityComparator {
+public abstract class ResourceIndexComparator implements Comparator<Capability> {
+
+    protected abstract long getResourceIndex(Resource res);
 
     @Override
     public int compare(Capability o1, Capability o2) {
-        AbstractEnvironment env = (AbstractEnvironment) getEnvironment();
-        long in1 = env.getResourceIndex(o1.getResource());
-        long in2 = env.getResourceIndex(o2.getResource());
+        long in1 = getResourceIndex(o1.getResource());
+        long in2 = getResourceIndex(o2.getResource());
         return (int)(in1 - in2);
     }
 }

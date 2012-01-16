@@ -22,7 +22,6 @@
 package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XIdentityCapability;
-import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
@@ -32,6 +31,7 @@ import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWiring;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,5 +93,10 @@ public class AbstractBundleRevision extends AbstractResource implements BundleRe
     @Override
     public Bundle getBundle() {
         return getAttachment(Bundle.class);
+    }
+
+    @Override
+    public InputStream getContent() {
+        return null;
     }
 }

@@ -32,6 +32,7 @@ import org.jboss.osgi.resolver.XResourceBuilder;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,15 +64,14 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     }
 
     @Override
-    public XResourceBuilder createResource(OSGiMetaData metadata) throws BundleException {
-        resource = new AbstractBundleRevision();
-        load(metadata);
+    public XResourceBuilder associateResource(XResource resource) {
+        this.resource = (AbstractBundleRevision) resource;
         return this;
     }
 
     @Override
     public XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
-        assertModuleCreated();
+        assertResourceCreated();
         atts.put(IDENTITY_NAMESPACE, symbolicName);
         atts.put(IDENTITY_VERSION_ATTRIBUTE, version);
         atts.put(IDENTITY_TYPE_ATTRIBUTE, type != null ? type : IDENTITY_TYPE_UNKNOWN);
@@ -82,7 +82,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
     @Override
     public XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
-        assertModuleCreated();
+        assertResourceCreated();
         atts.put(IDENTITY_NAMESPACE, symbolicName);
         XRequirement req = new AbstractIdentityRequirement(resource, atts, dirs);
         resource.addRequirement(req);
@@ -91,7 +91,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
     @Override
     public XCapability addFragmentHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs) {
-        assertModuleCreated();
+        assertResourceCreated();
         atts.put(WIRING_HOST_NAMESPACE, symbolicName);
         atts.put(BUNDLE_VERSION_ATTRIBUTE, version);
         XCapability cap = new AbstractFragmentHostCapability(resource, atts, dirs);
@@ -101,7 +101,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
     @Override
     public XRequirement addFragmentHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
-        assertModuleCreated();
+        assertResourceCreated();
         atts.put(WIRING_HOST_NAMESPACE, symbolicName);
         XRequirement req = new AbstractFragmentHostRequirement(resource, atts, dirs);
         resource.addRequirement(req);
@@ -110,7 +110,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
     @Override
     public XCapability addPackageCapability(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
-        assertModuleCreated();
+        assertResourceCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
         XCapability cap = new AbstractPackageCapability(resource, atts, dirs);
         resource.addCapability(cap);
@@ -119,9 +119,33 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
     @Override
     public XRequirement addPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
-        assertModuleCreated();
+        assertResourceCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
         XRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
+        resource.addRequirement(req);
+        return req;
+    }
+
+    @Override
+    public XCapability addGenericCapability(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        assertResourceCreated();
+        XCapability cap = new AbstractCapability(resource, namespace, atts, dirs) {
+            protected List<String> getMandatoryAttributes() {
+                return Arrays.asList();
+            }
+        };
+        resource.addCapability(cap);
+        return cap;
+    }
+
+    @Override
+    public XRequirement addGenericRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        assertResourceCreated();
+        XRequirement req = new AbstractRequirement(resource, namespace, atts, dirs) {
+            protected List<String> getMandatoryAttributes() {
+                return Arrays.asList();
+            }
+        };
         resource.addRequirement(req);
         return req;
     }
@@ -135,7 +159,9 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         }
     }
 
-    private void load(OSGiMetaData metadata) throws BundleException {
+    @Override
+    public XResourceBuilder load(OSGiMetaData metadata) throws BundleException {
+        assertResourceCreated();
         try {
             String symbolicName = metadata.getBundleSymbolicName();
             Version bundleVersion = metadata.getBundleVersion();
@@ -203,6 +229,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         } catch (RuntimeException ex) {
             throw new BundleException("Cannot initialize XResource from: " + metadata, ex);
         }
+        return this;
     }
 
     private Map<String, String> getDirectives(ParameterizedAttribute attribs) {
@@ -223,7 +250,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         return atts;
     }
 
-    private void assertModuleCreated() {
+    private void assertResourceCreated() {
         if (resource == null)
             throw new IllegalStateException("Resource not created");
     }

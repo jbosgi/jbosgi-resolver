@@ -22,12 +22,12 @@
 package org.jboss.osgi.resolver;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
+import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
 
 import java.util.Collections;
 import java.util.Map;
@@ -43,17 +43,24 @@ public interface XResourceBuilder {
     static final Map<String, Object> EMPTY_ATTRIBUTES = Collections.emptyMap();
     static final Map<String, String> EMPTY_DIRECTIVES = Collections.emptyMap();
 
+    XResourceBuilder INSTANCE = new AbstractResourceBuilder();
+
     /**
      * Create an empty resource builder
      */
     XResourceBuilder createResource();
 
     /**
-     * Create a resource builder from OSGi metadata
+     * Create an empty resource builder from a given resource.
+     */
+    XResourceBuilder associateResource(XResource resource);
+
+    /**
+     * Create requirements/capabilities from OSGi metadata
      * 
      * @param metadata The OSGi metadata
      */
-    XResourceBuilder createResource(OSGiMetaData metadata) throws BundleException;
+    XResourceBuilder load(OSGiMetaData metadata) throws BundleException;
 
     /**
      * Add the identity capability
@@ -111,6 +118,24 @@ public interface XResourceBuilder {
      * @param dirs The directives
      */
     XRequirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
+
+    /**
+     * Add a generic {@link Capability}
+     *
+     * @param namespace The namespace
+     * @param atts The attributes
+     * @param dirs The directives
+     */
+    XCapability addGenericCapability(String namespace, Map<String, Object> atts, Map<String, String> dirs);
+
+    /**
+     * Add a generic {@link Requirement}
+     *
+     * @param namespace The namespace
+     * @param atts The attributes
+     * @param dirs The directives
+     */
+    XRequirement addGenericRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Get the final resource from the builder

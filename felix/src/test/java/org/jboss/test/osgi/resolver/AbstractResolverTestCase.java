@@ -24,7 +24,6 @@ package org.jboss.test.osgi.resolver;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
-import org.jboss.osgi.resolver.XCapabilityComparator;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
@@ -39,10 +38,10 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Before;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wiring;
 import org.osgi.service.resolver.Resolver;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.jar.Manifest;
 
 /**
@@ -59,21 +58,31 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
     @Before
     public void setUp() {
         resolver = new FelixResolver();
-        environment = new AbstractEnvironment(new FrameworkPreferencesComparator());
+        environment = new AbstractEnvironment() {
+            @Override
+            public Comparator<Capability> getComparator() {
+                final AbstractEnvironment env = this;
+                return new FrameworkPreferencesComparator() {
+                    @Override
+                    protected Wiring getWiring(Resource res) {
+                        return env.getWiring(res);
+                    }
+                    @Override
+                    public long getResourceIndex(Resource res) {
+                        return env.getResourceIndex(res);
+                    }
+                };
+            }
+        };
     }
 
-    XEnvironment createEnvironment(XCapabilityComparator comparator) {
-        environment = new AbstractEnvironment(comparator);
-        return environment;
-    }
-    
     XResource createResource(Archive<?> archive) throws Exception {
         VirtualFile virtualFile = toVirtualFile(archive);
         try {
             Manifest manifest = VFSUtils.getManifest(virtualFile);
             OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
-            XResourceBuilder builder = new AbstractResourceBuilder();
-            return builder.createResource(metadata).getResource();
+            XResourceBuilder builder = XResourceBuilder.INSTANCE;
+            return builder.createResource().load(metadata).getResource();
         } finally {
             virtualFile.close();
         }

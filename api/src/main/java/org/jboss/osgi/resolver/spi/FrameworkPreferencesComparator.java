@@ -21,16 +21,11 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XPackageCapability;
-import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wiring;
-
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * A comparator based on defined framework preferences.
@@ -38,14 +33,16 @@ import java.util.List;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class FrameworkPreferencesComparator extends ResourceIndexComparator {
+public abstract class FrameworkPreferencesComparator extends ResourceIndexComparator {
+
+    protected abstract Wiring getWiring(Resource res);
 
     @Override
     public int compare(Capability o1, Capability o2) {
         Resource res1 = o1.getResource();
         Resource res2 = o2.getResource();
-        Wiring w1 = getEnvironment().getWiring(res1);
-        Wiring w2 = getEnvironment().getWiring(res2);
+        Wiring w1 = getWiring(res1);
+        Wiring w2 = getWiring(res2);
 
         // prefer wired
         if (w1 != null && w2 == null)

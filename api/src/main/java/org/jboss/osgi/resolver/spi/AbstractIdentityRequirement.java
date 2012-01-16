@@ -26,6 +26,7 @@ import org.jboss.osgi.resolver.XIdentityRequirement;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
+import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Arrays;
@@ -72,7 +73,7 @@ public class AbstractIdentityRequirement extends AbstractBundleRequirement imple
     }
 
     @Override
-    public boolean matches(Capability cap) {
+    public boolean matches(BundleCapability cap) {
 
         // cannot require itself
         if (getResource() == cap.getResource())

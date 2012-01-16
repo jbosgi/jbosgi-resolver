@@ -51,7 +51,6 @@ public abstract class AbstractRequirement extends AbstractElement implements XRe
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
     private final boolean optional;
-    private Filter filter;
 
     protected AbstractRequirement(Resource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -67,15 +66,6 @@ public abstract class AbstractRequirement extends AbstractElement implements XRe
         this.namespace = namespace;
         this.attributes = new AttributeSupporter(atts);
         this.directives = new DirectiveSupporter(dirs);
-
-        String filterdir = getDirective(Constants.FILTER_DIRECTIVE);
-        if (filterdir != null) {
-            try {
-                filter = FrameworkUtil.createFilter(filterdir);
-            } catch (InvalidSyntaxException e) {
-                throw new IllegalArgumentException("Invalid filter directive: " + filterdir);
-            }
-        }
 
         String resdir = dirs.get(REQUIREMENT_RESOLUTION_DIRECTIVE);
         optional = REQUIREMENT_RESOLUTION_OPTIONAL.equals(resdir);
@@ -125,26 +115,6 @@ public abstract class AbstractRequirement extends AbstractElement implements XRe
     @Override
     public Object getAttribute(String key) {
         return attributes.getAttribute(key);
-    }
-
-    @Override
-    public boolean matches(Capability cap) {
-        boolean matches = namespace.equals(cap.getNamespace());
-
-        // match namespace value
-        if (matches) {
-            XCapability xcap = (XCapability) cap;
-            Object thisatt = getAttribute(namespace);
-            Object otheratt = xcap.getAttribute(namespace);
-            matches = thisatt.equals(otheratt);
-        }
-
-        // match filter
-        if (matches && filter != null) {
-            matches = filter.matches(cap.getAttributes());
-        }
-
-        return matches;
     }
 
     public String toString() {

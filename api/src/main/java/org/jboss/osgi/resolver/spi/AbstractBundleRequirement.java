@@ -21,6 +21,11 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XCapability;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
@@ -35,8 +40,18 @@ import java.util.Map;
  */
 public abstract class AbstractBundleRequirement extends AbstractRequirement implements BundleRequirement {
 
+    private Filter filter;
+
     protected AbstractBundleRequirement(BundleRevision brev, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         super(brev, namespace, atts, dirs);
+        String filterdir = getDirective(Constants.FILTER_DIRECTIVE);
+        if (filterdir != null) {
+            try {
+                filter = FrameworkUtil.createFilter(filterdir);
+            } catch (InvalidSyntaxException e) {
+                throw new IllegalArgumentException("Invalid filter directive: " + filterdir);
+            }
+        }
     }
 
     @Override
@@ -51,6 +66,22 @@ public abstract class AbstractBundleRequirement extends AbstractRequirement impl
 
     @Override
     public boolean matches(BundleCapability cap) {
-        return super.matches(cap);
+        String namespace = getNamespace();
+        boolean matches = namespace.equals(cap.getNamespace());
+
+        // match namespace value
+        if (matches) {
+            XCapability xcap = (XCapability) cap;
+            Object thisatt = getAttribute(namespace);
+            Object otheratt = xcap.getAttribute(namespace);
+            matches = thisatt.equals(otheratt);
+        }
+
+        // match filter
+        if (matches && filter != null) {
+            matches = filter.matches(cap.getAttributes());
+        }
+
+        return matches;
     }
 }

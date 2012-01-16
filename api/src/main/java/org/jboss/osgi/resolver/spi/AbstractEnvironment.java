@@ -21,17 +21,20 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XCapabilityComparator;
+import org.jboss.osgi.resolver.NotImplementedException;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,15 +49,17 @@ import java.util.TreeSet;
  */
 public class AbstractEnvironment extends AbstractElement implements XEnvironment {
 
-    private final XCapabilityComparator comparator;
     private final List<Resource> resources = new ArrayList<Resource>();
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
-    public AbstractEnvironment(XCapabilityComparator comp) {
-        if (comp instanceof AbstractCapabilityComparator) {
-            ((AbstractCapabilityComparator)comp).setEnvironment(this);
-        }
-        this.comparator = comp;
+    @Override
+    public Comparator<Capability> getComparator() {
+        return new ResourceIndexComparator() {
+            @Override
+            protected long getResourceIndex(Resource res) {
+                return resources.indexOf(res);
+            }
+        };
     }
 
     public void installResources(Resource... resarr) {
@@ -83,17 +88,24 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
 
     @Override
     public SortedSet<Capability> findProviders(Requirement req) {
-        SortedSet<Capability> result = new TreeSet<Capability>(comparator);
+        SortedSet<Capability> result = new TreeSet<Capability>(getComparator());
         synchronized (resources) {
             for (Resource res : resources) {
                 for (Capability cap : res.getCapabilities(req.getNamespace())) {
-                    if (req.matches(cap)) {
-                        result.add(cap);
+                    if (req instanceof BundleRequirement) {
+                        if (((BundleRequirement)req).matches((BundleCapability) cap)) {
+                            result.add(cap);
+                        }
                     }
                 }
             }
         }
         return result;
+    }
+
+    @Override
+    public Map<Requirement, SortedSet<Capability>> findProviders(Collection<? extends Requirement> requirements) {
+        throw new NotImplementedException();
     }
 
     @Override

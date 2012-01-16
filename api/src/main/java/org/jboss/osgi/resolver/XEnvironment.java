@@ -42,4 +42,6 @@ public interface XEnvironment extends XElement, Environment {
     Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap);
 
     Wiring getWiring(Resource resource);
+
+    Comparator<Capability> getComparator();
 }

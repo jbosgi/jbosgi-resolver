@@ -27,6 +27,7 @@ import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Arrays;
@@ -74,7 +75,7 @@ public class AbstractFragmentHostRequirement extends AbstractBundleRequirement i
     }
 
     @Override
-    public boolean matches(Capability cap) {
+    public boolean matches(BundleCapability cap) {
 
         if (super.matches(cap) == false)
             return false;

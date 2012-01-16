@@ -29,6 +29,7 @@ import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
+import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Arrays;
@@ -79,7 +80,7 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
     }
 
     @Override
-    public boolean matches(Capability cap) {
+    public boolean matches(BundleCapability cap) {
 
         if(super.matches(cap) == false)
             return false;
