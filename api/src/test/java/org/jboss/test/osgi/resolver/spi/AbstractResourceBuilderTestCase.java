@@ -21,11 +21,10 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.VersionRange;
-import org.jboss.osgi.resolver.XFragmentHostCapability;
-import org.jboss.osgi.resolver.XIdentityCapability;
-import org.jboss.osgi.resolver.XPackageRequirement;
-import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
+import org.jboss.osgi.resolver.v2.VersionRange;
+import org.jboss.osgi.resolver.v2.XFragmentHostCapability;
+import org.jboss.osgi.resolver.v2.XIdentityCapability;
+import org.jboss.osgi.resolver.v2.XPackageRequirement;
 import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
@@ -33,7 +32,6 @@ import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.ResourceConstants;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +42,7 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPAC
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
- * Unit tests for the {@link AbstractResourceBuilder} class
+ * Unit tests for the {@link org.jboss.osgi.resolver.v2.spi.AbstractResourceBuilder} class
  * 
  * @author <a href="david@redhat.com">David Bosschaert</a>
  * @author Thomas.Diesler@jboss.com

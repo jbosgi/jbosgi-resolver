@@ -14,7 +14,7 @@
 
     <name>JBossOSGi Resolver API</name>
     <groupId>org.jboss.osgi.resolver</groupId>
-    <artifactId>jbosgi-resolver-api</artifactId>
+    <artifactId>jbosgi-resolver-apiv2</artifactId>
     <packaging>jar</packaging>
 
     <parent>
@@ -32,7 +32,7 @@
 
         <!-- OSGi Dependencies -->
         <dependency>
-            <groupId>org.jboss.osgi.core</groupId>
+            <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>

@@ -21,8 +21,8 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XEnvironment;
-import org.jboss.osgi.resolver.XPackageRequirement;
+import org.jboss.osgi.resolver.v2.XEnvironment;
+import org.jboss.osgi.resolver.v2.XPackageRequirement;
 import org.junit.Test;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
