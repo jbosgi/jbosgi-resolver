@@ -21,6 +21,7 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.VersionRange;
 import org.jboss.osgi.resolver.XFragmentHostCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
@@ -29,7 +30,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
-import org.osgi.framework.VersionRange;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
@@ -82,13 +82,13 @@ public class AbstractResourceBuilderTestCase extends AbstractTestBase {
                 Assert.assertNull(xreq.getVersionRange());
                 Assert.assertFalse(xreq.isOptional());
             } else if ("value2".equals(packageName)) {
-                Assert.assertEquals(new VersionRange("1.0.1"), xreq.getVersionRange());
+                Assert.assertEquals(VersionRange.parse("1.0.1"), xreq.getVersionRange());
                 Assert.assertFalse(xreq.isOptional());
             } else if ("value3".equals(packageName)) {
                 Assert.assertNull(xreq.getVersionRange());
                 Assert.assertTrue(xreq.isOptional());
             } else if ("value4".equals(packageName)) {
-                Assert.assertEquals(new VersionRange("3"), xreq.getVersionRange());
+                Assert.assertEquals(VersionRange.parse("3"), xreq.getVersionRange());
                 Assert.assertTrue(xreq.isOptional());
             } else {
                 Assert.fail("Incorrect package name: " + req);

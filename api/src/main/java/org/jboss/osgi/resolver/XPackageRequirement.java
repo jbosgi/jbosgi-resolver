@@ -21,10 +21,6 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.framework.VersionRange;
-import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.wiring.BundleRequirement;
-
 /**
  * A package requirement
  * 

@@ -21,14 +21,13 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.VersionRange;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
-import org.osgi.framework.VersionRange;
-import org.osgi.framework.resource.Capability;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
@@ -59,7 +58,7 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
         packageName = (String) attributes.get(WIRING_PACKAGE_NAMESPACE);
         Object versionatt = attributes.get(VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
-            versionatt = new VersionRange((String) versionatt);
+            versionatt = VersionRange.parse((String) versionatt);
         }
         versionrange = (VersionRange) versionatt;
     }
@@ -88,7 +87,7 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
         // match the package version range
         if (versionrange != null) {
             Version version = ((XPackageCapability) cap).getVersion();
-            if (versionrange.includes(version) == false)
+            if (versionrange.isInRange(version) == false)
                 return false;
         }
 
@@ -115,8 +114,8 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
             XResource capres = (XResource) cap.getResource();
             XIdentityCapability idcap = capres.getIdentityCapability();
             Version targetVersion = idcap != null ? idcap.getVersion() : null;
-            VersionRange versionRange = new VersionRange(versionstr);
-            if (targetVersion != null && versionRange.includes(targetVersion) == false)
+            VersionRange versionRange = VersionRange.parse(versionstr);
+            if (targetVersion != null && versionRange.isInRange(targetVersion) == false)
                 return false;
         }
 
