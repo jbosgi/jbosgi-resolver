@@ -30,7 +30,7 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.osgi.resolver</groupId>
-            <artifactId>jbosgi-resolver-api</artifactId>
+            <artifactId>jbosgi-resolver-apiv2</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
