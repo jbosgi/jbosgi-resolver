@@ -102,7 +102,7 @@
     <!-- Modules -->
     <modules>
         <module>api</module>
-        <!--module>felix</module-->
+        <module>felix</module>
     </modules>
 
 </project>
