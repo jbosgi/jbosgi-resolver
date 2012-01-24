@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver.v2;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
+import org.jboss.osgi.resolver.v2.spi.AbstractBundleRevision;
 import org.jboss.osgi.resolver.v2.spi.AbstractResourceBuilder;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -38,29 +39,38 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XResourceBuilder {
+public abstract class XResourceBuilder {
 
-    static final Map<String, Object> EMPTY_ATTRIBUTES = Collections.emptyMap();
-    static final Map<String, String> EMPTY_DIRECTIVES = Collections.emptyMap();
+    public static final Map<String, Object> EMPTY_ATTRIBUTES = Collections.emptyMap();
+    public static final Map<String, String> EMPTY_DIRECTIVES = Collections.emptyMap();
 
-    XResourceBuilder INSTANCE = new AbstractResourceBuilder();
+    protected AbstractBundleRevision resource;
 
     /**
      * Create an empty resource builder
      */
-    XResourceBuilder createResource();
+    public static XResourceBuilder create() {
+        AbstractResourceBuilder builder = new AbstractResourceBuilder();
+        builder.resource = new AbstractBundleRevision();
+        return builder;
+    }
 
     /**
      * Create an empty resource builder from a given resource.
      */
-    XResourceBuilder associateResource(XResource resource);
+    public static XResourceBuilder create(XResource resource) {
+        AbstractResourceBuilder builder = new AbstractResourceBuilder();
+        builder.resource = (AbstractBundleRevision) resource;
+        return builder;
+    }
+
 
     /**
      * Create requirements/capabilities from OSGi metadata
      * 
      * @param metadata The OSGi metadata
      */
-    XResourceBuilder load(OSGiMetaData metadata) throws BundleException;
+    public abstract XResourceBuilder load(OSGiMetaData metadata) throws BundleException;
 
     /**
      * Add the identity capability
@@ -71,7 +81,7 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add identity requirement
@@ -80,7 +90,7 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add the fragment host capability
@@ -90,7 +100,7 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    XCapability addFragmentHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XCapability addFragmentHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add fragment host requirement
@@ -99,7 +109,7 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    XRequirement addFragmentHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XRequirement addFragmentHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#EXPORT_PACKAGE} capability
@@ -108,7 +118,7 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    XCapability addPackageCapability(String name, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XCapability addPackageCapability(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#IMPORT_PACKAGE} requirement
@@ -117,7 +127,7 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    XRequirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XRequirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a generic {@link Capability}
@@ -126,7 +136,7 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    XCapability addGenericCapability(String namespace, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XCapability addGenericCapability(String namespace, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a generic {@link Requirement}
@@ -135,10 +145,12 @@ public interface XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    XRequirement addGenericRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XRequirement addGenericRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Get the final resource from the builder
      */
-    XResource getResource();
+    public XResource getResource() {
+        return resource;
+    }
 }

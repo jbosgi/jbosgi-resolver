@@ -80,8 +80,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
         try {
             Manifest manifest = VFSUtils.getManifest(virtualFile);
             OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
-            XResourceBuilder builder = XResourceBuilder.INSTANCE;
-            return builder.createResource().load(metadata).getResource();
+            return XResourceBuilder.create().load(metadata).getResource();
         } finally {
             virtualFile.close();
         }

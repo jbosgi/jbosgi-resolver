@@ -53,21 +53,7 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractResourceBuilder implements XResourceBuilder {
-
-    private AbstractBundleRevision resource;
-
-    @Override
-    public XResourceBuilder createResource() {
-        resource = new AbstractBundleRevision();
-        return this;
-    }
-
-    @Override
-    public XResourceBuilder associateResource(XResource resource) {
-        this.resource = (AbstractBundleRevision) resource;
-        return this;
-    }
+public class AbstractResourceBuilder extends XResourceBuilder {
 
     @Override
     public XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
@@ -129,11 +115,20 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     @Override
     public XCapability addGenericCapability(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
-        XCapability cap = new AbstractCapability(resource, namespace, atts, dirs) {
-            protected List<String> getMandatoryAttributes() {
-                return Arrays.asList();
-            }
-        };
+        XCapability cap;
+        if (IDENTITY_NAMESPACE.equals(namespace)) {
+            cap = new AbstractIdentityCapability(resource, atts, dirs);
+        } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
+            cap = new AbstractPackageCapability(resource, atts, dirs);
+        } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
+            cap = new AbstractFragmentHostCapability(resource, atts, dirs);
+        } else {
+            cap = new AbstractCapability(resource, namespace, atts, dirs) {
+                protected List<String> getMandatoryAttributes() {
+                    return Arrays.asList();
+                }
+            };
+        }
         resource.addCapability(cap);
         return cap;
     }
@@ -141,22 +136,22 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     @Override
     public XRequirement addGenericRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
-        XRequirement req = new AbstractRequirement(resource, namespace, atts, dirs) {
-            protected List<String> getMandatoryAttributes() {
-                return Arrays.asList();
-            }
-        };
+        XRequirement req;
+        if (IDENTITY_NAMESPACE.equals(namespace)) {
+            req = new AbstractIdentityRequirement(resource, atts, dirs);
+        } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
+            req = new AbstractPackageRequirement(resource, atts, dirs);
+        } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
+            req = new AbstractFragmentHostRequirement(resource, atts, dirs);
+        } else {
+            req = new AbstractRequirement(resource, namespace, atts, dirs) {
+                protected List<String> getMandatoryAttributes() {
+                    return Arrays.asList();
+                }
+            };
+        }
         resource.addRequirement(req);
         return req;
-    }
-
-    @Override
-    public XResource getResource() {
-        try {
-            return resource;
-        } finally {
-            resource = null;
-        }
     }
 
     @Override

@@ -55,7 +55,7 @@ public abstract class AbstractTestBase {
     }
 
     Resource createResource(Map<String, String> attrs) throws BundleException {
-        XResourceBuilder amb = XResourceBuilder.INSTANCE.createResource();
+        XResourceBuilder amb = XResourceBuilder.create();
         OSGiMetaData metaData = new TestOSGiMetaData(attrs);
         XResourceBuilder builder = amb.load(metaData);
         return builder.getResource();
