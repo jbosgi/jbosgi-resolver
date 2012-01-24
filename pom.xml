@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.jboss.osgi</groupId>
         <artifactId>jboss-osgi-parent</artifactId>
-        <version>1.0.14-SNAPSHOT</version>
+        <version>1.0.14</version>
     </parent>
 
     <name>JBossOSGi Resolver</name>
@@ -102,20 +102,7 @@
     <!-- Modules -->
     <modules>
         <module>api</module>
+        <module>felix</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>apionly</id>
-            <activation>
-                <property>
-                    <name>!apionly</name>
-                </property>
-            </activation>
-            <modules>
-                <module>felix</module>
-            </modules>
-        </profile>
-    </profiles>
 
 </project>
