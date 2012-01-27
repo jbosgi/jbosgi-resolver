@@ -55,6 +55,13 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  */
 public class AbstractResourceBuilder extends XResourceBuilder {
 
+    public AbstractResourceBuilder(XResource resource) {
+        super(resource);
+    }
+
+    public AbstractResourceBuilder() {
+    }
+
     @Override
     public XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();

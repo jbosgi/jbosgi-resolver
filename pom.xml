@@ -36,6 +36,7 @@
     <!-- Properties -->
     <properties>
         <version.apache.felix.resolver>4.1.0.Alpha1</version.apache.felix.resolver>
+        <version.jboss.modules>1.1.0.CR8</version.jboss.modules>
         <version.jboss.osgi.metadata>2.0.0.CR1</version.jboss.osgi.metadata>
         <version.jboss.osgi.spi>2.0.1</version.jboss.osgi.spi>
         <version.jboss.osgi.vfs>1.0.6</version.jboss.osgi.vfs>
@@ -53,6 +54,11 @@
                 <artifactId>org.apache.felix.framework</artifactId>
                 <version>${version.apache.felix.resolver}</version>
                 <classifier>resolver</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.modules</groupId>
+                <artifactId>jboss-modules</artifactId>
+                <version>${version.jboss.modules}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.osgi.metadata</groupId>

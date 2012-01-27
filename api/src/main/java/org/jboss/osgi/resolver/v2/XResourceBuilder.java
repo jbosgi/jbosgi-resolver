@@ -22,20 +22,30 @@
 package org.jboss.osgi.resolver.v2;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
+import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.v2.spi.AbstractBundleRevision;
 import org.jboss.osgi.resolver.v2.spi.AbstractResourceBuilder;
+import org.jboss.osgi.resolver.v2.spi.URLBasedResource;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
+
+import static org.jboss.osgi.resolver.v2.XResourceConstants.CONTENT_PATH;
+import static org.jboss.osgi.resolver.v2.XResourceConstants.CONTENT_URL;
 
 /**
  * A builder for resolver modules
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -46,40 +56,77 @@ public abstract class XResourceBuilder {
 
     protected AbstractBundleRevision resource;
 
+    protected XResourceBuilder() {
+        this.resource = new AbstractBundleRevision();
+    }
+
+    protected XResourceBuilder(XResource resource) {
+        this.resource = (AbstractBundleRevision) resource;
+    }
+
     /**
      * Create an empty resource builder
      */
     public static XResourceBuilder create() {
-        AbstractResourceBuilder builder = new AbstractResourceBuilder();
-        builder.resource = new AbstractBundleRevision();
-        return builder;
+        return new AbstractResourceBuilder();
     }
 
     /**
      * Create an empty resource builder from a given resource.
      */
     public static XResourceBuilder create(XResource resource) {
-        AbstractResourceBuilder builder = new AbstractResourceBuilder();
-        builder.resource = (AbstractBundleRevision) resource;
+        return new AbstractResourceBuilder(resource);
+    }
+
+    /**
+     * Create a resource builder based on a given base URL and content path.
+     */
+    public static XResourceBuilder create(URL baseURL, String contentPath) {
+        URLBasedResource resource = new URLBasedResource(baseURL, contentPath);
+        AbstractResourceBuilder builder = new AbstractResourceBuilder(resource) {
+            @Override
+            public XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
+                URLBasedResource urlres = (URLBasedResource) resource;
+                atts.put(CONTENT_URL, urlres.getContentURL());
+                atts.put(CONTENT_PATH, urlres.getContentPath());
+                return super.addIdentityCapability(symbolicName, version, type, atts, dirs);
+            }
+        };
+        InputStream content = resource.getContent();
+        try {
+            Manifest manifest = new JarInputStream(content).getManifest();
+            OSGiMetaData metaData = OSGiMetaDataBuilder.load(manifest);
+            builder.load(metaData);
+        } catch (Exception ex) {
+            URL contentURL = resource.getContentURL();
+            throw new IllegalStateException("Cannot create capability from: " + contentURL, ex);
+        } finally {
+            if (content != null) {
+                try {
+                    content.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
         return builder;
     }
 
-
     /**
      * Create requirements/capabilities from OSGi metadata
-     * 
+     *
      * @param metadata The OSGi metadata
      */
     public abstract XResourceBuilder load(OSGiMetaData metadata) throws BundleException;
 
     /**
      * Add the identity capability
-     * 
+     *
      * @param symbolicName The resource symbolic name
-     * @param version The resource version
-     * @param type The resource type
-     * @param atts The attributes
-     * @param dirs The directives
+     * @param version      The resource version
+     * @param type         The resource type
+     * @param atts         The attributes
+     * @param dirs         The directives
      */
     public abstract XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs);
 
@@ -87,8 +134,8 @@ public abstract class XResourceBuilder {
      * Add identity requirement
      *
      * @param symbolicName The bundle symbolic name
-     * @param atts The attributes
-     * @param dirs The directives
+     * @param atts         The attributes
+     * @param dirs         The directives
      */
     public abstract XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
 
@@ -96,9 +143,9 @@ public abstract class XResourceBuilder {
      * Add the fragment host capability
      *
      * @param symbolicName The resource symbolic name
-     * @param version The resource version
-     * @param atts The attributes
-     * @param dirs The directives
+     * @param version      The resource version
+     * @param atts         The attributes
+     * @param dirs         The directives
      */
     public abstract XCapability addFragmentHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
 
@@ -106,8 +153,8 @@ public abstract class XResourceBuilder {
      * Add fragment host requirement
      *
      * @param symbolicName The bundle symbolic name
-     * @param atts The attributes
-     * @param dirs The directives
+     * @param atts         The attributes
+     * @param dirs         The directives
      */
     public abstract XRequirement addFragmentHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
 
@@ -133,8 +180,8 @@ public abstract class XResourceBuilder {
      * Add a generic {@link Capability}
      *
      * @param namespace The namespace
-     * @param atts The attributes
-     * @param dirs The directives
+     * @param atts      The attributes
+     * @param dirs      The directives
      */
     public abstract XCapability addGenericCapability(String namespace, Map<String, Object> atts, Map<String, String> dirs);
 
@@ -142,8 +189,8 @@ public abstract class XResourceBuilder {
      * Add a generic {@link Requirement}
      *
      * @param namespace The namespace
-     * @param atts The attributes
-     * @param dirs The directives
+     * @param atts      The attributes
+     * @param dirs      The directives
      */
     public abstract XRequirement addGenericRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs);
 
