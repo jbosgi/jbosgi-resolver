@@ -27,6 +27,7 @@ import org.jboss.osgi.metadata.AttributeAware;
  * Attribute holder.
  * 
  * @author <a href="mailto:ales.justin@jboss.com">Ales Justin</a>
+ * @author Thomas.Diesler@jboss.com
  */
 public abstract class AbstractAttributeAware implements AttributeAware {
     protected String attribute;
@@ -37,5 +38,10 @@ public abstract class AbstractAttributeAware implements AttributeAware {
 
     public String getAttribute() {
         return attribute;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + attribute + "]";
     }
 }

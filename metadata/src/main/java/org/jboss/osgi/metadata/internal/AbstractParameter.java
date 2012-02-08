@@ -35,12 +35,11 @@ public class AbstractParameter implements Parameter {
     protected Collection<String> values;
 
     public AbstractParameter() {
-        super();
         values = new HashSet<String>();
     }
 
     public AbstractParameter(String parameter) {
-        this();
+        values = new HashSet<String>();
         addValue(parameter);
     }
 
@@ -59,5 +58,10 @@ public class AbstractParameter implements Parameter {
 
     public boolean isCollection() {
         return values.size() > 1;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + getValue() + "]";
     }
 }

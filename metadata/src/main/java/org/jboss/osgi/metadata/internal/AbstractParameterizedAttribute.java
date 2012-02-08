@@ -36,7 +36,6 @@ public class AbstractParameterizedAttribute extends AbstractAttributeAware imple
     private static final long serialVersionUID = 1l;
 
     protected Map<String, Parameter> attributes;
-
     protected Map<String, Parameter> directives;
 
     public AbstractParameterizedAttribute(String attribute, Map<String, Parameter> attributes, Map<String, Parameter> directives) {
@@ -95,5 +94,10 @@ public class AbstractParameterizedAttribute extends AbstractAttributeAware imple
         if (value == null)
             return defaultValue;
         return type.cast(value);
+    }
+
+    @Override
+    public String toString() {
+        return attribute + "[attr=" + attributes + ",dirs=" + directives + "]";
     }
 }
