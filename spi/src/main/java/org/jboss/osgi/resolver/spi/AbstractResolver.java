@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver.spi;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -192,9 +193,7 @@ public abstract class AbstractResolver implements XResolver {
         try {
             callback.markResolved(module);
         } catch (RuntimeException ex) {
-            // [TODO] settle on a logging strategy
-            System.err.println("Error in callback: " + callback.getClass().getName());
-            ex.printStackTrace();
+            log.errorf(ex, "Error in callback: " + callback);
         }
     }
 
@@ -223,7 +222,7 @@ public abstract class AbstractResolver implements XResolver {
         if (reqset == null)
             return Collections.emptySet();
 
-        return Collections.unmodifiableSet(reqset);
+        return Collections.unmodifiableSet(new HashSet<XRequirement>(reqset));
     }
 
     XCapability getWiredCapability(XRequirement req) {
