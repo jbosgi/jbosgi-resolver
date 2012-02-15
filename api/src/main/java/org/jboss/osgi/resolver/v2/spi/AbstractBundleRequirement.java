@@ -25,6 +25,7 @@ import org.jboss.osgi.resolver.v2.XCapability;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.ResourceConstants;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
@@ -44,8 +45,8 @@ public abstract class AbstractBundleRequirement extends AbstractRequirement impl
 
     private Filter filter;
 
-    protected AbstractBundleRequirement(BundleRevision brev, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
-        super(brev, namespace, atts, dirs);
+    protected AbstractBundleRequirement(Resource res, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        super(res, namespace, atts, dirs);
         String filterdir = getDirective(ResourceConstants.REQUIREMENT_FILTER_DIRECTIVE);
         if (filterdir != null) {
             try {

@@ -51,8 +51,7 @@
 
         <dependency>
             <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.framework</artifactId>
-            <classifier>resolver</classifier>
+            <artifactId>org.apache.felix.resolver</artifactId>
         </dependency>
 
         <!-- Test Dependencies -->

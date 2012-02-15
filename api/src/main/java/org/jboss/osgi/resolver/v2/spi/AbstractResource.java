@@ -41,7 +41,7 @@ import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class AbstractResource extends AbstractElement implements XResource {
+public class AbstractResource extends AbstractElement implements XResource {
 
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
@@ -70,9 +70,6 @@ public abstract class AbstractResource extends AbstractElement implements XResou
     }
 
     @Override
-    public abstract InputStream getContent();
-
-    @Override
     public XIdentityCapability getIdentityCapability() {
         if (identityCapability == null) {
             List<Capability> caps = getCapabilities(IDENTITY_NAMESPACE);
@@ -99,6 +96,11 @@ public abstract class AbstractResource extends AbstractElement implements XResou
             requirements.put(namespace, reqlist);
         }
         return reqlist;
+    }
+
+    @Override
+    public InputStream getContent() {
+        return null;
     }
 
     public String toString() {

@@ -25,8 +25,8 @@ import org.jboss.osgi.resolver.v2.VersionRange;
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
 import org.jboss.osgi.resolver.v2.XIdentityRequirement;
 import org.osgi.framework.Version;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Resource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,13 +41,13 @@ import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractIdentityRequirement extends AbstractBundleRequirement implements XIdentityRequirement {
+public class AbstractIdentityRequirement extends AbstractRequirement implements XIdentityRequirement {
 
     private final String symbolicName;
     private final VersionRange versionrange;
 
-    protected AbstractIdentityRequirement(BundleRevision brev, Map<String, Object> atts, Map<String, String> dirs) {
-        super(brev, IDENTITY_NAMESPACE, atts, dirs);
+    protected AbstractIdentityRequirement(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
+        super(res, IDENTITY_NAMESPACE, atts, dirs);
         this.symbolicName = (String) getAttribute(IDENTITY_NAMESPACE);
         Object versionatt = atts.get(BUNDLE_VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
@@ -72,7 +72,7 @@ public class AbstractIdentityRequirement extends AbstractBundleRequirement imple
     }
 
     @Override
-    public boolean matches(BundleCapability cap) {
+    public boolean matches(Capability cap) {
 
         // cannot require itself
         if (getResource() == cap.getResource())

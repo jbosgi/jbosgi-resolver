@@ -22,10 +22,18 @@
 package org.jboss.osgi.resolver.v2.spi;
 
 import org.jboss.osgi.resolver.v2.XAttributeSupport;
+import org.jboss.osgi.resolver.v2.XCapability;
 import org.jboss.osgi.resolver.v2.XDirectiveSupport;
 import org.jboss.osgi.resolver.v2.XRequirement;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.ResourceConstants;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +53,7 @@ public abstract class AbstractRequirement extends AbstractElement implements XRe
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
     private final boolean optional;
+    private final Filter filter;
 
     protected AbstractRequirement(Resource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -64,6 +73,18 @@ public abstract class AbstractRequirement extends AbstractElement implements XRe
         String resdir = dirs.get(REQUIREMENT_RESOLUTION_DIRECTIVE);
         optional = REQUIREMENT_RESOLUTION_OPTIONAL.equals(resdir);
 
+        String filterdir = getDirective(ResourceConstants.REQUIREMENT_FILTER_DIRECTIVE);
+        if (filterdir != null) {
+            try {
+                filter = FrameworkUtil.createFilter(filterdir);
+            } catch (InvalidSyntaxException e) {
+                throw new IllegalArgumentException("Invalid filter directive: " + filterdir);
+            }
+        } else {
+            filter = null;
+        }
+        
+        
         validateAttributes(atts);
     }
 
@@ -111,6 +132,28 @@ public abstract class AbstractRequirement extends AbstractElement implements XRe
         return attributes.getAttribute(key);
     }
 
+    @Override
+    public boolean matches(Capability cap) {
+        String namespace = getNamespace();
+        boolean matches = namespace.equals(cap.getNamespace());
+
+        // match namespace value
+        if (matches) {
+            XCapability xcap = (XCapability) cap;
+            Object thisatt = getAttribute(namespace);
+            Object otheratt = xcap.getAttribute(namespace);
+            matches = thisatt.equals(otheratt);
+        }
+
+        // match filter
+        if (matches && filter != null) {
+            Dictionary dict = new Hashtable(cap.getAttributes());
+            matches = filter.match(dict);
+        }
+
+        return matches;
+    }
+    
     public String toString() {
         String attstr = !getAttributes().isEmpty() ? ",attributes=" + attributes : "";
         String dirstr = !getDirectives().isEmpty() ? ",directives=" + directives : "";

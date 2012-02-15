@@ -23,7 +23,7 @@ package org.jboss.osgi.resolver.v2.spi;
 
 import org.jboss.osgi.resolver.v2.XPackageCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.resource.Resource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,13 +38,13 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractPackageCapability extends AbstractBundleCapability implements XPackageCapability {
+public class AbstractPackageCapability extends AbstractCapability implements XPackageCapability {
 
     private final String packageName;
     private final Version version;
 
-    protected AbstractPackageCapability(BundleRevision brev, Map<String, Object> attrs, Map<String, String> dirs) {
-        super(brev, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
+    protected AbstractPackageCapability(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
+        super(res, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
         packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
         String versionatt = (String) attrs.get(VERSION_ATTRIBUTE);
         version = versionatt != null ? Version.parseVersion(versionatt) : Version.emptyVersion;

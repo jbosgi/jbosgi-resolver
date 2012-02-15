@@ -94,9 +94,4 @@ public class AbstractBundleRevision extends AbstractResource implements BundleRe
     public Bundle getBundle() {
         return getAttachment(Bundle.class);
     }
-
-    @Override
-    public InputStream getContent() {
-        return null;
-    }
 }

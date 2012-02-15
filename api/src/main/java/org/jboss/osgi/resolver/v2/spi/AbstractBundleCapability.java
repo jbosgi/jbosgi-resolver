@@ -21,6 +21,7 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
+import org.osgi.framework.resource.Resource;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 
@@ -34,8 +35,8 @@ import java.util.Map;
  */
 public abstract class AbstractBundleCapability extends AbstractCapability implements BundleCapability {
 
-    protected AbstractBundleCapability(BundleRevision brev, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
-        super(brev, namespace, atts, dirs);
+    protected AbstractBundleCapability(Resource res, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        super(res, namespace, atts, dirs);
     }
 
     @Override

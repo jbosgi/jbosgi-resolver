@@ -23,6 +23,8 @@ package org.jboss.osgi.resolver.v2;
 
 import org.osgi.framework.resource.Resource;
 
+import java.io.InputStream;
+
 /**
  * An extension to the {@link Resource}
  *
@@ -32,4 +34,6 @@ import org.osgi.framework.resource.Resource;
 public interface XResource extends XElement, Resource {
 
     XIdentityCapability getIdentityCapability();
+
+    InputStream getContent();
 }

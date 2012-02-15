@@ -23,7 +23,7 @@ package org.jboss.osgi.resolver.v2;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
-import org.jboss.osgi.resolver.v2.spi.AbstractBundleRevision;
+import org.jboss.osgi.resolver.v2.spi.AbstractResource;
 import org.jboss.osgi.resolver.v2.spi.AbstractResourceBuilder;
 import org.jboss.osgi.resolver.v2.spi.URLBasedResource;
 import org.osgi.framework.BundleException;
@@ -54,14 +54,14 @@ public abstract class XResourceBuilder {
     public static final Map<String, Object> EMPTY_ATTRIBUTES = Collections.emptyMap();
     public static final Map<String, String> EMPTY_DIRECTIVES = Collections.emptyMap();
 
-    protected AbstractBundleRevision resource;
+    protected AbstractResource resource;
 
     protected XResourceBuilder() {
-        this.resource = new AbstractBundleRevision();
+        this.resource = new AbstractResource();
     }
 
     protected XResourceBuilder(XResource resource) {
-        this.resource = (AbstractBundleRevision) resource;
+        this.resource = (AbstractResource) resource;
     }
 
     /**

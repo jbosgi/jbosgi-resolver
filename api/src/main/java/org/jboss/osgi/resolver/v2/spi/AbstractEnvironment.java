@@ -21,18 +21,14 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
-import org.jboss.osgi.resolver.v2.NotImplementedException;
 import org.jboss.osgi.resolver.v2.XEnvironment;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRequirement;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -66,7 +62,7 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
         if (resources == null)
             throw new IllegalArgumentException("Null resource");
         synchronized (resources) {
-            for(Resource res : resarr) {
+            for (Resource res : resarr) {
                 if (resources.contains(res))
                     throw new IllegalArgumentException("Resource already installed: " + res);
                 resources.add(res);
@@ -76,7 +72,7 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
 
     public void uninstallResources(Resource... resarr) {
         synchronized (resources) {
-            for(Resource res : resarr) {
+            for (Resource res : resarr) {
                 resources.remove(res);
             }
         }
@@ -92,20 +88,13 @@ public class AbstractEnvironment extends AbstractElement implements XEnvironment
         synchronized (resources) {
             for (Resource res : resources) {
                 for (Capability cap : res.getCapabilities(req.getNamespace())) {
-                    if (req instanceof BundleRequirement) {
-                        if (((BundleRequirement)req).matches((BundleCapability) cap)) {
-                            result.add(cap);
-                        }
+                    if (req.matches(cap)) {
+                        result.add(cap);
                     }
                 }
             }
         }
         return result;
-    }
-
-    @Override
-    public Map<Requirement, SortedSet<Capability>> findProviders(Collection<? extends Requirement> requirements) {
-        throw new NotImplementedException();
     }
 
     @Override

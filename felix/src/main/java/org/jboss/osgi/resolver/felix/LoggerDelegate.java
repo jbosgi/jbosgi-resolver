@@ -24,36 +24,30 @@ package org.jboss.osgi.resolver.felix;
 //$Id: FelixIntegration.java 84730 2009-02-25 12:57:23Z thomas.diesler@jboss.com $
 
 import org.jboss.logging.Logger;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceReference;
 
 /**
- * An integration with the Felix Logger.
+ * An integration with the resolver Logger.
  * 
- * This Logger gets registered with the Felix framework and delegates framework log messages to JBoss Logging.
+ * This Logger delegates framework log messages to JBoss Logging.
  * 
  * @author thomas.diesler@jboss.com
- * @since 04-Mar-2009
+ * @since 14-Feb-2012
  */
-public class LoggerDelegate extends org.apache.felix.framework.Logger {
+public class LoggerDelegate implements org.apache.felix.resolver.Logger {
+
     // Provide logging
     private static final Logger log = Logger.getLogger(LoggerDelegate.class);
 
     public LoggerDelegate() {
-        setLogLevel(LOG_DEBUG);
     }
 
     @Override
-    protected void doLog(Bundle bundle, ServiceReference sref, int level, String msg, Throwable throwable) {
-        if (bundle != null)
-            msg = "[" + bundle + "] " + msg;
+    public void log(int level, String msg) {
+        log(level, msg, null);
+    }
 
-        if (sref != null)
-            msg = sref + ": " + msg;
-
-        // An unresolved bundle causes a WARNING that comes with an exception
-        // Currently we log WARNING exceptions at DEBUG level
-
+    @Override
+    public void log(int level, String msg, Throwable throwable) {
         if (level == LOG_DEBUG) {
             log.debug(msg, throwable);
         } else if (level == LOG_INFO) {

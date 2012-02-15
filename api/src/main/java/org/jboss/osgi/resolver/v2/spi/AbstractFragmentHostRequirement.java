@@ -25,8 +25,9 @@ import org.jboss.osgi.resolver.v2.VersionRange;
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
 import org.jboss.osgi.resolver.v2.XIdentityRequirement;
 import org.osgi.framework.Version;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Resource;
 import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRevision;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,13 +42,13 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPAC
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractFragmentHostRequirement extends AbstractBundleRequirement implements XIdentityRequirement {
+public class AbstractFragmentHostRequirement extends AbstractRequirement implements XIdentityRequirement {
 
     private final String symbolicName;
     private final VersionRange versionrange;
 
-    protected AbstractFragmentHostRequirement(BundleRevision brev, Map<String, Object> atts, Map<String, String> dirs) {
-        super(brev, WIRING_HOST_NAMESPACE, atts, dirs);
+    protected AbstractFragmentHostRequirement(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
+        super(res, WIRING_HOST_NAMESPACE, atts, dirs);
         this.symbolicName = (String) getAttribute(WIRING_HOST_NAMESPACE);
         Object versionatt = atts.get(BUNDLE_VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
@@ -72,7 +73,7 @@ public class AbstractFragmentHostRequirement extends AbstractBundleRequirement i
     }
 
     @Override
-    public boolean matches(BundleCapability cap) {
+    public boolean matches(Capability cap) {
 
         if (super.matches(cap) == false)
             return false;

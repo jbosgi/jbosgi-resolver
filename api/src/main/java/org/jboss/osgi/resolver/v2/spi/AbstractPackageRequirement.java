@@ -28,8 +28,8 @@ import org.jboss.osgi.resolver.v2.XPackageCapability;
 import org.jboss.osgi.resolver.v2.XPackageRequirement;
 import org.jboss.osgi.resolver.v2.XResource;
 import org.osgi.framework.Version;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Resource;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,13 +48,13 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractPackageRequirement extends AbstractBundleRequirement implements XPackageRequirement {
+public class AbstractPackageRequirement extends AbstractRequirement implements XPackageRequirement {
 
     private final String packageName;
     private final VersionRange versionrange;
 
-    protected AbstractPackageRequirement(BundleRevision brev, Map<String, Object> attributes, Map<String, String> directives) {
-        super(brev, WIRING_PACKAGE_NAMESPACE, attributes, directives);
+    protected AbstractPackageRequirement(Resource res, Map<String, Object> attributes, Map<String, String> directives) {
+        super(res, WIRING_PACKAGE_NAMESPACE, attributes, directives);
         packageName = (String) attributes.get(WIRING_PACKAGE_NAMESPACE);
         Object versionatt = attributes.get(VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
@@ -79,7 +79,7 @@ public class AbstractPackageRequirement extends AbstractBundleRequirement implem
     }
 
     @Override
-    public boolean matches(BundleCapability cap) {
+    public boolean matches(Capability cap) {
 
         if(super.matches(cap) == false)
             return false;
