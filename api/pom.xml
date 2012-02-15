@@ -34,23 +34,20 @@
             <artifactId>jboss-modules</artifactId>
         </dependency>
 
+        <!-- TODO remove this dependency when we have a released framework API -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.resolver</artifactId>
+        </dependency>
+
         <!-- OSGi Dependencies -->
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.resolver</artifactId>
-        </dependency>
 
         <!-- Test Dependencies -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.jboss.osgi.vfs</groupId>
             <artifactId>jbosgi-vfs30</artifactId>

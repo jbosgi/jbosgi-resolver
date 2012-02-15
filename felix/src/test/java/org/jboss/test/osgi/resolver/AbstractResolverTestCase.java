@@ -31,9 +31,8 @@ import org.jboss.osgi.resolver.v2.XResourceBuilder;
 import org.jboss.osgi.resolver.v2.spi.AbstractEnvironment;
 import org.jboss.osgi.resolver.v2.spi.FrameworkPreferencesComparator;
 import org.jboss.osgi.testing.OSGiTest;
-import org.jboss.osgi.vfs.VFSUtils;
-import org.jboss.osgi.vfs.VirtualFile;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.Node;
 import org.junit.Before;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
@@ -41,11 +40,12 @@ import org.osgi.framework.resource.Wiring;
 import org.osgi.service.resolver.Resolver;
 
 import java.util.Comparator;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 /**
  * The abstract resolver test.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
@@ -66,6 +66,7 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
                     protected Wiring getWiring(Resource res) {
                         return env.getWiring(res);
                     }
+
                     @Override
                     public long getResourceIndex(Resource res) {
                         return env.getResourceIndex(res);
@@ -76,16 +77,12 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
     }
 
     XResource createResource(Archive<?> archive) throws Exception {
-        VirtualFile virtualFile = toVirtualFile(archive);
-        try {
-            Manifest manifest = VFSUtils.getManifest(virtualFile);
-            OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
-            return XResourceBuilder.create().load(metadata).getResource();
-        } finally {
-            virtualFile.close();
-        }
+        Node node = archive.get(JarFile.MANIFEST_NAME);
+        Manifest manifest = new Manifest(node.getAsset().openStream());
+        OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
+        return XResourceBuilder.create().load(metadata).getResource();
     }
-    
+
     XEnvironment installResources(Resource... resources) {
         environment.installResources(resources);
         return environment;

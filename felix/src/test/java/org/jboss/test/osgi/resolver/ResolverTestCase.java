@@ -925,7 +925,6 @@ public class ResolverTestCase extends AbstractResolverTestCase {
     }
 
     @Test
-    @Ignore
     public void testFragmentAddsExport() throws Exception {
 
         // Bundle-SymbolicName: bundlefragmenthost
@@ -978,7 +977,6 @@ public class ResolverTestCase extends AbstractResolverTestCase {
     }
 
     @Test
-    @Ignore
     public void testFragmentDependsOnHostExport() throws Exception {
 
         // Bundle-SymbolicName: bundledependsfragment
