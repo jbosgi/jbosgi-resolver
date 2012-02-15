@@ -25,8 +25,6 @@ package org.jboss.test.osgi.resolver;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.felix.FelixResolver;
-import org.jboss.osgi.resolver.v2.XEnvironment;
-import org.jboss.osgi.resolver.v2.XResource;
 import org.jboss.osgi.resolver.v2.XResourceBuilder;
 import org.jboss.osgi.resolver.v2.spi.AbstractEnvironment;
 import org.jboss.osgi.resolver.v2.spi.FrameworkPreferencesComparator;
@@ -36,10 +34,14 @@ import org.jboss.shrinkwrap.api.Node;
 import org.junit.Before;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
+import org.osgi.service.resolver.Environment;
 import org.osgi.service.resolver.Resolver;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -76,15 +78,19 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
         };
     }
 
-    XResource createResource(Archive<?> archive) throws Exception {
+    Resource createResource(Archive<?> archive) throws Exception {
         Node node = archive.get(JarFile.MANIFEST_NAME);
         Manifest manifest = new Manifest(node.getAsset().openStream());
         OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
         return XResourceBuilder.create().load(metadata).getResource();
     }
 
-    XEnvironment installResources(Resource... resources) {
+    Environment installResources(Resource... resources) {
         environment.installResources(resources);
         return environment;
+    }
+
+    void applyResolverResults(Map<Resource,List<Wire>> map) {
+        environment.applyResolverResults(map);
     }
 }

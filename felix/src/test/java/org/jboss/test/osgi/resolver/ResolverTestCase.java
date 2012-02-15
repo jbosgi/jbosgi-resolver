@@ -22,14 +22,10 @@ package org.jboss.test.osgi.resolver;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-import org.jboss.osgi.resolver.v2.XEnvironment;
-import org.jboss.osgi.resolver.v2.XPackageCapability;
-import org.jboss.osgi.resolver.v2.XPackageRequirement;
-import org.jboss.osgi.resolver.v2.XRequirement;
 import org.jboss.shrinkwrap.api.Archive;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.osgi.framework.Version;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
@@ -43,10 +39,11 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
+import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE;
+import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_OPTIONAL;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
@@ -84,12 +81,12 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Wire wireA = wiresA.get(0);
         assertEquals(resourceA, wireA.getRequirer());
         assertEquals(resourceB, wireA.getProvider());
-        XPackageRequirement reqA = (XPackageRequirement) wireA.getRequirement();
-        assertEquals("org.jboss.test.osgi.classloader.support.a", reqA.getPackageName());
-        assertNull("Version range is null", reqA.getVersionRange());
-        XPackageCapability capA = (XPackageCapability) wireA.getCapability();
-        assertEquals("org.jboss.test.osgi.classloader.support.a", capA.getPackageName());
-        assertEquals(Version.emptyVersion, capA.getVersion());
+        Requirement reqA = wireA.getRequirement();
+        String reqApack = (String) reqA.getAttributes().get(WIRING_PACKAGE_NAMESPACE);
+        assertEquals("org.jboss.test.osgi.classloader.support.a", reqApack);
+        Capability capA = wireA.getCapability();
+        String capApack = (String) capA.getAttributes().get(WIRING_PACKAGE_NAMESPACE);
+        assertEquals("org.jboss.test.osgi.classloader.support.a", capApack);
 
         List<Wire> wiresB = map.get(resourceB);
         assertEquals(0, wiresB.size());
@@ -132,13 +129,13 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        XEnvironment env = installResources(resourceB);
+        Environment env = installResources(resourceB);
 
         List<Resource> mandatory = Collections.singletonList(resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertNotNull("Wiring not null", wiringB);
         assertTrue(wiringB.getRequiredResourceWires(null).isEmpty());
         assertTrue(wiringB.getProvidedResourceWires(null).isEmpty());
@@ -147,9 +144,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
 
         mandatory = Collections.singletonList(resourceA);
         map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertNotNull("Wiring not null", wiringA);
         assertTrue(wiringA.getProvidedResourceWires(null).isEmpty());
         assertEquals(1, wiringA.getRequiredResourceWires(null).size());
@@ -266,7 +263,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Wire wireA = wiresA.get(0);
         assertEquals(resourceA, wireA.getRequirer());
         assertEquals(resourceB, wireA.getProvider());
-        assertTrue(((XRequirement)wireA.getRequirement()).isOptional());
+        Map<String, String> reqdirs = wireA.getRequirement().getDirectives();
+        String resdir = reqdirs.get(REQUIREMENT_RESOLUTION_DIRECTIVE);
+        assertEquals(REQUIREMENT_RESOLUTION_OPTIONAL, resdir);
     }
 
     @Test
@@ -277,15 +276,15 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageimportoptional");
         Resource resourceA = createResource(assemblyA);
 
-        XEnvironment env = installResources(resourceA);
+        Environment env = installResources(resourceA);
 
         List<Resource> mandatory = Collections.singletonList(resourceA);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertNotNull("Wire map not null", map);
         assertEquals(1, map.size());
         
-        env.applyResolverResults(map);
-        Wiring wiringA = env.getWiring(resourceA);
+        applyResolverResults(map);
+        Wiring wiringA = getWiring(env, resourceA);
         assertNotNull("Wiring not null", wiringA);
         assertTrue(wiringA.getRequiredResourceWires(null).isEmpty());
         assertTrue(wiringA.getProvidedResourceWires(null).isEmpty());
@@ -301,10 +300,10 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         map = resolver.resolve(env, mandatory, null);
         assertNotNull("Wire map not null", map);
         assertEquals(1, map.size());
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
         // Verify that there is no wire to resourceB
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertNotNull("Wiring not null", wiringB);
         assertTrue(wiringB.getRequiredResourceWires(null).isEmpty());
         assertTrue(wiringB.getProvidedResourceWires(null).isEmpty());
@@ -323,19 +322,19 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        XEnvironment env = installResources(resourceA, resourceB);
+        Environment env = installResources(resourceA, resourceB);
 
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
@@ -379,19 +378,19 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        XEnvironment env = installResources(resourceA, resourceB);
+        Environment env = installResources(resourceA, resourceB);
 
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
@@ -434,19 +433,19 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        XEnvironment env = installResources(resourceA, resourceB);
+        Environment env = installResources(resourceA, resourceB);
 
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
@@ -485,13 +484,13 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundleoptional");
         Resource resourceA = createResource(assemblyA);
 
-        XEnvironment env = installResources(resourceA);
+        Environment env = installResources(resourceA);
 
         List<Resource> mandatory = Collections.singletonList(resourceA);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertTrue(wiringA.getRequiredResourceWires(null).isEmpty());
         assertTrue(wiringA.getProvidedResourceWires(null).isEmpty());
     }
@@ -509,19 +508,19 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
         Resource resourceB = createResource(assemblyB);
 
-        XEnvironment env = installResources(resourceA, resourceB);
+        Environment env = installResources(resourceA, resourceB);
 
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
@@ -571,25 +570,25 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Resource resourceC = createResource(assemblyC);
 
         // install C before B
-        XEnvironment env = installResources(resourceA, resourceC, resourceB);
+        Environment env = installResources(resourceA, resourceC, resourceB);
 
         // resolve B
         List<Resource> mandatory = Collections.singletonList(resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
         // resolve A and C
         mandatory = Arrays.asList(resourceA, resourceC);
         map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
@@ -614,25 +613,25 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Resource resourceC = createResource(assemblyC);
 
         // install B before C
-        XEnvironment env = installResources(resourceA, resourceB, resourceC);
+        Environment env = installResources(resourceA, resourceB, resourceC);
 
         // resolve B
         List<Resource> mandatory = Collections.singletonList(resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
         // resolve A and C
         mandatory = Arrays.asList(resourceA, resourceC);
         map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(1, wiringA.getRequiredResourceWires(null).size());
         Wire wireA = wiringA.getRequiredResourceWires(null).get(0);
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());
@@ -658,24 +657,24 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Resource resourceC = createResource(assemblyC);
 
         // install A before B
-        XEnvironment env = installResources(resourceA, resourceB, resourceC);
+        Environment env = installResources(resourceA, resourceB, resourceC);
 
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(0, wiringA.getProvidedResourceWires(null).size());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(0, wiringB.getRequiredResourceWires(null).size());
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceC, wireB.getRequirer());
         assertSame(resourceB, wireB.getProvider());
 
-        Wiring wiringC = env.getWiring(resourceC);
+        Wiring wiringC = getWiring(env, resourceC);
         assertEquals(1, wiringC.getRequiredResourceWires(null).size());
         assertEquals(0, wiringC.getProvidedResourceWires(null).size());
         Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
@@ -701,24 +700,24 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Resource resourceC = createResource(assemblyC);
 
         // install B before A
-        XEnvironment env = installResources(resourceB, resourceA, resourceC);
+        Environment env = installResources(resourceB, resourceA, resourceC);
 
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(0, wiringA.getProvidedResourceWires(null).size());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(0, wiringB.getRequiredResourceWires(null).size());
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceC, wireB.getRequirer());
         assertSame(resourceB, wireB.getProvider());
 
-        Wiring wiringC = env.getWiring(resourceC);
+        Wiring wiringC = getWiring(env, resourceC);
         assertEquals(1, wiringC.getRequiredResourceWires(null).size());
         assertEquals(0, wiringC.getProvidedResourceWires(null).size());
         Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
@@ -744,21 +743,21 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Resource resourceC = createResource(assemblyC);
 
         // install A before B
-        XEnvironment env = installResources(resourceA, resourceB, resourceC);
+        Environment env = installResources(resourceA, resourceB, resourceC);
 
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(1, wiringA.getProvidedResourceWires(null).size());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(0, wiringB.getRequiredResourceWires(null).size());
         assertEquals(0, wiringB.getProvidedResourceWires(null).size());
 
-        Wiring wiringC = env.getWiring(resourceC);
+        Wiring wiringC = getWiring(env, resourceC);
         assertEquals(1, wiringC.getRequiredResourceWires(null).size());
         assertEquals(0, wiringC.getProvidedResourceWires(null).size());
         Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
@@ -784,21 +783,21 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Resource resourceC = createResource(assemblyC);
 
         // install B before A
-        XEnvironment env = installResources(resourceB, resourceA, resourceC);
+        Environment env = installResources(resourceB, resourceA, resourceC);
 
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(0, wiringA.getProvidedResourceWires(null).size());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(0, wiringB.getRequiredResourceWires(null).size());
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
 
-        Wiring wiringC = env.getWiring(resourceC);
+        Wiring wiringC = getWiring(env, resourceC);
         assertEquals(1, wiringC.getRequiredResourceWires(null).size());
         assertEquals(0, wiringC.getProvidedResourceWires(null).size());
         Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
@@ -824,23 +823,23 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/packageimportattribute");
         Resource resourceC = createResource(assemblyC);
 
-        XEnvironment env = installResources(resourceA, resourceB, resourceC);
+        Environment env = installResources(resourceA, resourceB, resourceC);
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(2, wiringA.getProvidedResourceWires(null).size());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
         assertEquals(0, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getRequiredResourceWires(null).get(0);
         assertSame(resourceB, wireB.getRequirer());
         assertSame(resourceA, wireB.getProvider());
 
-        Wiring wiringC = env.getWiring(resourceC);
+        Wiring wiringC = getWiring(env, resourceC);
         assertEquals(1, wiringC.getRequiredResourceWires(null).size());
         assertEquals(0, wiringC.getProvidedResourceWires(null).size());
         Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
@@ -861,7 +860,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageimportattributefails");
         Resource resourceB = createResource(assemblyB);
 
-        XEnvironment env = installResources(resourceA, resourceB);
+        Environment env = installResources(resourceA, resourceB);
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
             Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
@@ -884,16 +883,16 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageimportattribute");
         Resource resourceB = createResource(assemblyB);
 
-        XEnvironment env = installResources(resourceA, resourceB);
+        Environment env = installResources(resourceA, resourceB);
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(1, wiringA.getProvidedResourceWires(null).size());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
         assertEquals(0, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getRequiredResourceWires(null).get(0);
@@ -914,7 +913,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleimport");
         Resource resourceB = createResource(assemblyB);
 
-        XEnvironment env = installResources(resourceA, resourceB);
+        Environment env = installResources(resourceA, resourceB);
         try {
             List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
             Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
@@ -942,12 +941,12 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyC = assembleArchive("bundle", "/resolver/bundleimportfragmentpkg");
         Resource resourceC = createResource(assemblyC);
 
-        XEnvironment env = installResources(resourceA, resourceB, resourceC);
+        Environment env = installResources(resourceA, resourceB, resourceC);
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(2, wiringA.getProvidedResourceWires(null).size());
         assertEquals(1, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
@@ -959,7 +958,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertSame(resourceA, hwireA.getProvider());
         assertSame(resourceB, hwireA.getRequirer());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
         assertEquals(1, wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).size());
         assertEquals(0, wiringB.getProvidedResourceWires(null).size());
@@ -967,7 +966,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertSame(resourceB, wireB.getRequirer());
         assertSame(resourceA, wireB.getProvider());
 
-        Wiring wiringC = env.getWiring(resourceC);
+        Wiring wiringC = getWiring(env, resourceC);
         assertEquals(1, wiringC.getRequiredResourceWires(null).size());
         assertEquals(1, wiringC.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
         assertEquals(0, wiringC.getProvidedResourceWires(null).size());
@@ -992,12 +991,12 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentdependshostexport");
         Resource resourceB = createResource(assemblyB);
 
-        XEnvironment env = installResources(resourceA, resourceB);
+        Environment env = installResources(resourceA, resourceB);
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
-        env.applyResolverResults(map);
+        applyResolverResults(map);
 
-        Wiring wiringA = env.getWiring(resourceA);
+        Wiring wiringA = getWiring(env, resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(1, wiringA.getProvidedResourceWires(null).size());
         assertEquals(0, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
@@ -1006,7 +1005,7 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         assertSame(resourceA, hwireA.getProvider());
         assertSame(resourceB, hwireA.getRequirer());
 
-        Wiring wiringB = env.getWiring(resourceB);
+        Wiring wiringB = getWiring(env, resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
         assertEquals(0, wiringB.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
         assertEquals(1, wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).size());
@@ -1014,5 +1013,9 @@ public class ResolverTestCase extends AbstractResolverTestCase {
         Wire hwireB = wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).get(0);
         assertSame(resourceB, hwireB.getRequirer());
         assertSame(resourceA, hwireB.getProvider());
+    }
+
+    private Wiring getWiring(Environment env, Resource resource) {
+        return env.getWirings().get(resource);
     }
 }

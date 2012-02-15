@@ -43,9 +43,11 @@ public class AbstractPackageCapability extends AbstractCapability implements XPa
     private final String packageName;
     private final Version version;
 
-    protected AbstractPackageCapability(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
+    public AbstractPackageCapability(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
         super(res, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
         packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
+        if (packageName == null)
+            throw new IllegalArgumentException("Invalid attributes: " + attrs);
         String versionatt = (String) attrs.get(VERSION_ATTRIBUTE);
         version = versionatt != null ? Version.parseVersion(versionatt) : Version.emptyVersion;
     }

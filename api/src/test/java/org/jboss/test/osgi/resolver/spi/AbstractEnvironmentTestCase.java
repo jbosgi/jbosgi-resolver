@@ -21,12 +21,12 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.v2.XEnvironment;
 import org.jboss.osgi.resolver.v2.XPackageRequirement;
 import org.junit.Test;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
+import org.osgi.service.resolver.Environment;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,7 +42,7 @@ import static org.osgi.framework.Constants.IMPORT_PACKAGE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
- * Unit tests for the {@link XEnvironment} class
+ * Unit tests for the {@link org.osgi.service.resolver.Environment} class
  *
  * @author Thomas.Diesler@jboss.com
  */
@@ -67,7 +67,7 @@ public class AbstractEnvironmentTestCase extends AbstractTestBase {
         Resource resourceC = createResource(attrs);
 
         List<Resource> resources = Arrays.asList(resourceA, resourceB, resourceC);
-        XEnvironment env = installResources(resources);
+        Environment env = installResources(resources);
 
         List<Requirement> reqs = resourceA.getRequirements(WIRING_PACKAGE_NAMESPACE);
         assertEquals(1, reqs.size());
@@ -99,7 +99,7 @@ public class AbstractEnvironmentTestCase extends AbstractTestBase {
         Resource resourceC = createResource(attrs);
 
         List<Resource> resources = Arrays.asList(resourceA, resourceC, resourceB);
-        XEnvironment env = installResources(resources);
+        Environment env = installResources(resources);
 
         List<Requirement> reqs = resourceA.getRequirements(WIRING_PACKAGE_NAMESPACE);
         assertEquals(1, reqs.size());

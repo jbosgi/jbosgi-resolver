@@ -53,10 +53,12 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     private final String packageName;
     private final VersionRange versionrange;
 
-    protected AbstractPackageRequirement(Resource res, Map<String, Object> attributes, Map<String, String> directives) {
-        super(res, WIRING_PACKAGE_NAMESPACE, attributes, directives);
-        packageName = (String) attributes.get(WIRING_PACKAGE_NAMESPACE);
-        Object versionatt = attributes.get(VERSION_ATTRIBUTE);
+    public AbstractPackageRequirement(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
+        super(res, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
+        packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
+        if (packageName == null)
+            throw new IllegalArgumentException("Invalid attributes: " + attrs);
+        Object versionatt = attrs.get(VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
             versionatt = VersionRange.parse((String) versionatt);
         }

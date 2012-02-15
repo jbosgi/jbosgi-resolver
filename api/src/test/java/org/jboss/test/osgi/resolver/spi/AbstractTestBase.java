@@ -23,12 +23,12 @@ package org.jboss.test.osgi.resolver.spi;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
-import org.jboss.osgi.resolver.v2.XEnvironment;
 import org.jboss.osgi.resolver.v2.XResourceBuilder;
 import org.jboss.osgi.resolver.v2.spi.AbstractEnvironment;
 import org.junit.Before;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.resource.Resource;
+import org.osgi.service.resolver.Environment;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +47,7 @@ public abstract class AbstractTestBase {
         environment = new AbstractEnvironment();
     }
 
-    XEnvironment installResources(List<Resource> resources) {
+    Environment installResources(List<Resource> resources) {
         for(Resource res : resources) {
             environment.installResources(res);
         }
