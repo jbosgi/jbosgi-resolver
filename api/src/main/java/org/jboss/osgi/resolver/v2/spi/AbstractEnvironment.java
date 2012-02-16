@@ -58,8 +58,6 @@ public class AbstractEnvironment extends AbstractElement implements Environment 
     }
 
     public void installResources(Resource... resarr) {
-        if (resources == null)
-            throw new IllegalArgumentException("Null resource");
         synchronized (resources) {
             for (Resource res : resarr) {
                 if (resources.contains(res))

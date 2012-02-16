@@ -45,17 +45,17 @@ public class AbstractWiring implements Wiring {
     private List<Wire> required;
     private List<Wire> provided;
 
-    protected AbstractWiring(Resource resource) {
+    public AbstractWiring(Resource resource) {
         this.resource = resource;
     }
 
-    void addRequiredWires(List<Wire> wires) {
+    public void addRequiredWires(List<Wire> wires) {
         if (required != null)
             throw new IllegalStateException("Required wires already set");
         required = wires;
     }
 
-    void addProvidedWire(Wire wire) {
+    public void addProvidedWire(Wire wire) {
         if (provided == null) {
             provided = new ArrayList<Wire>();
         }
