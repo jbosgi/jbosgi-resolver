@@ -28,9 +28,9 @@ import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
@@ -57,8 +57,8 @@ public class AbstractIdentityRequirement extends AbstractRequirement implements 
     }
 
     @Override
-    protected List<String> getMandatoryAttributes() {
-        return Arrays.asList(IDENTITY_NAMESPACE);
+    protected Set<String> getMandatoryAttributes() {
+        return Collections.singleton(IDENTITY_NAMESPACE);
     }
 
     @Override

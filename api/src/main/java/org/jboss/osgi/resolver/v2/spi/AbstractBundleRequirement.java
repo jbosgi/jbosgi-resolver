@@ -41,20 +41,10 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class AbstractBundleRequirement extends AbstractRequirement implements BundleRequirement {
+public class AbstractBundleRequirement extends AbstractRequirement implements BundleRequirement {
 
-    private Filter filter;
-
-    protected AbstractBundleRequirement(Resource res, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
-        super(res, namespace, atts, dirs);
-        String filterdir = getDirective(ResourceConstants.REQUIREMENT_FILTER_DIRECTIVE);
-        if (filterdir != null) {
-            try {
-                filter = FrameworkUtil.createFilter(filterdir);
-            } catch (InvalidSyntaxException e) {
-                throw new IllegalArgumentException("Invalid filter directive: " + filterdir);
-            }
-        }
+    public AbstractBundleRequirement(BundleRevision brev, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        super(brev, namespace, atts, dirs);
     }
 
     @Override
@@ -69,23 +59,6 @@ public abstract class AbstractBundleRequirement extends AbstractRequirement impl
 
     @Override
     public boolean matches(BundleCapability cap) {
-        String namespace = getNamespace();
-        boolean matches = namespace.equals(cap.getNamespace());
-
-        // match namespace value
-        if (matches) {
-            XCapability xcap = (XCapability) cap;
-            Object thisatt = getAttribute(namespace);
-            Object otheratt = xcap.getAttribute(namespace);
-            matches = thisatt.equals(otheratt);
-        }
-
-        // match filter
-        if (matches && filter != null) {
-            Dictionary dict = new Hashtable(cap.getAttributes());
-            matches = filter.match(dict);
-        }
-
-        return matches;
+        return super.matches(cap);
     }
 }

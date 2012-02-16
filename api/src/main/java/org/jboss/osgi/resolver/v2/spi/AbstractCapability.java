@@ -26,8 +26,10 @@ import org.jboss.osgi.resolver.v2.XCapability;
 import org.jboss.osgi.resolver.v2.XDirectiveSupport;
 import org.osgi.framework.resource.Resource;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The abstract implementation of a {@link XCapability}.
@@ -35,7 +37,7 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class AbstractCapability extends AbstractElement implements XCapability {
+public class AbstractCapability extends AbstractElement implements XCapability {
 
     private final Resource resource;
     private final String namespace;
@@ -67,7 +69,9 @@ public abstract class AbstractCapability extends AbstractElement implements XCap
         }
     }
 
-    protected abstract List<String> getMandatoryAttributes();
+    protected Set<String> getMandatoryAttributes() {
+        return Collections.emptySet();
+    }
 
     @Override
     public Resource getResource() {

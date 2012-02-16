@@ -32,9 +32,11 @@ import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE;
 import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
@@ -56,8 +58,6 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     public AbstractPackageRequirement(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
         super(res, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
         packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
-        if (packageName == null)
-            throw new IllegalArgumentException("Invalid attributes: " + attrs);
         Object versionatt = attrs.get(VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
             versionatt = VersionRange.parse((String) versionatt);
@@ -66,8 +66,8 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     }
 
     @Override
-    protected List<String> getMandatoryAttributes() {
-        return Arrays.asList(WIRING_PACKAGE_NAMESPACE);
+    protected Set<String> getMandatoryAttributes() {
+        return Collections.singleton(WIRING_PACKAGE_NAMESPACE);
     }
 
     @Override

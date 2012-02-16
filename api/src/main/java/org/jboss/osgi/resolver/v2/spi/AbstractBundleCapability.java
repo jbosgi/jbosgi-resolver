@@ -33,10 +33,10 @@ import java.util.Map;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class AbstractBundleCapability extends AbstractCapability implements BundleCapability {
+public class AbstractBundleCapability extends AbstractCapability implements BundleCapability {
 
-    protected AbstractBundleCapability(Resource res, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
-        super(res, namespace, atts, dirs);
+    public AbstractBundleCapability(BundleRevision brev, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        super(brev, namespace, atts, dirs);
     }
 
     @Override

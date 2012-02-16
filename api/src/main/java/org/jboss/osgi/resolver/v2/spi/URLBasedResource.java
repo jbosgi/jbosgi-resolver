@@ -21,37 +21,12 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
-import org.jboss.osgi.metadata.OSGiMetaData;
-import org.jboss.osgi.metadata.PackageAttribute;
-import org.jboss.osgi.metadata.Parameter;
-import org.jboss.osgi.metadata.ParameterizedAttribute;
-import org.jboss.osgi.resolver.v2.XCapability;
-import org.jboss.osgi.resolver.v2.XRequirement;
-import org.jboss.osgi.resolver.v2.XResource;
-import org.jboss.osgi.resolver.v2.XResourceBuilder;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Version;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_BUNDLE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_FRAGMENT;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_UNKNOWN;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
  * A resource based on an URL
@@ -59,7 +34,7 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
  * @author thomas.diesler@jboss.com
  * @since 16-Jan-2012
  */
-public final class URLBasedResource extends AbstractBundleRevision {
+public final class URLBasedResource extends AbstractResource {
 
     private final String contentPath;
     private final URL contentURL;

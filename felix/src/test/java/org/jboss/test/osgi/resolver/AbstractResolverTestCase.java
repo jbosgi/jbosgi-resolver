@@ -24,7 +24,7 @@ package org.jboss.test.osgi.resolver;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
-import org.jboss.osgi.resolver.felix.FelixResolver;
+import org.jboss.osgi.resolver.v2.FelixResolver;
 import org.jboss.osgi.resolver.v2.XResourceBuilder;
 import org.jboss.osgi.resolver.v2.spi.AbstractEnvironment;
 import org.jboss.osgi.resolver.v2.spi.FrameworkPreferencesComparator;

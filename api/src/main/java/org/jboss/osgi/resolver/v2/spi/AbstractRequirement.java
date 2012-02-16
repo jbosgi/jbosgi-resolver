@@ -32,10 +32,11 @@ import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.ResourceConstants;
 
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE;
 import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_OPTIONAL;
@@ -46,7 +47,7 @@ import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTI
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class AbstractRequirement extends AbstractElement implements XRequirement {
+public class AbstractRequirement extends AbstractElement implements XRequirement {
 
     private final Resource resource;
     private final String namespace;
@@ -95,7 +96,9 @@ public abstract class AbstractRequirement extends AbstractElement implements XRe
         }
     }
 
-    protected abstract List<String> getMandatoryAttributes();
+    protected Set<String> getMandatoryAttributes() {
+        return Collections.emptySet();
+    }
 
     @Override
     public Resource getResource() {

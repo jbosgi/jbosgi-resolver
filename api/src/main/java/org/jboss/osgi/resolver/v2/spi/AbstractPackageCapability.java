@@ -26,8 +26,10 @@ import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
@@ -46,15 +48,13 @@ public class AbstractPackageCapability extends AbstractCapability implements XPa
     public AbstractPackageCapability(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
         super(res, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
         packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
-        if (packageName == null)
-            throw new IllegalArgumentException("Invalid attributes: " + attrs);
         String versionatt = (String) attrs.get(VERSION_ATTRIBUTE);
         version = versionatt != null ? Version.parseVersion(versionatt) : Version.emptyVersion;
     }
 
     @Override
-    protected List<String> getMandatoryAttributes() {
-        return Arrays.asList(WIRING_PACKAGE_NAMESPACE);
+    protected Set<String> getMandatoryAttributes() {
+        return Collections.singleton(WIRING_PACKAGE_NAMESPACE);
     }
 
     @Override

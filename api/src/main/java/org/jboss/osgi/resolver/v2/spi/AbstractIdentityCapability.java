@@ -26,8 +26,11 @@ import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
@@ -53,8 +56,10 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
     }
 
     @Override
-    protected List<String> getMandatoryAttributes() {
-        return Arrays.asList(IDENTITY_NAMESPACE, IDENTITY_VERSION_ATTRIBUTE, IDENTITY_TYPE_ATTRIBUTE);
+    protected Set<String> getMandatoryAttributes() {
+        HashSet<String> result = new HashSet<String>();
+        Collections.addAll(result, IDENTITY_NAMESPACE, IDENTITY_VERSION_ATTRIBUTE, IDENTITY_TYPE_ATTRIBUTE);
+        return Collections.unmodifiableSet(result);
     }
 
     @Override

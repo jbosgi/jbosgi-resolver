@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.resolver.felix;
+package org.jboss.osgi.resolver.v2;
 
 import org.apache.felix.resolver.FelixEnvironment;
 import org.apache.felix.resolver.impl.ResolverImpl;
@@ -33,7 +33,6 @@ import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.Resolver;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;

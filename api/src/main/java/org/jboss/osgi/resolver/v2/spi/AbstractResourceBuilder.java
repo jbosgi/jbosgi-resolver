@@ -130,11 +130,7 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
             cap = new AbstractFragmentHostCapability(resource, atts, dirs);
         } else {
-            cap = new AbstractCapability(resource, namespace, atts, dirs) {
-                protected List<String> getMandatoryAttributes() {
-                    return Arrays.asList();
-                }
-            };
+            cap = new AbstractCapability(resource, namespace, atts, dirs);
         }
         resource.addCapability(cap);
         return cap;
@@ -151,11 +147,7 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
             req = new AbstractFragmentHostRequirement(resource, atts, dirs);
         } else {
-            req = new AbstractRequirement(resource, namespace, atts, dirs) {
-                protected List<String> getMandatoryAttributes() {
-                    return Arrays.asList();
-                }
-            };
+            req = new AbstractRequirement(resource, namespace, atts, dirs);
         }
         resource.addRequirement(req);
         return req;
@@ -234,20 +226,24 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         return this;
     }
 
-    private Map<String, String> getDirectives(ParameterizedAttribute attribs) {
+    private Map<String, String> getDirectives(ParameterizedAttribute patts) {
         Map<String, String> dirs = new HashMap<String, String>();
-        for (String key : attribs.getDirectives().keySet()) {
-            String value = attribs.getDirectiveValue(key, String.class);
-            dirs.put(key.trim(), value.trim());
+        if (patts != null) {
+            for (String key : patts.getDirectives().keySet()) {
+                String value = patts.getDirectiveValue(key, String.class);
+                dirs.put(key.trim(), value.trim());
+            }
         }
         return dirs;
     }
 
-    private Map<String, Object> getAttributes(ParameterizedAttribute attribs) {
+    private Map<String, Object> getAttributes(ParameterizedAttribute patts) {
         Map<String, Object> atts = new HashMap<String, Object>();
-        for (String key : attribs.getAttributes().keySet()) {
-            Parameter param = attribs.getAttribute(key);
-            atts.put(key.trim(), param.getValue().toString().trim());
+        if (patts != null) {
+            for (String key : patts.getAttributes().keySet()) {
+                Parameter param = patts.getAttribute(key);
+                atts.put(key.trim(), param.getValue().toString().trim());
+            }
         }
         return atts;
     }
