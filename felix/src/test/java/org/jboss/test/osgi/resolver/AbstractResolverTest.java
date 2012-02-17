@@ -51,13 +51,14 @@ import java.util.jar.Manifest;
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
-public abstract class AbstractResolverTestCase extends OSGiTest {
+public abstract class AbstractResolverTest extends OSGiTest {
 
     Resolver resolver;
     AbstractEnvironment environment;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        super.setUp();
         resolver = new FelixResolver();
         environment = new AbstractEnvironment() {
             @Override
@@ -92,5 +93,9 @@ public abstract class AbstractResolverTestCase extends OSGiTest {
 
     void applyResolverResults(Map<Resource,List<Wire>> map) {
         environment.applyResolverResults(map);
+    }
+
+    Wiring getWiring(Environment env, Resource resource) {
+        return env.getWirings().get(resource);
     }
 }

@@ -21,17 +21,11 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
-import org.jboss.osgi.resolver.v2.VersionRange;
-import org.jboss.osgi.resolver.v2.XIdentityCapability;
-import org.jboss.osgi.resolver.v2.XIdentityRequirement;
+import org.jboss.osgi.resolver.v2.XHostCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
-import org.osgi.framework.wiring.BundleCapability;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,24 +33,20 @@ import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.v2.XIdentityRequirement}.
+ * The abstract implementation of a {@link org.jboss.osgi.resolver.v2.XHostCapability}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractFragmentHostRequirement extends AbstractRequirement implements XIdentityRequirement {
+public class AbstractHostCapability extends AbstractCapability implements XHostCapability {
 
     private final String symbolicName;
-    private final VersionRange versionrange;
+    private final Version version;
 
-    protected AbstractFragmentHostRequirement(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
+    protected AbstractHostCapability(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, WIRING_HOST_NAMESPACE, atts, dirs);
-        this.symbolicName = (String) getAttribute(WIRING_HOST_NAMESPACE);
-        Object versionatt = atts.get(BUNDLE_VERSION_ATTRIBUTE);
-        if (versionatt instanceof String) {
-            versionatt = VersionRange.parse((String) versionatt);
-        }
-        versionrange = (VersionRange) versionatt;
+        this.symbolicName = (String) atts.get(WIRING_HOST_NAMESPACE);
+        this.version = (Version) atts.get(BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override
@@ -70,23 +60,7 @@ public class AbstractFragmentHostRequirement extends AbstractRequirement impleme
     }
 
     @Override
-    public VersionRange getVersionRange() {
-        return versionrange;
-    }
-
-    @Override
-    public boolean matches(Capability cap) {
-
-        if (super.matches(cap) == false)
-            return false;
-
-        // match the bundle version range
-        if (versionrange != null) {
-            Version version = ((XIdentityCapability) cap).getVersion();
-            if (versionrange.isInRange(version) == false)
-                return false;
-        }
-
-        return true;
+    public Version getVersion() {
+        return version;
     }
 }

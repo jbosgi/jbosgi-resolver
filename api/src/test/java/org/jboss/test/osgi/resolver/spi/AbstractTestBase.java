@@ -25,11 +25,14 @@ import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
 import org.jboss.osgi.resolver.v2.XResourceBuilder;
 import org.jboss.osgi.resolver.v2.spi.AbstractEnvironment;
+import org.jboss.osgi.resolver.v2.spi.ResourceIndexComparator;
 import org.junit.Before;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 import org.osgi.service.resolver.Environment;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +47,21 @@ public abstract class AbstractTestBase {
 
     @Before
     public void setUp() {
-        environment = new AbstractEnvironment();
+        environment = new AbstractEnvironment() {
+            protected Comparator<Capability> getComparator() {
+                final AbstractEnvironment env = this;
+                return new ResourceIndexComparator() {
+                    @Override
+                    protected long getResourceIndex(Resource res) {
+                        return env.getResourceIndex(res);
+                    }
+                };
+            }
+        };
     }
 
     Environment installResources(List<Resource> resources) {
-        for(Resource res : resources) {
+        for (Resource res : resources) {
             environment.installResources(res);
         }
         return environment;

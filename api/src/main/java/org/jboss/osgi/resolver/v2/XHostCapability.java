@@ -29,7 +29,7 @@ import org.osgi.framework.Version;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XFragmentHostCapability extends XCapability {
+public interface XHostCapability extends XCapability {
 
     String getSymbolicName();
 

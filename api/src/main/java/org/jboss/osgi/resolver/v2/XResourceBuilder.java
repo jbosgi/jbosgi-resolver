@@ -147,7 +147,7 @@ public abstract class XResourceBuilder {
      * @param atts         The attributes
      * @param dirs         The directives
      */
-    public abstract XCapability addFragmentHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XCapability addHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add fragment host requirement
@@ -156,7 +156,7 @@ public abstract class XResourceBuilder {
      * @param atts         The attributes
      * @param dirs         The directives
      */
-    public abstract XRequirement addFragmentHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XRequirement addHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#EXPORT_PACKAGE} capability

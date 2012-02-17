@@ -39,8 +39,6 @@ import java.util.List;
  */
 public class AbstractWiring implements Wiring {
 
-    private static List<Wire> EMPTY_LIST = Collections.emptyList();
-
     private final Resource resource;
     private List<Wire> required;
     private List<Wire> provided;
@@ -49,13 +47,13 @@ public class AbstractWiring implements Wiring {
         this.resource = resource;
     }
 
-    public void addRequiredWires(List<Wire> wires) {
+    protected void addRequiredWires(List<Wire> wires) {
         if (required != null)
             throw new IllegalStateException("Required wires already set");
         required = wires;
     }
 
-    public void addProvidedWire(Wire wire) {
+    protected void addProvidedWire(Wire wire) {
         if (provided == null) {
             provided = new ArrayList<Wire>();
         }
@@ -103,5 +101,10 @@ public class AbstractWiring implements Wiring {
     @Override
     public Resource getResource() {
         return resource;
+    }
+
+    @Override
+    public String toString() {
+        return "Wiring[" + resource + "]";
     }
 }

@@ -30,14 +30,15 @@ import org.jboss.osgi.resolver.v2.XRequirement;
 import org.jboss.osgi.resolver.v2.XResource;
 import org.jboss.osgi.resolver.v2.XResourceBuilder;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
+import static org.osgi.framework.Constants.SYSTEM_BUNDLE_SYMBOLICNAME;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_BUNDLE;
@@ -83,20 +84,20 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     }
 
     @Override
-    public XCapability addFragmentHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs) {
+    public XCapability addHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_HOST_NAMESPACE, symbolicName);
         atts.put(BUNDLE_VERSION_ATTRIBUTE, version);
-        XCapability cap = new AbstractFragmentHostCapability(resource, atts, dirs);
+        XCapability cap = new AbstractHostCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
     }
 
     @Override
-    public XRequirement addFragmentHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
+    public XRequirement addHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_HOST_NAMESPACE, symbolicName);
-        XRequirement req = new AbstractFragmentHostRequirement(resource, atts, dirs);
+        XRequirement req = new AbstractHostRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
     }
@@ -128,7 +129,7 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
             cap = new AbstractPackageCapability(resource, atts, dirs);
         } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
-            cap = new AbstractFragmentHostCapability(resource, atts, dirs);
+            cap = new AbstractHostCapability(resource, atts, dirs);
         } else {
             cap = new AbstractCapability(resource, namespace, atts, dirs);
         }
@@ -145,7 +146,7 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
             req = new AbstractPackageRequirement(resource, atts, dirs);
         } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
-            req = new AbstractFragmentHostRequirement(resource, atts, dirs);
+            req = new AbstractHostRequirement(resource, atts, dirs);
         } else {
             req = new AbstractRequirement(resource, namespace, atts, dirs);
         }
@@ -163,19 +164,21 @@ public class AbstractResourceBuilder extends XResourceBuilder {
             Map<String, Object> idatts = getAttributes(idparams);
             Map<String, String> iddirs = getDirectives(idparams);
 
-            // Fragment Host Capability 
+            // Identity Capability
             ParameterizedAttribute fragmentHost = metadata.getFragmentHost();
-            if (fragmentHost == null) {
-                addIdentityCapability(symbolicName, bundleVersion, IDENTITY_TYPE_BUNDLE, idatts, iddirs);
-                Map<String, Object> atts = getAttributes(idparams);
-                Map<String, String> dirs = getDirectives(idparams);
-                addFragmentHostCapability(symbolicName, bundleVersion, atts, dirs);
-            } else {
+            String identityType = fragmentHost != null ? IDENTITY_TYPE_FRAGMENT : IDENTITY_TYPE_BUNDLE;
+            addIdentityCapability(symbolicName, bundleVersion, identityType, idatts, iddirs);
+            
+            // Host Capability 
+            if (fragmentHost != null) {
                 String hostName = fragmentHost.getAttribute();
-                addIdentityCapability(symbolicName, bundleVersion, IDENTITY_TYPE_FRAGMENT, idatts, iddirs);
                 Map<String, Object> atts = getAttributes(fragmentHost);
                 Map<String, String> dirs = getDirectives(fragmentHost);
-                addFragmentHostRequirement(hostName, atts, dirs);
+                addHostRequirement(hostName, atts, dirs);
+            } else if (SYSTEM_BUNDLE_SYMBOLICNAME.equals(symbolicName) == false) {
+                Map<String, Object> atts = getAttributes(idparams);
+                Map<String, String> dirs = getDirectives(idparams);
+                addHostCapability(symbolicName, bundleVersion, atts, dirs);
             }
 
             // Required Bundles

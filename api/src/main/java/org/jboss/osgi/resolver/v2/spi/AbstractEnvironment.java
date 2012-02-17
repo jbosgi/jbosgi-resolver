@@ -21,21 +21,29 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
+import org.jboss.logging.Logger;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.ResourceConstants;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
 import org.osgi.service.resolver.Environment;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
 
 /**
  * The abstract implementation of a {@link Environment}.
@@ -43,35 +51,36 @@ import java.util.TreeSet;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractEnvironment extends AbstractElement implements Environment {
+public abstract class AbstractEnvironment implements Environment {
 
+    private static Logger log = Logger.getLogger(AbstractEnvironment.class);
+    
     private final List<Resource> resources = new ArrayList<Resource>();
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
-    public Comparator<Capability> getComparator() {
-        return new ResourceIndexComparator() {
-            @Override
-            protected long getResourceIndex(Resource res) {
-                return resources.indexOf(res);
-            }
-        };
-    }
+    protected abstract Comparator<Capability> getComparator();
 
-    public void installResources(Resource... resarr) {
-        synchronized (resources) {
-            for (Resource res : resarr) {
-                if (resources.contains(res))
-                    throw new IllegalArgumentException("Resource already installed: " + res);
-                resources.add(res);
-            }
+    public synchronized void installResources(Resource... resarr) {
+        for (Resource res : resarr) {
+            if (resources.contains(res))
+                throw new IllegalArgumentException("Resource already installed: " + res);
+            
+            log.debugf("Install resource: %s", res);
+            resources.add(res);
         }
     }
 
-    public void uninstallResources(Resource... resarr) {
-        synchronized (resources) {
-            for (Resource res : resarr) {
-                resources.remove(res);
-            }
+    public synchronized void uninstallResources(Resource... resarr) {
+        for (Resource res : resarr) {
+            log.debugf("Uninstall resource: %s", res);
+            resources.remove(res);
+            wirings.remove(res);
+        }
+    }
+
+    public void refreshResources(Resource... resarr) {
+        for (Resource res : resarr) {
+            wirings.remove(res);
         }
     }
 
@@ -79,56 +88,75 @@ public class AbstractEnvironment extends AbstractElement implements Environment 
         return resources.indexOf(resource);
     }
 
+    public Collection<Resource> getResources(String identityType) {
+        Set<Resource> result = new HashSet<Resource>();
+        for (Resource res : resources) {
+            Capability icap = res.getCapabilities(IDENTITY_NAMESPACE).get(0);
+            Object captype = icap.getAttributes().get(IDENTITY_TYPE_ATTRIBUTE);
+            if (identityType.equals(captype)) {
+                result.add(res);
+            }
+        }
+        return result;
+    }
+    
     @Override
-    public SortedSet<Capability> findProviders(Requirement req) {
+    public synchronized SortedSet<Capability> findProviders(Requirement req) {
+        log.debugf("Find providers: %s", req);
         SortedSet<Capability> result = new TreeSet<Capability>(getComparator());
-        synchronized (resources) {
-            for (Resource res : resources) {
-                for (Capability cap : res.getCapabilities(req.getNamespace())) {
-                    if (req.matches(cap)) {
-                        result.add(cap);
-                    }
+        for (Resource res : resources) {
+            for (Capability cap : res.getCapabilities(req.getNamespace())) {
+                if (req.matches(cap)) {
+                    result.add(cap);
                 }
             }
         }
+        log.debugf("Found providers: %s", result);
         return result;
     }
 
-    public Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap) {
+    public synchronized Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap) {
+        Map<Resource, Wiring> result = getResourceWiringMap(wiremap);
+        applyResourceWiringMap(result);
+        return result;
+    }
+
+    public synchronized Map<Resource, Wiring> getResourceWiringMap(Map<Resource, List<Wire>> wiremap) {
         Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
-        synchronized (wirings) {
-            for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
-                Resource res = entry.getKey();
-                List<Wire> wires = entry.getValue();
-                AbstractWiring reqwiring = (AbstractWiring) getWiring(result, res);
-                reqwiring.addRequiredWires(wires);
-                for (Wire wire : wires) {
-                    Resource provider = wire.getProvider();
-                    AbstractWiring provwiring = (AbstractWiring) getWiring(result, provider);
-                    provwiring.addProvidedWire(wire);
-                }
-            }
-            for (Map.Entry<Resource, Wiring> entry : result.entrySet()) {
-                Resource res = entry.getKey();
-                Wiring delta = entry.getValue();
-                AbstractWiring wiring = (AbstractWiring) wirings.get(res);
-                if (wiring == null) {
-                    wirings.put(res, delta);
-                } else {
-                    for (Wire wire : delta.getProvidedResourceWires(null)) {
-                        wiring.addProvidedWire(wire);
-                    }
-                }
+        for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
+            Resource res = entry.getKey();
+            List<Wire> wires = entry.getValue();
+            AbstractWiring reqwiring = (AbstractWiring) getWiring(result, res);
+            reqwiring.addRequiredWires(wires);
+            for (Wire wire : wires) {
+                Resource provider = wire.getProvider();
+                AbstractWiring provwiring = (AbstractWiring) getWiring(result, provider);
+                provwiring.addProvidedWire(wire);
             }
         }
         return result;
     }
 
-    private Wiring getWiring(Map<Resource, Wiring> result, Resource requirer) {
-        Wiring wiring = result.get(requirer);
+    public synchronized void applyResourceWiringMap(Map<Resource, Wiring> deltamap) {
+        for (Map.Entry<Resource, Wiring> entry : deltamap.entrySet()) {
+            Resource res = entry.getKey();
+            Wiring deltaWiring = entry.getValue();
+            AbstractWiring existingWiring = (AbstractWiring) wirings.get(res);
+            if (existingWiring == null) {
+                wirings.put(res, deltaWiring);
+            } else {
+                for (Wire wire : deltaWiring.getProvidedResourceWires(null)) {
+                    existingWiring.addProvidedWire(wire);
+                }
+            }
+        }
+    }
+
+    private Wiring getWiring(Map<Resource, Wiring> result, Resource resource) {
+        Wiring wiring = result.get(resource);
         if (wiring == null) {
-            wiring = new AbstractWiring(requirer);
-            result.put(requirer, wiring);
+            wiring = new AbstractWiring(resource);
+            result.put(resource, wiring);
         }
         return wiring;
     }
@@ -138,16 +166,12 @@ public class AbstractEnvironment extends AbstractElement implements Environment 
         return true;
     }
 
-    public Wiring getWiring(Resource resource) {
-        synchronized (wirings) {
-            return wirings.get(resource);
-        }
+    public synchronized Wiring getWiring(Resource resource) {
+        return wirings.get(resource);
     }
 
     @Override
-    public Map<Resource, Wiring> getWirings() {
-        synchronized (wirings) {
-            return Collections.unmodifiableMap(wirings);
-        }
+    public synchronized Map<Resource, Wiring> getWirings() {
+        return Collections.unmodifiableMap(wirings);
     }
 }

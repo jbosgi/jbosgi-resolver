@@ -23,6 +23,7 @@ package org.jboss.osgi.resolver.v2;
 
 import org.apache.felix.resolver.FelixEnvironment;
 import org.apache.felix.resolver.impl.ResolverImpl;
+import org.jboss.logging.Logger;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
@@ -47,12 +48,22 @@ import java.util.SortedSet;
  */
 public class FelixResolver implements Resolver {
 
+    private static Logger log = Logger.getLogger(FelixResolver.class);
+
     private ResolverImpl delegate = new ResolverImpl(new LoggerDelegate());
 
     @Override
-    public Map<Resource, List<Wire>> resolve(Environment environment, Collection<? extends Resource> mandatoryResources, Collection<? extends Resource> optionalResources) throws ResolutionException {
-        FelixEnvironment state = new EnvironmentDelegate(environment);
-        return delegate.resolve(state, mandatoryResources, optionalResources);
+    public Map<Resource, List<Wire>> resolve(Environment environment, Collection<? extends Resource> mandatory, Collection<? extends Resource> optional) throws ResolutionException {
+        FelixEnvironment env = new EnvironmentDelegate(environment);
+        log.debugf("Resolve: %s, %s", mandatory, optional);
+        Map<Resource, List<Wire>> result = delegate.resolve(env, mandatory, optional);
+        log.debugf("Resolution result: %d", result.size());
+        if (log.isDebugEnabled()) {
+            for (Map.Entry<Resource, List<Wire>> entry : result.entrySet()) {
+                log.debugf("   %s: %s", entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
     }
 
     static class EnvironmentDelegate implements FelixEnvironment {

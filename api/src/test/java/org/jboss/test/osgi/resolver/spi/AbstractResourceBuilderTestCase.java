@@ -22,7 +22,7 @@
 package org.jboss.test.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.v2.VersionRange;
-import org.jboss.osgi.resolver.v2.XFragmentHostCapability;
+import org.jboss.osgi.resolver.v2.XHostCapability;
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
 import org.jboss.osgi.resolver.v2.XPackageRequirement;
 import org.junit.Assert;
@@ -103,7 +103,7 @@ public class AbstractResourceBuilderTestCase extends AbstractTestBase {
 
         caps = resource.getCapabilities(WIRING_HOST_NAMESPACE);
         Assert.assertEquals(1, caps.size());
-        XFragmentHostCapability hcap = (XFragmentHostCapability) caps.get(0);
+        XHostCapability hcap = (XHostCapability) caps.get(0);
         Assert.assertEquals("test1", hcap.getSymbolicName());
         Assert.assertEquals(Version.emptyVersion, hcap.getVersion());
     }

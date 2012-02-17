@@ -27,7 +27,7 @@ package org.jboss.osgi.resolver.v2;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XFragmentHostRequirement extends XRequirement {
+public interface XHostRequirement extends XRequirement {
 
     String getSymbolicName();
 
