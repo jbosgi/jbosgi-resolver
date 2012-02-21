@@ -35,5 +35,7 @@ public interface XResource extends XElement, Resource {
 
     XIdentityCapability getIdentityCapability();
 
+    boolean isFragment();
+
     InputStream getContent();
 }

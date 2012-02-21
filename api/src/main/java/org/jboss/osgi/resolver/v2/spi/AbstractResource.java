@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 
 /**
  * The abstract implementation of an {@link XResource}.
@@ -46,6 +47,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
     private XIdentityCapability identityCapability;
+    private Boolean fragment;
 
     protected void addCapability(Capability cap) {
         String namespace = cap.getNamespace();
@@ -78,6 +80,15 @@ public class AbstractResource extends AbstractElement implements XResource {
             identityCapability = (XIdentityCapability) caps.get(0);
         }
         return identityCapability;
+    }
+
+    @Override
+    public boolean isFragment() {
+        if (fragment == null) {
+            List<Requirement> reqs = getRequirements(WIRING_HOST_NAMESPACE);
+            fragment = new Boolean(reqs.size() > 0);
+        }
+        return fragment.booleanValue();
     }
 
     private List<Capability> getCaplist(String namespace) {

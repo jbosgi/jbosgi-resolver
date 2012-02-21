@@ -22,6 +22,9 @@
 package org.jboss.osgi.resolver.v2.spi;
 
 import org.jboss.logging.Logger;
+import org.jboss.osgi.resolver.v2.XIdentityCapability;
+import org.jboss.osgi.resolver.v2.XResource;
+import org.osgi.framework.Constants;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
@@ -42,7 +45,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
 
 /**
@@ -55,7 +57,7 @@ public abstract class AbstractEnvironment implements Environment {
 
     private static Logger log = Logger.getLogger(AbstractEnvironment.class);
     
-    private final List<Resource> resources = new ArrayList<Resource>();
+    private final List<XResource> resources = new ArrayList<XResource>();
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
     protected abstract Comparator<Capability> getComparator();
@@ -66,7 +68,7 @@ public abstract class AbstractEnvironment implements Environment {
                 throw new IllegalArgumentException("Resource already installed: " + res);
             
             log.debugf("Install resource: %s", res);
-            resources.add(res);
+            resources.add((XResource) res);
         }
     }
 
@@ -90,9 +92,9 @@ public abstract class AbstractEnvironment implements Environment {
 
     public Collection<Resource> getResources(String identityType) {
         Set<Resource> result = new HashSet<Resource>();
-        for (Resource res : resources) {
-            Capability icap = res.getCapabilities(IDENTITY_NAMESPACE).get(0);
-            Object captype = icap.getAttributes().get(IDENTITY_TYPE_ATTRIBUTE);
+        for (XResource res : resources) {
+            XIdentityCapability icap = res.getIdentityCapability();
+            Object captype = icap.getAttribute(IDENTITY_TYPE_ATTRIBUTE);
             if (identityType.equals(captype)) {
                 result.add(res);
             }
@@ -104,10 +106,14 @@ public abstract class AbstractEnvironment implements Environment {
     public synchronized SortedSet<Capability> findProviders(Requirement req) {
         log.debugf("Find providers: %s", req);
         SortedSet<Capability> result = new TreeSet<Capability>(getComparator());
+        boolean singletonProvided = false;
         for (Resource res : resources) {
             for (Capability cap : res.getCapabilities(req.getNamespace())) {
-                if (req.matches(cap)) {
+                if (!singletonProvided && req.matches(cap)) {
                     result.add(cap);
+                    XIdentityCapability icap = ((XResource) res).getIdentityCapability();
+                    String dirval = icap.getDirective(Constants.SINGLETON_DIRECTIVE);
+                    singletonProvided = Boolean.parseBoolean(dirval);
                 }
             }
         }
