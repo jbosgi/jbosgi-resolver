@@ -21,9 +21,13 @@
  */
 package org.jboss.osgi.resolver.v2;
 
+import org.jboss.osgi.resolver.v2.spi.AbstractWiring;
 import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
+import org.osgi.framework.resource.Wiring;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * An extension to the {@link Resource}

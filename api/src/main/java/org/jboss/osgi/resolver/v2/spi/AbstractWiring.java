@@ -40,17 +40,12 @@ import java.util.List;
 public class AbstractWiring implements Wiring {
 
     private final Resource resource;
-    private List<Wire> required;
+    private final List<Wire> required;
     private List<Wire> provided;
 
-    public AbstractWiring(Resource resource) {
+    public AbstractWiring(Resource resource, List<Wire> wires) {
         this.resource = resource;
-    }
-
-    protected void addRequiredWires(List<Wire> wires) {
-        if (required != null)
-            throw new IllegalStateException("Required wires already set");
-        required = wires;
+        this.required = wires;
     }
 
     protected void addProvidedWire(Wire wire) {

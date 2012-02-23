@@ -21,17 +21,38 @@
  */
 package org.jboss.osgi.resolver.v2;
 
+import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
+import org.osgi.framework.resource.Wiring;
+import org.osgi.service.resolver.Environment;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 /**
- * A fragment host requirement
- * 
+ * An extension to the {@link Environment}
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XHostRequirement extends XRequirement {
+public interface XEnvironment extends Environment {
 
-    String getSymbolicName();
+    void installResources(Resource... resarr);
 
-    VersionRange getVersionRange();
+    void uninstallResources(Resource... resarr);
 
-    String getVisibility();
+    void refreshResources(Resource... resarr);
+
+    long getResourceIndex(Resource resource);
+
+    Collection<Resource> getResources(String identityType);
+
+    Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap);
+
+    Wiring getWiring(Resource res);
+
+    Wiring createWiring(Resource res, List<Wire> wires);
+
+    Wiring applyWiring(Resource res, Wiring delta);
 }
