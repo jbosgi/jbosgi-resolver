@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver.v2.spi;
 
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
 
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.osgi.framework.Constants.SINGLETON_DIRECTIVE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
@@ -46,6 +48,7 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
 
     private final String symbolicName;
     private final Version version;
+    private final boolean singleton;
     private final String type;
 
     protected AbstractIdentityCapability(Resource brev, Map<String, Object> atts, Map<String, String> dirs) {
@@ -53,6 +56,7 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
         this.symbolicName = (String) atts.get(IDENTITY_NAMESPACE);
         this.version = (Version) atts.get(IDENTITY_VERSION_ATTRIBUTE);
         this.type = (String) atts.get(IDENTITY_TYPE_ATTRIBUTE);
+        this.singleton = Boolean.parseBoolean(dirs.get(SINGLETON_DIRECTIVE));
     }
 
     @Override
@@ -75,5 +79,9 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
     @Override
     public String getType() {
         return type;
+    }
+
+    public boolean isSingleton() {
+        return singleton;
     }
 }

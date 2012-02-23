@@ -36,4 +36,6 @@ public interface XIdentityCapability extends XCapability {
     Version getVersion();
 
     String getType();
+
+    boolean isSingleton();
 }

@@ -27,7 +27,6 @@ import org.jboss.osgi.resolver.v2.XDirectiveSupport;
 import org.osgi.framework.resource.Resource;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
