@@ -30,7 +30,6 @@ import org.jboss.osgi.resolver.v2.XRequirement;
 import org.jboss.osgi.resolver.v2.XResource;
 import org.jboss.osgi.resolver.v2.XResourceBuilder;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
 import java.util.HashMap;
@@ -38,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
+import static org.osgi.framework.Constants.RESOLUTION_DIRECTIVE;
 import static org.osgi.framework.Constants.SYSTEM_BUNDLE_SYMBOLICNAME;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
@@ -45,6 +45,7 @@ import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_BUNDLE
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_FRAGMENT;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_UNKNOWN;
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_OPTIONAL;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
@@ -115,7 +116,17 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     public XRequirement addPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
-        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
+        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs, false);
+        resource.addRequirement(req);
+        return req;
+    }
+
+    @Override
+    public XRequirement addDynamicPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
+        assertResourceCreated();
+        atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
+        dirs.put(RESOLUTION_DIRECTIVE, REQUIREMENT_RESOLUTION_OPTIONAL);
+        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs, true);
         resource.addRequirement(req);
         return req;
     }
@@ -144,7 +155,8 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         if (IDENTITY_NAMESPACE.equals(namespace)) {
             req = new AbstractIdentityRequirement(resource, atts, dirs);
         } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
-            req = new AbstractPackageRequirement(resource, atts, dirs);
+            String packageName = (String) atts.get(namespace);
+            req = new AbstractPackageRequirement(resource, atts, dirs, packageName.endsWith("*"));
         } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
             req = new AbstractHostRequirement(resource, atts, dirs);
         } else {
@@ -219,7 +231,9 @@ public class AbstractResourceBuilder extends XResourceBuilder {
             if (dynamicImports != null && dynamicImports.isEmpty() == false) {
                 for (PackageAttribute attr : dynamicImports) {
                     String name = attr.getAttribute();
-                    //addDynamicPackageRequirement(name, atts);
+                    Map<String, Object> atts = getAttributes(attr);
+                    Map<String, String> dirs = getDirectives(attr);
+                    addDynamicPackageRequirement(name, atts, dirs);
                 }
             }
 

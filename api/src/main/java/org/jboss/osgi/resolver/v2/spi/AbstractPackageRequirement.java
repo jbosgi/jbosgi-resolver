@@ -31,10 +31,8 @@ import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,8 +52,9 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
 
     private final String packageName;
     private final VersionRange versionrange;
+    private final boolean dynamic;
 
-    public AbstractPackageRequirement(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
+    public AbstractPackageRequirement(Resource res, Map<String, Object> attrs, Map<String, String> dirs, boolean isdynamic) {
         super(res, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
         packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
         Object versionatt = attrs.get(VERSION_ATTRIBUTE);
@@ -63,6 +62,7 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
             versionatt = VersionRange.parse((String) versionatt);
         }
         versionrange = (VersionRange) versionatt;
+        dynamic = isdynamic;
     }
 
     @Override
@@ -78,6 +78,29 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     @Override
     public VersionRange getVersionRange() {
         return versionrange;
+    }
+
+    @Override
+    public boolean isDynamic() {
+        return dynamic;
+    }
+
+    @Override
+    public boolean matchNamespaceValue(Capability cap) {
+
+        String packageName = getPackageName();
+        if (packageName.equals("*"))
+            return true;
+
+        XPackageCapability xcap = (XPackageCapability) cap;
+        if (packageName.endsWith(".*")) {
+            packageName = packageName.substring(0, packageName.length() - 2);
+            return xcap.getPackageName().startsWith(packageName);
+        }
+        else
+        {
+            return packageName.equals(xcap.getPackageName());
+        }
     }
 
     @Override
@@ -141,7 +164,13 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
                 return false;
         }
 
-
         return true;
+    }
+
+    public String toString() {
+        String attstr = !getAttributes().isEmpty() ? ",attributes=" + getAttributes() : "";
+        String dirstr = !getDirectives().isEmpty() ? ",directives=" + getDirectives() : "";
+        String dynstr = isDynamic() ? ",dynamic" : "";
+        return getClass().getSimpleName() + "[" + getNamespace() + attstr + dirstr + dynstr + "]";
     }
 }

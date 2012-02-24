@@ -177,6 +177,14 @@ public abstract class XResourceBuilder {
     public abstract XRequirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
+     * Add a {@link Constants#DYNAMICIMPORT_PACKAGE} requirement
+     *
+     * @param name The package name
+     * @param atts The attributes
+     */
+    public abstract XRequirement addDynamicPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
+
+    /**
      * Add a generic {@link Capability}
      *
      * @param namespace The namespace

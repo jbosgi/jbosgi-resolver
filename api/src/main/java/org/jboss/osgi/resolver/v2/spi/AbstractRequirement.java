@@ -33,7 +33,6 @@ import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.ResourceConstants;
 
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +42,7 @@ import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTI
 
 /**
  * The abstract implementation of a {@link XRequirement}.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -84,8 +83,8 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         } else {
             filter = null;
         }
-        
-        
+
+
         validateAttributes(atts);
     }
 
@@ -137,26 +136,28 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
 
     @Override
     public boolean matches(Capability cap) {
-        String namespace = getNamespace();
         boolean matches = namespace.equals(cap.getNamespace());
 
         // match namespace value
-        if (matches) {
-            XCapability xcap = (XCapability) cap;
-            Object thisatt = getAttribute(namespace);
-            Object otheratt = xcap.getAttribute(namespace);
-            matches = thisatt.equals(otheratt);
-        }
+        matches &= matchNamespaceValue(cap);
 
         // match filter
-        if (matches && filter != null) {
-            Dictionary dict = new Hashtable(cap.getAttributes());
-            matches = filter.match(dict);
-        }
+        matches &= matchFilterValue(cap);
 
         return matches;
     }
-    
+
+    protected boolean matchNamespaceValue(Capability cap) {
+        XCapability xcap = (XCapability) cap;
+        Object thisatt = getAttribute(namespace);
+        Object otheratt = xcap.getAttribute(namespace);
+        return thisatt.equals(otheratt);
+    }
+
+    protected boolean matchFilterValue(Capability cap) {
+        return filter != null ? filter.match(new Hashtable(cap.getAttributes())) : true;
+    }
+
     public String toString() {
         String attstr = !getAttributes().isEmpty() ? ",attributes=" + attributes : "";
         String dirstr = !getDirectives().isEmpty() ? ",directives=" + directives : "";

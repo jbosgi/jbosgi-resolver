@@ -32,4 +32,6 @@ public interface XPackageRequirement extends XRequirement {
     String getPackageName();
 
     VersionRange getVersionRange();
+
+    boolean isDynamic();
 }
