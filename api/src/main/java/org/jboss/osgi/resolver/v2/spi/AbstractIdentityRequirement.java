@@ -24,6 +24,7 @@ package org.jboss.osgi.resolver.v2.spi;
 import org.jboss.osgi.resolver.v2.VersionRange;
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
 import org.jboss.osgi.resolver.v2.XIdentityRequirement;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
@@ -45,10 +46,12 @@ public class AbstractIdentityRequirement extends AbstractRequirement implements 
 
     private final String symbolicName;
     private final VersionRange versionrange;
+    private final String visibility;
 
     protected AbstractIdentityRequirement(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, IDENTITY_NAMESPACE, atts, dirs);
-        this.symbolicName = (String) getAttribute(IDENTITY_NAMESPACE);
+        symbolicName = (String) getAttribute(IDENTITY_NAMESPACE);
+        visibility = getDirective(Constants.VISIBILITY_DIRECTIVE);
         Object versionatt = atts.get(BUNDLE_VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
             versionatt = VersionRange.parse((String) versionatt);
@@ -69,6 +72,11 @@ public class AbstractIdentityRequirement extends AbstractRequirement implements 
     @Override
     public VersionRange getVersionRange() {
         return versionrange;
+    }
+
+    @Override
+    public String getVisibility() {
+        return visibility;
     }
 
     @Override

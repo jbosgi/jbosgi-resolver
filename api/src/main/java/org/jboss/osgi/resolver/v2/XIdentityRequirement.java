@@ -32,4 +32,6 @@ public interface XIdentityRequirement extends XRequirement {
     String getSymbolicName();
 
     VersionRange getVersionRange();
+
+    String getVisibility();
 }

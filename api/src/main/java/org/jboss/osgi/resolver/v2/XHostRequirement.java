@@ -32,6 +32,4 @@ public interface XHostRequirement extends XRequirement {
     String getSymbolicName();
 
     VersionRange getVersionRange();
-
-    String getVisibility();
 }
