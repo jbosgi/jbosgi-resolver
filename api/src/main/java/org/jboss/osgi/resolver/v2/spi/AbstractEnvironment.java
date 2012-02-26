@@ -25,7 +25,6 @@ import org.jboss.logging.Logger;
 import org.jboss.osgi.resolver.v2.XEnvironment;
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
 import org.jboss.osgi.resolver.v2.XResource;
-import org.osgi.framework.Constants;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
@@ -111,14 +110,10 @@ public abstract class AbstractEnvironment implements XEnvironment {
     public synchronized SortedSet<Capability> findProviders(Requirement req) {
         log.debugf("Find providers: %s", req);
         SortedSet<Capability> result = new TreeSet<Capability>(getComparator());
-        boolean singletonProvided = false;
         for (Resource res : resources) {
             for (Capability cap : res.getCapabilities(req.getNamespace())) {
-                if (!singletonProvided && req.matches(cap)) {
+                if (req.matches(cap)) {
                     result.add(cap);
-                    XIdentityCapability icap = ((XResource) res).getIdentityCapability();
-                    String dirval = icap.getDirective(Constants.SINGLETON_DIRECTIVE);
-                    singletonProvided = Boolean.parseBoolean(dirval);
                 }
             }
         }
