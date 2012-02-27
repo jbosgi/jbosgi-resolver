@@ -22,14 +22,11 @@
 package org.jboss.osgi.resolver.v2.spi;
 
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

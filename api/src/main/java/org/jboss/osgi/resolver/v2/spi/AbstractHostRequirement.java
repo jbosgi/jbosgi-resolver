@@ -24,7 +24,6 @@ package org.jboss.osgi.resolver.v2.spi;
 import org.jboss.osgi.resolver.v2.VersionRange;
 import org.jboss.osgi.resolver.v2.XHostRequirement;
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;

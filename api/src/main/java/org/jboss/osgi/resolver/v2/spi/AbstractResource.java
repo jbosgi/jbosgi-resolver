@@ -25,8 +25,6 @@ import org.jboss.osgi.resolver.v2.XIdentityCapability;
 import org.jboss.osgi.resolver.v2.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
 
 import java.io.InputStream;
 import java.util.ArrayList;

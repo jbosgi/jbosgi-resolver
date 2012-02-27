@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
-import org.osgi.framework.resource.Resource;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;
 

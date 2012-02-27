@@ -21,18 +21,10 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
-import org.jboss.osgi.resolver.v2.XCapability;
-import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.ResourceConstants;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Map;
 
 /**

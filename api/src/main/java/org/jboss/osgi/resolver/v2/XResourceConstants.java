@@ -21,8 +21,6 @@
  */
 package org.jboss.osgi.resolver.v2;
 
-import org.osgi.framework.resource.ResourceConstants;
-
 /**
  * Defines names for the attributes, directives and name spaces for
  * resources, capabilities and requirements in the context of the

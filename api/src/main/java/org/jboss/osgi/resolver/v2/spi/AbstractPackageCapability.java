@@ -25,9 +25,7 @@ import org.jboss.osgi.resolver.v2.XPackageCapability;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Resource;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
