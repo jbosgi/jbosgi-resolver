@@ -21,6 +21,8 @@
  */
 package org.jboss.osgi.resolver.v2;
 
+import org.jboss.osgi.metadata.VersionRange;
+
 /**
  * An identity requirement
  * 

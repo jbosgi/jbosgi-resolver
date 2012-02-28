@@ -21,7 +21,7 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.v2.VersionRange;
+import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.v2.XHostCapability;
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
 import org.jboss.osgi.resolver.v2.XPackageRequirement;
