@@ -40,6 +40,12 @@
             <artifactId>org.apache.felix.resolver</artifactId>
         </dependency>
 
+        <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+        </dependency>
+
         <!-- OSGi Dependencies -->
         <dependency>
             <groupId>org.osgi</groupId>
