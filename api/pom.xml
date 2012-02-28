@@ -26,9 +26,8 @@
   <!-- Dependencies -->
   <dependencies>
     <dependency>
-      <groupId>org.jboss.osgi.resolver</groupId>
-      <artifactId>jbosgi-resolver-metadata</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.jboss.osgi.metadata</groupId>
+      <artifactId>jbosgi-metadata</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.osgi.spi</groupId>

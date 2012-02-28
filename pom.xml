@@ -36,6 +36,7 @@
     <properties>
         <version.jboss.logging>3.1.0.CR2</version.jboss.logging>
         <version.jboss.logmanager>1.2.0.GA</version.jboss.logmanager>
+        <version.jboss.osgi.metadata>2.0.1</version.jboss.osgi.metadata>
         <version.jboss.osgi.spi>2.0.4</version.jboss.osgi.spi>
         <version.jboss.osgi.vfs>1.0.6</version.jboss.osgi.vfs>
         <version.mockito>1.8.4</version.mockito>
@@ -59,6 +60,11 @@
                 <groupId>org.jboss.osgi.spi</groupId>
                 <artifactId>jbosgi-spi</artifactId>
                 <version>${version.jboss.osgi.spi}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.osgi.metadata</groupId>
+                <artifactId>jbosgi-metadata</artifactId>
+                <version>${version.jboss.osgi.metadata}</version>
             </dependency>
 
             <!-- OSGi Dependencies -->
@@ -86,7 +92,6 @@
     <modules>
         <module>api</module>
         <module>spi</module>
-        <module>metadata</module>
         <module>felix</module>
         <module>itest</module>
     </modules>

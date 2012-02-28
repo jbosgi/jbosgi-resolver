@@ -37,11 +37,6 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.osgi.resolver</groupId>
-      <artifactId>jbosgi-resolver-metadata</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.osgi.resolver</groupId>
       <artifactId>jbosgi-resolver-spi</artifactId>
       <version>${project.version}</version>
     </dependency>
