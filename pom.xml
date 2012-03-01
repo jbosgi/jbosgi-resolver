@@ -34,11 +34,12 @@
 
     <!-- Properties -->
     <properties>
-        <version.jboss.logging>3.1.0.CR2</version.jboss.logging>
+        <version.jboss.logging>3.1.0.GA</version.jboss.logging>
         <version.jboss.logmanager>1.2.0.GA</version.jboss.logmanager>
-        <version.jboss.osgi.metadata>2.0.2</version.jboss.osgi.metadata>
-        <version.jboss.osgi.spi>2.0.4</version.jboss.osgi.spi>
-        <version.jboss.osgi.vfs>1.0.6</version.jboss.osgi.vfs>
+        <version.jboss.osgi.metadata>2.0.3.Final</version.jboss.osgi.metadata>
+        <version.jboss.osgi.spi>3.0.1.Final</version.jboss.osgi.spi>
+        <version.jboss.osgi.testing>1.0.3.Final</version.jboss.osgi.testing>
+        <version.jboss.osgi.vfs>1.0.7.Final</version.jboss.osgi.vfs>
         <version.mockito>1.8.4</version.mockito>
         <version.osgi>4.2.0</version.osgi>
     </properties>
@@ -60,6 +61,11 @@
                 <groupId>org.jboss.osgi.spi</groupId>
                 <artifactId>jbosgi-spi</artifactId>
                 <version>${version.jboss.osgi.spi}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.osgi.testing</groupId>
+                <artifactId>jbosgi-testing</artifactId>
+                <version>${version.jboss.osgi.testing}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.osgi.metadata</groupId>
