@@ -21,6 +21,23 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
+import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
+import static org.osgi.framework.Constants.SYSTEM_BUNDLE_SYMBOLICNAME;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_BUNDLE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_FRAGMENT;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_UNKNOWN;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE;
+import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DYNAMIC;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.PackageAttribute;
 import org.jboss.osgi.metadata.Parameter;
@@ -31,23 +48,6 @@ import org.jboss.osgi.resolver.v2.XResource;
 import org.jboss.osgi.resolver.v2.XResourceBuilder;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.Constants.RESOLUTION_DIRECTIVE;
-import static org.osgi.framework.Constants.SYSTEM_BUNDLE_SYMBOLICNAME;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_BUNDLE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_FRAGMENT;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_UNKNOWN;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_OPTIONAL;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
  * A builder for resolver resources
@@ -116,7 +116,7 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     public XRequirement addPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
-        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs, false);
+        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
     }
@@ -125,8 +125,8 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     public XRequirement addDynamicPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
-        dirs.put(RESOLUTION_DIRECTIVE, REQUIREMENT_RESOLUTION_OPTIONAL);
-        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs, true);
+        dirs.put(REQUIREMENT_RESOLUTION_DIRECTIVE, REQUIREMENT_RESOLUTION_DYNAMIC);
+        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
     }
@@ -155,8 +155,7 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         if (IDENTITY_NAMESPACE.equals(namespace)) {
             req = new AbstractIdentityRequirement(resource, atts, dirs);
         } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
-            String packageName = (String) atts.get(namespace);
-            req = new AbstractPackageRequirement(resource, atts, dirs, packageName.endsWith("*"));
+            req = new AbstractPackageRequirement(resource, atts, dirs);
         } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
             req = new AbstractHostRequirement(resource, atts, dirs);
         } else {

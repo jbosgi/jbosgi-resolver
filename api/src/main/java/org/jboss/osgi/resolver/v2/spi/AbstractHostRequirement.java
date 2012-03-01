@@ -21,19 +21,19 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
-import org.jboss.osgi.metadata.VersionRange;
-import org.jboss.osgi.resolver.v2.XHostRequirement;
-import org.jboss.osgi.resolver.v2.XIdentityCapability;
-import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
+import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
+import org.jboss.osgi.metadata.VersionRange;
+import org.jboss.osgi.resolver.v2.XHostCapability;
+import org.jboss.osgi.resolver.v2.XHostRequirement;
+import org.osgi.framework.Version;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Resource;
 
 /**
  * The abstract implementation of a {@link XHostRequirement}.
@@ -79,7 +79,7 @@ public class AbstractHostRequirement extends AbstractRequirement implements XHos
 
         // match the bundle version range
         if (versionrange != null) {
-            Version version = ((XIdentityCapability) cap).getVersion();
+            Version version = ((XHostCapability) cap).getVersion();
             if (versionrange.isInRange(version) == false)
                 return false;
         }

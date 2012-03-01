@@ -21,6 +21,20 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
+import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE;
+import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
+import static org.osgi.framework.Constants.MANDATORY_DIRECTIVE;
+import static org.osgi.framework.Constants.PACKAGE_SPECIFICATION_VERSION;
+import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE;
+import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DYNAMIC;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.v2.XCapability;
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
@@ -30,17 +44,6 @@ import org.jboss.osgi.resolver.v2.XResource;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE;
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.Constants.MANDATORY_DIRECTIVE;
-import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
  * The abstract implementation of a {@link XPackageRequirement}.
@@ -54,7 +57,7 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     private final VersionRange versionrange;
     private final boolean dynamic;
 
-    public AbstractPackageRequirement(Resource res, Map<String, Object> attrs, Map<String, String> dirs, boolean isdynamic) {
+    public AbstractPackageRequirement(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
         super(res, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
         packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
         Object versionatt = attrs.get(VERSION_ATTRIBUTE);
@@ -62,7 +65,7 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
             versionatt = VersionRange.parse((String) versionatt);
         }
         versionrange = (VersionRange) versionatt;
-        dynamic = isdynamic;
+        dynamic = REQUIREMENT_RESOLUTION_DYNAMIC.equals(dirs.get(REQUIREMENT_RESOLUTION_DIRECTIVE));
     }
 
     @Override
@@ -120,8 +123,11 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
         Map<String, Object> capatts = new HashMap<String, Object> (cap.getAttributes());
         reqatts.remove(WIRING_PACKAGE_NAMESPACE);
         capatts.remove(WIRING_PACKAGE_NAMESPACE);
+        reqatts.remove(PACKAGE_SPECIFICATION_VERSION);
+        capatts.remove(PACKAGE_SPECIFICATION_VERSION);
         reqatts.remove(VERSION_ATTRIBUTE);
         capatts.remove(VERSION_ATTRIBUTE);
+
 
         // match package's bundle-symbolic-name
         String symbolicName = (String) reqatts.remove(BUNDLE_SYMBOLICNAME_ATTRIBUTE);
@@ -149,9 +155,11 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
         if (dirstr != null) {
             for (String att : dirstr.split(",")) {
                 Object capval = capatts.remove(att);
-                Object reqval = reqatts.remove(att);
-                if (capval.equals(reqval) == false)
-                    return false;
+                if (capval != null) {
+                    Object reqval = reqatts.remove(att);
+                    if (!capval.equals(reqval))
+                        return false;
+                }
             }
         }
 
@@ -160,7 +168,7 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
             String att = entry.getKey();
             Object reqval = entry.getValue();
             Object capval = capatts.remove(att);
-            if (reqval.equals(capval) == false)
+            if (!reqval.equals(capval))
                 return false;
         }
 
@@ -170,7 +178,6 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     public String toString() {
         String attstr = !getAttributes().isEmpty() ? ",attributes=" + getAttributes() : "";
         String dirstr = !getDirectives().isEmpty() ? ",directives=" + getDirectives() : "";
-        String dynstr = isDynamic() ? ",dynamic" : "";
-        return getClass().getSimpleName() + "[" + getNamespace() + attstr + dirstr + dynstr + "]";
+        return getClass().getSimpleName() + "[" + getNamespace() + attstr + dirstr + "]";
     }
 }
