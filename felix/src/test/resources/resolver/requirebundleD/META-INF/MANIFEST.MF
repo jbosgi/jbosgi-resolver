@@ -1,0 +1,3 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: requirebundleD
+Import-Package: resources;bundle-symbolic-name=requirebundleC

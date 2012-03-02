@@ -22,23 +22,25 @@ package org.jboss.test.osgi.resolver;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-import org.jboss.shrinkwrap.api.Archive;
-import org.junit.Test;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
-import org.osgi.service.resolver.ResolutionException;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertSame;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import org.jboss.shrinkwrap.api.Archive;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
+import org.osgi.framework.resource.Wiring;
+import org.osgi.service.resolver.Environment;
+import org.osgi.service.resolver.ResolutionException;
 
 /**
  * Test the default resolver integration.
@@ -178,5 +180,68 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         } catch (ResolutionException ex) {
             // expected;
         }
+    }
+
+    @Test
+    @Ignore("Wires to B instead of C")
+    public void testImportBySymbolicName() throws Exception {
+        // Bundle-SymbolicName: requirebundleB
+        // Export-Package: resources
+        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/requirebundleB");
+        Resource resourceB = createResource(assemblyB);
+        
+        // Bundle-SymbolicName: requirebundleC
+        // Export-Package: resources
+        Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/requirebundleC");
+        Resource resourceC = createResource(assemblyC);
+        
+        Environment env = installResources(resourceB, resourceC);
+
+        List<Resource> mandatory = Arrays.asList(resourceB, resourceC);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        applyResolverResults(map);
+        
+        Wiring wiringB = getWiring(env, resourceB);
+        assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+        assertEquals(0, wiringB.getRequiredResourceWires(null).size());
+        
+        Wiring wiringC = getWiring(env, resourceC);
+        assertEquals(0, wiringC.getProvidedResourceWires(null).size());
+        assertEquals(0, wiringC.getRequiredResourceWires(null).size());
+        
+        // Bundle-SymbolicName: requirebundleD
+        // Import-Package: resources;bundle-symbolic-name=requirebundleC
+        Archive<?> assemblyD = assembleArchive("resourceD", "/resolver/requirebundleD");
+        Resource resourceD = createResource(assemblyD);
+        
+        installResources(resourceD);
+        
+        mandatory = Arrays.asList(resourceD);
+        map = resolver.resolve(env, mandatory, null);
+        applyResolverResults(map);
+        
+        Wiring wiringD = getWiring(env, resourceD);
+        assertEquals(0, wiringD.getProvidedResourceWires(null).size());
+        assertEquals(1, wiringD.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
+        Wire wire = wiringD.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
+        assertEquals(resourceC, wire.getProvider());
+        
+        // Bundle-SymbolicName: requirebundleD
+        // Require-Bundle: requirebundleD
+        // Import-Package: resources
+        Archive<?> assemblyE = assembleArchive("resourceE", "/resolver/requirebundleE");
+        Resource resourceE = createResource(assemblyE);
+        
+        installResources(resourceE);
+        
+        mandatory = Arrays.asList(resourceE);
+        map = resolver.resolve(env, mandatory, null);
+        applyResolverResults(map);
+
+        Wiring wiringE = getWiring(env, resourceE);
+        assertEquals(0, wiringE.getProvidedResourceWires(null).size());
+        assertEquals(1, wiringE.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
+        wire = wiringE.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
+        assertEquals(resourceC, wire.getProvider());
     }
 }

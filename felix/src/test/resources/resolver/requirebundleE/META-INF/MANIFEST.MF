@@ -1,0 +1,4 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: requirebundleE
+Require-Bundle: requirebundleD
+Import-Package: resources
