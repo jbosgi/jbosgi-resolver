@@ -251,6 +251,7 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         assertEquals(0, wiringC.getRequiredResourceWires(null).size());
         
         // Bundle-SymbolicName: requirebundleD
+        // Export-Package: org.jboss.osgi.test.classloading.export;uses:=resources
         // Import-Package: resources;bundle-symbolic-name=requirebundleC
         Archive<?> assemblyD = assembleArchive("resourceD", "/resolver/requirebundleD");
         Resource resourceD = createResource(assemblyD);
