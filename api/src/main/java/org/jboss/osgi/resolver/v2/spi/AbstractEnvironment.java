@@ -71,7 +71,7 @@ public abstract class AbstractEnvironment implements XEnvironment {
                 throw new IllegalArgumentException("Resource already installed: " + res);
 
             log.debugf("Install resource: %s", res);
-            
+
             // Attach the install index
             xres.addAttachment(Long.class, resourceIndex.incrementAndGet());
             // Add resource by type
@@ -79,6 +79,12 @@ public abstract class AbstractEnvironment implements XEnvironment {
             // Add resource capabilites
             for (Capability cap : res.getCapabilities(null)) {
                 getCachedCapabilities(CacheKey.create(cap)).add(cap);
+                log.debugf("   %s", cap);
+            }
+            if (log.isDebugEnabled()) {
+                for (Requirement req : res.getRequirements(null)) {
+                    log.debugf("   %s", req);
+                }
             }
         }
     }
@@ -151,7 +157,12 @@ public abstract class AbstractEnvironment implements XEnvironment {
                 result.add(cap);
             }
         }
-        log.debugf("Found providers: %s", result);
+        if (log.isDebugEnabled()) {
+            log.debugf("Found %d provider(s)", result.size());
+            for (Capability cap : result) {
+                log.debugf("   " + cap + " => " + cap.getResource());
+            }
+        }
         return result;
     }
 

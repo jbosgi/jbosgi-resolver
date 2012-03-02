@@ -34,6 +34,7 @@ import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.Resolver;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -42,7 +43,7 @@ import java.util.SortedSet;
  * An implementation of the Resolver.
  * <p/>
  * This implemantion should use no framework specific API. It is the extension point for a framework specific Resolver.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
@@ -57,10 +58,15 @@ public class FelixResolver implements Resolver {
         FelixEnvironment env = new EnvironmentDelegate(environment);
         log.debugf("Resolve: %s, %s", mandatory, optional);
         Map<Resource, List<Wire>> result = delegate.resolve(env, mandatory, optional);
-        log.debugf("Resolution result: %d", result.size());
         if (log.isDebugEnabled()) {
+            log.debugf("Resolution result: %d", result.size());
             for (Map.Entry<Resource, List<Wire>> entry : result.entrySet()) {
-                log.debugf("   %s: %s", entry.getKey(), entry.getValue());
+                Resource res = entry.getKey();
+                List<Wire> wires = entry.getValue();
+                log.debugf("   %s: %d wires", res, wires.size());
+                for (Wire wire : wires) {
+                    log.debugf("      %s", wire);
+                }
             }
         }
         return result;

@@ -183,7 +183,8 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
     }
 
     @Test
-    @Ignore("Wires to B instead of C")
+    @Ignore("[FELIX-3370] Wires E to B instead of C") 
+    // https://issues.apache.org/jira/browse/FELIX-3370
     public void testImportBySymbolicName() throws Exception {
         // Bundle-SymbolicName: requirebundleB
         // Export-Package: resources
