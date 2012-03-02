@@ -159,6 +159,46 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
     }
 
     @Test
+    public void testRequireBundleHighestVersion() throws Exception {
+
+        // Bundle-SymbolicName: bundleversion
+        // Bundle-Version: 1.0.0
+        Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/bundleversion100");
+        Resource resourceA = createResource(assemblyA);
+
+        // Bundle-SymbolicName: bundleversion
+        // Bundle-Version: 1.1.0
+        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/bundleversion110");
+        Resource resourceB = createResource(assemblyB);
+
+        // Bundle-SymbolicName: requirebundlehighestversion
+        // Require-Bundle: bundleversion
+        Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/requirebundlehighestversion");
+        Resource resourceC = createResource(assemblyC);
+
+        Environment env = installResources(resourceA, resourceB, resourceC);
+
+        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        applyResolverResults(map);
+
+        Wiring wiringA = getWiring(env, resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringA.getProvidedResourceWires(null).size());
+
+        Wiring wiringB = getWiring(env, resourceB);
+        assertEquals(0, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringB.getProvidedResourceWires(null).size());
+        
+        Wiring wiringC = getWiring(env, resourceC);
+        assertEquals(1, wiringC.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringC.getProvidedResourceWires(null).size());
+        Wire wireC = wiringC.getRequiredResourceWires(null).get(0);
+        assertSame(resourceC, wireC.getRequirer());
+        assertSame(resourceB, wireC.getProvider());
+    }
+
+    @Test
     public void testRequireBundleVersionFails() throws Exception {
 
         // Bundle-SymbolicName: versionrequirebundlefails
