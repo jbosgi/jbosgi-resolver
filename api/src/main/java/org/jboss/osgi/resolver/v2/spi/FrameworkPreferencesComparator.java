@@ -21,7 +21,7 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
-import org.jboss.osgi.resolver.v2.XIdentityCapability;
+import org.jboss.osgi.resolver.v2.XBundleCapability;
 import org.jboss.osgi.resolver.v2.XPackageCapability;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
@@ -60,9 +60,9 @@ public abstract class FrameworkPreferencesComparator extends ResourceIndexCompar
         }
         
         // prefer higher resource version
-        if (o1 instanceof XIdentityCapability && o2 instanceof XIdentityCapability) {
-            Version v1 = ((XIdentityCapability) o1).getVersion();
-            Version v2 = ((XIdentityCapability) o2).getVersion();
+        if (o1 instanceof XBundleCapability && o2 instanceof XBundleCapability) {
+            Version v1 = ((XBundleCapability) o1).getVersion();
+            Version v2 = ((XBundleCapability) o2).getVersion();
             if (!v1.equals(v2))
                 return v2.compareTo(v1);
         }

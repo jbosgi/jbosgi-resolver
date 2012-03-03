@@ -21,30 +21,46 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRevision;
+import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+
+import org.jboss.osgi.resolver.v2.XBundleCapability;
+import org.osgi.framework.Version;
+import org.osgi.framework.resource.Resource;
 
 /**
- * The abstract implementation of a {@link BundleCapability}.
- * 
+ * The abstract implementation of a {@link XBundleCapability}.
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractBundleCapability extends AbstractCapability implements BundleCapability {
+public class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
 
-    public AbstractBundleCapability(BundleRevision brev, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
-        super(brev, namespace, atts, dirs);
+    private final String symbolicName;
+    private final Version version;
+
+    protected AbstractBundleCapability(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
+        super(res, WIRING_BUNDLE_NAMESPACE, atts, dirs);
+        this.symbolicName = (String) atts.get(WIRING_BUNDLE_NAMESPACE);
+        this.version = (Version) atts.get(BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override
-    public BundleRevision getRevision() {
-        return (BundleRevision) super.getResource();
+    protected Set<String> getMandatoryAttributes() {
+        return Collections.singleton(WIRING_BUNDLE_NAMESPACE);
     }
 
     @Override
-    public BundleRevision getResource() {
-        return (BundleRevision) super.getResource();
+    public String getSymbolicName() {
+        return symbolicName;
+    }
+
+    @Override
+    public Version getVersion() {
+        return version;
     }
 }

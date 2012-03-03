@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jboss.shrinkwrap.api.Archive;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
@@ -223,8 +222,6 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
     }
 
     @Test
-    @Ignore("[FELIX-3370] Wires E to B instead of C") 
-    // https://issues.apache.org/jira/browse/FELIX-3370
     public void testImportBySymbolicName() throws Exception {
         // Bundle-SymbolicName: requirebundleB
         // Export-Package: resources

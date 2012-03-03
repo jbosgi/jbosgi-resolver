@@ -24,12 +24,12 @@ package org.jboss.osgi.resolver.v2;
 import org.jboss.osgi.metadata.VersionRange;
 
 /**
- * An identity requirement
+ * A bundle requirement
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XIdentityRequirement extends XRequirement {
+public interface XBundleRequirement extends XRequirement {
 
     String getSymbolicName();
 

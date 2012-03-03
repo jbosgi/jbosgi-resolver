@@ -33,6 +33,7 @@ import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTI
 import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DYNAMIC;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +43,14 @@ import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.PackageAttribute;
 import org.jboss.osgi.metadata.Parameter;
 import org.jboss.osgi.metadata.ParameterizedAttribute;
+import org.jboss.osgi.resolver.v2.XBundleCapability;
+import org.jboss.osgi.resolver.v2.XBundleRequirement;
 import org.jboss.osgi.resolver.v2.XCapability;
+import org.jboss.osgi.resolver.v2.XHostCapability;
+import org.jboss.osgi.resolver.v2.XHostRequirement;
+import org.jboss.osgi.resolver.v2.XIdentityCapability;
+import org.jboss.osgi.resolver.v2.XPackageCapability;
+import org.jboss.osgi.resolver.v2.XPackageRequirement;
 import org.jboss.osgi.resolver.v2.XRequirement;
 import org.jboss.osgi.resolver.v2.XResource;
 import org.jboss.osgi.resolver.v2.XResourceBuilder;
@@ -65,68 +73,78 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     }
 
     @Override
-    public XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
+    public XIdentityCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(IDENTITY_NAMESPACE, symbolicName);
         atts.put(IDENTITY_VERSION_ATTRIBUTE, version);
         atts.put(IDENTITY_TYPE_ATTRIBUTE, type != null ? type : IDENTITY_TYPE_UNKNOWN);
-        XCapability cap = new AbstractIdentityCapability(resource, atts, dirs);
+        XIdentityCapability cap = new AbstractIdentityCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
     }
 
     @Override
-    public XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
+    public XBundleRequirement addBundleRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
-        atts.put(IDENTITY_NAMESPACE, symbolicName);
-        XRequirement req = new AbstractIdentityRequirement(resource, atts, dirs);
+        atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
+        XBundleRequirement req = new AbstractBundleRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
     }
 
     @Override
-    public XCapability addHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs) {
+    public XBundleCapability addBundleCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs) {
+        assertResourceCreated();
+        atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
+        atts.put(BUNDLE_VERSION_ATTRIBUTE, version);
+        XBundleCapability cap = new AbstractBundleCapability(resource, atts, dirs);
+        resource.addCapability(cap);
+        return cap;
+    }
+
+    @Override
+    public XHostCapability addHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_HOST_NAMESPACE, symbolicName);
         atts.put(BUNDLE_VERSION_ATTRIBUTE, version);
-        XCapability cap = new AbstractHostCapability(resource, atts, dirs);
+        XHostCapability cap = new AbstractHostCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
     }
 
     @Override
-    public XRequirement addHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
+    public XHostRequirement addHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_HOST_NAMESPACE, symbolicName);
-        XRequirement req = new AbstractHostRequirement(resource, atts, dirs);
+        XHostRequirement req = new AbstractHostRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
     }
 
     @Override
-    public XCapability addPackageCapability(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
+    public XPackageCapability addPackageCapability(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
-        XCapability cap = new AbstractPackageCapability(resource, atts, dirs);
+        XPackageCapability cap = new AbstractPackageCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
     }
 
     @Override
-    public XRequirement addPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
+    public XPackageRequirement addPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
-        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
+        XPackageRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
     }
 
     @Override
-    public XRequirement addDynamicPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
+    public XPackageRequirement addDynamicPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
         dirs.put(REQUIREMENT_RESOLUTION_DIRECTIVE, REQUIREMENT_RESOLUTION_DYNAMIC);
-        XRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
+        XPackageRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
     }
@@ -153,7 +171,7 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         assertResourceCreated();
         XRequirement req;
         if (IDENTITY_NAMESPACE.equals(namespace)) {
-            req = new AbstractIdentityRequirement(resource, atts, dirs);
+            req = new AbstractBundleRequirement(resource, atts, dirs);
         } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
             req = new AbstractPackageRequirement(resource, atts, dirs);
         } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
@@ -180,6 +198,13 @@ public class AbstractResourceBuilder extends XResourceBuilder {
             String identityType = fragmentHost != null ? IDENTITY_TYPE_FRAGMENT : IDENTITY_TYPE_BUNDLE;
             addIdentityCapability(symbolicName, bundleVersion, identityType, idatts, iddirs);
             
+            // Bundle Capability
+            if (IDENTITY_TYPE_BUNDLE.equals(identityType)) {
+                Map<String, Object> atts = getAttributes(idparams);
+                Map<String, String> dirs = getDirectives(idparams);
+                addBundleCapability(symbolicName, bundleVersion, atts, dirs);
+            }
+            
             // Host Capability 
             if (fragmentHost != null) {
                 String hostName = fragmentHost.getAttribute();
@@ -199,7 +224,7 @@ public class AbstractResourceBuilder extends XResourceBuilder {
                     String name = attr.getAttribute();
                     Map<String, Object> atts = getAttributes(attr);
                     Map<String, String> dirs = getDirectives(attr);
-                    addIdentityRequirement(name, atts, dirs);
+                    addBundleRequirement(name, atts, dirs);
                 }
             }
 

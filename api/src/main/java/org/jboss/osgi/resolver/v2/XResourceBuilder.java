@@ -85,7 +85,7 @@ public abstract class XResourceBuilder {
         URLBasedResource resource = new URLBasedResource(baseURL, contentPath);
         AbstractResourceBuilder builder = new AbstractResourceBuilder(resource) {
             @Override
-            public XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
+            public XIdentityCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
                 URLBasedResource urlres = (URLBasedResource) resource;
                 atts.put(CONTENT_URL, urlres.getContentURL());
                 atts.put(CONTENT_PATH, urlres.getContentPath());
@@ -128,7 +128,7 @@ public abstract class XResourceBuilder {
      * @param atts         The attributes
      * @param dirs         The directives
      */
-    public abstract XCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XIdentityCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add identity requirement
@@ -137,7 +137,17 @@ public abstract class XResourceBuilder {
      * @param atts         The attributes
      * @param dirs         The directives
      */
-    public abstract XRequirement addIdentityRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XBundleRequirement addBundleRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+
+    /**
+     * Add the bundle capability
+     *
+     * @param symbolicName The resource symbolic name
+     * @param version      The resource version
+     * @param atts         The attributes
+     * @param dirs         The directives
+     */
+    public abstract XBundleCapability addBundleCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add the fragment host capability
@@ -147,7 +157,7 @@ public abstract class XResourceBuilder {
      * @param atts         The attributes
      * @param dirs         The directives
      */
-    public abstract XCapability addHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XHostCapability addHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add fragment host requirement
@@ -156,7 +166,7 @@ public abstract class XResourceBuilder {
      * @param atts         The attributes
      * @param dirs         The directives
      */
-    public abstract XRequirement addHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XHostRequirement addHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#EXPORT_PACKAGE} capability
@@ -165,7 +175,7 @@ public abstract class XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    public abstract XCapability addPackageCapability(String name, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XPackageCapability addPackageCapability(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#IMPORT_PACKAGE} requirement
@@ -174,7 +184,7 @@ public abstract class XResourceBuilder {
      * @param atts The attributes
      * @param dirs The directives
      */
-    public abstract XRequirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XPackageRequirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a {@link Constants#DYNAMICIMPORT_PACKAGE} requirement
@@ -182,7 +192,7 @@ public abstract class XResourceBuilder {
      * @param name The package name
      * @param atts The attributes
      */
-    public abstract XRequirement addDynamicPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
+    public abstract XPackageRequirement addDynamicPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
 
     /**
      * Add a generic {@link Capability}

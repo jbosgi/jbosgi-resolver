@@ -21,36 +21,81 @@
  */
 package org.jboss.osgi.resolver.v2.spi;
 
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRequirement;
-import org.osgi.framework.wiring.BundleRevision;
+import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+
+import org.jboss.osgi.metadata.VersionRange;
+import org.jboss.osgi.resolver.v2.XBundleCapability;
+import org.jboss.osgi.resolver.v2.XBundleRequirement;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
+import org.osgi.framework.resource.Capability;
+import org.osgi.framework.resource.Resource;
 
 /**
- * The abstract implementation of a {@link BundleRequirement}.
- * 
+ * The abstract implementation of a {@link XBundleRequirement}.
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractBundleRequirement extends AbstractRequirement implements BundleRequirement {
+public class AbstractBundleRequirement extends AbstractRequirement implements XBundleRequirement {
 
-    public AbstractBundleRequirement(BundleRevision brev, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
-        super(brev, namespace, atts, dirs);
+    private final String symbolicName;
+    private final VersionRange versionrange;
+    private final String visibility;
+
+    protected AbstractBundleRequirement(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
+        super(res, WIRING_BUNDLE_NAMESPACE, atts, dirs);
+        symbolicName = (String) getAttribute(WIRING_BUNDLE_NAMESPACE);
+        visibility = getDirective(Constants.VISIBILITY_DIRECTIVE);
+        Object versionatt = atts.get(BUNDLE_VERSION_ATTRIBUTE);
+        if (versionatt instanceof String) {
+            versionatt = VersionRange.parse((String) versionatt);
+        }
+        versionrange = (VersionRange) versionatt;
     }
 
     @Override
-    public BundleRevision getRevision() {
-        return (BundleRevision) super.getResource();
+    protected Set<String> getMandatoryAttributes() {
+        return Collections.singleton(WIRING_BUNDLE_NAMESPACE);
     }
 
     @Override
-    public BundleRevision getResource() {
-        return (BundleRevision) super.getResource();
+    public String getSymbolicName() {
+        return symbolicName;
     }
 
     @Override
-    public boolean matches(BundleCapability cap) {
-        return super.matches(cap);
+    public VersionRange getVersionRange() {
+        return versionrange;
+    }
+
+    @Override
+    public String getVisibility() {
+        return visibility;
+    }
+
+    @Override
+    public boolean matches(Capability cap) {
+
+        // cannot require itself
+        if (getResource() == cap.getResource())
+            return false;
+
+        if (super.matches(cap) == false)
+            return false;
+
+        // match the bundle version range
+        if (versionrange != null) {
+            Version version = ((XBundleCapability) cap).getVersion();
+            if (versionrange.isInRange(version) == false)
+                return false;
+        }
+
+        return true;
     }
 }
