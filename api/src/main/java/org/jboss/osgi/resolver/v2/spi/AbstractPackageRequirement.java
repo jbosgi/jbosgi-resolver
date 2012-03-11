@@ -174,10 +174,4 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
 
         return true;
     }
-
-    public String toString() {
-        String attstr = !getAttributes().isEmpty() ? ",attributes=" + getAttributes() : "";
-        String dirstr = !getDirectives().isEmpty() ? ",directives=" + getDirectives() : "";
-        return getClass().getSimpleName() + "[" + getNamespace() + attstr + dirstr + "]";
-    }
 }

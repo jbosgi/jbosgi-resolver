@@ -22,23 +22,23 @@ package org.jboss.test.osgi.resolver;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-import org.jboss.osgi.testing.OSGiManifestBuilder;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.Asset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.service.resolver.Environment;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import org.jboss.osgi.testing.OSGiManifestBuilder;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.Asset;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Test;
+import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
+import org.osgi.service.resolver.Environment;
 
 /**
  * Test the default resolver integration.
@@ -49,7 +49,6 @@ import static junit.framework.Assert.assertNotNull;
 public class DynamicPackageImportResolverTest extends AbstractResolverTest {
 
     @Test
-    @Ignore
     public void testBundleSymbolicNameDirective() throws Exception {
 
         final JavaArchive archiveA = ShrinkWrap.create(JavaArchive.class, "tb8a");
@@ -94,6 +93,10 @@ public class DynamicPackageImportResolverTest extends AbstractResolverTest {
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
         assertNotNull("Wire map not null", map);
-        assertEquals(2, map.size());
+        assertEquals(3, map.size());
+        
+        assertTrue("No wires", map.get(resourceA).isEmpty());
+        assertTrue("No wires", map.get(resourceB).isEmpty());
+        assertTrue("No wires", map.get(resourceC).isEmpty());
     }
 }

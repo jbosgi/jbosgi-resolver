@@ -24,7 +24,9 @@ package org.jboss.osgi.resolver.v2.spi;
 import org.jboss.osgi.resolver.v2.XAttributeSupport;
 import org.jboss.osgi.resolver.v2.XCapability;
 import org.jboss.osgi.resolver.v2.XDirectiveSupport;
+import org.jboss.osgi.resolver.v2.XIdentityCapability;
 import org.jboss.osgi.resolver.v2.XRequirement;
+import org.jboss.osgi.resolver.v2.XResource;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -54,6 +56,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     private final XDirectiveSupport directives;
     private final boolean optional;
     private final Filter filter;
+    private String toString;
 
     protected AbstractRequirement(Resource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -83,7 +86,6 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         } else {
             filter = null;
         }
-
 
         validateAttributes(atts);
     }
@@ -159,8 +161,13 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     }
 
     public String toString() {
-        String attstr = !getAttributes().isEmpty() ? ",attributes=" + attributes : "";
-        String dirstr = !getDirectives().isEmpty() ? ",directives=" + directives : "";
-        return getClass().getSimpleName() + "[" + namespace + attstr + dirstr + "]";
+    	if (toString == null) {
+            String attstr = "atts=" + attributes;
+            String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
+        	XIdentityCapability icap = ((XResource)getResource()).getIdentityCapability();
+    		String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
+            toString = getClass().getSimpleName() + "[" + attstr + dirstr + resname + "]";
+    	}
+        return toString;
     }
 }

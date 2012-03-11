@@ -24,6 +24,8 @@ package org.jboss.osgi.resolver.v2.spi;
 import org.jboss.osgi.resolver.v2.XAttributeSupport;
 import org.jboss.osgi.resolver.v2.XCapability;
 import org.jboss.osgi.resolver.v2.XDirectiveSupport;
+import org.jboss.osgi.resolver.v2.XIdentityCapability;
+import org.jboss.osgi.resolver.v2.XResource;
 import org.osgi.framework.resource.Resource;
 
 import java.util.Collections;
@@ -38,10 +40,11 @@ import java.util.Set;
  */
 public class AbstractCapability extends AbstractElement implements XCapability {
 
-    private final Resource resource;
     private final String namespace;
+    private final Resource resource;
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
+    private String toString;
 
     protected AbstractCapability(Resource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -103,8 +106,13 @@ public class AbstractCapability extends AbstractElement implements XCapability {
     }
 
     public String toString() {
-        String attstr = !getAttributes().isEmpty() ? ",attributes=" + attributes : "";
-        String dirstr = !getDirectives().isEmpty() ? ",directives=" + directives : "";
-        return getClass().getSimpleName() + "[" + namespace + attstr + dirstr + "]";
+    	if (toString == null) {
+            String attstr = "atts=" + attributes;
+            String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
+        	XIdentityCapability icap = ((XResource)getResource()).getIdentityCapability();
+    		String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
+            toString = getClass().getSimpleName() + "[" + attstr + dirstr + resname + "]";
+    	}
+        return toString;
     }
 }

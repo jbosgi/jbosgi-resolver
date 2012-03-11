@@ -149,7 +149,6 @@ public abstract class AbstractEnvironment implements XEnvironment {
 
     @Override
     public synchronized SortedSet<Capability> findProviders(Requirement req) {
-        log.debugf("Find providers: %s", req);
         CacheKey cachekey = CacheKey.create(req);
         SortedSet<Capability> result = new TreeSet<Capability>(getComparator());
         for (Capability cap : getCachedCapabilities(cachekey)) {
@@ -157,12 +156,7 @@ public abstract class AbstractEnvironment implements XEnvironment {
                 result.add(cap);
             }
         }
-        if (log.isDebugEnabled()) {
-            log.debugf("Found %d provider(s)", result.size());
-            for (Capability cap : result) {
-                log.debugf("   " + cap + " => " + cap.getResource());
-            }
-        }
+        log.debugf("Provider: %s => %s", req, result);
         return result;
     }
 

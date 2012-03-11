@@ -77,7 +77,8 @@ public class AbstractResource extends AbstractElement implements XResource {
             List<Capability> caps = getCapabilities(IDENTITY_NAMESPACE);
             if (caps.size() > 1)
                 throw new IllegalStateException("Multiple identities detected: " + caps);
-            identityCapability = (XIdentityCapability) caps.get(0);
+            if (caps.size() == 1)
+            	identityCapability = (XIdentityCapability) caps.get(0);
         }
         return identityCapability;
     }
