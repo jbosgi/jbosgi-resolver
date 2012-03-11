@@ -75,17 +75,21 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     @Override
     public XIdentityCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         atts.put(IDENTITY_NAMESPACE, symbolicName);
-        atts.put(IDENTITY_VERSION_ATTRIBUTE, version);
+        atts.put(IDENTITY_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
         atts.put(IDENTITY_TYPE_ATTRIBUTE, type != null ? type : IDENTITY_TYPE_UNKNOWN);
         XIdentityCapability cap = new AbstractIdentityCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
     }
 
-    @Override
+	@Override
     public XBundleRequirement addBundleRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
         XBundleRequirement req = new AbstractBundleRequirement(resource, atts, dirs);
         resource.addRequirement(req);
@@ -95,8 +99,10 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     @Override
     public XBundleCapability addBundleCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
-        atts.put(BUNDLE_VERSION_ATTRIBUTE, version);
+        atts.put(BUNDLE_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
         XBundleCapability cap = new AbstractBundleCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
@@ -105,8 +111,10 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     @Override
     public XHostCapability addHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         atts.put(WIRING_HOST_NAMESPACE, symbolicName);
-        atts.put(BUNDLE_VERSION_ATTRIBUTE, version);
+        atts.put(BUNDLE_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
         XHostCapability cap = new AbstractHostCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
@@ -115,6 +123,8 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     @Override
     public XHostRequirement addHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         atts.put(WIRING_HOST_NAMESPACE, symbolicName);
         XHostRequirement req = new AbstractHostRequirement(resource, atts, dirs);
         resource.addRequirement(req);
@@ -124,6 +134,8 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     @Override
     public XPackageCapability addPackageCapability(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
         XPackageCapability cap = new AbstractPackageCapability(resource, atts, dirs);
         resource.addCapability(cap);
@@ -133,6 +145,8 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     @Override
     public XPackageRequirement addPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
         XPackageRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
         resource.addRequirement(req);
@@ -142,6 +156,8 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     @Override
     public XPackageRequirement addDynamicPackageRequirement(String packageName, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
         dirs.put(REQUIREMENT_RESOLUTION_DIRECTIVE, REQUIREMENT_RESOLUTION_DYNAMIC);
         XPackageRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
@@ -153,6 +169,8 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     public XCapability addGenericCapability(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         XCapability cap;
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         if (IDENTITY_NAMESPACE.equals(namespace)) {
             cap = new AbstractIdentityCapability(resource, atts, dirs);
         } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
@@ -170,6 +188,8 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     public XRequirement addGenericRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         assertResourceCreated();
         XRequirement req;
+        atts = mutableAttributes(atts);
+        dirs = mutableDirectives(dirs);
         if (IDENTITY_NAMESPACE.equals(namespace)) {
             req = new AbstractBundleRequirement(resource, atts, dirs);
         } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
@@ -267,6 +287,17 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         return this;
     }
 
+    private Map<String, Object> getAttributes(ParameterizedAttribute patts) {
+        Map<String, Object> atts = new HashMap<String, Object>();
+        if (patts != null) {
+            for (String key : patts.getAttributes().keySet()) {
+                Parameter param = patts.getAttribute(key);
+                atts.put(key.trim(), param.getValue().toString().trim());
+            }
+        }
+        return atts;
+    }
+
     private Map<String, String> getDirectives(ParameterizedAttribute patts) {
         Map<String, String> dirs = new HashMap<String, String>();
         if (patts != null) {
@@ -278,16 +309,13 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         return dirs;
     }
 
-    private Map<String, Object> getAttributes(ParameterizedAttribute patts) {
-        Map<String, Object> atts = new HashMap<String, Object>();
-        if (patts != null) {
-            for (String key : patts.getAttributes().keySet()) {
-                Parameter param = patts.getAttribute(key);
-                atts.put(key.trim(), param.getValue().toString().trim());
-            }
-        }
-        return atts;
-    }
+	private Map<String, Object> mutableAttributes(Map<String, Object> atts) {
+		return new HashMap<String, Object>(atts != null ? atts : EMPTY_ATTRIBUTES);
+	}
+
+    private Map<String, String> mutableDirectives(Map<String, String> dirs) {
+		return new HashMap<String, String>(dirs != null ? dirs : EMPTY_DIRECTIVES);
+	}
 
     private void assertResourceCreated() {
         if (resource == null)

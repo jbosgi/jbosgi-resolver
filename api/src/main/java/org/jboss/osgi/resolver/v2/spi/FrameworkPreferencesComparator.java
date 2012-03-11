@@ -42,6 +42,14 @@ public abstract class FrameworkPreferencesComparator extends ResourceIndexCompar
     public int compare(Capability o1, Capability o2) {
         Resource res1 = o1.getResource();
         Resource res2 = o2.getResource();
+
+        // prefer system bundle
+        long in1 = getResourceIndex(o1.getResource());
+        long in2 = getResourceIndex(o2.getResource());
+        if (in1 == 0 || in2 == 0) {
+            return (int)(in1 - in2);
+        }
+        
         Wiring w1 = getWiring(res1);
         Wiring w2 = getWiring(res2);
 
@@ -66,7 +74,8 @@ public abstract class FrameworkPreferencesComparator extends ResourceIndexCompar
             if (!v1.equals(v2))
                 return v2.compareTo(v1);
         }
-        
-        return super.compare(o1, o2);
+
+        // prefer lower index
+        return (int)(in1 - in2);
     }
 }

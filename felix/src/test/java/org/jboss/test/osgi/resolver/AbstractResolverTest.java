@@ -25,6 +25,7 @@ package org.jboss.test.osgi.resolver;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.v2.FelixResolver;
+import org.jboss.osgi.resolver.v2.XResource;
 import org.jboss.osgi.resolver.v2.XResourceBuilder;
 import org.jboss.osgi.resolver.v2.spi.AbstractEnvironment;
 import org.jboss.osgi.resolver.v2.spi.FrameworkPreferencesComparator;
@@ -32,6 +33,7 @@ import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.Node;
 import org.junit.Before;
+import org.osgi.framework.Constants;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
@@ -77,7 +79,15 @@ public abstract class AbstractResolverTest extends OSGiTest {
                 };
             }
         };
+        XResource sysres = createSystemResource();
+        environment.installResources(sysres);
     }
+
+	protected XResource createSystemResource() {
+		XResourceBuilder builder = XResourceBuilder.create();
+		builder.addIdentityCapability(Constants.SYSTEM_BUNDLE_SYMBOLICNAME, null, null, null, null);
+		return builder.getResource();
+	}
 
     Resource createResource(Archive<?> archive) throws Exception {
         Node node = archive.get(JarFile.MANIFEST_NAME);

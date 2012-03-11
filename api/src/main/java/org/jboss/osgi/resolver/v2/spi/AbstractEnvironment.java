@@ -73,7 +73,7 @@ public abstract class AbstractEnvironment implements XEnvironment {
             log.debugf("Install resource: %s", res);
 
             // Attach the install index
-            xres.addAttachment(Long.class, resourceIndex.incrementAndGet());
+            xres.addAttachment(Long.class, resourceIndex.getAndIncrement());
             // Add resource by type
             getCachedResources(icap.getType()).add(res);
             // Add resource capabilites
