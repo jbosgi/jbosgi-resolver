@@ -37,6 +37,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jboss.logging.Logger;
 import org.jboss.osgi.resolver.v2.XEnvironment;
 import org.jboss.osgi.resolver.v2.XIdentityCapability;
+import org.jboss.osgi.resolver.v2.XPackageCapability;
+import org.jboss.osgi.resolver.v2.XPackageRequirement;
 import org.jboss.osgi.resolver.v2.XResource;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
@@ -135,10 +137,25 @@ public abstract class AbstractEnvironment implements XEnvironment {
         SortedSet<Capability> result = new TreeSet<Capability>(getComparator());
         for (Capability cap : getCachedCapabilities(cachekey)) {
             if (req.matches(cap)) {
-                result.add(cap);
+                // Check if the package capability has been substituted
+                boolean ignoreCapability = false;
+                Wiring wiring = getWiring(cap.getResource());
+                if (wiring != null && cap instanceof XPackageCapability) {
+                    String pkgname = ((XPackageCapability)cap).getPackageName();
+                    for (Wire wire : wiring.getRequiredResourceWires(cap.getNamespace())) {
+                        XPackageRequirement wirereq = (XPackageRequirement)wire.getRequirement();
+                        if (pkgname.equals(wirereq.getPackageName())) {
+                            ignoreCapability = true;
+                            break;
+                        }
+                    }
+                }
+                if (!ignoreCapability) {
+                    result.add(cap);
+                }
             }
         }
-        log.debugf("Provider: %s => %s", req, result);
+        log.debugf("findProviders: %s => %s", req, result);
         return result;
     }
 
