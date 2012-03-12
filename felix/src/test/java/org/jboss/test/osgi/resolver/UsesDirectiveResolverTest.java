@@ -49,7 +49,7 @@ import org.osgi.service.resolver.Environment;
  * @author thomas.diesler@jboss.com
  * @since 12-Mar-2012
  */
-@Ignore
+//@Ignore
 // https://issues.apache.org/jira/browse/FELIX-3388
 public class UsesDirectiveResolverTest extends AbstractResolverTest {
 
