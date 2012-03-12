@@ -118,24 +118,6 @@ public abstract class AbstractEnvironment implements XEnvironment {
         }
     }
 
-    private Set<Capability> getCachedCapabilities(CacheKey key) {
-        Set<Capability> capset = capabilityCache.get(key);
-        if (capset == null) {
-            capset = new LinkedHashSet<Capability>();
-            capabilityCache.put(key, capset);
-        }
-        return capset;
-    }
-
-    private Set<Resource> getCachedResources(String type) {
-        Set<Resource> resset = resourceCache.get(type);
-        if (resset == null) {
-            resset = new LinkedHashSet<Resource>();
-            resourceCache.put(type, resset);
-        }
-        return resset;
-    }
-
     @Override
     public long getResourceIndex(Resource res) {
         XResource xres = (XResource) res;
@@ -230,6 +212,24 @@ public abstract class AbstractEnvironment implements XEnvironment {
             }
             applyWiring(res, wiring);
         }
+    }
+
+    private Set<Capability> getCachedCapabilities(CacheKey key) {
+        Set<Capability> capset = capabilityCache.get(key);
+        if (capset == null) {
+            capset = new LinkedHashSet<Capability>();
+            capabilityCache.put(key, capset);
+        }
+        return capset;
+    }
+
+    private Set<Resource> getCachedResources(String type) {
+        Set<Resource> resset = resourceCache.get(type);
+        if (resset == null) {
+            resset = new LinkedHashSet<Resource>();
+            resourceCache.put(type, resset);
+        }
+        return resset;
     }
 
     private static class CacheKey {

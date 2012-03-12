@@ -1,5 +1,3 @@
-package org.jboss.test.osgi.resolver;
-
 /*
  * JBoss, Home of Professional Open Source
  * Copyright 2005, JBoss Inc., and individual contributors as indicated
@@ -21,6 +19,8 @@ package org.jboss.test.osgi.resolver;
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
+package org.jboss.test.osgi.resolver;
 
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;

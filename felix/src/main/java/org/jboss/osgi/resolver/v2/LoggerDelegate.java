@@ -21,9 +21,8 @@
  */
 package org.jboss.osgi.resolver.v2;
 
-//$Id: FelixIntegration.java 84730 2009-02-25 12:57:23Z thomas.diesler@jboss.com $
-
 import org.jboss.logging.Logger;
+import org.jboss.logging.Logger.Level;
 
 /**
  * An integration with the resolver Logger.
@@ -35,29 +34,53 @@ import org.jboss.logging.Logger;
  */
 public class LoggerDelegate implements org.apache.felix.resolver.Logger {
 
-    // Provide logging
-    private static final Logger log = Logger.getLogger(LoggerDelegate.class);
+	// Provide logging
+	private static final Logger log = Logger.getLogger("org.jboss.osgi.resolver");
 
-    public LoggerDelegate() {
-    }
+	public LoggerDelegate() {
+	}
 
-    @Override
-    public void log(int level, String msg) {
-        log(level, msg, null);
-    }
+	@Override
+	public boolean isEnabled(int level) {
+		switch (level) {
+		case LOG_ERROR:
+			return log.isEnabled(Level.ERROR);
+		case LOG_WARNING:
+			return log.isEnabled(Level.WARN);
+		case LOG_INFO:
+			return log.isEnabled(Level.INFO);
+		case LOG_DEBUG:
+			return log.isEnabled(Level.DEBUG);
+		case LOG_TRACE:
+			return log.isEnabled(Level.TRACE);
+	    default:
+			return false;
+		}
+	}
 
-    @Override
-    public void log(int level, String msg, Throwable throwable) {
-        if (level == LOG_DEBUG) {
-            log.debug(msg, throwable);
-        } else if (level == LOG_INFO) {
-            log.info(msg, throwable);
-        } else if (level == LOG_WARNING) {
-            log.warn(msg);
-            if (throwable != null)
-                log.debug(msg, throwable);
-        } else if (level == LOG_ERROR) {
-            log.error(msg, throwable);
-        }
-    }
+	@Override
+	public void log(int level, String msg) {
+		log(level, msg, null);
+	}
+
+	@Override
+	public void log(int level, String msg, Throwable throwable) {
+		switch (level) {
+		case LOG_ERROR:
+			log.error(msg, throwable);
+			break;
+		case LOG_WARNING:
+			log.warn(msg, throwable);
+			break;
+		case LOG_INFO:
+			log.info(msg, throwable);
+			break;
+		case LOG_DEBUG:
+			log.debug(msg, throwable);
+			break;
+		case LOG_TRACE:
+			log.trace(msg, throwable);
+			break;
+		}
+	}
 }
