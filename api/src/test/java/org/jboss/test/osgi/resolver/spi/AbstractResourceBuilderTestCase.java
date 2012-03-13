@@ -22,9 +22,9 @@
 package org.jboss.test.osgi.resolver.spi;
 
 import org.jboss.osgi.metadata.VersionRange;
-import org.jboss.osgi.resolver.v2.XHostCapability;
-import org.jboss.osgi.resolver.v2.XIdentityCapability;
-import org.jboss.osgi.resolver.v2.XPackageRequirement;
+import org.jboss.osgi.resolver.XHostCapability;
+import org.jboss.osgi.resolver.XIdentityCapability;
+import org.jboss.osgi.resolver.XPackageRequirement;
 import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
@@ -42,7 +42,7 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPAC
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
- * Unit tests for the {@link org.jboss.osgi.resolver.v2.spi.AbstractResourceBuilder} class
+ * Unit tests for the {@link org.jboss.osgi.resolver.spi.AbstractResourceBuilder} class
  * 
  * @author <a href="david@redhat.com">David Bosschaert</a>
  * @author Thomas.Diesler@jboss.com

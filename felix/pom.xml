@@ -12,16 +12,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <name>JBossOSGi Resolver Felix</name>
-    <groupId>org.jboss.osgi.resolver</groupId>
-    <artifactId>jbosgi-resolver-felix-v2</artifactId>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>org.jboss.osgi.resolver</groupId>
         <artifactId>jbosgi-resolver-parent</artifactId>
         <version>2.0.0.Beta5-SNAPSHOT</version>
     </parent>
+
+    <name>JBossOSGi Resolver Felix</name>
+    <artifactId>jbosgi-resolver-felix</artifactId>
+    <packaging>jar</packaging>
 
     <!-- Properties -->
     <properties>
@@ -30,7 +29,7 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.osgi.resolver</groupId>
-            <artifactId>jbosgi-resolver-api-v2</artifactId>
+            <artifactId>jbosgi-resolver-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -23,9 +23,9 @@ package org.jboss.test.osgi.resolver.spi;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
-import org.jboss.osgi.resolver.v2.XResourceBuilder;
-import org.jboss.osgi.resolver.v2.spi.AbstractEnvironment;
-import org.jboss.osgi.resolver.v2.spi.ResourceIndexComparator;
+import org.jboss.osgi.resolver.XResourceBuilder;
+import org.jboss.osgi.resolver.spi.AbstractEnvironment;
+import org.jboss.osgi.resolver.spi.ResourceIndexComparator;
 import org.junit.Before;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.resource.Capability;

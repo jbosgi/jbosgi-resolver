@@ -23,11 +23,11 @@ package org.jboss.test.osgi.resolver;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
-import org.jboss.osgi.resolver.v2.FelixResolver;
-import org.jboss.osgi.resolver.v2.XResource;
-import org.jboss.osgi.resolver.v2.XResourceBuilder;
-import org.jboss.osgi.resolver.v2.spi.AbstractEnvironment;
-import org.jboss.osgi.resolver.v2.spi.FrameworkPreferencesComparator;
+import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XResourceBuilder;
+import org.jboss.osgi.resolver.felix.FelixResolver;
+import org.jboss.osgi.resolver.spi.AbstractEnvironment;
+import org.jboss.osgi.resolver.spi.FrameworkPreferencesComparator;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.Node;
