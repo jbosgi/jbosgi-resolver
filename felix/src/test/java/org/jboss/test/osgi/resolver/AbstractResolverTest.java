@@ -21,8 +21,6 @@
  */
 package org.jboss.test.osgi.resolver;
 
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -31,19 +29,14 @@ import java.util.jar.Manifest;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XEnvironment;
-import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
-import org.jboss.osgi.resolver.XWiring;
 import org.jboss.osgi.resolver.felix.FelixResolver;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
-import org.jboss.osgi.resolver.spi.AbstractWiring;
-import org.jboss.osgi.resolver.spi.FrameworkPreferencesComparator;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.Node;
 import org.junit.Before;
 import org.osgi.framework.Constants;
-import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
@@ -65,23 +58,7 @@ public abstract class AbstractResolverTest extends OSGiTest {
     public void setUp() throws Exception {
         super.setUp();
         resolver = new FelixResolver();
-        environment = new AbstractEnvironment() {
-            @Override
-            public Comparator<Capability> getComparator() {
-                final AbstractEnvironment env = this;
-                return new FrameworkPreferencesComparator() {
-                    @Override
-                    protected Wiring getWiring(Resource res) {
-                        return env.getWirings().get(res);
-                    }
-
-                    @Override
-                    public long getResourceIndex(Resource res) {
-                        return env.getResourceIndex(res);
-                    }
-                };
-            }
-        };
+        environment = new AbstractEnvironment();
         Resource sysres = createSystemResource();
         environment.installResources(sysres);
     }

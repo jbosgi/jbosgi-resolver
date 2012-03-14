@@ -22,23 +22,24 @@
 
 package org.jboss.test.osgi.resolver;
 
-import org.jboss.shrinkwrap.api.Archive;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
+import org.jboss.shrinkwrap.api.Archive;
+import org.junit.Test;
+import org.osgi.framework.resource.Resource;
+import org.osgi.framework.resource.Wire;
+import org.osgi.framework.resource.Wiring;
+import org.osgi.service.resolver.Environment;
+import org.osgi.service.resolver.ResolutionException;
 
 /**
  * Test the default resolver integration.
@@ -49,7 +50,7 @@ import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMES
 public class FragmentResolverTest extends AbstractResolverTest {
 
     @Test
-    public void testSimpleFragmentAttach() throws Exception {
+    public void testFragmentAttach() throws Exception {
 
         // Bundle-SymbolicName: bundlefragmenthost
         Archive<?> assemblyA = assembleArchive("host", "/resolver/bundlefragmenthost");
@@ -201,41 +202,48 @@ public class FragmentResolverTest extends AbstractResolverTest {
     }
 
     @Test
-    @Ignore
-    /*
+    public void testFragmentCannotAddExport() throws Exception {
 
-    FAILURE LOG
+        // Bundle-SymbolicName: bundlefragmenthost
+        Archive<?> assemblyA = assembleArchive("host", "/resolver/bundlefragmenthost");
+        Resource resourceA = createResource(assemblyA);
 
-    DEBUG [org.jboss.osgi.testing.OSGiTest] (main) ### START org.jboss.test.osgi.resolver.FragmentResolverTest
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Install resource: AbstractResource[bundledependsfragment:0.0.0]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Install resource: AbstractResource[fragmentsdependshostexport:0.0.0]
-    DEBUG [org.jboss.osgi.resolver.v2.FelixResolver] (main) resolve: [AbstractResource[bundledependsfragment:0.0.0], AbstractResource[fragmentsdependshostexport:0.0.0]], null
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Find providers: AbstractPackageRequirement[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.fragment.export}]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Found providers: [AbstractPackageCapability[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.fragment.export}]]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Find providers: AbstractHostRequirement[osgi.wiring.host,attributes={osgi.wiring.host=bundledependsfragment}]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Found providers: [AbstractHostCapability[osgi.wiring.host,attributes={osgi.wiring.host=bundledependsfragment, bundle-version=0.0.0}]]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Find providers: AbstractPackageRequirement[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.host.export}]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Found providers: [AbstractPackageCapability[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.host.export}]]
-    DEBUG [org.jboss.osgi.resolver.v2.FelixResolver] (main) AbstractResource[bundledependsfragment:0.0.0] -> [AbstractPackageRequirement[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.fragment.export}] -> [AbstractResource[bundledependsfragment:0.0.0]]]
-    DEBUG [org.jboss.osgi.resolver.v2.FelixResolver] (main) AbstractResource[fragmentsdependshostexport:0.0.0] -> [AbstractPackageRequirement[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.host.export}] -> [AbstractResource[bundledependsfragment:0.0.0]], AbstractHostRequirement[osgi.wiring.host,attributes={osgi.wiring.host=bundledependsfragment}] -> [AbstractResource[bundledependsfragment:0.0.0]]]
-    DEBUG [org.jboss.osgi.testing.OSGiTest] (main) ### END org.jboss.test.osgi.resolver.FragmentResolverTest
+        Environment env = installResources(resourceA);
+        List<Resource> mandatory = Arrays.asList(resourceA);
+        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        applyResolverResults(map);
+        
+        // Bundle-SymbolicName: bundleimportfragmentpkg
+        // Import-Package: org.jboss.osgi.test.fragment.export
+        Archive<?> assemblyB = assembleArchive("bundle", "/resolver/bundleimportfragmentpkg");
+        Resource resourceB = createResource(assemblyB);
 
-    PASS LOG
+        installResources(resourceB);
+        try {
+            mandatory = Arrays.asList(resourceB);
+            resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected");
+        } catch (ResolutionException ex) {
+            // expected
+        }
 
-    DEBUG [org.jboss.osgi.testing.OSGiTest] (main) ### START org.jboss.test.osgi.resolver.FragmentResolverTest
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Install resource: AbstractResource[bundledependsfragment:0.0.0]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Install resource: AbstractResource[fragmentsdependshostexport:0.0.0]
-    DEBUG [org.jboss.osgi.resolver.v2.FelixResolver] (main) resolve: [AbstractResource[bundledependsfragment:0.0.0], AbstractResource[fragmentsdependshostexport:0.0.0]], null
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Find providers: AbstractPackageRequirement[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.fragment.export}]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Found providers: [AbstractPackageCapability[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.fragment.export}]]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Find providers: AbstractHostRequirement[osgi.wiring.host,attributes={osgi.wiring.host=bundledependsfragment}]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Found providers: [AbstractHostCapability[osgi.wiring.host,attributes={osgi.wiring.host=bundledependsfragment, bundle-version=0.0.0}]]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Find providers: AbstractPackageRequirement[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.host.export}]
-    DEBUG [org.jboss.osgi.resolver.v2.spi.AbstractEnvironment] (main) Found providers: [AbstractPackageCapability[osgi.wiring.package,attributes={osgi.wiring.package=org.jboss.osgi.test.host.export}]]
-    DEBUG [org.jboss.osgi.resolver.v2.FelixResolver] (main) AbstractResource[bundledependsfragment:0.0.0] -> []
-    DEBUG [org.jboss.osgi.resolver.v2.FelixResolver] (main) AbstractResource[fragmentsdependshostexport:0.0.0] -> [AbstractHostRequirement[osgi.wiring.host,attributes={osgi.wiring.host=bundledependsfragment}] -> [AbstractResource[bundledependsfragment:0.0.0]]]
-    DEBUG [org.jboss.osgi.testing.OSGiTest] (main) ### END org.jboss.test.osgi.resolver.FragmentResolverTest
-     */
+        // Bundle-SymbolicName: fragmentaddsexport
+        // Fragment-Host: bundlefragmenthost
+        // Export-Package: org.jboss.osgi.test.fragment.export
+        Archive<?> assemblyC = assembleArchive("fragment", "/resolver/fragmentaddsexport");
+        Resource resourceC = createResource(assemblyC);
+        
+        installResources(resourceC);
+        try {
+            mandatory = Arrays.asList(resourceB, resourceC);
+            resolver.resolve(env, mandatory, null);
+            fail("ResolutionException expected");
+        } catch (ResolutionException ex) {
+            // expected
+        }
+    }
+
+    @Test
     public void testFragmentDependsOnHostExport() throws Exception {
 
         // Bundle-SymbolicName: bundledependsfragment

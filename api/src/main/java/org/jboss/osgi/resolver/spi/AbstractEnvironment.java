@@ -21,6 +21,8 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,6 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.jboss.logging.Logger;
 import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XHostRequirement;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
@@ -54,7 +57,7 @@ import org.osgi.service.resolver.Environment;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class AbstractEnvironment implements XEnvironment {
+public class AbstractEnvironment implements XEnvironment {
 
     private static Logger log = Logger.getLogger(AbstractEnvironment.class);
 
@@ -63,7 +66,20 @@ public abstract class AbstractEnvironment implements XEnvironment {
     private final Map<String, Set<Resource>> resourceCache = new ConcurrentHashMap<String, Set<Resource>>();
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
-    protected abstract Comparator<Capability> getComparator();
+    protected Comparator<Capability> getComparator() {
+        final AbstractEnvironment env = this;
+        return new FrameworkPreferencesComparator() {
+            @Override
+            protected Wiring getWiring(Resource res) {
+                return env.getWirings().get(res);
+            }
+
+            @Override
+            public long getResourceIndex(Resource res) {
+                return env.getResourceIndex(res);
+            }
+        };
+    }
 
     @Override
     public synchronized void installResources(Resource... resarr) {
@@ -138,9 +154,11 @@ public abstract class AbstractEnvironment implements XEnvironment {
         SortedSet<Capability> result = new TreeSet<Capability>(getComparator());
         for (Capability cap : getCachedCapabilities(cachekey)) {
             if (req.matches(cap)) {
-                // Check if the package capability has been substituted
                 boolean ignoreCapability = false;
-                Wiring wiring = getWirings().get(cap.getResource());
+                XResource res = (XResource) cap.getResource();
+
+                // Check if the package capability has been substituted
+                Wiring wiring = getWirings().get(res);
                 if (wiring != null && cap instanceof XPackageCapability) {
                     String pkgname = ((XPackageCapability) cap).getPackageName();
                     for (Wire wire : wiring.getRequiredResourceWires(cap.getNamespace())) {
@@ -151,6 +169,25 @@ public abstract class AbstractEnvironment implements XEnvironment {
                         }
                     }
                 }
+
+                // A fragment can only provide a capability if it is either already attached
+                // or if there is one possible hosts that it can attach to
+                // i.e. one of the hosts in the range is not resolved already
+                if (wiring == null && res.isFragment()) {
+                    XHostRequirement hostreq = (XHostRequirement) res.getRequirements(WIRING_HOST_NAMESPACE).get(0);
+                    boolean unresolvedHost = false;
+                    for (Capability hostcap : capabilityCache.get(CacheKey.create(hostreq))) {
+                        if (hostreq.matches(hostcap)) {
+                            Resource host = hostcap.getResource();
+                            if (getWirings().get(host) == null) {
+                                unresolvedHost = true;
+                                break;
+                            }
+                        }
+                    }
+                    ignoreCapability = !unresolvedHost;
+                }
+
                 if (!ignoreCapability) {
                     result.add(cap);
                 }
