@@ -21,12 +21,17 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_BUNDLE;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_FRAGMENT;
+import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_UNKNOWN;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,9 +66,12 @@ public class AbstractEnvironment implements XEnvironment {
 
     private static Logger log = Logger.getLogger(AbstractEnvironment.class);
 
+    private static final String[] ALL_IDENTITY_TYPES = new String[] { IDENTITY_TYPE_BUNDLE, IDENTITY_TYPE_FRAGMENT, IDENTITY_TYPE_UNKNOWN };
+
     private final AtomicLong resourceIndex = new AtomicLong();
     private final Map<CacheKey, Set<Capability>> capabilityCache = new ConcurrentHashMap<CacheKey, Set<Capability>>();
-    private final Map<String, Set<Resource>> resourceCache = new ConcurrentHashMap<String, Set<Resource>>();
+    private final Map<String, Set<Resource>> resourceTypeCache = new ConcurrentHashMap<String, Set<Resource>>();
+    private final Map<Long, Resource> resourceIndexCache = new ConcurrentHashMap<Long, Resource>();
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
     protected Comparator<Capability> getComparator() {
@@ -75,7 +83,7 @@ public class AbstractEnvironment implements XEnvironment {
             }
 
             @Override
-            public long getResourceIndex(Resource res) {
+            public Long getResourceIndex(Resource res) {
                 return env.getResourceIndex(res);
             }
         };
@@ -91,8 +99,11 @@ public class AbstractEnvironment implements XEnvironment {
 
             log.debugf("Install resource: %s", res);
 
-            // Attach the install index
-            xres.addAttachment(Long.class, resourceIndex.getAndIncrement());
+            // Add resource to index
+            Long index = resourceIndex.getAndIncrement();
+            xres.addAttachment(Long.class, index);
+            resourceIndexCache.put(index, res);
+
             // Add resource by type
             getCachedResources(icap.getType()).add(res);
             // Add resource capabilites
@@ -111,11 +122,21 @@ public class AbstractEnvironment implements XEnvironment {
     @Override
     public synchronized void uninstallResources(Resource... resarr) {
         for (Resource res : resarr) {
-            log.debugf("Uninstall resource: %s", res);
             XResource xres = (XResource) res;
-            XIdentityCapability icap = xres.getIdentityCapability();
+            
+            // Remove resource by index
+            Long index = xres.getAttachment(Long.class);
+            if (index == null || resourceIndexCache.remove(index) == null) {
+                log.debugf("Unknown resource: %s", res);
+                continue;
+            }
+
+            log.debugf("Uninstall resource: %s", res);
+
             // Remove resource by type
+            XIdentityCapability icap = xres.getIdentityCapability();
             getCachedResources(icap.getType()).remove(res);
+
             // Remove resource capabilities
             for (Capability cap : res.getCapabilities(null)) {
                 CacheKey cachekey = CacheKey.create(cap);
@@ -138,14 +159,12 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     @Override
-    public long getResourceIndex(Resource res) {
-        XResource xres = (XResource) res;
-        return xres.getAttachment(Long.class);
-    }
-
-    @Override
-    public Collection<Resource> getResources(String type) {
-        return getCachedResources(type);
+    public Collection<Resource> getResources(Set<String> types) {
+        Set<Resource> result = new HashSet<Resource>();
+        for (String type : (types != null ? types : Arrays.asList(ALL_IDENTITY_TYPES))) {
+            result.addAll(getCachedResources(type));
+        }
+        return result;
     }
 
     @Override
@@ -247,12 +266,17 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     private Set<Resource> getCachedResources(String type) {
-        Set<Resource> resset = resourceCache.get(type);
-        if (resset == null) {
-            resset = new LinkedHashSet<Resource>();
-            resourceCache.put(type, resset);
+        Set<Resource> typeset = resourceTypeCache.get(type);
+        if (typeset == null) {
+            typeset = new LinkedHashSet<Resource>();
+            resourceTypeCache.put(type, typeset);
         }
-        return resset;
+        return typeset;
+    }
+
+    @Override
+    public Long getResourceIndex(Resource res) {
+        return ((XResource) res).getAttachment(Long.class);
     }
 
     private static class CacheKey {

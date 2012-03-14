@@ -24,6 +24,7 @@ package org.jboss.osgi.resolver;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
@@ -44,11 +45,11 @@ public interface XEnvironment extends Environment {
 
     void refreshResources(Resource... resarr);
 
-    long getResourceIndex(Resource resource);
-
-    Collection<Resource> getResources(String type);
+    Collection<Resource> getResources(Set<String> types);
 
     Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> delta);
 
     Wiring createWiring(Resource res, List<Wire> wires);
+
+    Long getResourceIndex(Resource resource);
 }

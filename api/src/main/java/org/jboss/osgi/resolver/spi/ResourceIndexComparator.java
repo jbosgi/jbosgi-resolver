@@ -21,10 +21,10 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import java.util.Comparator;
+
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
-
-import java.util.Comparator;
 
 /**
  * A comparator that uses the provided resource index.
@@ -34,12 +34,12 @@ import java.util.Comparator;
  */
 public abstract class ResourceIndexComparator implements Comparator<Capability> {
 
-    protected abstract long getResourceIndex(Resource res);
+    protected abstract Long getResourceIndex(Resource res);
 
     @Override
     public int compare(Capability o1, Capability o2) {
-        long in1 = getResourceIndex(o1.getResource());
-        long in2 = getResourceIndex(o2.getResource());
-        return (int)(in1 - in2);
+        Long in1 = getResourceIndex(o1.getResource());
+        Long in2 = getResourceIndex(o2.getResource());
+        return in1.compareTo(in2);
     }
 }

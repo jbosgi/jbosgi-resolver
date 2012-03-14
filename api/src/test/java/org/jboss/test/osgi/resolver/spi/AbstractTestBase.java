@@ -21,6 +21,12 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.Attributes.Name;
+
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
 import org.jboss.osgi.resolver.XResourceBuilder;
@@ -31,12 +37,6 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Resource;
 import org.osgi.service.resolver.Environment;
-
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.Attributes.Name;
 
 /**
  * @author Thomas.Diesler@jboss.com
@@ -52,7 +52,7 @@ public abstract class AbstractTestBase {
                 final AbstractEnvironment env = this;
                 return new ResourceIndexComparator() {
                     @Override
-                    protected long getResourceIndex(Resource res) {
+                    protected Long getResourceIndex(Resource res) {
                         return env.getResourceIndex(res);
                     }
                 };

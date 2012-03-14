@@ -44,8 +44,8 @@ public abstract class FrameworkPreferencesComparator extends ResourceIndexCompar
         Resource res2 = o2.getResource();
 
         // prefer system bundle
-        long in1 = getResourceIndex(o1.getResource());
-        long in2 = getResourceIndex(o2.getResource());
+        Long in1 = getResourceIndex(o1.getResource());
+        Long in2 = getResourceIndex(o2.getResource());
         if (in1 == 0 || in2 == 0) {
             return (int)(in1 - in2);
         }
@@ -76,6 +76,6 @@ public abstract class FrameworkPreferencesComparator extends ResourceIndexCompar
         }
 
         // prefer lower index
-        return (int)(in1 - in2);
+        return in1.compareTo(in2);
     }
 }
