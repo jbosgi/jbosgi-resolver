@@ -40,6 +40,7 @@ import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XWiring;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
@@ -139,11 +140,11 @@ public abstract class AbstractEnvironment implements XEnvironment {
             if (req.matches(cap)) {
                 // Check if the package capability has been substituted
                 boolean ignoreCapability = false;
-                Wiring wiring = getWiring(cap.getResource());
+                Wiring wiring = getWirings().get(cap.getResource());
                 if (wiring != null && cap instanceof XPackageCapability) {
-                    String pkgname = ((XPackageCapability)cap).getPackageName();
+                    String pkgname = ((XPackageCapability) cap).getPackageName();
                     for (Wire wire : wiring.getRequiredResourceWires(cap.getNamespace())) {
-                        XPackageRequirement wirereq = (XPackageRequirement)wire.getRequirement();
+                        XPackageRequirement wirereq = (XPackageRequirement) wire.getRequirement();
                         if (pkgname.equals(wirereq.getPackageName())) {
                             ignoreCapability = true;
                             break;
@@ -160,10 +161,28 @@ public abstract class AbstractEnvironment implements XEnvironment {
     }
 
     @Override
-    public synchronized Map<Resource, Wiring> applyResolverResults(Map<Resource, List<Wire>> wiremap) {
-        Map<Resource, Wiring> wirings = getWiringMap(wiremap);
-        applyWiringMap(wirings);
-        return wirings;
+    public synchronized Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> wiremap) {
+        Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
+        for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
+            Resource res = entry.getKey();
+            List<Wire> wires = entry.getValue();
+            XWiring reswiring = (XWiring) wirings.get(res);
+            if (reswiring == null) {
+                reswiring = (XWiring) createWiring(res, wires);
+                wirings.put(res, reswiring);
+            }
+            for (Wire wire : wires) {
+                XResource provider = (XResource) wire.getProvider();
+                XWiring provwiring = (XWiring) wirings.get(provider);
+                if (provwiring == null) {
+                    provwiring = (XWiring) createWiring(provider, null);
+                    wirings.put(provider, provwiring);
+                }
+                provwiring.addProvidedWire(wire);
+            }
+            result.put(res, reswiring);
+        }
+        return Collections.unmodifiableMap(result);
     }
 
     @Override
@@ -172,63 +191,13 @@ public abstract class AbstractEnvironment implements XEnvironment {
     }
 
     @Override
-    public Wiring applyWiring(Resource res, Wiring wiring) {
-        return wiring;
-    }
-
-    @Override
     public boolean isEffective(Requirement req) {
         return true;
     }
 
     @Override
-    public synchronized Wiring getWiring(Resource resource) {
-        return wirings.get(resource);
-    }
-
-    @Override
     public synchronized Map<Resource, Wiring> getWirings() {
         return Collections.unmodifiableMap(wirings);
-    }
-
-    private Map<Resource, Wiring> getWiringMap(Map<Resource, List<Wire>> wiremap) {
-        Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
-        for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
-            XResource res = (XResource) entry.getKey();
-            List<Wire> wires = entry.getValue();
-            AbstractWiring reqwiring = (AbstractWiring) wirings.get(res);
-            if (reqwiring == null) {
-                reqwiring = (AbstractWiring) createWiring(res, wires);
-                wirings.put(res, reqwiring);
-            }
-            for (Wire wire : wires) {
-                XResource provider = (XResource) wire.getProvider();
-                AbstractWiring provwiring = (AbstractWiring) wirings.get(provider);
-                if (provwiring == null) {
-                    provwiring = (AbstractWiring) createWiring(provider, Collections.EMPTY_LIST);
-                    wirings.put(provider, provwiring);
-                }
-                provwiring.addProvidedWire(wire);
-            }
-        }
-        return wirings;
-    }
-
-    private void applyWiringMap(Map<Resource, Wiring> wirings) {
-        for (Map.Entry<Resource, Wiring> entry : wirings.entrySet()) {
-            XResource res = (XResource) entry.getKey();
-            AbstractWiring deltaWiring = (AbstractWiring) entry.getValue();
-            AbstractWiring wiring = (AbstractWiring) this.wirings.get(res);
-            if (wiring == null) {
-                this.wirings.put(res, deltaWiring);
-                wiring = deltaWiring;
-            } else {
-                for (Wire wire : deltaWiring.getProvidedResourceWires(null)) {
-                    wiring.addProvidedWire(wire);
-                }
-            }
-            applyWiring(res, wiring);
-        }
     }
 
     private Set<Capability> getCachedCapabilities(CacheKey key) {

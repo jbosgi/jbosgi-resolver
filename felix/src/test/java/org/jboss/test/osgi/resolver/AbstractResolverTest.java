@@ -21,12 +21,22 @@
  */
 package org.jboss.test.osgi.resolver;
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
+import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
+import org.jboss.osgi.resolver.XWiring;
 import org.jboss.osgi.resolver.felix.FelixResolver;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
+import org.jboss.osgi.resolver.spi.AbstractWiring;
 import org.jboss.osgi.resolver.spi.FrameworkPreferencesComparator;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.shrinkwrap.api.Archive;
@@ -40,12 +50,6 @@ import org.osgi.framework.resource.Wiring;
 import org.osgi.service.resolver.Environment;
 import org.osgi.service.resolver.Resolver;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-
 /**
  * The abstract resolver test.
  *
@@ -55,7 +59,7 @@ import java.util.jar.Manifest;
 public abstract class AbstractResolverTest extends OSGiTest {
 
     Resolver resolver;
-    AbstractEnvironment environment;
+    XEnvironment environment;
 
     @Before
     public void setUp() throws Exception {
@@ -68,7 +72,7 @@ public abstract class AbstractResolverTest extends OSGiTest {
                 return new FrameworkPreferencesComparator() {
                     @Override
                     protected Wiring getWiring(Resource res) {
-                        return env.getWiring(res);
+                        return env.getWirings().get(res);
                     }
 
                     @Override
@@ -78,11 +82,11 @@ public abstract class AbstractResolverTest extends OSGiTest {
                 };
             }
         };
-        XResource sysres = createSystemResource();
+        Resource sysres = createSystemResource();
         environment.installResources(sysres);
     }
 
-	protected XResource createSystemResource() {
+	protected Resource createSystemResource() {
 		XResourceBuilder builder = XResourceBuilder.create();
 		builder.addIdentityCapability(Constants.SYSTEM_BUNDLE_SYMBOLICNAME, null, null, null, null);
 		return builder.getResource();
@@ -100,8 +104,8 @@ public abstract class AbstractResolverTest extends OSGiTest {
         return environment;
     }
 
-    void applyResolverResults(Map<Resource,List<Wire>> map) {
-        environment.applyResolverResults(map);
+    void applyResolverResults(Map<Resource,List<Wire>> wiremap) {
+    	environment.updateWiring(wiremap);
     }
 
     Wiring getWiring(Environment env, Resource resource) {

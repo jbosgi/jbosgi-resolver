@@ -21,6 +21,7 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XWiring;
 import org.osgi.framework.resource.Capability;
 import org.osgi.framework.resource.Requirement;
 import org.osgi.framework.resource.Resource;
@@ -37,7 +38,7 @@ import java.util.List;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractWiring implements Wiring {
+public class AbstractWiring implements XWiring {
 
     private final Resource resource;
     private final List<Wire> required;
@@ -48,7 +49,8 @@ public class AbstractWiring implements Wiring {
         this.required = wires;
     }
 
-    protected void addProvidedWire(Wire wire) {
+    @Override
+    public void addProvidedWire(Wire wire) {
         if (provided == null) {
             provided = new ArrayList<Wire>();
         }

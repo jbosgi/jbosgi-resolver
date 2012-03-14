@@ -21,34 +21,16 @@
  */
 package org.jboss.osgi.resolver;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import org.osgi.framework.resource.Resource;
 import org.osgi.framework.resource.Wire;
 import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
 
 /**
- * An extension to the {@link Environment}
- *
+ * An extension to the {@link Wiring}
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XEnvironment extends Environment {
+public interface XWiring extends Wiring {
 
-    void installResources(Resource... resarr);
-
-    void uninstallResources(Resource... resarr);
-
-    void refreshResources(Resource... resarr);
-
-    long getResourceIndex(Resource resource);
-
-    Collection<Resource> getResources(String type);
-
-    Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> delta);
-
-    Wiring createWiring(Resource res, List<Wire> wires);
+	void addProvidedWire(Wire wire);
 }
