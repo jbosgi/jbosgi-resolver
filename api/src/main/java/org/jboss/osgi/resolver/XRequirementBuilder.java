@@ -52,7 +52,7 @@ public abstract class XRequirementBuilder {
     }
 
     public static Requirement createRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
-        XResourceBuilder builder = XResourceBuilder.create();
+        XResourceBuilder builder = XResourceBuilderFactory.create();
         return builder.addGenericRequirement(namespace, atts, dirs);
     }
 }

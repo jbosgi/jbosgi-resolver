@@ -30,6 +30,7 @@ import java.util.jar.Attributes.Name;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
 import org.jboss.osgi.resolver.XResourceBuilder;
+import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.osgi.resolver.spi.ResourceIndexComparator;
 import org.junit.Before;
@@ -68,7 +69,7 @@ public abstract class AbstractTestBase {
     }
 
     Resource createResource(Map<String, String> attrs) throws BundleException {
-        XResourceBuilder amb = XResourceBuilder.create();
+        XResourceBuilder amb = XResourceBuilderFactory.create();
         OSGiMetaData metaData = new TestOSGiMetaData(attrs);
         XResourceBuilder builder = amb.loadFrom(metaData);
         return builder.getResource();

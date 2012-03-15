@@ -57,6 +57,7 @@ import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
+import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.osgi.framework.Version;
 
 /**
@@ -65,13 +66,12 @@ import org.osgi.framework.Version;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractResourceBuilder extends XResourceBuilder {
+public class AbstractResourceBuilder implements XResourceBuilder {
 
-    public AbstractResourceBuilder(XResource resource) {
-        super(resource);
-    }
-
-    public AbstractResourceBuilder() {
+    private final AbstractResource resource;
+    
+    public AbstractResourceBuilder(XResourceBuilderFactory factory) {
+        this.resource = factory.createResource();
     }
 
     @Override
@@ -319,6 +319,11 @@ public class AbstractResourceBuilder extends XResourceBuilder {
         return this;
     }
 
+    @Override
+    public XResource getResource() {
+        return resource;
+    }
+    
     private Map<String, Object> getAttributes(ParameterizedAttribute patts) {
         Map<String, Object> atts = new HashMap<String, Object>();
         if (patts != null) {

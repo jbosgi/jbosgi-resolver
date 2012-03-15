@@ -30,6 +30,7 @@ import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResourceBuilder;
+import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.jboss.osgi.resolver.felix.FelixResolver;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.osgi.testing.OSGiTest;
@@ -64,7 +65,7 @@ public abstract class AbstractResolverTest extends OSGiTest {
     }
 
 	protected Resource createSystemResource() {
-		XResourceBuilder builder = XResourceBuilder.create();
+		XResourceBuilder builder = XResourceBuilderFactory.create();
 		builder.addIdentityCapability(Constants.SYSTEM_BUNDLE_SYMBOLICNAME, null, null, null, null);
 		return builder.getResource();
 	}
@@ -73,7 +74,7 @@ public abstract class AbstractResolverTest extends OSGiTest {
         Node node = archive.get(JarFile.MANIFEST_NAME);
         Manifest manifest = new Manifest(node.getAsset().openStream());
         OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
-        return XResourceBuilder.create().loadFrom(metadata).getResource();
+        return XResourceBuilderFactory.create().loadFrom(metadata).getResource();
     }
 
     Environment installResources(Resource... resources) {
