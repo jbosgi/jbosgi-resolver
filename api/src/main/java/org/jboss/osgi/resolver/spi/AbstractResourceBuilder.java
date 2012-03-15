@@ -31,18 +31,21 @@ import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_UNKNOW
 import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
 import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE;
 import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DYNAMIC;
+import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleIdentifier;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.PackageAttribute;
 import org.jboss.osgi.metadata.Parameter;
 import org.jboss.osgi.metadata.ParameterizedAttribute;
+import org.jboss.osgi.resolver.ResourceBuilderException;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XBundleRequirement;
 import org.jboss.osgi.resolver.XCapability;
@@ -54,7 +57,6 @@ import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 
 /**
@@ -204,7 +206,7 @@ public class AbstractResourceBuilder extends XResourceBuilder {
     }
 
     @Override
-    public XResourceBuilder load(OSGiMetaData metadata) throws BundleException {
+    public XResourceBuilder loadFrom(OSGiMetaData metadata) throws ResourceBuilderException {
         assertResourceCreated();
         try {
             String symbolicName = metadata.getBundleSymbolicName();
@@ -282,7 +284,37 @@ public class AbstractResourceBuilder extends XResourceBuilder {
             }
 
         } catch (RuntimeException ex) {
-            throw new BundleException("Cannot initialize XResource from: " + metadata, ex);
+            throw new ResourceBuilderException("Cannot initialize XResource from: " + metadata, ex);
+        }
+        return this;
+    }
+
+    @Override
+    public XResourceBuilder loadFrom(Module module) throws ResourceBuilderException {
+        assertResourceCreated();
+        ModuleIdentifier identifier = module.getIdentifier();
+        String symbolicName = identifier.getName();
+        Version version;
+        try {
+            version = Version.parseVersion(identifier.getSlot());
+        } catch (IllegalArgumentException ex) {
+            version = Version.emptyVersion;
+        }
+        
+        // Add the identity capability
+        addIdentityCapability(symbolicName, version, IDENTITY_TYPE_UNKNOWN, null, null);
+        resource.addAttachment(Module.class, module);
+        
+        // Add a package capability for every exported path
+        for (String path : module.getExportedPaths()) {
+            if (path.startsWith("/"))
+                path = path.substring(1);
+            if (path.endsWith("/"))
+                path = path.substring(0, path.length() - 1);
+            if (!path.isEmpty() && !path.startsWith("META-INF")) {
+                String packageName = path.replace('/', '.');
+                addPackageCapability(packageName, null, null);
+            }
         }
         return this;
     }

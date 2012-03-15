@@ -73,7 +73,7 @@ public abstract class AbstractResolverTest extends OSGiTest {
         Node node = archive.get(JarFile.MANIFEST_NAME);
         Manifest manifest = new Manifest(node.getAsset().openStream());
         OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
-        return XResourceBuilder.create().load(metadata).getResource();
+        return XResourceBuilder.create().loadFrom(metadata).getResource();
     }
 
     Environment installResources(Resource... resources) {

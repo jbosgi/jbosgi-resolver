@@ -21,12 +21,12 @@
  */
 package org.jboss.osgi.resolver;
 
+import org.jboss.modules.Module;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.spi.AbstractResource;
 import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
 import org.jboss.osgi.resolver.spi.URLBasedResource;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.resource.Capability;
@@ -96,7 +96,7 @@ public abstract class XResourceBuilder {
         try {
             Manifest manifest = new JarInputStream(content).getManifest();
             OSGiMetaData metaData = OSGiMetaDataBuilder.load(manifest);
-            builder.load(metaData);
+            builder.loadFrom(metaData);
         } catch (Exception ex) {
             URL contentURL = resource.getContentURL();
             throw new IllegalStateException("Cannot create capability from: " + contentURL, ex);
@@ -117,7 +117,14 @@ public abstract class XResourceBuilder {
      *
      * @param metadata The OSGi metadata
      */
-    public abstract XResourceBuilder load(OSGiMetaData metadata) throws BundleException;
+    public abstract XResourceBuilder loadFrom(OSGiMetaData metadata) throws ResourceBuilderException;
+
+    /**
+     * Create requirements/capabilities from the given module.
+     *
+     * @param module The module
+     */
+    public abstract XResourceBuilder loadFrom(Module module) throws ResourceBuilderException;
 
     /**
      * Add the identity capability
