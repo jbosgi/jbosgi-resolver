@@ -24,9 +24,9 @@ package org.jboss.osgi.resolver.spi;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wiring;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wiring;
 
 /**
  * A comparator based on defined framework preferences.

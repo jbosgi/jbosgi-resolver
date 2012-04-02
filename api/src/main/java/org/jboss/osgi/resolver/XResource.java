@@ -21,7 +21,7 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.framework.resource.Resource;
+import org.osgi.resource.Resource;
 
 import java.io.InputStream;
 

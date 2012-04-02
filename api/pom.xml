@@ -33,12 +33,6 @@
             <artifactId>jboss-modules</artifactId>
         </dependency>
 
-        <!-- TODO remove this dependency when we have a released framework API -->
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.resolver</artifactId>
-        </dependency>
-
         <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.jboss.logging</groupId>

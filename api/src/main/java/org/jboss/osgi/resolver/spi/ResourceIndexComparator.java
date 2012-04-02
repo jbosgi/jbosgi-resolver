@@ -23,8 +23,8 @@ package org.jboss.osgi.resolver.spi;
 
 import java.util.Comparator;
 
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Resource;
 
 /**
  * A comparator that uses the provided resource index.

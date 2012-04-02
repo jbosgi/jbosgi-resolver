@@ -21,8 +21,6 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
 
 import java.util.Collections;
 import java.util.Map;
@@ -31,10 +29,10 @@ import java.util.Set;
 import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XBundleRequirement;
-import org.osgi.framework.Constants;
+import org.jboss.osgi.resolver.XCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.resource.Resource;
 
 /**
  * The abstract implementation of a {@link XBundleRequirement}.
@@ -49,10 +47,10 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
     private final String visibility;
 
     protected AbstractBundleRequirement(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
-        super(res, WIRING_BUNDLE_NAMESPACE, atts, dirs);
-        symbolicName = (String) getAttribute(WIRING_BUNDLE_NAMESPACE);
-        visibility = getDirective(Constants.VISIBILITY_DIRECTIVE);
-        Object versionatt = atts.get(BUNDLE_VERSION_ATTRIBUTE);
+        super(res, BundleNamespace.BUNDLE_NAMESPACE, atts, dirs);
+        symbolicName = (String) getAttribute(BundleNamespace.BUNDLE_NAMESPACE);
+        visibility = getDirective(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
+        Object versionatt = atts.get(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
             versionatt = VersionRange.parse((String) versionatt);
         }
@@ -61,7 +59,7 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
 
     @Override
     protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(WIRING_BUNDLE_NAMESPACE);
+        return Collections.singleton(BundleNamespace.BUNDLE_NAMESPACE);
     }
 
     @Override
@@ -80,7 +78,7 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
     }
 
     @Override
-    public boolean matches(Capability cap) {
+    public boolean matches(XCapability cap) {
 
         // cannot require itself
         if (getResource() == cap.getResource())

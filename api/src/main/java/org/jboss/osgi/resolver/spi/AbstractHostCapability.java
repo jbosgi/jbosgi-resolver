@@ -23,14 +23,12 @@ package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XHostCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.resource.Resource;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 
 /**
  * The abstract implementation of a {@link org.jboss.osgi.resolver.XHostCapability}.
@@ -44,14 +42,14 @@ public class AbstractHostCapability extends AbstractCapability implements XHostC
     private final Version version;
 
     protected AbstractHostCapability(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
-        super(res, WIRING_HOST_NAMESPACE, atts, dirs);
-        this.symbolicName = (String) atts.get(WIRING_HOST_NAMESPACE);
-        this.version = (Version) atts.get(BUNDLE_VERSION_ATTRIBUTE);
+        super(res, HostNamespace.HOST_NAMESPACE, atts, dirs);
+        this.symbolicName = (String) atts.get(HostNamespace.HOST_NAMESPACE);
+        this.version = (Version) atts.get(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override
     protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(WIRING_HOST_NAMESPACE);
+        return Collections.singleton(HostNamespace.HOST_NAMESPACE);
     }
 
     @Override

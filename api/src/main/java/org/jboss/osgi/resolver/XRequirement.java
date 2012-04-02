@@ -21,7 +21,7 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.framework.resource.Requirement;
+import org.osgi.resource.Requirement;
 
 /**
  * An extension to the {@link Requirement}
@@ -30,6 +30,8 @@ import org.osgi.framework.resource.Requirement;
  * @since 02-Jul-2010
  */
 public interface XRequirement extends XElement, XAttributeSupport, XDirectiveSupport, Requirement {
-
+    
     boolean isOptional();
+
+    boolean matches(XCapability cap);
 }

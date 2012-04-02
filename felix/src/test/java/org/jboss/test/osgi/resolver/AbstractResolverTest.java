@@ -21,14 +21,18 @@
  */
 package org.jboss.test.osgi.resolver;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XResolveContext;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.jboss.osgi.resolver.felix.FelixResolver;
@@ -38,10 +42,13 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.Node;
 import org.junit.Before;
 import org.osgi.framework.Constants;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
+import org.osgi.resource.Wiring;
+import org.osgi.service.resolver.HostedCapability;
+import org.osgi.service.resolver.ResolveContext;
 import org.osgi.service.resolver.Resolver;
 
 /**
@@ -64,11 +71,11 @@ public abstract class AbstractResolverTest extends OSGiTest {
         environment.installResources(sysres);
     }
 
-	protected Resource createSystemResource() {
-		XResourceBuilder builder = XResourceBuilderFactory.create();
-		builder.addIdentityCapability(Constants.SYSTEM_BUNDLE_SYMBOLICNAME, null, null, null, null);
-		return builder.getResource();
-	}
+    protected Resource createSystemResource() {
+        XResourceBuilder builder = XResourceBuilderFactory.create();
+        builder.addIdentityCapability(Constants.SYSTEM_BUNDLE_SYMBOLICNAME, null, null, null, null);
+        return builder.getResource();
+    }
 
     Resource createResource(Archive<?> archive) throws Exception {
         Node node = archive.get(JarFile.MANIFEST_NAME);
@@ -77,16 +84,57 @@ public abstract class AbstractResolverTest extends OSGiTest {
         return XResourceBuilderFactory.create().loadFrom(metadata).getResource();
     }
 
-    Environment installResources(Resource... resources) {
+    XEnvironment installResources(Resource... resources) {
         environment.installResources(resources);
         return environment;
     }
 
-    void applyResolverResults(Map<Resource,List<Wire>> wiremap) {
-    	environment.updateWiring(wiremap);
+    ResolveContext getResolveContext(final List<Resource> mandatory, final List<Resource> optional) {
+        return new XResolveContext() {
+
+            @Override
+            public XEnvironment getEnvironment() {
+                return environment;
+            }
+
+            @Override
+            public Collection<Resource> getMandatoryResources() {
+                return mandatory != null ? mandatory : super.getMandatoryResources();
+            }
+
+            @Override
+            public Collection<Resource> getOptionalResources() {
+                return optional != null ? optional : super.getOptionalResources();
+            }
+
+            @Override
+            public List<Capability> findProviders(Requirement requirement) {
+                SortedSet<Capability> caps = getEnvironment().findProviders(requirement);
+                return new ArrayList<Capability>(caps);
+            }
+
+            @Override
+            public int insertHostedCapability(List<Capability> capabilities, HostedCapability hostedCapability) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public boolean isEffective(Requirement requirement) {
+                return getEnvironment().isEffective(requirement);
+            }
+
+            @Override
+            public Map<Resource, Wiring> getWirings() {
+                return getEnvironment().getWirings();
+            }
+        };
     }
 
-    Wiring getWiring(Environment env, Resource resource) {
-        return env.getWirings().get(resource);
+    void applyResolverResults(Map<Resource, List<Wire>> wiremap) {
+        environment.updateWiring(wiremap);
+    }
+
+    Wiring getWiring(Resource resource) {
+        return environment.getWirings().get(resource);
     }
 }

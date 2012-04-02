@@ -21,20 +21,6 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.Constants.SYSTEM_BUNDLE_SYMBOLICNAME;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_BUNDLE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_FRAGMENT;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_UNKNOWN;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE;
-import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DYNAMIC;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +44,12 @@ import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
+import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.framework.namespace.PackageNamespace;
 
 /**
  * A builder for resolver resources
@@ -79,9 +70,9 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         assertResourceCreated();
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        atts.put(IDENTITY_NAMESPACE, symbolicName);
-        atts.put(IDENTITY_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
-        atts.put(IDENTITY_TYPE_ATTRIBUTE, type != null ? type : IDENTITY_TYPE_UNKNOWN);
+        atts.put(IdentityNamespace.IDENTITY_NAMESPACE, symbolicName);
+        atts.put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
+        atts.put(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE, type != null ? type : IdentityNamespace.TYPE_UNKNOWN);
         XIdentityCapability cap = new AbstractIdentityCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
@@ -92,7 +83,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         assertResourceCreated();
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
+        atts.put(BundleNamespace.BUNDLE_NAMESPACE, symbolicName);
         XBundleRequirement req = new AbstractBundleRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
@@ -103,8 +94,8 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         assertResourceCreated();
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        atts.put(WIRING_BUNDLE_NAMESPACE, symbolicName);
-        atts.put(BUNDLE_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
+        atts.put(BundleNamespace.BUNDLE_NAMESPACE, symbolicName);
+        atts.put(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
         XBundleCapability cap = new AbstractBundleCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
@@ -115,8 +106,8 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         assertResourceCreated();
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        atts.put(WIRING_HOST_NAMESPACE, symbolicName);
-        atts.put(BUNDLE_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
+        atts.put(HostNamespace.HOST_NAMESPACE, symbolicName);
+        atts.put(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
         XHostCapability cap = new AbstractHostCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
@@ -127,7 +118,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         assertResourceCreated();
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        atts.put(WIRING_HOST_NAMESPACE, symbolicName);
+        atts.put(HostNamespace.HOST_NAMESPACE, symbolicName);
         XHostRequirement req = new AbstractHostRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
@@ -138,7 +129,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         assertResourceCreated();
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
+        atts.put(PackageNamespace.PACKAGE_NAMESPACE, packageName);
         XPackageCapability cap = new AbstractPackageCapability(resource, atts, dirs);
         resource.addCapability(cap);
         return cap;
@@ -149,7 +140,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         assertResourceCreated();
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
+        atts.put(PackageNamespace.PACKAGE_NAMESPACE, packageName);
         XPackageRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
@@ -160,8 +151,8 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         assertResourceCreated();
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        atts.put(WIRING_PACKAGE_NAMESPACE, packageName);
-        dirs.put(REQUIREMENT_RESOLUTION_DIRECTIVE, REQUIREMENT_RESOLUTION_DYNAMIC);
+        atts.put(PackageNamespace.PACKAGE_NAMESPACE, packageName);
+        dirs.put(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE, PackageNamespace.RESOLUTION_DYNAMIC);
         XPackageRequirement req = new AbstractPackageRequirement(resource, atts, dirs);
         resource.addRequirement(req);
         return req;
@@ -173,11 +164,11 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         XCapability cap;
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        if (IDENTITY_NAMESPACE.equals(namespace)) {
+        if (IdentityNamespace.IDENTITY_NAMESPACE.equals(namespace)) {
             cap = new AbstractIdentityCapability(resource, atts, dirs);
-        } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
+        } else if (PackageNamespace.PACKAGE_NAMESPACE.equals(namespace)) {
             cap = new AbstractPackageCapability(resource, atts, dirs);
-        } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
+        } else if (HostNamespace.HOST_NAMESPACE.equals(namespace)) {
             cap = new AbstractHostCapability(resource, atts, dirs);
         } else {
             cap = new AbstractCapability(resource, namespace, atts, dirs);
@@ -192,11 +183,11 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         XRequirement req;
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        if (IDENTITY_NAMESPACE.equals(namespace)) {
+        if (IdentityNamespace.IDENTITY_NAMESPACE.equals(namespace)) {
             req = new AbstractBundleRequirement(resource, atts, dirs);
-        } else if (WIRING_PACKAGE_NAMESPACE.equals(namespace)) {
+        } else if (PackageNamespace.PACKAGE_NAMESPACE.equals(namespace)) {
             req = new AbstractPackageRequirement(resource, atts, dirs);
-        } else if (WIRING_HOST_NAMESPACE.equals(namespace)) {
+        } else if (HostNamespace.HOST_NAMESPACE.equals(namespace)) {
             req = new AbstractHostRequirement(resource, atts, dirs);
         } else {
             req = new AbstractRequirement(resource, namespace, atts, dirs);
@@ -217,11 +208,11 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
             // Identity Capability
             ParameterizedAttribute fragmentHost = metadata.getFragmentHost();
-            String identityType = fragmentHost != null ? IDENTITY_TYPE_FRAGMENT : IDENTITY_TYPE_BUNDLE;
+            String identityType = fragmentHost != null ? IdentityNamespace.TYPE_FRAGMENT : IdentityNamespace.TYPE_BUNDLE;
             addIdentityCapability(symbolicName, bundleVersion, identityType, idatts, iddirs);
             
             // Bundle Capability
-            if (IDENTITY_TYPE_BUNDLE.equals(identityType)) {
+            if (IdentityNamespace.TYPE_BUNDLE.equals(identityType)) {
                 Map<String, Object> atts = getAttributes(idparams);
                 Map<String, String> dirs = getDirectives(idparams);
                 addBundleCapability(symbolicName, bundleVersion, atts, dirs);
@@ -233,7 +224,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                 Map<String, Object> atts = getAttributes(fragmentHost);
                 Map<String, String> dirs = getDirectives(fragmentHost);
                 addHostRequirement(hostName, atts, dirs);
-            } else if (SYSTEM_BUNDLE_SYMBOLICNAME.equals(symbolicName) == false) {
+            } else if (Constants.SYSTEM_BUNDLE_SYMBOLICNAME.equals(symbolicName) == false) {
                 Map<String, Object> atts = getAttributes(idparams);
                 Map<String, String> dirs = getDirectives(idparams);
                 addHostCapability(symbolicName, bundleVersion, atts, dirs);
@@ -302,7 +293,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         }
         
         // Add the identity capability
-        addIdentityCapability(symbolicName, version, IDENTITY_TYPE_UNKNOWN, null, null);
+        addIdentityCapability(symbolicName, version, IdentityNamespace.TYPE_UNKNOWN, null, null);
         resource.addAttachment(Module.class, module);
         
         // Add a package capability for every exported path

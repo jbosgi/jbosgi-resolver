@@ -35,9 +35,8 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.service.resolver.Environment;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
 
 /**
  * Test the default resolver integration.
@@ -87,10 +86,10 @@ public class DynamicPackageImportResolverTest extends AbstractResolverTest {
         });
         Resource resourceC = createResource(archiveC);
 
-        Environment env = installResources(resourceA, resourceB, resourceC);
+        installResources(resourceA, resourceB, resourceC);
 
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
-        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         assertNotNull("Wire map not null", map);
         assertEquals(3, map.size());
         

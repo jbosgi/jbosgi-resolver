@@ -21,19 +21,17 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import org.jboss.osgi.metadata.VersionRange;
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XHostCapability;
 import org.jboss.osgi.resolver.XHostRequirement;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.resource.Resource;
 
 /**
  * The abstract implementation of a {@link XHostRequirement}.
@@ -47,9 +45,9 @@ public class AbstractHostRequirement extends AbstractRequirement implements XHos
     private final VersionRange versionrange;
 
     protected AbstractHostRequirement(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
-        super(res, WIRING_HOST_NAMESPACE, atts, dirs);
-        symbolicName = (String) getAttribute(WIRING_HOST_NAMESPACE);
-        Object versionatt = atts.get(BUNDLE_VERSION_ATTRIBUTE);
+        super(res, HostNamespace.HOST_NAMESPACE, atts, dirs);
+        symbolicName = (String) getAttribute(HostNamespace.HOST_NAMESPACE);
+        Object versionatt = atts.get(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
             versionatt = VersionRange.parse((String) versionatt);
         }
@@ -58,7 +56,7 @@ public class AbstractHostRequirement extends AbstractRequirement implements XHos
 
     @Override
     protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(WIRING_HOST_NAMESPACE);
+        return Collections.singleton(HostNamespace.HOST_NAMESPACE);
     }
 
     @Override
@@ -72,7 +70,7 @@ public class AbstractHostRequirement extends AbstractRequirement implements XHos
     }
 
     @Override
-    public boolean matches(Capability cap) {
+    public boolean matches(XCapability cap) {
 
         if (super.matches(cap) == false)
             return false;

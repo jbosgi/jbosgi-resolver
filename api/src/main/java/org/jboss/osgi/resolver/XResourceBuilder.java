@@ -28,8 +28,8 @@ import org.jboss.modules.Module;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 
 /**
  * A builder for resources.

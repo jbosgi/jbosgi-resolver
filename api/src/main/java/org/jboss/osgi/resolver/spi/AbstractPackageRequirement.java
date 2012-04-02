@@ -21,15 +21,6 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE;
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.Constants.MANDATORY_DIRECTIVE;
-import static org.osgi.framework.Constants.PACKAGE_SPECIFICATION_VERSION;
-import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE;
-import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DYNAMIC;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,9 +32,10 @@ import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.resource.Resource;
 
 /**
  * The abstract implementation of a {@link XPackageRequirement}.
@@ -58,19 +50,19 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     private final boolean dynamic;
 
     public AbstractPackageRequirement(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
-        super(res, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
-        packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
-        Object versionatt = attrs.get(VERSION_ATTRIBUTE);
+        super(res, PackageNamespace.PACKAGE_NAMESPACE, attrs, dirs);
+        packageName = (String) attrs.get(PackageNamespace.PACKAGE_NAMESPACE);
+        Object versionatt = attrs.get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
             versionatt = VersionRange.parse((String) versionatt);
         }
         versionrange = (VersionRange) versionatt;
-        dynamic = REQUIREMENT_RESOLUTION_DYNAMIC.equals(dirs.get(REQUIREMENT_RESOLUTION_DIRECTIVE));
+        dynamic = PackageNamespace.RESOLUTION_DYNAMIC.equals(dirs.get(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE));
     }
 
     @Override
     protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(WIRING_PACKAGE_NAMESPACE);
+        return Collections.singleton(PackageNamespace.PACKAGE_NAMESPACE);
     }
 
     @Override
@@ -89,7 +81,7 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     }
 
     @Override
-    public boolean matchNamespaceValue(Capability cap) {
+    public boolean matchNamespaceValue(XCapability cap) {
 
         String packageName = getPackageName();
         if (packageName.equals("*"))
@@ -107,7 +99,8 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     }
 
     @Override
-    public boolean matches(Capability cap) {
+    @SuppressWarnings("deprecation")
+    public boolean matches(XCapability cap) {
 
         if(super.matches(cap) == false)
             return false;
@@ -120,17 +113,18 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
         }
 
         Map<String, Object> reqatts = new HashMap<String, Object> (getAttributes());
+        reqatts.remove(PackageNamespace.PACKAGE_NAMESPACE);
+        reqatts.remove(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        reqatts.remove(Constants.PACKAGE_SPECIFICATION_VERSION);
+
         Map<String, Object> capatts = new HashMap<String, Object> (cap.getAttributes());
-        reqatts.remove(WIRING_PACKAGE_NAMESPACE);
-        capatts.remove(WIRING_PACKAGE_NAMESPACE);
-        reqatts.remove(PACKAGE_SPECIFICATION_VERSION);
-        capatts.remove(PACKAGE_SPECIFICATION_VERSION);
-        reqatts.remove(VERSION_ATTRIBUTE);
-        capatts.remove(VERSION_ATTRIBUTE);
+        capatts.remove(PackageNamespace.PACKAGE_NAMESPACE);
+        capatts.remove(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        capatts.remove(Constants.PACKAGE_SPECIFICATION_VERSION);
 
 
         // match package's bundle-symbolic-name
-        String symbolicName = (String) reqatts.remove(BUNDLE_SYMBOLICNAME_ATTRIBUTE);
+        String symbolicName = (String) reqatts.remove(PackageNamespace.CAPABILITY_BUNDLE_SYMBOLICNAME_ATTRIBUTE);
         if (symbolicName != null) {
             XResource capres = (XResource) cap.getResource();
             XIdentityCapability idcap = capres.getIdentityCapability();
@@ -140,7 +134,7 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
         }
 
         // match package's bundle-version
-        String versionstr = (String) reqatts.remove(BUNDLE_VERSION_ATTRIBUTE);
+        String versionstr = (String) reqatts.remove(PackageNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
         if (versionstr != null) {
             XResource capres = (XResource) cap.getResource();
             XIdentityCapability idcap = capres.getIdentityCapability();
@@ -151,7 +145,7 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
         }
 
         // match mandatory attributes on the capability
-        String dirstr = ((XCapability) cap).getDirective(MANDATORY_DIRECTIVE);
+        String dirstr = ((XCapability) cap).getDirective(PackageNamespace.CAPABILITY_MANDATORY_DIRECTIVE);
         if (dirstr != null) {
             for (String att : dirstr.split(",")) {
                 Object capval = capatts.remove(att);

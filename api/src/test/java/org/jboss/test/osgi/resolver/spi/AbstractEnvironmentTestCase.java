@@ -21,12 +21,13 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.junit.Test;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
-import org.osgi.service.resolver.Environment;
+import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +40,6 @@ import static org.junit.Assert.assertSame;
 import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME;
 import static org.osgi.framework.Constants.EXPORT_PACKAGE;
 import static org.osgi.framework.Constants.IMPORT_PACKAGE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
  * Unit tests for the {@link org.osgi.service.resolver.Environment} class
@@ -67,9 +67,9 @@ public class AbstractEnvironmentTestCase extends AbstractTestBase {
         Resource resourceC = createResource(attrs);
 
         List<Resource> resources = Arrays.asList(resourceA, resourceB, resourceC);
-        Environment env = installResources(resources);
+        XEnvironment env = installResources(resources);
 
-        List<Requirement> reqs = resourceA.getRequirements(WIRING_PACKAGE_NAMESPACE);
+        List<Requirement> reqs = resourceA.getRequirements(PackageNamespace.PACKAGE_NAMESPACE);
         assertEquals(1, reqs.size());
         XPackageRequirement req = (XPackageRequirement) reqs.get(0);
 
@@ -99,9 +99,9 @@ public class AbstractEnvironmentTestCase extends AbstractTestBase {
         Resource resourceC = createResource(attrs);
 
         List<Resource> resources = Arrays.asList(resourceA, resourceC, resourceB);
-        Environment env = installResources(resources);
+        XEnvironment env = installResources(resources);
 
-        List<Requirement> reqs = resourceA.getRequirements(WIRING_PACKAGE_NAMESPACE);
+        List<Requirement> reqs = resourceA.getRequirements(PackageNamespace.PACKAGE_NAMESPACE);
         assertEquals(1, reqs.size());
         XPackageRequirement req = (XPackageRequirement) reqs.get(0);
 

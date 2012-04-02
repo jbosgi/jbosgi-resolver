@@ -26,7 +26,7 @@ import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XResource;
-import org.osgi.framework.resource.Resource;
+import org.osgi.resource.Resource;
 
 import java.util.Collections;
 import java.util.Map;

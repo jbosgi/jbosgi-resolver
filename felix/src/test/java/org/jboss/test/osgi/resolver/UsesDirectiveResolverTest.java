@@ -25,7 +25,6 @@ package org.jboss.test.osgi.resolver;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -36,12 +35,11 @@ import org.jboss.osgi.testing.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.service.resolver.Environment;
+import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
 
 /**
  * Test the default resolver integration.
@@ -49,8 +47,6 @@ import org.osgi.service.resolver.Environment;
  * @author thomas.diesler@jboss.com
  * @since 12-Mar-2012
  */
-//@Ignore
-// https://issues.apache.org/jira/browse/FELIX-3388
 public class UsesDirectiveResolverTest extends AbstractResolverTest {
 
     @Test
@@ -107,9 +103,9 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         Resource resourceC = createResource(archiveC);
 
         // Install and resolve A, B, C
-        Environment env = installResources(resourceA, resourceB, resourceC);
+        installResources(resourceA, resourceB, resourceC);
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
-        Map<Resource, List<Wire>> map = resolver.resolve(env, mandatory, null);
+        Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
         
         // Verify that javax.servlet wires to the API bundle 
@@ -117,7 +113,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         assertEquals(1, wires.size());
         for (Wire wire : wires) {
             Requirement req = wire.getRequirement();
-            String pkgname = (String) req.getAttributes().get(WIRING_PACKAGE_NAMESPACE);
+            String pkgname = (String) req.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
             if ("javax.servlet".equals(pkgname)) {
                 assertSame(resourceA, wire.getProvider());
             } else {
@@ -130,7 +126,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         assertEquals(1, wires.size());
         for (Wire wire : wires) {
             Requirement req = wire.getRequirement();
-            String pkgname = (String) req.getAttributes().get(WIRING_PACKAGE_NAMESPACE);
+            String pkgname = (String) req.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
             if ("javax.servlet".equals(pkgname)) {
                 assertSame(resourceA, wire.getProvider());
             } else {
@@ -157,7 +153,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         // Install and resolve D
         installResources(resourceD);
         mandatory = Arrays.asList(resourceD);
-        map = resolver.resolve(env, mandatory, null);
+        map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
         
         // Verify that javax.servlet wires to the API bundle 
@@ -165,7 +161,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         assertEquals(2, wires.size());
         for (Wire wire : wires) {
             Requirement req = wire.getRequirement();
-            String pkgname = (String) req.getAttributes().get(WIRING_PACKAGE_NAMESPACE);
+            String pkgname = (String) req.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
             if ("org.ops4j.pax.web.service".equals(pkgname)) {
                 assertSame(resourceC, wire.getProvider());
             } else if ("javax.servlet".equals(pkgname)) {

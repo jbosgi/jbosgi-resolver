@@ -21,16 +21,14 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import static org.osgi.framework.Constants.BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_BUNDLE_NAMESPACE;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.resource.Resource;
 
 /**
  * The abstract implementation of a {@link XBundleCapability}.
@@ -44,14 +42,14 @@ public class AbstractBundleCapability extends AbstractCapability implements XBun
     private final Version version;
 
     protected AbstractBundleCapability(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
-        super(res, WIRING_BUNDLE_NAMESPACE, atts, dirs);
-        this.symbolicName = (String) atts.get(WIRING_BUNDLE_NAMESPACE);
-        this.version = (Version) atts.get(BUNDLE_VERSION_ATTRIBUTE);
+        super(res, BundleNamespace.BUNDLE_NAMESPACE, atts, dirs);
+        this.symbolicName = (String) atts.get(BundleNamespace.BUNDLE_NAMESPACE);
+        this.version = (Version) atts.get(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override
     protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(WIRING_BUNDLE_NAMESPACE);
+        return Collections.singleton(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override

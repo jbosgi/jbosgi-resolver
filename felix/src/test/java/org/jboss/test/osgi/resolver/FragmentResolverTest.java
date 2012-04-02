@@ -26,8 +26,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,10 +33,11 @@ import java.util.Map;
 
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
+import org.osgi.resource.Wiring;
 import org.osgi.service.resolver.ResolutionException;
 
 /**
@@ -62,25 +61,25 @@ public class FragmentResolverTest extends AbstractResolverTest {
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentaddsexport");
         Resource resourceB = createResource(assemblyB);
 
-        Environment env = installResources(resourceA, resourceB);
+        installResources(resourceA, resourceB);
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
-        Wiring wiringA = getWiring(env, resourceA);
+        Wiring wiringA = getWiring(resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(1, wiringA.getProvidedResourceWires(null).size());
-        assertEquals(0, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
-        assertEquals(1, wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).size());
-        Wire hwireA = wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        assertEquals(0, wiringA.getProvidedResourceWires(PackageNamespace.PACKAGE_NAMESPACE).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).size());
+        Wire hwireA = wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceA, hwireA.getProvider());
         assertSame(resourceB, hwireA.getRequirer());
 
-        Wiring wiringB = getWiring(env, resourceB);
+        Wiring wiringB = getWiring(resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
-        assertEquals(1, wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).size());
+        assertEquals(1, wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).size());
         assertEquals(0, wiringB.getProvidedResourceWires(null).size());
-        Wire wireB = wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        Wire wireB = wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceB, wireB.getRequirer());
         assertSame(resourceA, wireB.getProvider());
     }
@@ -98,25 +97,25 @@ public class FragmentResolverTest extends AbstractResolverTest {
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentaddsexport");
         Resource resourceB = createResource(assemblyB);
 
-        Environment env = installResources(resourceA, resourceB);
+        installResources(resourceA, resourceB);
         List<Resource> mandatory = Arrays.asList(resourceB);
-        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
-        Wiring wiringA = getWiring(env, resourceA);
+        Wiring wiringA = getWiring(resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(1, wiringA.getProvidedResourceWires(null).size());
-        assertEquals(0, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
-        assertEquals(1, wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).size());
-        Wire hwireA = wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        assertEquals(0, wiringA.getProvidedResourceWires(PackageNamespace.PACKAGE_NAMESPACE).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).size());
+        Wire hwireA = wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceA, hwireA.getProvider());
         assertSame(resourceB, hwireA.getRequirer());
 
-        Wiring wiringB = getWiring(env, resourceB);
+        Wiring wiringB = getWiring(resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
-        assertEquals(1, wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).size());
+        assertEquals(1, wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).size());
         assertEquals(0, wiringB.getProvidedResourceWires(null).size());
-        Wire wireB = wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        Wire wireB = wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceB, wireB.getRequirer());
         assertSame(resourceA, wireB.getProvider());
     }
@@ -134,18 +133,18 @@ public class FragmentResolverTest extends AbstractResolverTest {
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentaddsexport");
         Resource resourceB = createResource(assemblyB);
 
-        Environment env = installResources(resourceA, resourceB);
+        installResources(resourceA, resourceB);
         List<Resource> mandatory = Arrays.asList(resourceA);
-        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
-        Wiring wiringA = getWiring(env, resourceA);
+        Wiring wiringA = getWiring(resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(0, wiringA.getProvidedResourceWires(null).size());
-        assertEquals(0, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
-        assertEquals(0, wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).size());
+        assertEquals(0, wiringA.getProvidedResourceWires(PackageNamespace.PACKAGE_NAMESPACE).size());
+        assertEquals(0, wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).size());
 
-        Wiring wiringB = getWiring(env, resourceB);
+        Wiring wiringB = getWiring(resourceB);
         assertNull(wiringB);
     }
 
@@ -167,36 +166,36 @@ public class FragmentResolverTest extends AbstractResolverTest {
         Archive<?> assemblyC = assembleArchive("bundle", "/resolver/bundleimportfragmentpkg");
         Resource resourceC = createResource(assemblyC);
 
-        Environment env = installResources(resourceA, resourceB, resourceC);
+        installResources(resourceA, resourceB, resourceC);
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
-        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
-        Wiring wiringA = getWiring(env, resourceA);
+        Wiring wiringA = getWiring(resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(2, wiringA.getProvidedResourceWires(null).size());
-        assertEquals(1, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
-        assertEquals(1, wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).size());
-        Wire pwireA = wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
+        assertEquals(1, wiringA.getProvidedResourceWires(PackageNamespace.PACKAGE_NAMESPACE).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).size());
+        Wire pwireA = wiringA.getProvidedResourceWires(PackageNamespace.PACKAGE_NAMESPACE).get(0);
         assertSame(resourceA, pwireA.getProvider());
         assertSame(resourceC, pwireA.getRequirer());
-        Wire hwireA = wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        Wire hwireA = wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceA, hwireA.getProvider());
         assertSame(resourceB, hwireA.getRequirer());
 
-        Wiring wiringB = getWiring(env, resourceB);
+        Wiring wiringB = getWiring(resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
-        assertEquals(1, wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).size());
+        assertEquals(1, wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).size());
         assertEquals(0, wiringB.getProvidedResourceWires(null).size());
-        Wire wireB = wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        Wire wireB = wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceB, wireB.getRequirer());
         assertSame(resourceA, wireB.getProvider());
 
-        Wiring wiringC = getWiring(env, resourceC);
+        Wiring wiringC = getWiring(resourceC);
         assertEquals(1, wiringC.getRequiredResourceWires(null).size());
-        assertEquals(1, wiringC.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
+        assertEquals(1, wiringC.getRequiredResourceWires(PackageNamespace.PACKAGE_NAMESPACE).size());
         assertEquals(0, wiringC.getProvidedResourceWires(null).size());
-        Wire wireC = wiringC.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).get(0);
+        Wire wireC = wiringC.getRequiredResourceWires(PackageNamespace.PACKAGE_NAMESPACE).get(0);
         assertSame(resourceC, wireC.getRequirer());
         assertSame(resourceA, wireC.getProvider());
     }
@@ -208,9 +207,9 @@ public class FragmentResolverTest extends AbstractResolverTest {
         Archive<?> assemblyA = assembleArchive("host", "/resolver/bundlefragmenthost");
         Resource resourceA = createResource(assemblyA);
 
-        Environment env = installResources(resourceA);
+        installResources(resourceA);
         List<Resource> mandatory = Arrays.asList(resourceA);
-        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
         
         // Bundle-SymbolicName: bundleimportfragmentpkg
@@ -221,7 +220,7 @@ public class FragmentResolverTest extends AbstractResolverTest {
         installResources(resourceB);
         try {
             mandatory = Arrays.asList(resourceB);
-            resolver.resolve(env, mandatory, null);
+            resolver.resolve(getResolveContext(mandatory, null));
             fail("ResolutionException expected");
         } catch (ResolutionException ex) {
             // expected
@@ -236,7 +235,7 @@ public class FragmentResolverTest extends AbstractResolverTest {
         installResources(resourceC);
         try {
             mandatory = Arrays.asList(resourceB, resourceC);
-            resolver.resolve(env, mandatory, null);
+            resolver.resolve(getResolveContext(mandatory, null));
             fail("ResolutionException expected");
         } catch (ResolutionException ex) {
             // expected
@@ -259,26 +258,26 @@ public class FragmentResolverTest extends AbstractResolverTest {
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentdependshostexport");
         Resource resourceB = createResource(assemblyB);
 
-        Environment env = installResources(resourceA, resourceB);
+        installResources(resourceA, resourceB);
         List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Map<Resource,List<Wire>> map = resolver.resolve(env, mandatory, null);
+        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
-        Wiring wiringA = getWiring(env, resourceA);
+        Wiring wiringA = getWiring(resourceA);
         assertEquals(0, wiringA.getRequiredResourceWires(null).size());
         assertEquals(1, wiringA.getProvidedResourceWires(null).size());
-        assertEquals(0, wiringA.getProvidedResourceWires(WIRING_PACKAGE_NAMESPACE).size());
-        assertEquals(1, wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).size());
-        Wire hwireA = wiringA.getProvidedResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        assertEquals(0, wiringA.getProvidedResourceWires(PackageNamespace.PACKAGE_NAMESPACE).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).size());
+        Wire hwireA = wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceA, hwireA.getProvider());
         assertSame(resourceB, hwireA.getRequirer());
 
-        Wiring wiringB = getWiring(env, resourceB);
+        Wiring wiringB = getWiring(resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
-        assertEquals(0, wiringB.getRequiredResourceWires(WIRING_PACKAGE_NAMESPACE).size());
-        assertEquals(1, wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).size());
+        assertEquals(0, wiringB.getRequiredResourceWires(PackageNamespace.PACKAGE_NAMESPACE).size());
+        assertEquals(1, wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).size());
         assertEquals(0, wiringB.getProvidedResourceWires(null).size());
-        Wire hwireB = wiringB.getRequiredResourceWires(WIRING_HOST_NAMESPACE).get(0);
+        Wire hwireB = wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceB, hwireB.getRequirer());
         assertSame(resourceA, hwireB.getProvider());
     }

@@ -21,23 +21,27 @@
  */
 package org.jboss.osgi.resolver.felix;
 
-import org.apache.felix.resolver.FelixEnvironment;
-import org.apache.felix.resolver.impl.ResolverImpl;
-import org.jboss.logging.Logger;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
-import org.osgi.service.resolver.ResolutionException;
-import org.osgi.service.resolver.Resolver;
-
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+
+import org.apache.felix.resolver.FelixEnvironment;
+import org.apache.felix.resolver.impl.ResolverImpl;
+import org.jboss.logging.Logger;
+import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XRequirement;
+import org.jboss.osgi.resolver.XResolveContext;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
+import org.osgi.resource.Wiring;
+import org.osgi.service.resolver.HostedCapability;
+import org.osgi.service.resolver.ResolutionException;
+import org.osgi.service.resolver.ResolveContext;
+import org.osgi.service.resolver.Resolver;
 
 /**
  * An implementation of the Resolver.
@@ -54,8 +58,10 @@ public class FelixResolver implements Resolver {
     private ResolverImpl delegate = new ResolverImpl(new LoggerDelegate());
 
     @Override
-    public Map<Resource, List<Wire>> resolve(Environment environment, Collection<? extends Resource> mandatory, Collection<? extends Resource> optional) throws ResolutionException {
-        FelixEnvironment env = new EnvironmentDelegate(environment);
+    public Map<Resource, List<Wire>> resolve(ResolveContext context) throws ResolutionException {
+        FelixEnvironment env = new EnvironmentDelegate(context);
+        Collection<Resource> mandatory = context.getMandatoryResources();
+        Collection<Resource> optional = context.getOptionalResources();
         log.debugf("Resolve: %s, %s", mandatory, optional);
         Map<Resource, List<Wire>> result = delegate.resolve(env, mandatory, optional);
         if (log.isDebugEnabled()) {
@@ -72,12 +78,38 @@ public class FelixResolver implements Resolver {
         return result;
     }
 
-    static class EnvironmentDelegate implements FelixEnvironment {
+    static class EnvironmentDelegate extends FelixEnvironment {
 
-        private final Environment environment;
+        private final XResolveContext context;
 
-        EnvironmentDelegate(Environment environment) {
-            this.environment = environment;
+        EnvironmentDelegate(ResolveContext context) {
+            this.context = (XResolveContext) context;
+        }
+
+        @Override
+        public SortedSet<Capability> findSortedSetProviders(Requirement req) {
+            return context.getEnvironment().findProviders(req);
+        }
+
+        @Override
+        public boolean isEffective(Requirement req) {
+            return context.isEffective(req);
+        }
+
+        @Override
+        public Map<Resource, Wiring> getWirings() {
+            return context.getWirings();
+        }
+
+        @Override
+        public boolean matches(Requirement req, Capability cap) {
+            return ((XRequirement)req).matches((XCapability) cap);
+        }
+
+        @Override
+        public List<Capability> findProviders(Requirement requirement) {
+            SortedSet<Capability> caps = findSortedSetProviders(requirement);
+            return new ArrayList<Capability>(caps);
         }
 
         @Override
@@ -91,18 +123,9 @@ public class FelixResolver implements Resolver {
         }
 
         @Override
-        public SortedSet<Capability> findProviders(Requirement req) {
-            return environment.findProviders(req);
-        }
-
-        @Override
-        public boolean isEffective(Requirement req) {
-            return environment.isEffective(req);
-        }
-
-        @Override
-        public Map<Resource, Wiring> getWirings() {
-            return environment.getWirings();
+        public int insertHostedCapability(List<Capability> capabilities, HostedCapability hostedCapability) {
+            // not implemented
+            return 0;
         }
     }
 }

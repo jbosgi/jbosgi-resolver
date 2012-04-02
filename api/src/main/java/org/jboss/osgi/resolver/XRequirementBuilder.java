@@ -22,7 +22,7 @@
 package org.jboss.osgi.resolver;
 
 import org.jboss.modules.ModuleIdentifier;
-import org.osgi.framework.resource.Requirement;
+import org.osgi.resource.Requirement;
 
 import java.util.HashMap;
 import java.util.Map;

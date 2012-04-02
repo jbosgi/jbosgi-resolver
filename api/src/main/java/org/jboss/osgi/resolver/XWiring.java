@@ -21,8 +21,8 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
+import org.osgi.resource.Wire;
+import org.osgi.resource.Wiring;
 
 /**
  * An extension to the {@link Wiring}

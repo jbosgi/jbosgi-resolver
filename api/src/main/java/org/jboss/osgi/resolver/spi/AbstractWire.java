@@ -21,10 +21,10 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
 
 /**
  * The abstract implementation of a {@link Wire}.

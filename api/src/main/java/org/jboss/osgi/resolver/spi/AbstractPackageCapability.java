@@ -23,14 +23,12 @@ package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.resource.Resource;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-
-import static org.osgi.framework.Constants.VERSION_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
  * The abstract implementation of a {@link XPackageCapability}.
@@ -44,15 +42,15 @@ public class AbstractPackageCapability extends AbstractCapability implements XPa
     private final Version version;
 
     public AbstractPackageCapability(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
-        super(res, WIRING_PACKAGE_NAMESPACE, attrs, dirs);
-        packageName = (String) attrs.get(WIRING_PACKAGE_NAMESPACE);
-        String versionatt = (String) attrs.get(VERSION_ATTRIBUTE);
+        super(res, PackageNamespace.PACKAGE_NAMESPACE, attrs, dirs);
+        packageName = (String) attrs.get(PackageNamespace.PACKAGE_NAMESPACE);
+        String versionatt = (String) attrs.get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
         version = versionatt != null ? Version.parseVersion(versionatt) : Version.emptyVersion;
     }
 
     @Override
     protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(WIRING_PACKAGE_NAMESPACE);
+        return Collections.singleton(PackageNamespace.PACKAGE_NAMESPACE);
     }
 
     @Override

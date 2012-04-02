@@ -23,17 +23,13 @@ package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.resource.Resource;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.osgi.framework.Constants.SINGLETON_DIRECTIVE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_ATTRIBUTE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_VERSION_ATTRIBUTE;
 
 /**
  * The abstract implementation of a {@link XIdentityCapability}.
@@ -48,18 +44,18 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
     private final boolean singleton;
     private final String type;
 
-    protected AbstractIdentityCapability(Resource brev, Map<String, Object> atts, Map<String, String> dirs) {
-        super(brev, IDENTITY_NAMESPACE, atts, dirs);
-        this.symbolicName = (String) atts.get(IDENTITY_NAMESPACE);
-        this.version = (Version) atts.get(IDENTITY_VERSION_ATTRIBUTE);
-        this.type = (String) atts.get(IDENTITY_TYPE_ATTRIBUTE);
-        this.singleton = Boolean.parseBoolean(dirs.get(SINGLETON_DIRECTIVE));
+    protected AbstractIdentityCapability(Resource resource, Map<String, Object> atts, Map<String, String> dirs) {
+        super(resource, IdentityNamespace.IDENTITY_NAMESPACE, atts, dirs);
+        this.symbolicName = (String) atts.get(IdentityNamespace.IDENTITY_NAMESPACE);
+        this.version = (Version) atts.get(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        this.type = (String) atts.get(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE);
+        this.singleton = Boolean.parseBoolean(dirs.get(IdentityNamespace.CAPABILITY_SINGLETON_DIRECTIVE));
     }
 
     @Override
     protected Set<String> getMandatoryAttributes() {
         HashSet<String> result = new HashSet<String>();
-        Collections.addAll(result, IDENTITY_NAMESPACE, IDENTITY_VERSION_ATTRIBUTE, IDENTITY_TYPE_ATTRIBUTE);
+        Collections.addAll(result, IdentityNamespace.IDENTITY_NAMESPACE, IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE);
         return Collections.unmodifiableSet(result);
     }
 

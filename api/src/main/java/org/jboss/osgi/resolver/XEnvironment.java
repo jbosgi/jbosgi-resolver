@@ -25,19 +25,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
+import org.osgi.resource.Wiring;
 
 /**
- * An extension to the {@link Environment}
+ * An environment that hosts the resources applicable for resource resolution.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XEnvironment extends Environment {
+public interface XEnvironment {
 
     void installResources(Resource... resarr);
 
@@ -45,6 +47,12 @@ public interface XEnvironment extends Environment {
 
     void refreshResources(Resource... resarr);
 
+    SortedSet<Capability> findProviders(Requirement req);
+    
+    boolean isEffective(Requirement req);
+
+    Map<Resource, Wiring> getWirings();
+    
     Collection<Resource> getResources(Set<String> types);
 
     Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> delta);

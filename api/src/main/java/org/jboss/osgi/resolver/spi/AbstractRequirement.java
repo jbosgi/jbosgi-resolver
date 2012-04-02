@@ -21,6 +21,11 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
@@ -30,17 +35,8 @@ import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.ResourceConstants;
-
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-
-import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_DIRECTIVE;
-import static org.osgi.framework.resource.ResourceConstants.REQUIREMENT_RESOLUTION_OPTIONAL;
+import org.osgi.framework.namespace.AbstractWiringNamespace;
+import org.osgi.resource.Resource;
 
 /**
  * The abstract implementation of a {@link XRequirement}.
@@ -73,10 +69,10 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         this.attributes = new AttributeSupporter(atts);
         this.directives = new DirectiveSupporter(dirs);
 
-        String resdir = dirs.get(REQUIREMENT_RESOLUTION_DIRECTIVE);
-        optional = REQUIREMENT_RESOLUTION_OPTIONAL.equals(resdir);
+        String resdir = dirs.get(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
+        optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
 
-        String filterdir = getDirective(ResourceConstants.REQUIREMENT_FILTER_DIRECTIVE);
+        String filterdir = getDirective(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE);
         if (filterdir != null) {
             try {
                 filter = FrameworkUtil.createFilter(filterdir);
@@ -137,7 +133,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     }
 
     @Override
-    public boolean matches(Capability cap) {
+    public boolean matches(XCapability cap) {
         boolean matches = namespace.equals(cap.getNamespace());
 
         // match namespace value
@@ -149,15 +145,14 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         return matches;
     }
 
-    protected boolean matchNamespaceValue(Capability cap) {
-        XCapability xcap = (XCapability) cap;
+    protected boolean matchNamespaceValue(XCapability cap) {
         Object thisatt = getAttribute(namespace);
-        Object otheratt = xcap.getAttribute(namespace);
+        Object otheratt = cap.getAttribute(namespace);
         return thisatt.equals(otheratt);
     }
 
-    protected boolean matchFilterValue(Capability cap) {
-        return filter != null ? filter.match(new Hashtable(cap.getAttributes())) : true;
+    protected boolean matchFilterValue(XCapability cap) {
+        return filter != null ? filter.match(new Hashtable<String, Object>(cap.getAttributes())) : true;
     }
 
     public String toString() {

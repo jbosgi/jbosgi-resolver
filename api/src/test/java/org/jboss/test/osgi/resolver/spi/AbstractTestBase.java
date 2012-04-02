@@ -29,15 +29,15 @@ import java.util.jar.Attributes.Name;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
+import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.jboss.osgi.resolver.spi.ResourceIndexComparator;
 import org.junit.Before;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Resource;
-import org.osgi.service.resolver.Environment;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Resource;
 
 /**
  * @author Thomas.Diesler@jboss.com
@@ -61,7 +61,7 @@ public abstract class AbstractTestBase {
         };
     }
 
-    Environment installResources(List<Resource> resources) {
+    XEnvironment installResources(List<Resource> resources) {
         for (Resource res : resources) {
             environment.installResources(res);
         }

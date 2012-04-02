@@ -21,7 +21,7 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.framework.resource.Capability;
+import org.osgi.resource.Capability;
 
 /**
  * An extension to the {@link Capability}

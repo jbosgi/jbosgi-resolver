@@ -23,8 +23,10 @@ package org.jboss.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XResource;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -32,9 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
 
 /**
  * The abstract implementation of an {@link XResource}.
@@ -74,7 +73,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     @Override
     public XIdentityCapability getIdentityCapability() {
         if (identityCapability == null) {
-            List<Capability> caps = getCapabilities(IDENTITY_NAMESPACE);
+            List<Capability> caps = getCapabilities(IdentityNamespace.IDENTITY_NAMESPACE);
             if (caps.size() > 1)
                 throw new IllegalStateException("Multiple identities detected: " + caps);
             if (caps.size() == 1)
@@ -86,7 +85,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     @Override
     public boolean isFragment() {
         if (fragment == null) {
-            List<Requirement> reqs = getRequirements(WIRING_HOST_NAMESPACE);
+            List<Requirement> reqs = getRequirements(HostNamespace.HOST_NAMESPACE);
             fragment = new Boolean(reqs.size() > 0);
         }
         return fragment.booleanValue();

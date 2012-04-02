@@ -21,11 +21,6 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_BUNDLE;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_FRAGMENT;
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_TYPE_UNKNOWN;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,19 +37,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.jboss.logging.Logger;
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XHostRequirement;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
+import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XWiring;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
-import org.osgi.framework.resource.Wire;
-import org.osgi.framework.resource.Wiring;
-import org.osgi.service.resolver.Environment;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
+import org.osgi.resource.Wiring;
 
 /**
  * The abstract implementation of a {@link Environment}.
@@ -66,7 +64,11 @@ public class AbstractEnvironment implements XEnvironment {
 
     private static Logger log = Logger.getLogger(AbstractEnvironment.class);
 
-    private static final String[] ALL_IDENTITY_TYPES = new String[] { IDENTITY_TYPE_BUNDLE, IDENTITY_TYPE_FRAGMENT, IDENTITY_TYPE_UNKNOWN };
+    private static final String[] ALL_IDENTITY_TYPES = new String[] { 
+        IdentityNamespace.TYPE_BUNDLE, 
+        IdentityNamespace.TYPE_FRAGMENT, 
+        IdentityNamespace.TYPE_UNKNOWN
+    };
 
     private final AtomicLong resourceIndex = new AtomicLong();
     private final Map<CacheKey, Set<Capability>> capabilityCache = new ConcurrentHashMap<CacheKey, Set<Capability>>();
@@ -172,7 +174,7 @@ public class AbstractEnvironment implements XEnvironment {
         CacheKey cachekey = CacheKey.create(req);
         SortedSet<Capability> result = new TreeSet<Capability>(getComparator());
         for (Capability cap : getCachedCapabilities(cachekey)) {
-            if (req.matches(cap)) {
+            if (((XRequirement)req).matches((XCapability) cap)) {
                 boolean ignoreCapability = false;
                 XResource res = (XResource) cap.getResource();
 
@@ -193,10 +195,10 @@ public class AbstractEnvironment implements XEnvironment {
                 // or if there is one possible hosts that it can attach to
                 // i.e. one of the hosts in the range is not resolved already
                 if (wiring == null && res.isFragment()) {
-                    XHostRequirement hostreq = (XHostRequirement) res.getRequirements(WIRING_HOST_NAMESPACE).get(0);
+                    XHostRequirement hostreq = (XHostRequirement) res.getRequirements(HostNamespace.HOST_NAMESPACE).get(0);
                     boolean unresolvedHost = false;
                     for (Capability hostcap : capabilityCache.get(CacheKey.create(hostreq))) {
-                        if (hostreq.matches(hostcap)) {
+                        if (hostreq.matches((XCapability) hostcap)) {
                             Resource host = hostcap.getResource();
                             if (getWirings().get(host) == null) {
                                 unresolvedHost = true;

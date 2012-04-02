@@ -29,17 +29,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
-import org.osgi.framework.resource.Capability;
-import org.osgi.framework.resource.Requirement;
-import org.osgi.framework.resource.Resource;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.osgi.framework.resource.ResourceConstants.IDENTITY_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_HOST_NAMESPACE;
-import static org.osgi.framework.resource.ResourceConstants.WIRING_PACKAGE_NAMESPACE;
 
 /**
  * Unit tests for the {@link org.jboss.osgi.resolver.spi.AbstractResourceBuilder} class
@@ -70,7 +69,7 @@ public class AbstractResourceBuilderTestCase extends AbstractTestBase {
     }
 
     private void validateRequirements(Resource resource) throws BundleException {
-        List<Requirement> reqs = resource.getRequirements(WIRING_PACKAGE_NAMESPACE);
+        List<Requirement> reqs = resource.getRequirements(PackageNamespace.PACKAGE_NAMESPACE);
         Assert.assertNotNull("Requirements not null", reqs);
         Assert.assertEquals(4, reqs.size());
         for (Requirement req : reqs) {
@@ -95,13 +94,13 @@ public class AbstractResourceBuilderTestCase extends AbstractTestBase {
     }
 
     private void validateCapabilities(Resource resource) {
-        List<Capability> caps = resource.getCapabilities(IDENTITY_NAMESPACE);
+        List<Capability> caps = resource.getCapabilities(IdentityNamespace.IDENTITY_NAMESPACE);
         Assert.assertEquals(1, caps.size());
         XIdentityCapability icap = (XIdentityCapability) caps.get(0);
         Assert.assertEquals("test1", icap.getSymbolicName());
         Assert.assertEquals(Version.emptyVersion, icap.getVersion());
 
-        caps = resource.getCapabilities(WIRING_HOST_NAMESPACE);
+        caps = resource.getCapabilities(HostNamespace.HOST_NAMESPACE);
         Assert.assertEquals(1, caps.size());
         XHostCapability hcap = (XHostCapability) caps.get(0);
         Assert.assertEquals("test1", hcap.getSymbolicName());
