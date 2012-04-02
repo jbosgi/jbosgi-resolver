@@ -219,6 +219,11 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     @Override
+    public boolean matches(XRequirement req, XCapability cap) {
+        return req.matches(cap);
+    }
+
+    @Override
     public synchronized Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> wiremap) {
         Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
         for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {

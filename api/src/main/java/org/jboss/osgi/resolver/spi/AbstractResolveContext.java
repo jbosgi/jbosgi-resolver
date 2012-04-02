@@ -19,48 +19,58 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.osgi.resolver;
+package org.jboss.osgi.resolver.spi;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 
+import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XResolveContext;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
-import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
+import org.osgi.service.resolver.HostedCapability;
 
 /**
- * An environment that hosts the resources applicable for resource resolution.
+ * The abstract implementation of a {@link XResolveContext}.
  *
  * @author thomas.diesler@jboss.com
- * @since 02-Jul-2010
+ * @since 02-Apr-2012
  */
-public interface XEnvironment {
+public class AbstractResolveContext extends XResolveContext {
 
-    void installResources(Resource... resarr);
-
-    void uninstallResources(Resource... resarr);
-
-    void refreshResources(Resource... resarr);
-
-    SortedSet<Capability> findProviders(Requirement req);
+    private final XEnvironment environment;
     
-    boolean matches(XRequirement req, XCapability cap);
-    
-    boolean isEffective(Requirement req);
+    public AbstractResolveContext(XEnvironment environment) {
+        this.environment = environment;
+    }
 
-    Map<Resource, Wiring> getWirings();
-    
-    Collection<Resource> getResources(Set<String> types);
+    @Override
+    public XEnvironment getEnvironment() {
+        return environment;
+    }
 
-    Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> delta);
+    @Override
+    public List<Capability> findProviders(Requirement requirement) {
+        SortedSet<Capability> caps = environment.findProviders(requirement);
+        return new ArrayList<Capability>(caps);
+    }
 
-    Wiring createWiring(Resource res, List<Wire> wires);
+    @Override
+    public int insertHostedCapability(List<Capability> capabilities, HostedCapability hostedCapability) {
+        throw new UnsupportedOperationException();
+    }
 
-    Long getResourceIndex(Resource resource);
+    @Override
+    public boolean isEffective(Requirement requirement) {
+        return environment.isEffective(requirement);
+    }
 
+    @Override
+    public Map<Resource, Wiring> getWirings() {
+        return environment.getWirings();
+    }
 }
