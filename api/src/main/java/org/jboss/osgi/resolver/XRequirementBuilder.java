@@ -21,15 +21,14 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.jboss.modules.ModuleIdentifier;
-import org.osgi.resource.Requirement;
+import static org.jboss.osgi.resolver.XResourceBuilder.EMPTY_DIRECTIVES;
+import static org.jboss.osgi.resolver.XResourceConstants.MAVEN_IDENTITY_NAMESPACE;
+import static org.jboss.osgi.resolver.XResourceConstants.MODULE_IDENTITY_NAMESPACE;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.jboss.osgi.resolver.XResourceBuilder.EMPTY_DIRECTIVES;
-import static org.jboss.osgi.resolver.XResourceConstants.MAVEN_IDENTITY_NAMESPACE;
-import static org.jboss.osgi.resolver.XResourceConstants.MODULE_IDENTITY_NAMESPACE;
+import org.jboss.modules.ModuleIdentifier;
 
 /**
  * A builder for resource requirements
@@ -39,19 +38,19 @@ import static org.jboss.osgi.resolver.XResourceConstants.MODULE_IDENTITY_NAMESPA
  */
 public abstract class XRequirementBuilder {
 
-    public static Requirement createArtifactRequirement(ModuleIdentifier moduleId) {
+    public static XRequirement createArtifactRequirement(ModuleIdentifier moduleId) {
         Map<String, Object> atts = new HashMap<String, Object>();
         atts.put(MODULE_IDENTITY_NAMESPACE, moduleId.toString());
         return createRequirement(MODULE_IDENTITY_NAMESPACE, atts, EMPTY_DIRECTIVES);
     }
 
-    public static Requirement createArtifactRequirement(MavenCoordinates coordinates) {
+    public static XRequirement createArtifactRequirement(MavenCoordinates coordinates) {
         Map<String, Object> atts = new HashMap<String, Object>();
         atts.put(MAVEN_IDENTITY_NAMESPACE, coordinates.toExternalForm());
         return createRequirement(MAVEN_IDENTITY_NAMESPACE, atts, EMPTY_DIRECTIVES);
     }
 
-    public static Requirement createRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+    public static XRequirement createRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         XResourceBuilder builder = XResourceBuilderFactory.create();
         return builder.addGenericRequirement(namespace, atts, dirs);
     }

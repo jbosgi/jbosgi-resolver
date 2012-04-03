@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.osgi.resolver.XResolveContext;
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
 import org.osgi.framework.namespace.HostNamespace;
@@ -53,17 +55,18 @@ public class FragmentResolverTest extends AbstractResolverTest {
 
         // Bundle-SymbolicName: bundlefragmenthost
         Archive<?> assemblyA = assembleArchive("host", "/resolver/bundlefragmenthost");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: fragmentaddsexport
         // Fragment-Host: bundlefragmenthost
         // Export-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentaddsexport");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         installResources(resourceA, resourceB);
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
+
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
+        Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
         Wiring wiringA = getWiring(resourceA);
@@ -89,17 +92,18 @@ public class FragmentResolverTest extends AbstractResolverTest {
 
         // Bundle-SymbolicName: bundlefragmenthost
         Archive<?> assemblyA = assembleArchive("host", "/resolver/bundlefragmenthost");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: fragmentaddsexport
         // Fragment-Host: bundlefragmenthost
         // Export-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentaddsexport");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         installResources(resourceA, resourceB);
-        List<Resource> mandatory = Arrays.asList(resourceB);
-        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
+
+        List<XResource> mandatory = Arrays.asList(resourceB);
+        Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
         Wiring wiringA = getWiring(resourceA);
@@ -125,17 +129,18 @@ public class FragmentResolverTest extends AbstractResolverTest {
 
         // Bundle-SymbolicName: bundlefragmenthost
         Archive<?> assemblyA = assembleArchive("host", "/resolver/bundlefragmenthost");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: fragmentaddsexport
         // Fragment-Host: bundlefragmenthost
         // Export-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentaddsexport");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         installResources(resourceA, resourceB);
-        List<Resource> mandatory = Arrays.asList(resourceA);
-        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
+
+        List<XResource> mandatory = Arrays.asList(resourceA);
+        Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
         Wiring wiringA = getWiring(resourceA);
@@ -153,22 +158,24 @@ public class FragmentResolverTest extends AbstractResolverTest {
 
         // Bundle-SymbolicName: bundlefragmenthost
         Archive<?> assemblyA = assembleArchive("host", "/resolver/bundlefragmenthost");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: fragmentaddsexport
         // Fragment-Host: bundlefragmenthost
         // Export-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentaddsexport");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         // Bundle-SymbolicName: bundleimportfragmentpkg
         // Import-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyC = assembleArchive("bundle", "/resolver/bundleimportfragmentpkg");
-        Resource resourceC = createResource(assemblyC);
+        XResource resourceC = createResource(assemblyC);
 
         installResources(resourceA, resourceB, resourceC);
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
-        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
+
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        XResolveContext context = getResolveContext(mandatory, null);
+        Map<Resource, List<Wire>> map = resolver.resolve(context);
         applyResolverResults(map);
 
         Wiring wiringA = getWiring(resourceA);
@@ -205,17 +212,18 @@ public class FragmentResolverTest extends AbstractResolverTest {
 
         // Bundle-SymbolicName: bundlefragmenthost
         Archive<?> assemblyA = assembleArchive("host", "/resolver/bundlefragmenthost");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         installResources(resourceA);
-        List<Resource> mandatory = Arrays.asList(resourceA);
-        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
-        applyResolverResults(map);
         
+        List<XResource> mandatory = Arrays.asList(resourceA);
+        Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
+        applyResolverResults(map);
+
         // Bundle-SymbolicName: bundleimportfragmentpkg
         // Import-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyB = assembleArchive("bundle", "/resolver/bundleimportfragmentpkg");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         installResources(resourceB);
         try {
@@ -230,8 +238,8 @@ public class FragmentResolverTest extends AbstractResolverTest {
         // Fragment-Host: bundlefragmenthost
         // Export-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyC = assembleArchive("fragment", "/resolver/fragmentaddsexport");
-        Resource resourceC = createResource(assemblyC);
-        
+        XResource resourceC = createResource(assemblyC);
+
         installResources(resourceC);
         try {
             mandatory = Arrays.asList(resourceB, resourceC);
@@ -249,18 +257,19 @@ public class FragmentResolverTest extends AbstractResolverTest {
         // Export-Package: org.jboss.osgi.test.host.export
         // Import-Package: org.jboss.osgi.test.fragment.export
         Archive<?> assemblyA = assembleArchive("host", "/resolver/bundledependsfragment");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: fragmentsdependshostexport
         // Export-Package: org.jboss.osgi.test.fragment.export
         // Import-Package: org.jboss.osgi.test.host.export
         // Fragment-Host: bundledependsfragment
         Archive<?> assemblyB = assembleArchive("fragment", "/resolver/fragmentdependshostexport");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         installResources(resourceA, resourceB);
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
-        Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
+        
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
+        Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
         Wiring wiringA = getWiring(resourceA);

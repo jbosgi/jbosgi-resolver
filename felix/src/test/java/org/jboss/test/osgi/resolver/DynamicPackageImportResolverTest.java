@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.testing.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
@@ -59,7 +60,7 @@ public class DynamicPackageImportResolverTest extends AbstractResolverTest {
                 return builder.openStream();
             }
         });
-        Resource resourceA = createResource(archiveA);
+        XResource resourceA = createResource(archiveA);
 
         final JavaArchive archiveB = ShrinkWrap.create(JavaArchive.class, "tb8b");
         archiveB.setManifest(new Asset() {
@@ -71,7 +72,7 @@ public class DynamicPackageImportResolverTest extends AbstractResolverTest {
                 return builder.openStream();
             }
         });
-        Resource resourceB = createResource(archiveB);
+        XResource resourceB = createResource(archiveB);
 
         final JavaArchive archiveC = ShrinkWrap.create(JavaArchive.class, "tb17c");
         archiveC.setManifest(new Asset() {
@@ -84,11 +85,11 @@ public class DynamicPackageImportResolverTest extends AbstractResolverTest {
                 return builder.openStream();
             }
         });
-        Resource resourceC = createResource(archiveC);
+        XResource resourceC = createResource(archiveC);
 
         installResources(resourceA, resourceB, resourceC);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         assertNotNull("Wire map not null", map);
         assertEquals(3, map.size());

@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver;
 
 import org.osgi.framework.Version;
+import org.osgi.framework.namespace.IdentityNamespace;
 
 /**
  * An identity capability
@@ -31,11 +32,24 @@ import org.osgi.framework.Version;
  */
 public interface XIdentityCapability extends XCapability {
 
+    /**
+     * The symbolic name of this resource.
+     */
     String getSymbolicName();
 
+    /**
+     * The version of this resource.
+     */
     Version getVersion();
 
+    /**
+     * The resource type
+     * @see IdentityNamespace#CAPABILITY_TYPE_ATTRIBUTE
+     */
     String getType();
 
+    /**
+     * A flag to indicate that this resource is a singleton
+     */
     boolean isSingleton();
 }

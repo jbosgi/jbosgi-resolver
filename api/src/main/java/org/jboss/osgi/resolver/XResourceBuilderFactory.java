@@ -40,11 +40,11 @@ public class XResourceBuilderFactory {
         return new XResourceBuilderFactory().createResourceBuilder();
     }
 
-    public AbstractResourceBuilder createResourceBuilder() {
+    public XResourceBuilder createResourceBuilder() {
         return new AbstractResourceBuilder(this);
     }
     
-    public AbstractResource createResource() {
+    public XResource createResource() {
         return new AbstractResource();
     }
 }

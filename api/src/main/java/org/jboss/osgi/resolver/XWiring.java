@@ -21,7 +21,6 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
 
 /**
@@ -32,5 +31,4 @@ import org.osgi.resource.Wiring;
  */
 public interface XWiring extends Wiring {
 
-	void addProvidedWire(Wire wire);
 }

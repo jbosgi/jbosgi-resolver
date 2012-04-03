@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.testing.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
@@ -64,7 +65,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
                 return builder.openStream();
             }
         });
-        Resource resourceA = createResource(archiveA);
+        XResource resourceA = createResource(archiveA);
 
         // Bundle-SymbolicName: enterprise.jar
         // ExportPackage: org.osgi.service.http;version=1.2.1;uses:=javax.servlet
@@ -80,7 +81,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
                 return builder.openStream();
             }
         });
-        Resource resourceB = createResource(archiveB);
+        XResource resourceB = createResource(archiveB);
 
         // Bundle-SymbolicName: http.service.provider
         // ExportPackage: javax.servlet;version=2.5
@@ -100,11 +101,11 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
                 return builder.openStream();
             }
         });
-        Resource resourceC = createResource(archiveC);
+        XResource resourceC = createResource(archiveC);
 
         // Install and resolve A, B, C
         installResources(resourceA, resourceB, resourceC);
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
         
@@ -148,7 +149,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
                 return builder.openStream();
             }
         });
-        Resource resourceD = createResource(archiveD);
+        XResource resourceD = createResource(archiveD);
 
         // Install and resolve D
         installResources(resourceD);

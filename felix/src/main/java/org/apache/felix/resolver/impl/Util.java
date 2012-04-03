@@ -21,7 +21,7 @@ package org.apache.felix.resolver.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.felix.resolver.FelixEnvironment;
+import org.apache.felix.resolver.FelixResolveContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.IdentityNamespace;
@@ -90,7 +90,7 @@ public class Util
     }
 
     public static Capability getSatisfyingCapability(
-        FelixEnvironment env, Resource br, Requirement req)
+        FelixResolveContext env, Resource br, Requirement req)
     {
         Wiring wiring = env.getWirings().get(br);
         List<Capability> caps = (wiring != null)

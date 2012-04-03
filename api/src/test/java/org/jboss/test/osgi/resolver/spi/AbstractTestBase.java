@@ -21,23 +21,19 @@
  */
 package org.jboss.test.osgi.resolver.spi;
 
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes.Name;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
 import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
-import org.jboss.osgi.resolver.spi.ResourceIndexComparator;
 import org.junit.Before;
 import org.osgi.framework.BundleException;
-import org.osgi.resource.Capability;
-import org.osgi.resource.Resource;
 
 /**
  * @author Thomas.Diesler@jboss.com
@@ -48,27 +44,15 @@ public abstract class AbstractTestBase {
 
     @Before
     public void setUp() {
-        environment = new AbstractEnvironment() {
-            protected Comparator<Capability> getComparator() {
-                final AbstractEnvironment env = this;
-                return new ResourceIndexComparator() {
-                    @Override
-                    protected Long getResourceIndex(Resource res) {
-                        return env.getResourceIndex(res);
-                    }
-                };
-            }
-        };
+        environment = new AbstractEnvironment();
     }
 
-    XEnvironment installResources(List<Resource> resources) {
-        for (Resource res : resources) {
-            environment.installResources(res);
-        }
+    XEnvironment installResources(XResource... resources) {
+        environment.installResources(resources);
         return environment;
     }
 
-    Resource createResource(Map<String, String> attrs) throws BundleException {
+    XResource createResource(Map<String, String> attrs) throws BundleException {
         XResourceBuilder amb = XResourceBuilderFactory.create();
         OSGiMetaData metaData = new TestOSGiMetaData(attrs);
         XResourceBuilder builder = amb.loadFrom(metaData);

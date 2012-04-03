@@ -31,7 +31,13 @@ import org.osgi.framework.Version;
  */
 public interface XPackageCapability extends XCapability {
 
+    /**
+     * The package name
+     */
     String getPackageName();
 
+    /**
+     * The package version.
+     */
     Version getVersion();
 }

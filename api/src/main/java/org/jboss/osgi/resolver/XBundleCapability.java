@@ -31,7 +31,13 @@ import org.osgi.framework.Version;
  */
 public interface XBundleCapability extends XCapability {
 
+    /**
+     * Get the bundle symbolic name.
+     */
     String getSymbolicName();
 
+    /**
+     * Get the bundle version.
+     */
     Version getVersion();
 }

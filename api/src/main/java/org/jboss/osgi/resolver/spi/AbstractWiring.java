@@ -21,16 +21,16 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.jboss.osgi.resolver.XWiring;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * The abstract implementation of a {@link Wiring}.
@@ -49,8 +49,7 @@ public class AbstractWiring implements XWiring {
         this.required = wires;
     }
 
-    @Override
-    public void addProvidedWire(Wire wire) {
+    protected void addProvidedWire(Wire wire) {
         if (provided == null) {
             provided = new ArrayList<Wire>();
         }

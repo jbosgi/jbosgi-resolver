@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
@@ -41,26 +40,21 @@ import org.osgi.resource.Wiring;
  */
 public interface XEnvironment {
 
-    void installResources(Resource... resarr);
+    void installResources(XResource... resources);
 
-    void uninstallResources(Resource... resarr);
+    void uninstallResources(XResource... resources);
 
-    void refreshResources(Resource... resarr);
+    void refreshResources(XResource... resources);
 
-    SortedSet<Capability> findProviders(Requirement req);
+    Collection<XResource> getResources(Set<String> types);
+
+    List<Capability> findProviders(Requirement req);
+
+    Long getResourceIndex(XResource resource);
     
-    boolean matches(XRequirement req, XCapability cap);
-    
-    boolean isEffective(Requirement req);
-
-    Map<Resource, Wiring> getWirings();
-    
-    Collection<Resource> getResources(Set<String> types);
-
     Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> delta);
-
+    
     Wiring createWiring(Resource res, List<Wire> wires);
-
-    Long getResourceIndex(Resource resource);
-
+    
+    Map<Resource, Wiring> getWirings();
 }

@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import org.apache.felix.resolver.FelixCapability;
-import org.apache.felix.resolver.FelixEnvironment;
+import org.apache.felix.resolver.FelixResolveContext;
 import org.apache.felix.resolver.FelixResolver;
 import org.apache.felix.resolver.Logger;
 import org.osgi.framework.Constants;
@@ -45,6 +45,7 @@ import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
 import org.osgi.service.resolver.ResolutionException;
+import org.osgi.service.resolver.ResolveContext;
 
 public class ResolverImpl implements FelixResolver
 {
@@ -78,16 +79,15 @@ public class ResolverImpl implements FelixResolver
         };
     }
 
-    public Map<Resource, List<Wire>> resolve(
-        FelixEnvironment env,
-        Collection<? extends Resource> mandatoryRevisions,
-        Collection<? extends Resource> optionalRevisions) throws ResolutionException
+    public Map<Resource, List<Wire>> resolve(FelixResolveContext env) throws ResolutionException 
     {
-        return resolve(env, mandatoryRevisions, optionalRevisions, Collections.EMPTY_SET);
+        Collection<Resource> mandatory = env.getMandatoryResources();
+        Collection<Resource> optional = env.getOptionalResources();
+        return resolve((FelixResolveContext) env, mandatory, optional, Collections.EMPTY_SET);
     }
-
+    
     public Map<Resource, List<Wire>> resolve(
-        FelixEnvironment env,
+        FelixResolveContext env,
         Collection<? extends Resource> mandatoryRevisions,
         Collection<? extends Resource> optionalRevisions,
         Collection<? extends Resource> ondemandFragments) throws ResolutionException
@@ -313,7 +313,7 @@ public class ResolverImpl implements FelixResolver
 //       synthesization to the environment. The resolver just has to verify that
 //       the candidate doesn't result in a conflict with an existing package.
     public Map<Resource, List<Wire>> resolve(
-        FelixEnvironment env, Resource resource, Requirement req, SortedSet<Capability> candidates,
+        FelixResolveContext env, Resource resource, Requirement req, List<Capability> candidates,
         Collection<? extends Resource> ondemandFragments) throws ResolutionException
     {
         if (env.getWirings().containsKey(resource) && !candidates.isEmpty())
@@ -436,7 +436,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private void calculatePackageSpaces(
-        FelixEnvironment env,
+        FelixResolveContext env,
         Resource resource,
         Candidates allCandidates,
         Map<Resource, Packages> revisionPkgMap,
@@ -493,7 +493,7 @@ public class ResolverImpl implements FelixResolver
                 : Util.getDynamicRequirements(wiring.getResourceRequirements(null)))
             {
                 // Get the candidates for the current requirement.
-                SortedSet<Capability> candCaps = allCandidates.getCandidates(req);
+                List<Capability> candCaps = allCandidates.getCandidates(req);
                 // Optional requirements may not have any candidates.
                 if (candCaps == null)
                 {
@@ -519,7 +519,7 @@ public class ResolverImpl implements FelixResolver
                 if ((resolution == null) || !resolution.equals("dynamic"))
                 {
                     // Get the candidates for the current requirement.
-                    SortedSet<Capability> candCaps = allCandidates.getCandidates(req);
+                    List<Capability> candCaps = allCandidates.getCandidates(req);
                     // Optional requirements may not have any candidates.
                     if (candCaps == null)
                     {
@@ -577,7 +577,7 @@ public class ResolverImpl implements FelixResolver
                 if (!req.getNamespace().equals(BundleNamespace.BUNDLE_NAMESPACE)
                     && !req.getNamespace().equals(PackageNamespace.PACKAGE_NAMESPACE))
                 {
-                    List<Requirement> blameReqs = new ArrayList();
+                    List<Requirement> blameReqs = new ArrayList<Requirement>();
                     blameReqs.add(req);
 
                     mergeUses(
@@ -599,7 +599,7 @@ public class ResolverImpl implements FelixResolver
                     // Ignore revisions that import from themselves.
                     if (!blame.m_cap.getResource().equals(resource))
                     {
-                        List<Requirement> blameReqs = new ArrayList();
+                        List<Requirement> blameReqs = new ArrayList<Requirement>();
                         blameReqs.add(blame.m_reqs.get(0));
 
                         mergeUses(
@@ -619,7 +619,7 @@ public class ResolverImpl implements FelixResolver
             {
                 for (Blame blame : entry.getValue())
                 {
-                    List<Requirement> blameReqs = new ArrayList();
+                    List<Requirement> blameReqs = new ArrayList<Requirement>();
                     blameReqs.add(blame.m_reqs.get(0));
 
                     mergeUses(
@@ -637,7 +637,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private void mergeCandidatePackages(
-        FelixEnvironment env, Resource current, Requirement currentReq,
+        FelixResolveContext env, Resource current, Requirement currentReq,
         Capability candCap, Map<Resource, Packages> revisionPkgMap,
         Candidates allCandidates, Map<Resource, List<Capability>> cycles)
     {
@@ -750,7 +750,7 @@ public class ResolverImpl implements FelixResolver
             String pkgName = (String)
                 candCap.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
 
-            List blameReqs = new ArrayList();
+            List<Requirement> blameReqs = new ArrayList<Requirement>();
             blameReqs.add(currentReq);
 
             Packages currentPkgs = revisionPkgMap.get(current);
@@ -771,7 +771,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private void mergeUses(
-        FelixEnvironment env, Resource current, Packages currentPkgs,
+        FelixResolveContext env, Resource current, Packages currentPkgs,
         Capability mergeCap, List<Requirement> blameReqs,
         Map<Resource, Packages> revisionPkgMap,
         Candidates allCandidates,
@@ -859,7 +859,7 @@ public class ResolverImpl implements FelixResolver
                 {
                     if (blame.m_reqs != null)
                     {
-                        List<Requirement> blameReqs2 = new ArrayList(blameReqs);
+                        List<Requirement> blameReqs2 = new ArrayList<Requirement>(blameReqs);
                         blameReqs2.add(blame.m_reqs.get(blame.m_reqs.size() - 1));
                         usedCaps.add(new Blame(blame.m_cap, blameReqs2));
                         mergeUses(env, current, currentPkgs, blame.m_cap, blameReqs2,
@@ -877,7 +877,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private void checkPackageSpaceConsistency(
-        FelixEnvironment env,
+        FelixResolveContext env,
         boolean isDynamicImporting,
         Resource revision,
         Candidates allCandidates,
@@ -999,12 +999,11 @@ public class ResolverImpl implements FelixResolver
                         // See if we can permutate the candidates for blamed
                         // requirement; there may be no candidates if the revision
                         // associated with the requirement is already resolved.
-                        SortedSet<Capability> candidates =
-                            permutation.getCandidates(req);
+                        List<Capability> candidates = permutation.getCandidates(req);
                         if ((candidates != null) && (candidates.size() > 1))
                         {
                             mutated.add(req);
-                            Iterator it = candidates.iterator();
+                            Iterator<Capability> it = candidates.iterator();
                             it.next();
                             it.remove();
                             // Continue with the next uses constraint.
@@ -1088,12 +1087,11 @@ public class ResolverImpl implements FelixResolver
                             // See if we can permutate the candidates for blamed
                             // requirement; there may be no candidates if the revision
                             // associated with the requirement is already resolved.
-                            SortedSet<Capability> candidates =
-                                permutation.getCandidates(req);
+                            List<Capability> candidates = permutation.getCandidates(req);
                             if ((candidates != null) && (candidates.size() > 1))
                             {
                                 mutated.add(req);
-                                Iterator it = candidates.iterator();
+                                Iterator<Capability> it = candidates.iterator();
                                 it.next();
                                 it.remove();
                                 // Continue with the next uses constraint.
@@ -1180,12 +1178,12 @@ public class ResolverImpl implements FelixResolver
     private static void permutate(
         Candidates allCandidates, Requirement req, List<Candidates> permutations)
     {
-        SortedSet<Capability> candidates = allCandidates.getCandidates(req);
+        List<Capability> candidates = allCandidates.getCandidates(req);
         if (candidates.size() > 1)
         {
             Candidates perm = allCandidates.copy();
             candidates = perm.getCandidates(req);
-            Iterator it = candidates.iterator();
+            Iterator<Capability> it = candidates.iterator();
             it.next();
             it.remove();
             permutations.add(perm);
@@ -1195,7 +1193,7 @@ public class ResolverImpl implements FelixResolver
     private static void permutateIfNeeded(
         Candidates allCandidates, Requirement req, List<Candidates> permutations)
     {
-        SortedSet<Capability> candidates = allCandidates.getCandidates(req);
+        List<Capability> candidates = allCandidates.getCandidates(req);
         if (candidates.size() > 1)
         {
             // Check existing permutations to make sure we haven't
@@ -1207,7 +1205,7 @@ public class ResolverImpl implements FelixResolver
             boolean permutated = false;
             for (Candidates existingPerm : permutations)
             {
-                Set<Capability> existingPermCands = existingPerm.getCandidates(req);
+                List<Capability> existingPermCands = existingPerm.getCandidates(req);
                 if (!existingPermCands.iterator().next().equals(candidates.iterator().next()))
                 {
                     permutated = true;
@@ -1223,7 +1221,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private static void calculateExportedPackages(
-        FelixEnvironment env,
+        FelixResolveContext env,
         Resource revision,
         Candidates allCandidates,
         Map<Resource, Packages> revisionPkgMap)
@@ -1268,7 +1266,7 @@ public class ResolverImpl implements FelixResolver
                 {
                     if (req.getNamespace().equals(PackageNamespace.PACKAGE_NAMESPACE))
                     {
-                        Set<Capability> cands = allCandidates.getCandidates(req);
+                        List<Capability> cands = allCandidates.getCandidates(req);
                         if ((cands != null) && !cands.isEmpty())
                         {
                             String pkgName = (String) cands.iterator().next()
@@ -1291,7 +1289,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private boolean isCompatible(
-        FelixEnvironment env, Capability currentCap, Capability candCap,
+        FelixResolveContext env, Capability currentCap, Capability candCap,
         Map<Resource, Packages> revisionPkgMap)
     {
         if ((currentCap != null) && (candCap != null))
@@ -1318,11 +1316,9 @@ public class ResolverImpl implements FelixResolver
         return true;
     }
 
-    private Map<Capability, List<Capability>> m_packageSourcesCache
-        = new HashMap();
-
-    private List<Capability> getPackageSources(
-        FelixEnvironment env, Capability cap, Map<Resource, Packages> revisionPkgMap)
+    private Map<Capability, List<Capability>> m_packageSourcesCache = new HashMap<Capability, List<Capability>>();
+    
+    private List<Capability> getPackageSources(FelixResolveContext env, Capability cap, Map<Resource, Packages> revisionPkgMap)
     {
         // If it is a package, then calculate sources for it.
         if (cap.getNamespace().equals(PackageNamespace.PACKAGE_NAMESPACE))
@@ -1330,8 +1326,7 @@ public class ResolverImpl implements FelixResolver
             List<Capability> sources = m_packageSourcesCache.get(cap);
             if (sources == null)
             {
-                sources = getPackageSourcesInternal(
-                    env, cap, revisionPkgMap, new ArrayList(), new HashSet());
+                sources = getPackageSourcesInternal(env, cap, revisionPkgMap, new ArrayList(), new HashSet());
                 m_packageSourcesCache.put(cap, sources);
             }
             return sources;
@@ -1350,7 +1345,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private static List<Capability> getPackageSourcesInternal(
-        FelixEnvironment env, Capability cap, Map<Resource, Packages> revisionPkgMap,
+        FelixResolveContext env, Capability cap, Map<Resource, Packages> revisionPkgMap,
         List<Capability> sources, Set<Capability> cycleMap)
     {
         if (cap.getNamespace().equals(PackageNamespace.PACKAGE_NAMESPACE))
@@ -1426,7 +1421,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private static Map<Resource, List<Wire>> populateWireMap(
-        FelixEnvironment env, Resource resource,
+        FelixResolveContext env, Resource resource,
         Map<Resource, Packages> revisionPkgMap,
         Map<Resource, List<Wire>> wireMap,
         Candidates allCandidates)
@@ -1443,7 +1438,7 @@ public class ResolverImpl implements FelixResolver
 
             for (Requirement req : resource.getRequirements(null))
             {
-                SortedSet<Capability> cands = allCandidates.getCandidates(req);
+                List<Capability> cands = allCandidates.getCandidates(req);
                 if ((cands != null) && (cands.size() > 0))
                 {
                     Capability cand = cands.iterator().next();
@@ -1510,7 +1505,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private static Map<Resource, List<Wire>> populateDynamicWireMap(
-        FelixEnvironment env, Resource resource, Requirement dynReq,
+        FelixResolveContext env, Resource resource, Requirement dynReq,
         Map<Resource, Packages> revisionPkgMap,
         Map<Resource, List<Wire>> wireMap, Candidates allCandidates)
     {
@@ -1519,9 +1514,9 @@ public class ResolverImpl implements FelixResolver
         List<Wire> packageWires = new ArrayList<Wire>();
 
         // Get the candidates for the current dynamic requirement.
-        SortedSet<Capability> candCaps = allCandidates.getCandidates(dynReq);
+        List<Capability> candCaps = allCandidates.getCandidates(dynReq);
         // Record the dynamic candidate.
-        Capability dynCand = candCaps.first();
+        Capability dynCand = candCaps.get(0);
 
         if (!env.getWirings().containsKey(dynCand.getResource()))
         {
@@ -1542,7 +1537,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private static Set<String> calculatePackageSpace(
-        FelixEnvironment env, Resource resource, Wiring wiring)
+        FelixResolveContext env, Resource resource, Wiring wiring)
     {
         if (Util.isFragment(resource))
         {
@@ -1573,7 +1568,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private static Set<String> calculateExportedAndReexportedPackages(
-        FelixEnvironment env,
+        FelixResolveContext env,
         Resource res,
         Set<String> pkgs,
         Set<Resource> cycles)
@@ -1617,7 +1612,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private void dumpRevisionPkgMap(
-        FelixEnvironment env, Map<Resource, Packages> revisionPkgMap)
+        FelixResolveContext env, Map<Resource, Packages> revisionPkgMap)
     {
     	m_logger.log(Logger.LOG_TRACE, "+++ PACKAGE SPACES START +++");
         for (Entry<Resource, Packages> entry : revisionPkgMap.entrySet())
@@ -1628,7 +1623,7 @@ public class ResolverImpl implements FelixResolver
     }
 
     private void dumpRevisionPkgs(
-        FelixEnvironment env, Resource resource, Packages packages)
+        FelixResolveContext env, Resource resource, Packages packages)
     {
         Wiring wiring = env.getWirings().get(resource);
         m_logger.log(Logger.LOG_TRACE, resource
@@ -1655,7 +1650,7 @@ public class ResolverImpl implements FelixResolver
         }
     }
 
-    private static String toStringBlame(FelixEnvironment env, Blame blame)
+    private static String toStringBlame(FelixResolveContext env, Blame blame)
     {
         StringBuffer sb = new StringBuffer();
         if ((blame.m_reqs != null) && !blame.m_reqs.isEmpty())

@@ -21,13 +21,11 @@
  */
 package org.jboss.osgi.resolver.felix;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
-import org.apache.felix.resolver.FelixEnvironment;
+import org.apache.felix.resolver.FelixResolveContext;
 import org.apache.felix.resolver.impl.ResolverImpl;
 import org.jboss.logging.Logger;
 import org.jboss.osgi.resolver.XCapability;
@@ -59,11 +57,11 @@ public class FelixResolver implements Resolver {
 
     @Override
     public Map<Resource, List<Wire>> resolve(ResolveContext context) throws ResolutionException {
-        FelixEnvironment env = new EnvironmentDelegate(context);
+        FelixResolveContext env = new ResolveContextDelegate((XResolveContext) context);
         Collection<Resource> mandatory = context.getMandatoryResources();
         Collection<Resource> optional = context.getOptionalResources();
         log.debugf("Resolve: %s, %s", mandatory, optional);
-        Map<Resource, List<Wire>> result = delegate.resolve(env, mandatory, optional);
+        Map<Resource, List<Wire>> result = delegate.resolve(env);
         if (log.isDebugEnabled()) {
             log.debugf("Resolution result: %d", result.size());
             for (Map.Entry<Resource, List<Wire>> entry : result.entrySet()) {
@@ -78,17 +76,12 @@ public class FelixResolver implements Resolver {
         return result;
     }
 
-    static class EnvironmentDelegate extends FelixEnvironment {
+    static class ResolveContextDelegate extends FelixResolveContext {
 
         private final XResolveContext context;
 
-        EnvironmentDelegate(ResolveContext context) {
-            this.context = (XResolveContext) context;
-        }
-
-        @Override
-        public SortedSet<Capability> findSortedSetProviders(Requirement req) {
-            return context.getEnvironment().findProviders(req);
+        ResolveContextDelegate(XResolveContext context) {
+            this.context = context;
         }
 
         @Override
@@ -102,14 +95,28 @@ public class FelixResolver implements Resolver {
         }
 
         @Override
-        public boolean matches(Requirement req, Capability cap) {
-            return ((XRequirement)req).matches((XCapability) cap);
+        public Collection<Resource> getMandatoryResources() {
+            return context.getMandatoryResources();
         }
 
         @Override
-        public List<Capability> findProviders(Requirement requirement) {
-            SortedSet<Capability> caps = findSortedSetProviders(requirement);
-            return new ArrayList<Capability>(caps);
+        public Collection<Resource> getOptionalResources() {
+            return context.getOptionalResources();
+        }
+
+        @Override
+        public List<Capability> findProviders(Requirement req) {
+            return context.findProviders(req);
+        }
+
+        @Override
+        public int insertHostedCapability(List<Capability> capabilities, HostedCapability hostedCapability) {
+            return context.insertHostedCapability(capabilities, hostedCapability);
+        }
+        
+        @Override
+        public boolean matches(Requirement req, Capability cap) {
+            return ((XRequirement) req).matches((XCapability) cap);
         }
 
         @Override
@@ -120,12 +127,6 @@ public class FelixResolver implements Resolver {
         @Override
         public void checkNativeLibraries(Resource resource) throws ResolutionException {
             // not implemented
-        }
-
-        @Override
-        public int insertHostedCapability(List<Capability> capabilities, HostedCapability hostedCapability) {
-            // not implemented
-            return 0;
         }
     }
 }

@@ -18,8 +18,6 @@
  */
 package org.apache.felix.resolver;
 
-import java.util.SortedSet;
-
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -27,10 +25,9 @@ import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.ResolveContext;
 
 
-public abstract class FelixEnvironment extends ResolveContext
+public abstract class FelixResolveContext extends ResolveContext
 {
+    public abstract boolean matches(Requirement req, Capability cap);
     public abstract void checkExecutionEnvironment(Resource resource) throws ResolutionException;
     public abstract void checkNativeLibraries(Resource resource) throws ResolutionException;
-    public abstract SortedSet<Capability> findSortedSetProviders(Requirement hostReq);
-    public abstract boolean matches(Requirement req, Capability cap);
 }

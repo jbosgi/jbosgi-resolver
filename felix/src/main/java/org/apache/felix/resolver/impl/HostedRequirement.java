@@ -20,7 +20,7 @@ package org.apache.felix.resolver.impl;
 
 import java.util.Map;
 
-import org.apache.felix.resolver.FelixEnvironment;
+import org.apache.felix.resolver.FelixResolveContext;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
@@ -28,11 +28,11 @@ import org.osgi.resource.Resource;
 
 public class HostedRequirement implements Requirement
 {
-    private final FelixEnvironment m_env;
+    private final FelixResolveContext m_env;
     private final Resource m_host;
     private final Requirement m_req;
 
-    public HostedRequirement(FelixEnvironment env, Resource host, Requirement req)
+    public HostedRequirement(FelixResolveContext env, Resource host, Requirement req)
     {
         m_env = env;
         m_host = host;

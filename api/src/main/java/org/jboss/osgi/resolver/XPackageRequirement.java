@@ -31,9 +31,18 @@ import org.jboss.osgi.metadata.VersionRange;
  */
 public interface XPackageRequirement extends XRequirement {
 
+    /**
+     * The package name
+     */
     String getPackageName();
 
+    /**
+     * The package version range.
+     */
     VersionRange getVersionRange();
 
+    /**
+     * A flag indicating that this is a dynamic package requirement
+     */
     boolean isDynamic();
 }

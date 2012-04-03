@@ -30,7 +30,7 @@ import java.net.URL;
  * @author thomas.diesler@jboss.com
  * @since 16-Jan-2012
  */
-public class MavenCoordinates {
+public final class MavenCoordinates {
 
     private final String groupId;
     private final String artifactId;

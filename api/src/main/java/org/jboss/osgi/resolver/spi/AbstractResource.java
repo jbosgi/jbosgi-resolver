@@ -21,19 +21,17 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XIdentityCapability;
-import org.jboss.osgi.resolver.XResource;
-import org.osgi.framework.namespace.HostNamespace;
-import org.osgi.framework.namespace.IdentityNamespace;
-import org.osgi.resource.Capability;
-import org.osgi.resource.Requirement;
-
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.jboss.osgi.resolver.XIdentityCapability;
+import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 
 /**
  * The abstract implementation of an {@link XResource}.
@@ -46,7 +44,6 @@ public class AbstractResource extends AbstractElement implements XResource {
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
     private XIdentityCapability identityCapability;
-    private Boolean fragment;
 
     protected void addCapability(Capability cap) {
         String namespace = cap.getNamespace();
@@ -82,15 +79,6 @@ public class AbstractResource extends AbstractElement implements XResource {
         return identityCapability;
     }
 
-    @Override
-    public boolean isFragment() {
-        if (fragment == null) {
-            List<Requirement> reqs = getRequirements(HostNamespace.HOST_NAMESPACE);
-            fragment = new Boolean(reqs.size() > 0);
-        }
-        return fragment.booleanValue();
-    }
-
     private List<Capability> getCaplist(String namespace) {
         List<Capability> caplist = capabilities.get(namespace);
         if (caplist == null) {
@@ -107,11 +95,6 @@ public class AbstractResource extends AbstractElement implements XResource {
             requirements.put(namespace, reqlist);
         }
         return reqlist;
-    }
-
-    @Override
-    public InputStream getContent() {
-        return null;
     }
 
     public String toString() {

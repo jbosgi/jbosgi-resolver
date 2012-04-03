@@ -21,6 +21,7 @@
  */
 package org.jboss.test.osgi.resolver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,8 @@ import java.util.jar.Manifest;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XResolveContext;
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.jboss.osgi.resolver.felix.FelixResolver;
@@ -55,46 +58,46 @@ import org.osgi.service.resolver.Resolver;
 public abstract class AbstractResolverTest extends OSGiTest {
 
     Resolver resolver;
-    XEnvironment environment;
+    AbstractEnvironment environment;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
         resolver = new FelixResolver();
         environment = new AbstractEnvironment();
-        Resource sysres = createSystemResource();
+        XResource sysres = createSystemResource();
         environment.installResources(sysres);
     }
 
-    protected Resource createSystemResource() {
+    protected XResource createSystemResource() {
         XResourceBuilder builder = XResourceBuilderFactory.create();
         builder.addIdentityCapability(Constants.SYSTEM_BUNDLE_SYMBOLICNAME, null, null, null, null);
         return builder.getResource();
     }
 
-    Resource createResource(Archive<?> archive) throws Exception {
+    XResource createResource(Archive<?> archive) throws Exception {
         Node node = archive.get(JarFile.MANIFEST_NAME);
         Manifest manifest = new Manifest(node.getAsset().openStream());
         OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
         return XResourceBuilderFactory.create().loadFrom(metadata).getResource();
     }
 
-    XEnvironment installResources(Resource... resources) {
+    XEnvironment installResources(XResource... resources) {
         environment.installResources(resources);
         return environment;
     }
 
-    ResolveContext getResolveContext(final List<Resource> mandatory, final List<Resource> optional) {
+    XResolveContext getResolveContext(final List<XResource> mandatory, final List<XResource> optional) {
         return new AbstractResolveContext(environment)
         {
             @Override
             public Collection<Resource> getMandatoryResources() {
-                return mandatory != null ? mandatory : super.getMandatoryResources();
+                return mandatory != null ? new ArrayList<Resource>(mandatory) : super.getMandatoryResources();
             }
 
             @Override
             public Collection<Resource> getOptionalResources() {
-                return optional != null ? optional : super.getOptionalResources();
+                return optional != null ? new ArrayList<Resource>(optional) : super.getOptionalResources();
             }
         };
     }

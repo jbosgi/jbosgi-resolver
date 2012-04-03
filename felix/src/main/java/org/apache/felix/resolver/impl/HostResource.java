@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.felix.resolver.FelixEnvironment;
+import org.apache.felix.resolver.FelixResolveContext;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
@@ -30,13 +30,13 @@ import org.osgi.resource.Resource;
 
 class HostResource implements Resource
 {
-    private final FelixEnvironment m_env;
+    private final FelixResolveContext m_env;
     private final Resource m_host;
     private final List<Resource> m_fragments;
     private List<Capability> m_cachedCapabilities = null;
     private List<Requirement> m_cachedRequirements = null;
 
-    public HostResource(FelixEnvironment env, Resource host, List<Resource> fragments)
+    public HostResource(FelixResolveContext env, Resource host, List<Resource> fragments)
     {
         m_env = env;
         m_host = host;

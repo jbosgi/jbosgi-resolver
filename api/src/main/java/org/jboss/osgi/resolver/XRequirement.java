@@ -31,7 +31,13 @@ import org.osgi.resource.Requirement;
  */
 public interface XRequirement extends XElement, XAttributeSupport, XDirectiveSupport, Requirement {
     
+    /**
+     * A flag indicating that this is an optional requirement.
+     */
     boolean isOptional();
 
+    /**
+     * Matches this requirement against the given capability.
+     */
     boolean matches(XCapability cap);
 }

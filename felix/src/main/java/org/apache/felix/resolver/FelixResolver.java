@@ -21,26 +21,18 @@ package org.apache.felix.resolver;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
-import org.osgi.resource.Capability;
-import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.service.resolver.ResolutionException;
 
 public interface FelixResolver 
 {
-    Map<Resource, List<Wire>> resolve(
-        FelixEnvironment env,
-        Collection<? extends Resource> mandatoryRevisions,
-        Collection<? extends Resource> optionalRevisions,
-        Collection<? extends Resource> ondemandFragments) throws ResolutionException;
+    Map<Resource, List<Wire>> resolve(FelixResolveContext env) throws ResolutionException;
     
     Map<Resource, List<Wire>> resolve(
-        FelixEnvironment env,
-        Resource resource,
-        Requirement dynReq,
-        SortedSet<Capability> cands,
+        FelixResolveContext env,
+        Collection<? extends Resource> mandatoryRevisions,
+        Collection<? extends Resource> optionalRevisions,
         Collection<? extends Resource> ondemandFragments) throws ResolutionException;
 }

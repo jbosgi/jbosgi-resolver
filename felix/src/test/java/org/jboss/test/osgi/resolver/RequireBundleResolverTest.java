@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -55,16 +56,16 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         // Bundle-SymbolicName: requirebundle
         // Require-Bundle: simpleexport
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundle");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         installResources(resourceA, resourceB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
@@ -87,17 +88,17 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         // Bundle-SymbolicName: requirebundle
         // Require-Bundle: simpleexport
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundle");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: somepackage
         // Export-Package: org.jboss.test.osgi.somepackage
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/someexport");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         installResources(resourceA, resourceB);
 
         try {
-            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
+            List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
             Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
             fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
@@ -111,11 +112,11 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         // Bundle-SymbolicName: requirebundleoptional
         // Require-Bundle: simpleexport;resolution:=optional
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundleoptional");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         installResources(resourceA);
 
-        List<Resource> mandatory = Collections.singletonList(resourceA);
+        List<XResource> mandatory = Collections.singletonList(resourceA);
         Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
@@ -130,16 +131,16 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         // Bundle-SymbolicName: requirebundleversion
         // Require-Bundle: simpleexport;bundle-version="[0.0.0,1.0.0]"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundleversion");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         installResources(resourceA, resourceB);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
@@ -162,21 +163,21 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         // Bundle-SymbolicName: bundleversion
         // Bundle-Version: 1.0.0
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/bundleversion100");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: bundleversion
         // Bundle-Version: 1.1.0
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/bundleversion110");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         // Bundle-SymbolicName: requirebundlehighestversion
         // Require-Bundle: bundleversion
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/requirebundlehighestversion");
-        Resource resourceC = createResource(assemblyC);
+        XResource resourceC = createResource(assemblyC);
 
         installResources(resourceA, resourceB, resourceC);
 
-        List<Resource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
@@ -202,17 +203,17 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         // Bundle-SymbolicName: versionrequirebundlefails
         // Require-Bundle: simpleexport;bundle-version="[1.0.0,2.0.0)"
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/requirebundleversionfails");
-        Resource resourceA = createResource(assemblyA);
+        XResource resourceA = createResource(assemblyA);
 
         // Bundle-SymbolicName: simpleexport
         // Export-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/simpleexport");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
 
         installResources(resourceA, resourceB);
 
         try {
-            List<Resource> mandatory = Arrays.asList(resourceA, resourceB);
+            List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
             Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
             fail("ResolutionException expected, was: " + map);
         } catch (ResolutionException ex) {
@@ -225,16 +226,16 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         // Bundle-SymbolicName: requirebundleB
         // Export-Package: resources
         Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/requirebundleB");
-        Resource resourceB = createResource(assemblyB);
+        XResource resourceB = createResource(assemblyB);
         
         // Bundle-SymbolicName: requirebundleC
         // Export-Package: resources
         Archive<?> assemblyC = assembleArchive("resourceC", "/resolver/requirebundleC");
-        Resource resourceC = createResource(assemblyC);
+        XResource resourceC = createResource(assemblyC);
         
         installResources(resourceB, resourceC);
 
-        List<Resource> mandatory = Arrays.asList(resourceB, resourceC);
+        List<XResource> mandatory = Arrays.asList(resourceB, resourceC);
         Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
         
@@ -250,7 +251,7 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         // Export-Package: org.jboss.osgi.test.classloading.export;uses:=resources
         // Import-Package: resources;bundle-symbolic-name=requirebundleC
         Archive<?> assemblyD = assembleArchive("resourceD", "/resolver/requirebundleD");
-        Resource resourceD = createResource(assemblyD);
+        XResource resourceD = createResource(assemblyD);
         
         installResources(resourceD);
         
@@ -268,7 +269,7 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         // Require-Bundle: requirebundleD
         // Import-Package: resources
         Archive<?> assemblyE = assembleArchive("resourceE", "/resolver/requirebundleE");
-        Resource resourceE = createResource(assemblyE);
+        XResource resourceE = createResource(assemblyE);
         
         installResources(resourceE);
         

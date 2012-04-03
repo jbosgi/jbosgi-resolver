@@ -31,9 +31,13 @@ import org.jboss.osgi.metadata.VersionRange;
  */
 public interface XBundleRequirement extends XRequirement {
 
+    /**
+     * The bundle symbolic name
+     */
     String getSymbolicName();
 
+    /**
+     * The bundle version range
+     */
     VersionRange getVersionRange();
-
-    String getVisibility();
 }

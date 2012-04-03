@@ -21,6 +21,7 @@
  */
 package org.jboss.osgi.resolver;
 
+import org.osgi.resource.Resource;
 import org.osgi.service.resolver.ResolveContext;
 
 /**
@@ -32,5 +33,4 @@ import org.osgi.service.resolver.ResolveContext;
 public abstract class XResolveContext extends ResolveContext {
     
     public abstract XEnvironment getEnvironment();
-
 }

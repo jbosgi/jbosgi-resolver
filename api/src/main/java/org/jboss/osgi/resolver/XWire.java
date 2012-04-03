@@ -21,38 +21,14 @@
  */
 package org.jboss.osgi.resolver;
 
+import org.osgi.resource.Wire;
+
 /**
- * Defines names for the attributes, directives and name spaces for
- * resources, capabilities and requirements in the context of the
- * JBoss Repository.
- * <p/>
- * The values associated with these keys are of type {@code String}, unless
- * otherwise indicated.
- *
+ * An extension to the {@link Wire}
+ * 
  * @author thomas.diesler@jboss.com
- * @since 16-Jan-2012
+ * @since 02-Jul-2010
  */
-public interface XResourceConstants {
+public interface XWire extends Wire {
 
-    /**
-     * Artifact coordinates may be given in simple groupId:artifactId:version form,
-     * or they may be fully qualified in the form groupId:artifactId:type:version[:classifier]
-     */
-    String MAVEN_IDENTITY_NAMESPACE = "maven.identity";
-
-    /**
-     * Artifact coordinates may be given by {@link org.jboss.modules.ModuleIdentifier}
-     */
-    String MODULE_IDENTITY_NAMESPACE = "module.identity";
-
-    /**
-     * An attribute on the identity capability that represents the location of the resource.
-     */
-    String CONTENT_URL = "content.url";
-
-    /**
-     * An attribute on the identity capability that represents the location of the resource
-     * relative to the base url of the repository.
-     */
-    String CONTENT_PATH = "content.path";
 }

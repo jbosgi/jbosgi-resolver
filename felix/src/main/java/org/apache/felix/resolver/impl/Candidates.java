@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import org.apache.felix.resolver.FelixEnvironment;
+import org.apache.felix.resolver.FelixResolveContext;
 import org.apache.felix.resolver.Logger;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -56,7 +56,7 @@ class Candidates
     // Maps a capability to requirements that match it.
     private final Map<Capability, Set<Requirement>> m_dependentMap;
     // Maps a requirement to the capability it matches.
-    private final Map<Requirement, SortedSet<Capability>> m_candidateMap;
+    private final Map<Requirement, List<Capability>> m_candidateMap;
     // Maps a bundle revision to its associated wrapped revision; this only happens
     // when a revision being resolved has fragments to attach to it.
     private final Map<Resource, HostResource> m_allWrappedHosts;
@@ -75,7 +75,7 @@ class Candidates
     **/
     Candidates(Logger logger,
         Set<Resource> mandatoryRevisions, Map<Capability, Set<Requirement>> dependentMap,
-        Map<Requirement, SortedSet<Capability>> candidateMap,
+        Map<Requirement, List<Capability>> candidateMap,
         Map<Resource, HostResource> wrappedHosts, Map<Resource, Object> populateResultCache,
         boolean fragmentsPresent)
     {
@@ -96,7 +96,7 @@ class Candidates
     	m_logger = logger;
         m_mandatoryRevisions = new HashSet<Resource>();
         m_dependentMap = new HashMap<Capability, Set<Requirement>>();
-        m_candidateMap = new HashMap<Requirement, SortedSet<Capability>>();
+        m_candidateMap = new HashMap<Requirement, List<Capability>>();
         m_allWrappedHosts = new HashMap<Resource, HostResource>();
         m_populateResultCache = new HashMap<Resource, Object>();
     }
@@ -117,7 +117,7 @@ class Candidates
      * @param revision the revision whose candidates should be populated.
      * @param resolution indicates the resolution type.
      */
-    final void populate(FelixEnvironment env, Resource resource, int resolution) throws ResolutionException
+    final void populate(FelixResolveContext env, Resource resource, int resolution) throws ResolutionException
     {
         // Get the current result cache value, to make sure the revision
         // hasn't already been populated.
@@ -175,7 +175,7 @@ class Candidates
      * @param revision the revision whose candidates should be populated.
      */
 // TODO: FELIX3 - Modify to not be recursive.
-    private void populateRevision(FelixEnvironment env, Resource resource) throws ResolutionException
+    private void populateRevision(FelixResolveContext env, Resource resource) throws ResolutionException
     {
         // Determine if we've already calculated this revision's candidates.
         // The result cache will have one of three values:
@@ -197,7 +197,7 @@ class Candidates
 
         // Keeps track of the candidates we've already calculated for the
         // current revision's requirements.
-        Map<Requirement, SortedSet<Capability>> localCandidateMap = null;
+        Map<Requirement, List<Capability>> localCandidateMap = null;
 
         // Keeps track of the current revision's requirements for which we
         // haven't yet found candidates.
@@ -235,20 +235,20 @@ class Candidates
         if ((remainingReqs == null) && (localCandidateMap == null))
         {
             // Verify that any required execution environment is satisfied.
-            ((FelixEnvironment)env).checkExecutionEnvironment(resource);
+            ((FelixResolveContext)env).checkExecutionEnvironment(resource);
 
             // Verify that any native libraries match the current platform.
-            ((FelixEnvironment)env).checkNativeLibraries(resource);
+            ((FelixResolveContext)env).checkNativeLibraries(resource);
 
             // Record cycle count.
             cycleCount = new Integer(0);
 
             // Create a local map for populating candidates first, just in case
             // the revision is not resolvable.
-            localCandidateMap = new HashMap();
+            localCandidateMap = new HashMap<Requirement, List<Capability>>();
 
             // Create a modifiable list of the revision's requirements.
-            remainingReqs = new ArrayList(resource.getRequirements(null));
+            remainingReqs = new ArrayList<Requirement>(resource.getRequirements(null));
 
             // Add these value to the result cache so we know we are
             // in the middle of populating candidates for the current
@@ -274,7 +274,7 @@ class Candidates
 
             // Process the candidates, removing any candidates that
             // cannot resolve.
-            SortedSet<Capability> candidates = env.findSortedSetProviders(req);
+            List<Capability> candidates = env.findProviders(req);
             ResolutionException rethrow = processCandidates(env, resource, candidates);
 
             // If there are no candidates for the current requirement
@@ -319,11 +319,11 @@ class Candidates
         }
     }
 
-    private boolean populateFragmentOndemand(FelixEnvironment env, Resource resource)
+    private boolean populateFragmentOndemand(FelixResolveContext env, Resource resource)
         throws ResolutionException
     {
         // Create a modifiable list of the revision's requirements.
-        List<Requirement> remainingReqs = new ArrayList(resource.getRequirements(null));
+        List<Requirement> remainingReqs = new ArrayList<Requirement>(resource.getRequirements(null));
         // Find the host requirement.
         Requirement hostReq = null;
         for (Iterator<Requirement> it = remainingReqs.iterator();
@@ -338,7 +338,7 @@ class Candidates
             }
         }
         // Get candidates hosts and keep any that have been populated.
-        SortedSet<Capability> hosts = env.findSortedSetProviders(hostReq);
+        List<Capability> hosts = env.findProviders(hostReq);
         for (Iterator<Capability> it = hosts.iterator(); it.hasNext(); )
         {
             Capability host = it.next();
@@ -357,16 +357,15 @@ class Candidates
         // some other checks and prepopulate the result cache with
         // the work we've done so far.
         // Verify that any required execution environment is satisfied.
-        ((FelixEnvironment)env).checkExecutionEnvironment(resource);
+        ((FelixResolveContext)env).checkExecutionEnvironment(resource);
         // Verify that any native libraries match the current platform.
-        ((FelixEnvironment)env).checkNativeLibraries(resource);
+        ((FelixResolveContext)env).checkNativeLibraries(resource);
         // Record cycle count, but start at -1 since it will
         // be incremented again in populate().
         Integer cycleCount = new Integer(-1);
         // Create a local map for populating candidates first, just in case
         // the revision is not resolvable.
-        Map<Requirement, SortedSet<Capability>> localCandidateMap =
-            new HashMap<Requirement, SortedSet<Capability>>();
+        Map<Requirement, List<Capability>> localCandidateMap = new HashMap<Requirement, List<Capability>>();
         // Add the discovered host candidates to the local candidate map.
         localCandidateMap.put(hostReq, hosts);
         // Add these value to the result cache so we know we are
@@ -378,8 +377,8 @@ class Candidates
     }
 
     public void populateDynamic(
-        FelixEnvironment env, Resource resource,
-        Requirement req, SortedSet<Capability> candidates) throws ResolutionException
+        FelixResolveContext env, Resource resource,
+        Requirement req, List<Capability> candidates) throws ResolutionException
     {
         // Record the revision associated with the dynamic require
         // as a mandatory revision.
@@ -417,9 +416,9 @@ class Candidates
      * @return a resolve exception to be re-thrown, if any, or null.
      */
     private ResolutionException processCandidates(
-        FelixEnvironment env,
+        FelixResolveContext env,
         Resource resource,
-        SortedSet<Capability> candidates)
+        List<Capability> candidates)
     {
         // Get satisfying candidates and populate their candidates if necessary.
         ResolutionException rethrow = null;
@@ -536,7 +535,7 @@ class Candidates
      * @param req the requirement to add.
      * @param candidates the candidates matching the requirement.
     **/
-    private void add(Requirement req, SortedSet<Capability> candidates)
+    private void add(Requirement req, List<Capability> candidates)
     {
         if (req.getNamespace().equals(HostNamespace.HOST_NAMESPACE))
         {
@@ -553,9 +552,9 @@ class Candidates
      * be further modified by the caller.
      * @param candidates the bulk requirements and candidates to add.
     **/
-    private void add(Map<Requirement, SortedSet<Capability>> candidates)
+    private void add(Map<Requirement, List<Capability>> candidates)
     {
-        for (Entry<Requirement, SortedSet<Capability>> entry : candidates.entrySet())
+        for (Entry<Requirement, List<Capability>> entry : candidates.entrySet())
         {
             add(entry.getKey(), entry.getValue());
         }
@@ -579,7 +578,7 @@ class Candidates
      * @param req the requirement whose candidates are desired.
      * @return the matching candidates or null.
     **/
-    public SortedSet<Capability> getCandidates(Requirement req)
+    public List<Capability> getCandidates(Requirement req)
     {
         return m_candidateMap.get(req);
     }
@@ -600,14 +599,13 @@ class Candidates
      * @throws ResolutionException if the removal of any unselected fragments result
      *         in the root module being unable to resolve.
     **/
-    public void prepare(FelixEnvironment env) throws ResolutionException
+    public void prepare(FelixResolveContext env) throws ResolutionException
     {
         // Maps a host capability to a map containing its potential fragments;
         // the fragment map maps a fragment symbolic name to a map that maps
         // a version to a list of fragments requirements matching that symbolic
         // name and version.
-        Map<Capability, Map<String, Map<Version, List<Requirement>>>>
-            hostFragments = Collections.EMPTY_MAP;
+        Map<Capability, Map<String, Map<Version, List<Requirement>>>> hostFragments = Collections.EMPTY_MAP;
         if (m_fragmentsPresent)
         {
             hostFragments = populateDependents();
@@ -663,7 +661,7 @@ class Candidates
                         else
                         {
                             m_dependentMap.get(hostCap).remove(hostReq);
-                            SortedSet<Capability> hosts = m_candidateMap.get(hostReq);
+                            List<Capability> hosts = m_candidateMap.get(hostReq);
                             hosts.remove(hostCap);
                             if (hosts.isEmpty())
                             {
@@ -713,7 +711,7 @@ class Candidates
                         m_dependentMap.put(c, dependents);
                         for (Requirement r : dependents)
                         {
-                            Set<Capability> cands = m_candidateMap.get(r);
+                            List<Capability> cands = m_candidateMap.get(r);
                             cands.remove(origCap);
                             cands.add(c);
                         }
@@ -724,12 +722,11 @@ class Candidates
             // Copy candidates for fragment requirements to the host.
             for (Requirement r : hostRevision.getRequirements(null))
             {
-                Requirement origReq =
-                    ((HostedRequirement) r).getOriginalRequirement();
-                SortedSet<Capability> cands = m_candidateMap.get(origReq);
+                Requirement origReq = ((HostedRequirement) r).getOriginalRequirement();
+                List<Capability> cands = m_candidateMap.get(origReq);
                 if (cands != null)
                 {
-                    m_candidateMap.put(r, new TreeSet<Capability>(cands));
+                    m_candidateMap.put(r, new ArrayList<Capability>(cands));
                     for (Capability cand : cands)
                     {
                         Set<Requirement> dependents = m_dependentMap.get(cand);
@@ -762,10 +759,10 @@ class Candidates
         Map<Capability, Map<String, Map<Version, List<Requirement>>>>
             hostFragments = new HashMap<Capability,
                 Map<String, Map<Version, List<Requirement>>>>();
-        for (Entry<Requirement, SortedSet<Capability>> entry : m_candidateMap.entrySet())
+        for (Entry<Requirement, List<Capability>> entry : m_candidateMap.entrySet())
         {
             Requirement req = entry.getKey();
-            SortedSet<Capability> caps = entry.getValue();
+            List<Capability> caps = entry.getValue();
             for (Capability cap : caps)
             {
                 // Record the requirement as dependent on the capability.
@@ -866,9 +863,7 @@ class Candidates
     **/
     private void remove(Requirement req)
     {
-        boolean isFragment = req.getNamespace().equals(HostNamespace.HOST_NAMESPACE);
-
-        SortedSet<Capability> candidates = m_candidateMap.remove(req);
+        List<Capability> candidates = m_candidateMap.remove(req);
         if (candidates != null)
         {
             for (Capability cap : candidates)
@@ -899,7 +894,7 @@ class Candidates
         {
             for (Requirement r : dependents)
             {
-                SortedSet<Capability> candidates = m_candidateMap.get(r);
+                List<Capability> candidates = m_candidateMap.get(r);
                 candidates.remove(c);
                 if (candidates.isEmpty())
                 {
@@ -925,21 +920,17 @@ class Candidates
     **/
     public Candidates copy()
     {
-        Map<Capability, Set<Requirement>> dependentMap =
-            new HashMap<Capability, Set<Requirement>>();
+        Map<Capability, Set<Requirement>> dependentMap = new HashMap<Capability, Set<Requirement>>();
         for (Entry<Capability, Set<Requirement>> entry : m_dependentMap.entrySet())
         {
             Set<Requirement> dependents = new HashSet<Requirement>(entry.getValue());
             dependentMap.put(entry.getKey(), dependents);
         }
 
-        Map<Requirement, SortedSet<Capability>> candidateMap =
-            new HashMap<Requirement, SortedSet<Capability>>();
-        for (Entry<Requirement, SortedSet<Capability>> entry
-            : m_candidateMap.entrySet())
+        Map<Requirement, List<Capability>> candidateMap = new HashMap<Requirement, List<Capability>>();
+        for (Entry<Requirement, List<Capability>> entry : m_candidateMap.entrySet())
         {
-            SortedSet<Capability> candidates =
-                new TreeSet<Capability>(entry.getValue());
+            List<Capability> candidates = new ArrayList<Capability>(entry.getValue());
             candidateMap.put(entry.getKey(), candidates);
         }
 
@@ -948,12 +939,11 @@ class Candidates
             m_allWrappedHosts, m_populateResultCache, m_fragmentsPresent);
     }
 
-    public void dump(FelixEnvironment env)
+    public void dump(FelixResolveContext env)
     {
         // Create set of all revisions from requirements.
         Set<Resource> resources = new HashSet<Resource>();
-        for (Entry<Requirement, SortedSet<Capability>> entry
-            : m_candidateMap.entrySet())
+        for (Entry<Requirement, List<Capability>> entry : m_candidateMap.entrySet())
         {
             resources.add(entry.getKey().getResource());
         }
@@ -968,7 +958,7 @@ class Candidates
                 : res.getRequirements(null);
             for (Requirement req : reqs)
             {
-                SortedSet<Capability> candidates = m_candidateMap.get(req);
+                List<Capability> candidates = m_candidateMap.get(req);
                 if ((candidates != null) && (candidates.size() > 0))
                 {
                     m_logger.log(Logger.LOG_TRACE, "    " + req + ": " + candidates);
@@ -979,7 +969,7 @@ class Candidates
                 : Util.getDynamicRequirements(res.getRequirements(null));
             for (Requirement req : reqs)
             {
-                SortedSet<Capability> candidates = m_candidateMap.get(req);
+                List<Capability> candidates = m_candidateMap.get(req);
                 if ((candidates != null) && (candidates.size() > 0))
                 {
                     m_logger.log(Logger.LOG_TRACE, "    " + req + ": " + candidates);

@@ -21,13 +21,14 @@
  */
 package org.jboss.osgi.resolver.spi;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -48,6 +49,20 @@ public class AbstractResolveContext extends XResolveContext {
         this.environment = environment;
     }
 
+    protected Comparator<Capability> getComparator() {
+        return new FrameworkPreferencesComparator() {
+            @Override
+            protected Wiring getWiring(Resource res) {
+                return environment.getWirings().get(res);
+            }
+
+            @Override
+            public Long getResourceIndex(Resource res) {
+                return environment.getResourceIndex((XResource) res);
+            }
+        };
+    }
+    
     @Override
     public XEnvironment getEnvironment() {
         return environment;
@@ -55,18 +70,21 @@ public class AbstractResolveContext extends XResolveContext {
 
     @Override
     public List<Capability> findProviders(Requirement requirement) {
-        SortedSet<Capability> caps = environment.findProviders(requirement);
-        return new ArrayList<Capability>(caps);
+        List<Capability> providers = environment.findProviders(requirement);
+        Collections.sort(providers, getComparator());
+        return providers;
     }
 
     @Override
     public int insertHostedCapability(List<Capability> capabilities, HostedCapability hostedCapability) {
-        throw new UnsupportedOperationException();
+        capabilities.add(hostedCapability);
+        Collections.sort(capabilities, getComparator());
+        return capabilities.indexOf(hostedCapability);
     }
 
     @Override
     public boolean isEffective(Requirement requirement) {
-        return environment.isEffective(requirement);
+        return true;
     }
 
     @Override
