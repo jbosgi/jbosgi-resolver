@@ -21,7 +21,10 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import java.util.Map;
+
 import org.jboss.osgi.resolver.XBundleCapability;
+import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.osgi.framework.Version;
 import org.osgi.resource.Capability;
@@ -34,10 +37,12 @@ import org.osgi.resource.Wiring;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class FrameworkPreferencesComparator extends ResourceIndexComparator {
+class FrameworkPreferencesComparator extends ResourceIndexComparator {
 
-    protected abstract Wiring getWiring(Resource res);
-
+    public FrameworkPreferencesComparator(XEnvironment environment) {
+        super(environment);
+    }
+    
     @Override
     public int compare(Capability o1, Capability o2) {
         Resource res1 = o1.getResource();
@@ -50,8 +55,9 @@ public abstract class FrameworkPreferencesComparator extends ResourceIndexCompar
             return (int)(in1 - in2);
         }
         
-        Wiring w1 = getWiring(res1);
-        Wiring w2 = getWiring(res2);
+        Map<Resource, Wiring> wirings = getEnvironment().getWirings();
+        Wiring w1 = wirings.get(res1);
+        Wiring w2 = wirings.get(res2);
 
         // prefer wired
         if (w1 != null && w2 == null)

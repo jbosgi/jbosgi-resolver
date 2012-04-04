@@ -21,16 +21,23 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.osgi.service.resolver.ResolveContext;
+import java.util.Collection;
+import java.util.Map;
+
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wiring;
+import org.osgi.service.resolver.ResolutionException;
+import org.osgi.service.resolver.Resolver;
 
 /**
- * An extension of the {@link ResolveContext}
+ * An extension of the {@link Resolver}
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Apr-2012
  */
-public abstract class XResolveContext extends ResolveContext {
+public interface XResolver extends Resolver {
     
-    public abstract XEnvironment getEnvironment();
-
+    XResolveContext createResolverContext(XEnvironment environment, Collection<Resource> mandatory, Collection<Resource> optional);
+    
+    Map<Resource, Wiring> resolveAndApply(XResolveContext context) throws ResolutionException;
 }

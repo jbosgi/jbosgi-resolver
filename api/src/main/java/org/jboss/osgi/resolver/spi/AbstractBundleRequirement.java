@@ -44,10 +44,12 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
 
     private final String symbolicName;
     private final VersionRange versionrange;
+    private final String visibility;
 
     protected AbstractBundleRequirement(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, BundleNamespace.BUNDLE_NAMESPACE, atts, dirs);
         symbolicName = (String) getAttribute(BundleNamespace.BUNDLE_NAMESPACE);
+        visibility = getDirective(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
         Object versionatt = atts.get(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
         if (versionatt instanceof String) {
             versionatt = VersionRange.parse((String) versionatt);
@@ -68,6 +70,11 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
     @Override
     public VersionRange getVersionRange() {
         return versionrange;
+    }
+
+    @Override
+    public String getVisibility() {
+        return visibility;
     }
 
     @Override

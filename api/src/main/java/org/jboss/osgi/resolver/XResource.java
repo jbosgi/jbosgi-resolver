@@ -35,4 +35,9 @@ public interface XResource extends XElement, Resource {
      * Get the identity capability for this resource
      */
     XIdentityCapability getIdentityCapability();
+    
+    /**
+     * True if this resource is a fragment
+     */
+    boolean isFragment();
 }

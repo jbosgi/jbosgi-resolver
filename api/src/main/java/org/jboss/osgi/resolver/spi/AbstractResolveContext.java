@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
-import org.jboss.osgi.resolver.XResource;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -50,17 +49,7 @@ public class AbstractResolveContext extends XResolveContext {
     }
 
     protected Comparator<Capability> getComparator() {
-        return new FrameworkPreferencesComparator() {
-            @Override
-            protected Wiring getWiring(Resource res) {
-                return environment.getWirings().get(res);
-            }
-
-            @Override
-            public Long getResourceIndex(Resource res) {
-                return environment.getResourceIndex((XResource) res);
-            }
-        };
+        return new FrameworkPreferencesComparator(environment);
     }
     
     @Override

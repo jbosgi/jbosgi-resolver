@@ -22,6 +22,7 @@
 package org.jboss.osgi.resolver;
 
 import org.jboss.osgi.metadata.VersionRange;
+import org.osgi.framework.namespace.BundleNamespace;
 
 /**
  * A bundle requirement
@@ -40,4 +41,10 @@ public interface XBundleRequirement extends XRequirement {
      * The bundle version range
      */
     VersionRange getVersionRange();
+
+    /**
+     * Get the value of the visibility directive
+     * @see {@link BundleNamespace#REQUIREMENT_VISIBILITY_DIRECTIVE}
+     */
+    String getVisibility();
 }

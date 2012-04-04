@@ -29,8 +29,11 @@ import org.apache.felix.resolver.FelixResolveContext;
 import org.apache.felix.resolver.impl.ResolverImpl;
 import org.jboss.logging.Logger;
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResolveContext;
+import org.jboss.osgi.resolver.XResolver;
+import org.jboss.osgi.resolver.spi.AbstractResolveContext;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -39,7 +42,6 @@ import org.osgi.resource.Wiring;
 import org.osgi.service.resolver.HostedCapability;
 import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.ResolveContext;
-import org.osgi.service.resolver.Resolver;
 
 /**
  * An implementation of the Resolver.
@@ -49,9 +51,9 @@ import org.osgi.service.resolver.Resolver;
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
-public class FelixResolver implements Resolver {
+public class StatelessResolver implements XResolver {
 
-    private static Logger log = Logger.getLogger(FelixResolver.class);
+    private static Logger log = Logger.getLogger(StatelessResolver.class);
 
     private ResolverImpl delegate = new ResolverImpl(new LoggerDelegate());
 
@@ -74,6 +76,28 @@ public class FelixResolver implements Resolver {
             }
         }
         return result;
+    }
+
+    @Override
+    public synchronized Map<Resource, Wiring> resolveAndApply(XResolveContext context) throws ResolutionException {
+        Map<Resource, List<Wire>> wiremap = resolve(context);
+        return context.getEnvironment().updateWiring(wiremap);
+    }
+    
+    @Override
+    public XResolveContext createResolverContext(XEnvironment environment, final Collection<Resource> mandatory, final Collection<Resource> optional) {
+        return new AbstractResolveContext(environment) {
+
+            @Override
+            public Collection<Resource> getMandatoryResources() {
+                return mandatory != null ? mandatory : super.getMandatoryResources();
+            }
+
+            @Override
+            public Collection<Resource> getOptionalResources() {
+                return optional != null ? optional : super.getOptionalResources();
+            }
+        };
     }
 
     static class ResolveContextDelegate extends FelixResolveContext {

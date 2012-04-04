@@ -32,12 +32,12 @@ import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
+import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
-import org.jboss.osgi.resolver.felix.FelixResolver;
+import org.jboss.osgi.resolver.felix.StatelessResolver;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
-import org.jboss.osgi.resolver.spi.AbstractResolveContext;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.Node;
@@ -46,8 +46,6 @@ import org.osgi.framework.Constants;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
-import org.osgi.service.resolver.ResolveContext;
-import org.osgi.service.resolver.Resolver;
 
 /**
  * The abstract resolver test.
@@ -57,13 +55,13 @@ import org.osgi.service.resolver.Resolver;
  */
 public abstract class AbstractResolverTest extends OSGiTest {
 
-    Resolver resolver;
-    AbstractEnvironment environment;
+    XResolver resolver;
+    XEnvironment environment;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        resolver = new FelixResolver();
+        resolver = new StatelessResolver();
         environment = new AbstractEnvironment();
         XResource sysres = createSystemResource();
         environment.installResources(sysres);
@@ -88,18 +86,9 @@ public abstract class AbstractResolverTest extends OSGiTest {
     }
 
     XResolveContext getResolveContext(final List<XResource> mandatory, final List<XResource> optional) {
-        return new AbstractResolveContext(environment)
-        {
-            @Override
-            public Collection<Resource> getMandatoryResources() {
-                return mandatory != null ? new ArrayList<Resource>(mandatory) : super.getMandatoryResources();
-            }
-
-            @Override
-            public Collection<Resource> getOptionalResources() {
-                return optional != null ? new ArrayList<Resource>(optional) : super.getOptionalResources();
-            }
-        };
+        Collection<Resource> manres = mandatory != null ? new ArrayList<Resource>(mandatory) : null;
+        Collection<Resource> optres = optional != null ? new ArrayList<Resource>(optional) : null;
+        return resolver.createResolverContext(environment, manres, optres);
     }
 
     void applyResolverResults(Map<Resource, List<Wire>> wiremap) {

@@ -23,6 +23,8 @@ package org.jboss.osgi.resolver.spi;
 
 import java.util.Comparator;
 
+import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Resource;
 
@@ -32,14 +34,26 @@ import org.osgi.resource.Resource;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class ResourceIndexComparator implements Comparator<Capability> {
+class ResourceIndexComparator implements Comparator<Capability> {
 
-    protected abstract Long getResourceIndex(Resource res);
+    private final XEnvironment environment;
+
+    ResourceIndexComparator(XEnvironment environment) {
+        this.environment = environment;
+    }
+    
+    XEnvironment getEnvironment() {
+        return environment;
+    }
 
     @Override
     public int compare(Capability o1, Capability o2) {
         Long in1 = getResourceIndex(o1.getResource());
         Long in2 = getResourceIndex(o2.getResource());
         return in1.compareTo(in2);
+    }
+
+    Long getResourceIndex(Resource res) {
+        return environment.getResourceIndex((XResource) res);
     }
 }

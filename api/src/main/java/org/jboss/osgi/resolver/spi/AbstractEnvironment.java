@@ -226,14 +226,13 @@ public class AbstractEnvironment implements XEnvironment {
         return Collections.unmodifiableMap(result);
     }
     
-    @Override
-    public Long getResourceIndex(XResource res) {
-        return res.getAttachment(Long.class);
+    protected Wiring createWiring(Resource res, List<Wire> wires) {
+        return new AbstractWiring(res, wires);
     }
 
     @Override
-    public Wiring createWiring(Resource res, List<Wire> wires) {
-        return new AbstractWiring(res, wires);
+    public Long getResourceIndex(XResource res) {
+        return res.getAttachment(Long.class);
     }
 
     @Override

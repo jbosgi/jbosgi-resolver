@@ -48,13 +48,11 @@ public interface XEnvironment {
 
     Collection<XResource> getResources(Set<String> types);
 
+    Long getResourceIndex(XResource res);
+    
     List<Capability> findProviders(Requirement req);
 
-    Long getResourceIndex(XResource resource);
-    
     Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> delta);
-    
-    Wiring createWiring(Resource res, List<Wire> wires);
     
     Map<Resource, Wiring> getWirings();
 }
