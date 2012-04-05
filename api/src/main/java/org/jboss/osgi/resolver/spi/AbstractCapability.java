@@ -21,16 +21,18 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.resource.Resource;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The abstract implementation of a {@link XCapability}.
@@ -48,13 +50,13 @@ public class AbstractCapability extends AbstractElement implements XCapability {
 
     protected AbstractCapability(Resource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
-            throw new IllegalArgumentException("Null resource");
+            throw MESSAGES.illegalArgumentNull("resource");
         if (namespace == null)
-            throw new IllegalArgumentException("Null namespace");
+            throw MESSAGES.illegalArgumentNull("namespace");
         if (atts == null)
-            throw new IllegalArgumentException("Null attributes");
+            throw MESSAGES.illegalArgumentNull("attributes");
         if (dirs == null)
-            throw new IllegalArgumentException("Null directives");
+            throw MESSAGES.illegalArgumentNull("directives");
 
         this.resource = resource;
         this.namespace = namespace;
@@ -67,7 +69,7 @@ public class AbstractCapability extends AbstractElement implements XCapability {
     protected void validateAttributes(Map<String, Object> atts) {
         for (String name : getMandatoryAttributes()) {
             if (atts.get(name) == null)
-                throw new IllegalArgumentException("Cannot obtain attribute: " + name);
+                throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
         }
     }
 

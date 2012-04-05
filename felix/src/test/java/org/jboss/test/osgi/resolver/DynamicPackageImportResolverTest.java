@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jboss.osgi.resolver.XResource;
-import org.jboss.osgi.testing.OSGiManifestBuilder;
+import org.jboss.osgi.spi.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;

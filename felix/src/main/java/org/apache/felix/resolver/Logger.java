@@ -20,9 +20,9 @@ package org.apache.felix.resolver;
 
 public interface Logger
 {
-    static final int LOG_ERROR = 1;
-    static final int LOG_WARNING = 2;
-    static final int LOG_INFO = 3;
+    //static final int LOG_ERROR = 1;
+    //static final int LOG_WARNING = 2;
+    //static final int LOG_INFO = 3;
     static final int LOG_DEBUG = 4;
     static final int LOG_TRACE = 5;
 

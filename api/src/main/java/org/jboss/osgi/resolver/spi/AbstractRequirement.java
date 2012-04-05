@@ -21,6 +21,8 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
@@ -56,13 +58,13 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
 
     protected AbstractRequirement(Resource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
-            throw new IllegalArgumentException("Null resource");
+            throw MESSAGES.illegalArgumentNull("resource");
         if (namespace == null)
-            throw new IllegalArgumentException("Null namespace");
+            throw MESSAGES.illegalArgumentNull("namespace");
         if (atts == null)
-            throw new IllegalArgumentException("Null attributes");
+            throw MESSAGES.illegalArgumentNull("attributes");
         if (dirs == null)
-            throw new IllegalArgumentException("Null directives");
+            throw MESSAGES.illegalArgumentNull("directives");
 
         this.resource = resource;
         this.namespace = namespace;
@@ -77,7 +79,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
             try {
                 filter = FrameworkUtil.createFilter(filterdir);
             } catch (InvalidSyntaxException e) {
-                throw new IllegalArgumentException("Invalid filter directive: " + filterdir);
+                throw MESSAGES.illegalArgumentInvalidFilterDirective(filterdir);
             }
         } else {
             filter = null;
@@ -89,7 +91,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     protected void validateAttributes(Map<String, Object> atts) {
         for (String name : getMandatoryAttributes()) {
             if (atts.get(name) == null)
-                throw new IllegalArgumentException("Cannot obtain attribute: " + name);
+                throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
         }
     }
 

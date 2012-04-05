@@ -21,13 +21,14 @@
  */
 package org.jboss.osgi.resolver.felix;
 
+import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.felix.resolver.FelixResolveContext;
 import org.apache.felix.resolver.impl.ResolverImpl;
-import org.jboss.logging.Logger;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XRequirement;
@@ -53,8 +54,6 @@ import org.osgi.service.resolver.ResolveContext;
  */
 public class StatelessResolver implements XResolver {
 
-    private static Logger log = Logger.getLogger(StatelessResolver.class);
-
     private ResolverImpl delegate = new ResolverImpl(new LoggerDelegate());
 
     @Override
@@ -62,16 +61,16 @@ public class StatelessResolver implements XResolver {
         FelixResolveContext env = new ResolveContextDelegate((XResolveContext) context);
         Collection<Resource> mandatory = context.getMandatoryResources();
         Collection<Resource> optional = context.getOptionalResources();
-        log.debugf("Resolve: %s, %s", mandatory, optional);
+        LOGGER.debugf("Resolve: %s, %s", mandatory, optional);
         Map<Resource, List<Wire>> result = delegate.resolve(env);
-        if (log.isDebugEnabled()) {
-            log.debugf("Resolution result: %d", result.size());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debugf("Resolution result: %d", result.size());
             for (Map.Entry<Resource, List<Wire>> entry : result.entrySet()) {
                 Resource res = entry.getKey();
                 List<Wire> wires = entry.getValue();
-                log.debugf("   %s: %d wires", res, wires.size());
+                LOGGER.debugf("   %s: %d wires", res, wires.size());
                 for (Wire wire : wires) {
-                    log.debugf("      %s", wire);
+                    LOGGER.debugf("      %s", wire);
                 }
             }
         }

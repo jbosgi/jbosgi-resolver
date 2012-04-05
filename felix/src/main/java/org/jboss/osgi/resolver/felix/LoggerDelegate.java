@@ -21,8 +21,11 @@
  */
 package org.jboss.osgi.resolver.felix;
 
+import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
+
 import org.jboss.logging.Logger;
 import org.jboss.logging.Logger.Level;
+import org.jboss.osgi.resolver.internal.ResolverLogger;
 
 /**
  * An integration with the resolver Logger.
@@ -34,25 +37,24 @@ import org.jboss.logging.Logger.Level;
  */
 public class LoggerDelegate implements org.apache.felix.resolver.Logger {
 
-	// Provide logging
-	private static final Logger log = Logger.getLogger("org.jboss.osgi.resolver");
-
 	public LoggerDelegate() {
 	}
 
 	@Override
 	public boolean isEnabled(int level) {
 		switch (level) {
+		/*    
 		case LOG_ERROR:
 			return log.isEnabled(Level.ERROR);
 		case LOG_WARNING:
 			return log.isEnabled(Level.WARN);
 		case LOG_INFO:
 			return log.isEnabled(Level.INFO);
+	    */
 		case LOG_DEBUG:
-			return log.isEnabled(Level.DEBUG);
+			return LOGGER.isEnabled(Level.DEBUG);
 		case LOG_TRACE:
-			return log.isEnabled(Level.TRACE);
+			return LOGGER.isEnabled(Level.TRACE);
 	    default:
 			return false;
 		}
@@ -66,6 +68,7 @@ public class LoggerDelegate implements org.apache.felix.resolver.Logger {
 	@Override
 	public void log(int level, String msg, Throwable throwable) {
 		switch (level) {
+		/*
 		case LOG_ERROR:
 			log.error(msg, throwable);
 			break;
@@ -75,11 +78,12 @@ public class LoggerDelegate implements org.apache.felix.resolver.Logger {
 		case LOG_INFO:
 			log.info(msg, throwable);
 			break;
+	    */
 		case LOG_DEBUG:
-			log.debug(msg, throwable);
+		    LOGGER.debug(msg, throwable);
 			break;
 		case LOG_TRACE:
-			log.trace(msg, throwable);
+		    LOGGER.trace(msg, throwable);
 			break;
 		}
 	}

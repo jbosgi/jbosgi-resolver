@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.jboss.osgi</groupId>
         <artifactId>jboss-osgi-parent</artifactId>
-        <version>1.0.16</version>
+        <version>1.0.18</version>
     </parent>
 
     <name>JBossOSGi Resolver</name>
@@ -24,7 +24,7 @@
     <artifactId>jbosgi-resolver-parent</artifactId>
     <packaging>pom</packaging>
 
-    <version>2.0.0.CR3-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
 
     <!-- Source -->
     <scm>
@@ -37,10 +37,11 @@
     <properties>
         <version.jboss.modules>1.1.0.GA</version.jboss.modules>
         <version.jboss.logging>3.1.0.GA</version.jboss.logging>
+        <version.jboss.logging.processor>1.0.0.Final</version.jboss.logging.processor>
         <version.jboss.logmanager>1.2.2.GA</version.jboss.logmanager>
-        <version.jboss.osgi.metadata>2.0.2</version.jboss.osgi.metadata>
-        <version.jboss.osgi.spi>2.0.4</version.jboss.osgi.spi>
-        <version.jboss.osgi.vfs>1.0.6</version.jboss.osgi.vfs>
+        <version.jboss.osgi.metadata>2.1.0-SNAPSHOT</version.jboss.osgi.metadata>
+        <version.jboss.osgi.spi>3.1.0-SNAPSHOT</version.jboss.osgi.spi>
+        <version.jboss.osgi.testing>1.0.3.Final</version.jboss.osgi.testing>
         <version.jboss.shrinkwrap>1.0.0-cr-1</version.jboss.shrinkwrap>
         <version.junit>4.10</version.junit>
         <version.osgi.core>4.2.0</version.osgi.core>
@@ -54,6 +55,11 @@
                 <artifactId>jboss-logging</artifactId>
                 <version>${version.jboss.logging}</version>
             </dependency>
+	        <dependency>
+	            <groupId>org.jboss.logging</groupId>
+	            <artifactId>jboss-logging-processor</artifactId>
+	            <version>${version.jboss.logging.processor}</version>
+	        </dependency>
             <dependency>
                 <groupId>org.jboss.logmanager</groupId>
                 <artifactId>jboss-logmanager</artifactId>
@@ -74,6 +80,8 @@
                 <artifactId>jbosgi-spi</artifactId>
                 <version>${version.jboss.osgi.spi}</version>
             </dependency>
+            
+            <!-- Provided Dependencies -->
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
@@ -82,14 +90,9 @@
 
             <!-- Test Dependencies -->
             <dependency>
-                <groupId>org.jboss.osgi.vfs</groupId>
-                <artifactId>jbosgi-vfs30</artifactId>
-                <version>${version.jboss.osgi.vfs}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap</groupId>
-                <artifactId>shrinkwrap-spi</artifactId>
-                <version>${version.jboss.shrinkwrap}</version>
+                <groupId>org.jboss.osgi.testing</groupId>
+                <artifactId>jbosgi-testing</artifactId>
+                <version>${version.jboss.osgi.testing}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.shrinkwrap</groupId>

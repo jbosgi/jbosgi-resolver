@@ -21,6 +21,8 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,6 +31,7 @@ import java.util.Map;
 
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.internal.ResolverMessages;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
@@ -74,7 +77,7 @@ public class AbstractResource extends AbstractElement implements XResource {
         if (identityCapability == null) {
             List<Capability> caps = getCapabilities(IdentityNamespace.IDENTITY_NAMESPACE);
             if (caps.size() > 1)
-                throw new IllegalStateException("Multiple identities detected: " + caps);
+                throw MESSAGES.illegalStateMultipleIdentities(caps);
             if (caps.size() == 1)
             	identityCapability = (XIdentityCapability) caps.get(0);
         }

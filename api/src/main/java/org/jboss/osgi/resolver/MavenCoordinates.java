@@ -21,6 +21,8 @@
  */
 package org.jboss.osgi.resolver;
 
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -48,7 +50,7 @@ public final class MavenCoordinates {
         } else if (parts.length == 5) {
             result = new MavenCoordinates(parts[0], parts[1], parts[2], parts[3], parts[4]);
         } else {
-            throw new IllegalArgumentException("Invalid coordinates: " + coordinates);
+            throw MESSAGES.illegalArgumentInvalidCoordinates(coordinates);
         }
         return result;
     }
@@ -59,11 +61,11 @@ public final class MavenCoordinates {
 
     private MavenCoordinates(String groupId, String artifactId, String type, String version, String classifier) {
         if (groupId == null)
-            throw new IllegalArgumentException("Null groupId");
+            throw MESSAGES.illegalArgumentNull("groupId");
         if (artifactId == null)
-            throw new IllegalArgumentException("Null artifactId");
+            throw MESSAGES.illegalArgumentNull("artifactId");
         if (version == null)
-            throw new IllegalArgumentException("Null version");
+            throw MESSAGES.illegalArgumentNull("version");
 
         this.groupId = groupId;
         this.artifactId = artifactId;
@@ -107,7 +109,7 @@ public final class MavenCoordinates {
         try {
             return new URL(urlstr);
         } catch (MalformedURLException e) {
-            throw new IllegalStateException("Invalid artifact URL: " + urlstr);
+            throw MESSAGES.illegalStateInvalidArtifactURL(urlstr);
         }
     }
 

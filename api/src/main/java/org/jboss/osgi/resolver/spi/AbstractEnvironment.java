@@ -21,6 +21,9 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +37,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.jboss.logging.Logger;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XHostRequirement;
@@ -61,8 +63,6 @@ import org.osgi.resource.Wiring;
  */
 public class AbstractEnvironment implements XEnvironment {
 
-    private static Logger log = Logger.getLogger(AbstractEnvironment.class);
-
     private static final String[] ALL_IDENTITY_TYPES = new String[] { 
         IdentityNamespace.TYPE_BUNDLE, 
         IdentityNamespace.TYPE_FRAGMENT, 
@@ -80,9 +80,9 @@ public class AbstractEnvironment implements XEnvironment {
         for (XResource res : resources) {
             XIdentityCapability icap = res.getIdentityCapability();
             if (getCachedCapabilities(CacheKey.create(icap)).contains(icap))
-                throw new IllegalArgumentException("Resource already installed: " + res);
+                throw MESSAGES.illegalStateResourceAlreadyInstalled(res);
 
-            log.debugf("Install resource: %s", res);
+            LOGGER.debugf("Install resource: %s", res);
 
             // Add resource to index
             Long index = resourceIndex.getAndIncrement();
@@ -94,11 +94,11 @@ public class AbstractEnvironment implements XEnvironment {
             // Add resource capabilites
             for (Capability cap : res.getCapabilities(null)) {
                 getCachedCapabilities(CacheKey.create(cap)).add(cap);
-                log.debugf("   %s", cap);
+                LOGGER.debugf("   %s", cap);
             }
-            if (log.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 for (Requirement req : res.getRequirements(null)) {
-                    log.debugf("   %s", req);
+                    LOGGER.debugf("   %s", req);
                 }
             }
         }
@@ -111,11 +111,11 @@ public class AbstractEnvironment implements XEnvironment {
             // Remove resource by index
             Long index = res.getAttachment(Long.class);
             if (index == null || resourceIndexCache.remove(index) == null) {
-                log.debugf("Unknown resource: %s", res);
+                LOGGER.debugf("Unknown resource: %s", res);
                 continue;
             }
 
-            log.debugf("Uninstall resource: %s", res);
+            LOGGER.debugf("Uninstall resource: %s", res);
 
             // Remove resource by type
             XIdentityCapability icap = res.getIdentityCapability();
@@ -198,7 +198,7 @@ public class AbstractEnvironment implements XEnvironment {
             }
         }
         
-        log.debugf("findProviders: %s => %s", req, result);
+        LOGGER.debugf("findProviders: %s => %s", req, result);
         return result;
     }
 

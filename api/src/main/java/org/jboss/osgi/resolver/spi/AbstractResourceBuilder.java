@@ -21,6 +21,8 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -280,7 +282,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             }
 
         } catch (RuntimeException ex) {
-            throw new ResourceBuilderException("Cannot initialize XResource from: " + metadata, ex);
+            throw MESSAGES.resourceBuilderCannotInitializeResource(ex, metadata);
         }
         return this;
     }
@@ -364,6 +366,6 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
     private void assertResourceCreated() {
         if (resource == null)
-            throw new IllegalStateException("Resource not created");
+            throw MESSAGES.illegalStateResourceNotCreated();
     }
 }
