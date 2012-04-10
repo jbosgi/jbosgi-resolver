@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.felix.resolver.FelixResolveContext;
+import org.apache.felix.resolver.impl.HostedRequirement;
 import org.apache.felix.resolver.impl.ResolverImpl;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
@@ -139,7 +140,8 @@ public class StatelessResolver implements XResolver {
         
         @Override
         public boolean matches(Requirement req, Capability cap) {
-            return ((XRequirement) req).matches((XCapability) cap);
+            XRequirement xreq = (XRequirement)(req instanceof HostedRequirement ? ((HostedRequirement)req).getOriginalRequirement() : req);
+            return xreq.matches((XCapability) cap);
         }
 
         @Override
