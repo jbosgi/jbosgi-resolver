@@ -240,7 +240,7 @@ public class AbstractEnvironment implements XEnvironment {
         return Collections.unmodifiableMap(wirings);
     }
 
-    private Set<Capability> getCachedCapabilities(CacheKey key) {
+    private synchronized Set<Capability> getCachedCapabilities(CacheKey key) {
         Set<Capability> capset = capabilityCache.get(key);
         if (capset == null) {
             capset = new LinkedHashSet<Capability>();
@@ -249,7 +249,7 @@ public class AbstractEnvironment implements XEnvironment {
         return capset;
     }
 
-    private Set<XResource> getCachedResources(String type) {
+    private synchronized Set<XResource> getCachedResources(String type) {
         Set<XResource> typeset = resourceTypeCache.get(type);
         if (typeset == null) {
             typeset = new LinkedHashSet<XResource>();
