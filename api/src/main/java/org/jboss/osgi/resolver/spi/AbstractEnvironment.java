@@ -143,7 +143,7 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     @Override
-    public Collection<XResource> getResources(Set<String> types) {
+    public synchronized Collection<XResource> getResources(Set<String> types) {
         Set<XResource> result = new HashSet<XResource>();
         for (String type : (types != null ? types : Arrays.asList(ALL_IDENTITY_TYPES))) {
             result.addAll(getCachedResources(type));
