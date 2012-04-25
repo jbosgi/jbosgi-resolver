@@ -57,15 +57,15 @@ import org.osgi.resource.Wiring;
 
 /**
  * The abstract implementation of a {@link Environment}.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
 public class AbstractEnvironment implements XEnvironment {
 
-    private static final String[] ALL_IDENTITY_TYPES = new String[] { 
-        IdentityNamespace.TYPE_BUNDLE, 
-        IdentityNamespace.TYPE_FRAGMENT, 
+    private static final String[] ALL_IDENTITY_TYPES = new String[] {
+        IdentityNamespace.TYPE_BUNDLE,
+        IdentityNamespace.TYPE_FRAGMENT,
         IdentityNamespace.TYPE_UNKNOWN
     };
 
@@ -74,7 +74,7 @@ public class AbstractEnvironment implements XEnvironment {
     private final Map<String, Set<XResource>> resourceTypeCache = new ConcurrentHashMap<String, Set<XResource>>();
     private final Map<Long, XResource> resourceIndexCache = new ConcurrentHashMap<Long, XResource>();
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
-    
+
     @Override
     public synchronized void installResources(XResource... resources) {
         for (XResource res : resources) {
@@ -107,7 +107,7 @@ public class AbstractEnvironment implements XEnvironment {
     @Override
     public synchronized void uninstallResources(XResource... resources) {
         for (XResource res : resources) {
-            
+
             // Remove resource by index
             Long index = res.getAttachment(Long.class);
             if (index == null || resourceIndexCache.remove(index) == null) {
@@ -197,8 +197,8 @@ public class AbstractEnvironment implements XEnvironment {
                 }
             }
         }
-        
-        LOGGER.debugf("findProviders: %s => %s", req, result);
+
+        LOGGER.tracef("findProviders: %s => %s", req, result);
         return result;
     }
 
@@ -225,7 +225,7 @@ public class AbstractEnvironment implements XEnvironment {
         }
         return Collections.unmodifiableMap(result);
     }
-    
+
     protected Wiring createWiring(Resource res, List<Wire> wires) {
         return new AbstractWiring(res, wires);
     }
