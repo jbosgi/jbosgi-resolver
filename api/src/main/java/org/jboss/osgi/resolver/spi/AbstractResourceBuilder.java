@@ -101,7 +101,6 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         atts.put(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
         XBundleCapability cap = new AbstractBundleCapability(resource, atts, dirs);
         addCapability(cap);
-        ;
         return cap;
     }
 
@@ -114,7 +113,6 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         atts.put(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
         XHostCapability cap = new AbstractHostCapability(resource, atts, dirs);
         addCapability(cap);
-        ;
         return cap;
     }
 
@@ -137,7 +135,6 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         atts.put(PackageNamespace.PACKAGE_NAMESPACE, packageName);
         XPackageCapability cap = new AbstractPackageCapability(resource, atts, dirs);
         addCapability(cap);
-        ;
         return cap;
     }
 
@@ -180,7 +177,6 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             cap = new AbstractCapability(resource, namespace, atts, dirs);
         }
         addCapability(cap);
-        ;
         return cap;
     }
 
@@ -280,9 +276,9 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     addDynamicPackageRequirement(name, atts, dirs);
                 }
             }
-
         } catch (RuntimeException ex) {
-            throw MESSAGES.resourceBuilderCannotInitializeResource(ex, metadata);
+            String cachedAttributes = metadata.getCachedAttributes().toString();
+            throw MESSAGES.resourceBuilderCannotInitializeResource(ex, cachedAttributes);
         }
         return this;
     }

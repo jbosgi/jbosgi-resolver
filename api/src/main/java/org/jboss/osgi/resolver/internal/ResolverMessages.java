@@ -70,5 +70,5 @@ public interface ResolverMessages {
     IllegalStateException illegalStateInvalidArtifactURL(String urlspec);
 
     @Message(id = 10908, value = "Cannot initialize resource from: %s")
-    ResourceBuilderException resourceBuilderCannotInitializeResource(@Cause Throwable cause, OSGiMetaData metadata);
+    ResourceBuilderException resourceBuilderCannotInitializeResource(@Cause Throwable cause, String attributes);
 }
