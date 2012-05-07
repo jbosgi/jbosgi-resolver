@@ -24,7 +24,7 @@
     <artifactId>jbosgi-resolver-parent</artifactId>
     <packaging>pom</packaging>
 
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.1.1.CR1-SNAPSHOT</version>
 
     <!-- Source -->
     <scm>
@@ -35,12 +35,12 @@
 
     <!-- Properties -->
     <properties>
-        <version.jboss.modules>1.1.0.GA</version.jboss.modules>
+        <version.jboss.modules>1.1.2.GA</version.jboss.modules>
         <version.jboss.logging>3.1.0.GA</version.jboss.logging>
         <version.jboss.logging.processor>1.0.0.Final</version.jboss.logging.processor>
         <version.jboss.logmanager>1.2.2.GA</version.jboss.logmanager>
-        <version.jboss.osgi.metadata>2.1.0.Final</version.jboss.osgi.metadata>
-        <version.jboss.osgi.spi>3.1.0.Final</version.jboss.osgi.spi>
+        <version.jboss.osgi.metadata>2.1.1.CR1-SNAPSHOT</version.jboss.osgi.metadata>
+        <version.jboss.osgi.spi>3.1.1.CR1-SNAPSHOT</version.jboss.osgi.spi>
         <version.jboss.osgi.testing>1.0.4</version.jboss.osgi.testing>
         <version.jboss.shrinkwrap>1.0.0-cr-1</version.jboss.shrinkwrap>
         <version.junit>4.10</version.junit>

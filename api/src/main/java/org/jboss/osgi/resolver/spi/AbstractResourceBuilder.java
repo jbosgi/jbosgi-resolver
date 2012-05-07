@@ -21,6 +21,7 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.metadata.OSGiMetaData.ANONYMOUS_BUNDLE_SYMBOLIC_NAME;
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
 
 import java.util.HashMap;
@@ -209,6 +210,9 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             Map<String, Object> idatts = getAttributes(idparams);
             Map<String, String> iddirs = getDirectives(idparams);
 
+            if (symbolicName == null)
+                symbolicName = ANONYMOUS_BUNDLE_SYMBOLIC_NAME;
+
             // Identity Capability
             ParameterizedAttribute fragmentHost = metadata.getFragmentHost();
             String identityType = fragmentHost != null ? IdentityNamespace.TYPE_FRAGMENT : IdentityNamespace.TYPE_BUNDLE;
@@ -221,7 +225,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                 addBundleCapability(symbolicName, bundleVersion, atts, dirs);
             }
 
-            // Host Capability 
+            // Host Capability
             if (fragmentHost != null) {
                 String hostName = fragmentHost.getAttribute();
                 Map<String, Object> atts = getAttributes(fragmentHost);
