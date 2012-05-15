@@ -42,14 +42,14 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
 import org.jboss.osgi.resolver.XHostCapability;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.resource.Resource;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The abstract implementation of a {@link org.jboss.osgi.resolver.XHostCapability}.
@@ -64,8 +64,8 @@ public class AbstractHostCapability extends AbstractCapability implements XHostC
 
     protected AbstractHostCapability(Resource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, HostNamespace.HOST_NAMESPACE, atts, dirs);
-        this.symbolicName = (String) atts.get(HostNamespace.HOST_NAMESPACE);
-        this.version = (Version) atts.get(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+        symbolicName = (String) atts.get(HostNamespace.HOST_NAMESPACE);
+        version = (Version) atts.get(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override

@@ -110,9 +110,11 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     }
 
     protected void validateAttributes(Map<String, Object> atts) {
-        for (String name : getMandatoryAttributes()) {
-            if (atts.get(name) == null)
-                throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
+        if (filter == null) {
+            for (String name : getMandatoryAttributes()) {
+                if (atts.get(name) == null)
+                    throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
+            }
         }
     }
 

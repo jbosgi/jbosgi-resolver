@@ -42,18 +42,18 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.resource.Resource;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * The abstract implementation of a {@link XPackageCapability}.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -65,8 +65,13 @@ public class AbstractPackageCapability extends AbstractCapability implements XPa
     public AbstractPackageCapability(Resource res, Map<String, Object> attrs, Map<String, String> dirs) {
         super(res, PackageNamespace.PACKAGE_NAMESPACE, attrs, dirs);
         packageName = (String) attrs.get(PackageNamespace.PACKAGE_NAMESPACE);
-        String versionatt = (String) attrs.get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        version = versionatt != null ? Version.parseVersion(versionatt) : Version.emptyVersion;
+        Object versionatt = attrs.get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        if (versionatt instanceof Version)
+            version = (Version) versionatt;
+        else if (versionatt instanceof String)
+            version = Version.parseVersion((String)versionatt);
+        else
+            version = Version.emptyVersion;
     }
 
     @Override
