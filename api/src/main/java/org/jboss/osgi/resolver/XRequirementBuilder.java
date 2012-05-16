@@ -5,16 +5,16 @@
  * Copyright (C) 2010 - 2012 JBoss by Red Hat
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 2.1 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
+ *
+ * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
@@ -22,7 +22,6 @@
 
 package org.jboss.osgi.resolver;
 
-import static org.jboss.osgi.resolver.XResourceBuilder.EMPTY_DIRECTIVES;
 import static org.jboss.osgi.resolver.XResourceConstants.MAVEN_IDENTITY_NAMESPACE;
 import static org.jboss.osgi.resolver.XResourceConstants.MODULE_IDENTITY_NAMESPACE;
 
@@ -40,19 +39,17 @@ import org.jboss.modules.ModuleIdentifier;
 public abstract class XRequirementBuilder {
 
     public static XRequirement createArtifactRequirement(ModuleIdentifier moduleId) {
-        Map<String, Object> atts = new HashMap<String, Object>();
-        atts.put(MODULE_IDENTITY_NAMESPACE, moduleId.toString());
-        return createRequirement(MODULE_IDENTITY_NAMESPACE, atts, EMPTY_DIRECTIVES);
+        return createRequirement(MODULE_IDENTITY_NAMESPACE, moduleId.toString());
     }
 
     public static XRequirement createArtifactRequirement(MavenCoordinates coordinates) {
-        Map<String, Object> atts = new HashMap<String, Object>();
-        atts.put(MAVEN_IDENTITY_NAMESPACE, coordinates.toExternalForm());
-        return createRequirement(MAVEN_IDENTITY_NAMESPACE, atts, EMPTY_DIRECTIVES);
+        return createRequirement(MAVEN_IDENTITY_NAMESPACE, coordinates.toExternalForm());
     }
 
-    public static XRequirement createRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+    public static XRequirement createRequirement(String namespace, String value) {
         XResourceBuilder builder = XResourceBuilderFactory.create();
-        return builder.addGenericRequirement(namespace, atts, dirs);
+        Map<String, Object> atts = new HashMap<String, Object>();
+        atts.put(namespace, value);
+        return builder.addGenericRequirement(namespace, atts, null);
     }
 }

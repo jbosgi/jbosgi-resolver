@@ -5,16 +5,16 @@
  * Copyright (C) 2010 - 2012 JBoss by Red Hat
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 2.1 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
+ *
+ * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
@@ -77,9 +77,8 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         atts.put(IdentityNamespace.IDENTITY_NAMESPACE, symbolicName);
         atts.put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, version != null ? version : Version.emptyVersion);
         atts.put(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE, type != null ? type : IdentityNamespace.TYPE_UNKNOWN);
-        XIdentityCapability cap = new AbstractIdentityCapability(resource, atts, dirs);
+        AbstractIdentityCapability cap = new AbstractIdentityCapability(resource, atts, dirs);
         addCapability(cap);
-        ;
         return cap;
     }
 
@@ -188,7 +187,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         XRequirement req;
         atts = mutableAttributes(atts);
         dirs = mutableDirectives(dirs);
-        if (IdentityNamespace.IDENTITY_NAMESPACE.equals(namespace)) {
+        if (BundleNamespace.BUNDLE_NAMESPACE.equals(namespace)) {
             req = new AbstractBundleRequirement(resource, atts, dirs);
         } else if (PackageNamespace.PACKAGE_NAMESPACE.equals(namespace)) {
             req = new AbstractPackageRequirement(resource, atts, dirs);
@@ -320,6 +319,9 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
     @Override
     public XResource getResource() {
+        if (resource instanceof AbstractResource) {
+            ((AbstractResource)resource).makeImmutable();
+        }
         return resource;
     }
 
@@ -358,11 +360,11 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     }
 
     private Map<String, Object> mutableAttributes(Map<String, Object> atts) {
-        return new HashMap<String, Object>(atts != null ? atts : EMPTY_ATTRIBUTES);
+        return new HashMap<String, Object>(atts != null ? atts : new HashMap<String, Object>());
     }
 
     private Map<String, String> mutableDirectives(Map<String, String> dirs) {
-        return new HashMap<String, String>(dirs != null ? dirs : EMPTY_DIRECTIVES);
+        return new HashMap<String, String>(dirs != null ? dirs : new HashMap<String, String>());
     }
 
     private void assertResourceCreated() {

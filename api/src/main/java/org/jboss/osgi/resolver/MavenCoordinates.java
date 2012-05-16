@@ -5,16 +5,16 @@
  * Copyright (C) 2010 - 2012 JBoss by Red Hat
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 2.1 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
+ *
+ * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
@@ -100,18 +100,23 @@ public final class MavenCoordinates {
         return groupId + ":" + artifactId + ":" + type + ":" + version + clstr;
     }
 
-    public URL toArtifactURL(URL baseURL) {
+    public URL getArtifactURL(URL baseURL) {
         String base = baseURL.toExternalForm();
         if (base.endsWith("/") == false)
             base += "/";
-        String dirstr = base + groupId.replace('.', '/') + "/" + artifactId + "/" + version;
-        String clstr = classifier != null ? "-" + classifier : "";
-        String urlstr = dirstr + "/" + artifactId + "-" + version + clstr + "." + type;
+        String urlstr = base + getArtifactPath();
         try {
             return new URL(urlstr);
         } catch (MalformedURLException e) {
             throw MESSAGES.illegalStateInvalidArtifactURL(urlstr);
         }
+    }
+
+    public String getArtifactPath() {
+        String dirstr = groupId.replace('.', '/') + "/" + artifactId + "/" + version;
+        String clstr = classifier != null ? "-" + classifier : "";
+        String path = dirstr + "/" + artifactId + "-" + version + clstr + "." + type;
+        return path;
     }
 
     @Override

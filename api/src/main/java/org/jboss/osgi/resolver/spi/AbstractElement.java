@@ -5,16 +5,16 @@
  * Copyright (C) 2010 - 2012 JBoss by Red Hat
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 2.1 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
+ *
+ * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
@@ -22,14 +22,13 @@
 
 package org.jboss.osgi.resolver.spi;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XElement;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The abstract implementation of a {@link XElement}.
@@ -108,7 +107,9 @@ class AbstractElement implements XElement {
 
         @Override
         public Map<String, Object> getAttributes() {
-            return attributes != null ? Collections.unmodifiableMap(attributes) : Collections.<String, Object>emptyMap();
+            if (attributes == null)
+                attributes = new HashMap<String, Object>();
+            return attributes;
         }
 
         public String toString() {
@@ -130,7 +131,9 @@ class AbstractElement implements XElement {
 
         @Override
         public Map<String, String> getDirectives() {
-            return directives != null ? Collections.unmodifiableMap(directives) : Collections.<String, String>emptyMap();
+            if (directives == null)
+                directives = new HashMap<String, String>();
+            return directives;
         }
 
         public String toString() {

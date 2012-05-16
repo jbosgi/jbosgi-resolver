@@ -5,16 +5,16 @@
  * Copyright (C) 2010 - 2012 JBoss by Red Hat
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 2.1 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
+ *
+ * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
@@ -49,7 +49,7 @@ import org.osgi.resource.Resource;
  */
 public class AbstractRequirement extends AbstractElement implements XRequirement {
 
-    private final Resource resource;
+    private final XResource resource;
     private final String namespace;
     private final XAttributeSupport attributes;
     private final XDirectiveSupport directives;
@@ -57,7 +57,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     private final Filter filter;
     private String toString;
 
-    protected AbstractRequirement(Resource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+    protected AbstractRequirement(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
             throw MESSAGES.illegalArgumentNull("resource");
         if (namespace == null)
@@ -119,7 +119,8 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
 
     @Override
     public Map<String, String> getDirectives() {
-        return directives.getDirectives();
+        Map<String, String> dirs = directives.getDirectives();
+        return isMutable() ? Collections.unmodifiableMap(dirs) : dirs;
     }
 
     @Override
@@ -129,7 +130,8 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
 
     @Override
     public Map<String, Object> getAttributes() {
-        return attributes.getAttributes();
+        Map<String, Object> atts = attributes.getAttributes();
+        return isMutable() ? Collections.unmodifiableMap(atts) : atts;
     }
 
     @Override
@@ -148,6 +150,10 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         matches &= matchFilterValue(cap);
 
         return matches;
+    }
+
+    boolean isMutable() {
+        return resource instanceof AbstractResource && ((AbstractResource)resource).isMutable();
     }
 
     protected boolean matchNamespaceValue(XCapability cap) {
