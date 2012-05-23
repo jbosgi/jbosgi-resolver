@@ -40,18 +40,11 @@ import org.osgi.framework.namespace.PackageNamespace;
 public class AbstractPackageCapability extends AbstractCapability implements XPackageCapability {
 
     private final String packageName;
-    private final Version version;
+    private Version version;
 
     public AbstractPackageCapability(XResource res, Map<String, Object> attrs, Map<String, String> dirs) {
         super(res, PackageNamespace.PACKAGE_NAMESPACE, attrs, dirs);
         packageName = (String) attrs.get(PackageNamespace.PACKAGE_NAMESPACE);
-        Object versionatt = attrs.get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        if (versionatt instanceof Version)
-            version = (Version) versionatt;
-        else if (versionatt instanceof String)
-            version = Version.parseVersion((String)versionatt);
-        else
-            version = Version.emptyVersion;
     }
 
     @Override
@@ -66,6 +59,9 @@ public class AbstractPackageCapability extends AbstractCapability implements XPa
 
     @Override
     public Version getVersion() {
+        if (version == null) {
+            version = getVersion(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        }
         return version;
     }
 }

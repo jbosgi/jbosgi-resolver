@@ -22,7 +22,6 @@
 
 package org.jboss.osgi.resolver.spi;
 
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -44,18 +43,11 @@ import org.osgi.framework.namespace.BundleNamespace;
 public class AbstractBundleRequirement extends AbstractRequirement implements XBundleRequirement {
 
     private final String symbolicName;
-    private final VersionRange versionrange;
-    private final String visibility;
+    private VersionRange versionrange;
 
     protected AbstractBundleRequirement(XResource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, BundleNamespace.BUNDLE_NAMESPACE, atts, dirs);
         symbolicName = (String) getAttribute(BundleNamespace.BUNDLE_NAMESPACE);
-        visibility = getDirective(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
-        Object versionatt = atts.get(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        if (versionatt instanceof String) {
-            versionatt = VersionRange.parse((String) versionatt);
-        }
-        versionrange = (VersionRange) versionatt;
     }
 
     @Override
@@ -70,12 +62,15 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
 
     @Override
     public VersionRange getVersionRange() {
+        if (versionrange == null) {
+            versionrange = getVersionRange(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+        }
         return versionrange;
     }
 
     @Override
     public String getVisibility() {
-        return visibility;
+        return getDirective(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
     }
 
     @Override
@@ -89,9 +84,9 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
             return false;
 
         // match the bundle version range
-        if (versionrange != null) {
+        if (getVersionRange() != null) {
             Version version = ((XBundleCapability) cap).getVersion();
-            if (versionrange.isInRange(version) == false)
+            if (getVersionRange().isInRange(version) == false)
                 return false;
         }
 

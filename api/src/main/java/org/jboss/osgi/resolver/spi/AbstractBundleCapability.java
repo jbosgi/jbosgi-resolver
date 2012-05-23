@@ -40,12 +40,11 @@ import org.osgi.framework.namespace.BundleNamespace;
 public class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
 
     private final String symbolicName;
-    private final Version version;
+    private Version version;
 
     protected AbstractBundleCapability(XResource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, BundleNamespace.BUNDLE_NAMESPACE, atts, dirs);
         this.symbolicName = (String) atts.get(BundleNamespace.BUNDLE_NAMESPACE);
-        this.version = (Version) atts.get(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override
@@ -60,6 +59,9 @@ public class AbstractBundleCapability extends AbstractCapability implements XBun
 
     @Override
     public Version getVersion() {
+        if (version == null) {
+            version = getVersion(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+        }
         return version;
     }
 }

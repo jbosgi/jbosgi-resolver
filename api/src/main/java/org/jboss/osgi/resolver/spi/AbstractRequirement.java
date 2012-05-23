@@ -29,6 +29,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
+import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
@@ -51,11 +52,10 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
 
     private final XResource resource;
     private final String namespace;
-    private final XAttributeSupport attributes;
-    private final XDirectiveSupport directives;
-    private final boolean optional;
-    private final Filter filter;
-    private String toString;
+    private XAttributeSupport attributes;
+    private XDirectiveSupport directives;
+    private Boolean optional;
+    private Filter filter;
 
     protected AbstractRequirement(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -71,31 +71,17 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         this.namespace = namespace;
         this.attributes = new AttributeSupporter(atts);
         this.directives = new DirectiveSupporter(dirs);
-
-        String resdir = dirs.get(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
-        optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
-
-        String filterdir = getDirective(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE);
-        if (filterdir != null) {
-            try {
-                filter = FrameworkUtil.createFilter(filterdir);
-            } catch (InvalidSyntaxException e) {
-                throw MESSAGES.illegalArgumentInvalidFilterDirective(filterdir);
-            }
-        } else {
-            filter = null;
-        }
-
-        validateAttributes(atts);
     }
 
-    protected void validateAttributes(Map<String, Object> atts) {
-        if (filter == null) {
+    protected void validateAttributes() {
+        if (getFilter() == null) {
             for (String name : getMandatoryAttributes()) {
-                if (atts.get(name) == null)
+                if (getAttribute(name) == null)
                     throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
             }
         }
+        attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
+        directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
     }
 
     protected Set<String> getMandatoryAttributes() {
@@ -114,13 +100,16 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
 
     @Override
     public boolean isOptional() {
+        if (optional == null) {
+            String resdir = getDirective(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
+            optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
+        }
         return optional;
     }
 
     @Override
     public Map<String, String> getDirectives() {
-        Map<String, String> dirs = directives.getDirectives();
-        return isMutable() ? Collections.unmodifiableMap(dirs) : dirs;
+        return directives.getDirectives();
     }
 
     @Override
@@ -130,8 +119,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
 
     @Override
     public Map<String, Object> getAttributes() {
-        Map<String, Object> atts = attributes.getAttributes();
-        return isMutable() ? Collections.unmodifiableMap(atts) : atts;
+        return attributes.getAttributes();
     }
 
     @Override
@@ -152,8 +140,9 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         return matches;
     }
 
-    boolean isMutable() {
-        return resource instanceof AbstractResource && ((AbstractResource)resource).isMutable();
+    VersionRange getVersionRange(String attr) {
+        Object value = getAttribute(attr);
+        return (value instanceof String) ? VersionRange.parse((String) value) : (VersionRange) value;
     }
 
     protected boolean matchNamespaceValue(XCapability cap) {
@@ -163,17 +152,28 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     }
 
     protected boolean matchFilterValue(XCapability cap) {
-        return filter != null ? filter.match(new Hashtable<String, Object>(cap.getAttributes())) : true;
+        return getFilter() != null ? getFilter().match(new Hashtable<String, Object>(cap.getAttributes())) : true;
+    }
+
+    private Filter getFilter() {
+        if (filter == null) {
+            String filterdir = getDirective(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE);
+            if (filterdir != null) {
+                try {
+                    filter = FrameworkUtil.createFilter(filterdir);
+                } catch (InvalidSyntaxException e) {
+                    throw MESSAGES.illegalArgumentInvalidFilterDirective(filterdir);
+                }
+            }
+        }
+        return filter;
     }
 
     public String toString() {
-    	if (toString == null) {
-            String attstr = "atts=" + attributes;
-            String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
-        	XIdentityCapability icap = ((XResource)getResource()).getIdentityCapability();
-    		String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
-            toString = getClass().getSimpleName() + "[" + attstr + dirstr + resname + "]";
-    	}
-        return toString;
+        String attstr = "atts=" + attributes;
+        String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
+        XIdentityCapability icap = ((XResource) getResource()).getIdentityCapability();
+        String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
+        return getClass().getSimpleName() + "[" + attstr + dirstr + resname + "]";
     }
 }

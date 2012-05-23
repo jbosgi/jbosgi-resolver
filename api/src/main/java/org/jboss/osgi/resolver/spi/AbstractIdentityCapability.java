@@ -41,16 +41,11 @@ import org.osgi.framework.namespace.IdentityNamespace;
 public class AbstractIdentityCapability extends AbstractCapability implements XIdentityCapability {
 
     private final String symbolicName;
-    private final Version version;
-    private final boolean singleton;
-    private final String type;
+    private Version version;
 
     protected AbstractIdentityCapability(XResource resource, Map<String, Object> atts, Map<String, String> dirs) {
         super(resource, IdentityNamespace.IDENTITY_NAMESPACE, atts, dirs);
         symbolicName = (String) atts.get(IdentityNamespace.IDENTITY_NAMESPACE);
-        version = (Version) atts.get(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        type = (String) atts.get(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE);
-        singleton = Boolean.parseBoolean(dirs.get(IdentityNamespace.CAPABILITY_SINGLETON_DIRECTIVE));
     }
 
     @Override
@@ -67,15 +62,18 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
 
     @Override
     public Version getVersion() {
+        if (version == null) {
+            version = getVersion(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        }
         return version;
     }
 
     @Override
     public String getType() {
-        return type;
+        return (String) getAttribute(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE);
     }
 
     public boolean isSingleton() {
-        return singleton;
+        return Boolean.parseBoolean(getDirective(IdentityNamespace.CAPABILITY_SINGLETON_DIRECTIVE));
     }
 }

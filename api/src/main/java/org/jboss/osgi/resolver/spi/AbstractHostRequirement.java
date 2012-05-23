@@ -43,16 +43,11 @@ import org.osgi.framework.namespace.HostNamespace;
 public class AbstractHostRequirement extends AbstractRequirement implements XHostRequirement {
 
     private final String symbolicName;
-    private final VersionRange versionrange;
+    private VersionRange versionrange;
 
     protected AbstractHostRequirement(XResource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, HostNamespace.HOST_NAMESPACE, atts, dirs);
         symbolicName = (String) getAttribute(HostNamespace.HOST_NAMESPACE);
-        Object versionatt = atts.get(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        if (versionatt instanceof String) {
-            versionatt = VersionRange.parse((String) versionatt);
-        }
-        versionrange = (VersionRange) versionatt;
     }
 
     @Override
@@ -67,6 +62,9 @@ public class AbstractHostRequirement extends AbstractRequirement implements XHos
 
     @Override
     public VersionRange getVersionRange() {
+        if (versionrange == null) {
+            versionrange = getVersionRange(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+        }
         return versionrange;
     }
 
@@ -77,9 +75,9 @@ public class AbstractHostRequirement extends AbstractRequirement implements XHos
             return false;
 
         // match the bundle version range
-        if (versionrange != null) {
+        if (getVersionRange() != null) {
             Version version = ((XHostCapability) cap).getVersion();
-            if (versionrange.isInRange(version) == false)
+            if (getVersionRange().isInRange(version) == false)
                 return false;
         }
 

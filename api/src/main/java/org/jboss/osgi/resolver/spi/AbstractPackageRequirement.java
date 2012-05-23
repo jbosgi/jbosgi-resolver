@@ -46,18 +46,12 @@ import org.osgi.framework.namespace.PackageNamespace;
 public class AbstractPackageRequirement extends AbstractRequirement implements XPackageRequirement {
 
     private final String packageName;
-    private final VersionRange versionrange;
-    private final boolean dynamic;
+    private VersionRange versionrange;
+    private Boolean dynamic;
 
     public AbstractPackageRequirement(XResource res, Map<String, Object> attrs, Map<String, String> dirs) {
         super(res, PackageNamespace.PACKAGE_NAMESPACE, attrs, dirs);
         packageName = (String) attrs.get(PackageNamespace.PACKAGE_NAMESPACE);
-        Object versionatt = attrs.get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        if (versionatt instanceof String) {
-            versionatt = VersionRange.parse((String) versionatt);
-        }
-        versionrange = (VersionRange) versionatt;
-        dynamic = PackageNamespace.RESOLUTION_DYNAMIC.equals(dirs.get(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE));
     }
 
     @Override
@@ -72,11 +66,17 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
 
     @Override
     public VersionRange getVersionRange() {
+        if (versionrange == null) {
+            versionrange = getVersionRange(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        }
         return versionrange;
     }
 
     @Override
     public boolean isDynamic() {
+        if (dynamic == null) {
+            dynamic = PackageNamespace.RESOLUTION_DYNAMIC.equals(getDirective(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE));
+        }
         return dynamic;
     }
 
@@ -106,9 +106,9 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
             return false;
 
         // match the package version range
-        if (versionrange != null) {
+        if (getVersionRange() != null) {
             Version version = ((XPackageCapability) cap).getVersion();
-            if (versionrange.isInRange(version) == false)
+            if (getVersionRange().isInRange(version) == false)
                 return false;
         }
 

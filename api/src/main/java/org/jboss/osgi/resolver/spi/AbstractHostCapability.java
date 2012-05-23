@@ -32,7 +32,7 @@ import org.osgi.framework.Version;
 import org.osgi.framework.namespace.HostNamespace;
 
 /**
- * The abstract implementation of a {@link org.jboss.osgi.resolver.XHostCapability}.
+ * The abstract implementation of a {@link XHostCapability}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
@@ -40,12 +40,11 @@ import org.osgi.framework.namespace.HostNamespace;
 public class AbstractHostCapability extends AbstractCapability implements XHostCapability {
 
     private final String symbolicName;
-    private final Version version;
+    private Version version;
 
     protected AbstractHostCapability(XResource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, HostNamespace.HOST_NAMESPACE, atts, dirs);
         symbolicName = (String) atts.get(HostNamespace.HOST_NAMESPACE);
-        version = (Version) atts.get(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override
@@ -60,6 +59,9 @@ public class AbstractHostCapability extends AbstractCapability implements XHostC
 
     @Override
     public Version getVersion() {
+        if (version == null) {
+            version = getVersion(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+        }
         return version;
     }
 }

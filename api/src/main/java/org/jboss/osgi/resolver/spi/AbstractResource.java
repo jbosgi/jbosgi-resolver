@@ -68,6 +68,16 @@ public class AbstractResource extends AbstractElement implements XResource {
     }
 
     void makeImmutable() {
+        for (Capability cap : getCaplist(null)) {
+            if (cap instanceof AbstractCapability) {
+                ((AbstractCapability)cap).validateAttributes();
+            }
+        }
+        for (Requirement req : getReqlist(null)) {
+            if (req instanceof AbstractRequirement) {
+                ((AbstractRequirement)req).validateAttributes();
+            }
+        }
         this.mutable = true;
     }
 

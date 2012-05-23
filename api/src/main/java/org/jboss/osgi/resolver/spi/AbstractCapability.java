@@ -33,6 +33,7 @@ import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.Version;
 import org.osgi.resource.Resource;
 
 /**
@@ -45,9 +46,8 @@ public class AbstractCapability extends AbstractElement implements XCapability {
 
     private final String namespace;
     private final XResource resource;
-    private final XAttributeSupport attributes;
-    private final XDirectiveSupport directives;
-    private String toString;
+    private XAttributeSupport attributes;
+    private XDirectiveSupport directives;
 
     protected AbstractCapability(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -63,15 +63,15 @@ public class AbstractCapability extends AbstractElement implements XCapability {
         this.namespace = namespace;
         this.attributes = new AttributeSupporter(atts);
         this.directives = new DirectiveSupporter(dirs);
-
-        validateAttributes(atts);
     }
 
-    protected void validateAttributes(Map<String, Object> atts) {
+    protected void validateAttributes() {
         for (String name : getMandatoryAttributes()) {
-            if (atts.get(name) == null)
+            if (getAttribute(name) == null)
                 throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
         }
+        attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
+        directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
     }
 
     protected Set<String> getMandatoryAttributes() {
@@ -90,8 +90,7 @@ public class AbstractCapability extends AbstractElement implements XCapability {
 
     @Override
     public Map<String, String> getDirectives() {
-        Map<String, String> dirs = directives.getDirectives();
-        return isMutable() ? Collections.unmodifiableMap(dirs) : dirs;
+        return directives.getDirectives();
     }
 
     @Override
@@ -101,8 +100,7 @@ public class AbstractCapability extends AbstractElement implements XCapability {
 
     @Override
     public Map<String, Object> getAttributes() {
-        Map<String, Object> atts = attributes.getAttributes();
-        return isMutable() ? Collections.unmodifiableMap(atts) : atts;
+        return attributes.getAttributes();
     }
 
     @Override
@@ -110,18 +108,21 @@ public class AbstractCapability extends AbstractElement implements XCapability {
         return attributes.getAttribute(key);
     }
 
-    boolean isMutable() {
-        return resource instanceof AbstractResource && ((AbstractResource)resource).isMutable();
+    Version getVersion(String attr) {
+        Object versionatt = getAttribute(attr);
+        if (versionatt instanceof Version)
+            return (Version) versionatt;
+        else if (versionatt instanceof String)
+            return Version.parseVersion((String) versionatt);
+        else
+            return Version.emptyVersion;
     }
 
     public String toString() {
-    	if (toString == null) {
-            String attstr = "atts=" + attributes;
-            String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
-        	XIdentityCapability icap = ((XResource)getResource()).getIdentityCapability();
-    		String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
-            toString = getClass().getSimpleName() + "[" + attstr + dirstr + resname + "]";
-    	}
-        return toString;
+        String attstr = "atts=" + attributes;
+        String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
+        XIdentityCapability icap = ((XResource) getResource()).getIdentityCapability();
+        String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
+        return getClass().getSimpleName() + "[" + attstr + dirstr + resname + "]";
     }
 }
