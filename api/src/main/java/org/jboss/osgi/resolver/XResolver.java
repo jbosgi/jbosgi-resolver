@@ -39,6 +39,6 @@ import org.osgi.service.resolver.Resolver;
 public interface XResolver extends Resolver {
 
     XResolveContext createResolverContext(XEnvironment environment, Collection<? extends Resource> mandatory, Collection<? extends Resource> optional);
-
+    
     Map<Resource, Wiring> resolveAndApply(XResolveContext context) throws ResolutionException;
 }

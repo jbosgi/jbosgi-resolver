@@ -33,23 +33,17 @@ import org.apache.felix.resolver.FelixResolveContext;
 import org.apache.felix.resolver.impl.HostedRequirement;
 import org.apache.felix.resolver.impl.ResolverImpl;
 import org.jboss.osgi.resolver.XEnvironment;
-import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResolveContext;
 import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.spi.AbstractResolveContext;
-import org.osgi.resource.Capability;
-import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
-import org.osgi.service.resolver.HostedCapability;
 import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.ResolveContext;
 
 /**
  * An implementation of the Resolver.
- * <p/>
- * This implemantion should use no framework specific API. It is the extension point for a framework specific Resolver.
  *
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
@@ -60,11 +54,10 @@ public class StatelessResolver implements XResolver {
 
     @Override
     public Map<Resource, List<Wire>> resolve(ResolveContext context) throws ResolutionException {
-        FelixResolveContext env = new ResolveContextDelegate((XResolveContext) context);
         Collection<Resource> mandatory = context.getMandatoryResources();
         Collection<Resource> optional = context.getOptionalResources();
         LOGGER.debugf("Resolve: %s, %s", mandatory, optional);
-        Map<Resource, List<Wire>> result = delegate.resolve(env);
+        Map<Resource, List<Wire>> result = delegate.resolve(context);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debugf("Resolution result: %d", result.size());
             for (Map.Entry<Resource, List<Wire>> entry : result.entrySet()) {

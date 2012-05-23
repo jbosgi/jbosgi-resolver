@@ -91,7 +91,7 @@ public abstract class AbstractResolverTest extends OSGiTest {
     XResolveContext getResolveContext(final List<XResource> mandatory, final List<XResource> optional) {
         Collection<Resource> manres = mandatory != null ? new ArrayList<Resource>(mandatory) : null;
         Collection<Resource> optres = optional != null ? new ArrayList<Resource>(optional) : null;
-        return resolver.createResolverContext(environment, manres, optres);
+        return resolver.createResolveContext(environment, manres, optres);
     }
 
     void applyResolverResults(Map<Resource, List<Wire>> wiremap) {

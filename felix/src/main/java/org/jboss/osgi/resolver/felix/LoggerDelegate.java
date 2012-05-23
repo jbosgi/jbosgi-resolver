@@ -24,7 +24,7 @@ package org.jboss.osgi.resolver.felix;
 
 import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
 
-import org.jboss.logging.Logger.Level;
+import org.jboss.osgi.resolver.internal.ResolverLogger;
 
 /**
  * An integration with the resolver Logger.
@@ -34,55 +34,36 @@ import org.jboss.logging.Logger.Level;
  * @author thomas.diesler@jboss.com
  * @since 14-Feb-2012
  */
-public class LoggerDelegate implements org.apache.felix.resolver.Logger {
+public class LoggerDelegate extends org.apache.felix.resolver.Logger {
 
 	public LoggerDelegate() {
+	    super(getLevel(ResolverLogger.LOGGER));
 	}
 
+	private static int getLevel(ResolverLogger logger) {
+        if (logger.isDebugEnabled())
+            return LOG_DEBUG;
+        if (logger.isInfoEnabled())
+            return LOG_INFO;
+        else
+            return LOG_WARNING;
+    }
+
+
 	@Override
-	public boolean isEnabled(int level) {
+	public void doLog(int level, String msg, Throwable throwable) {
 		switch (level) {
-		/*
 		case LOG_ERROR:
-			return log.isEnabled(Level.ERROR);
-		case LOG_WARNING:
-			return log.isEnabled(Level.WARN);
-		case LOG_INFO:
-			return log.isEnabled(Level.INFO);
-	    */
-		case LOG_DEBUG:
-			return LOGGER.isEnabled(Level.DEBUG);
-		case LOG_TRACE:
-			return LOGGER.isEnabled(Level.TRACE);
-	    default:
-			return false;
-		}
-	}
-
-	@Override
-	public void log(int level, String msg) {
-		log(level, msg, null);
-	}
-
-	@Override
-	public void log(int level, String msg, Throwable throwable) {
-		switch (level) {
-		/*
-		case LOG_ERROR:
-			log.error(msg, throwable);
+		    LOGGER.error(msg, throwable);
 			break;
 		case LOG_WARNING:
-			log.warn(msg, throwable);
+		    LOGGER.warn(msg, throwable);
 			break;
 		case LOG_INFO:
-			log.info(msg, throwable);
+		    LOGGER.info(msg, throwable);
 			break;
-	    */
 		case LOG_DEBUG:
 		    LOGGER.debug(msg, throwable);
-			break;
-		case LOG_TRACE:
-		    LOGGER.trace(msg, throwable);
 			break;
 		}
 	}

@@ -35,6 +35,7 @@
 
     <!-- Properties -->
     <properties>
+        <version.apache.felix.resolver>0.1.0-SNAPSHOT</version.apache.felix.resolver>
         <version.jboss.modules>1.1.2.GA</version.jboss.modules>
         <version.jboss.logging>3.1.1.GA</version.jboss.logging>
         <version.jboss.logging.processor>1.0.3.Final</version.jboss.logging.processor>
@@ -74,6 +75,11 @@
                 <groupId>org.jboss.osgi.metadata</groupId>
                 <artifactId>jbosgi-metadata</artifactId>
                 <version>${version.jboss.osgi.metadata}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.osgi.resolver</groupId>
+                <artifactId>org.apache.felix.resolver</artifactId>
+                <version>${version.apache.felix.resolver}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.osgi.spi</groupId>
