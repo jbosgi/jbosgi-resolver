@@ -266,7 +266,7 @@ public class RequireBundleResolverTest extends AbstractResolverTest {
         Wire wire = wiringD.getRequiredResourceWires(PackageNamespace.PACKAGE_NAMESPACE).get(0);
         assertEquals(resourceC, wire.getProvider());
         
-        // Bundle-SymbolicName: requirebundleD
+        // Bundle-SymbolicName: requirebundleE
         // Require-Bundle: requirebundleD
         // Import-Package: resources
         Archive<?> assemblyE = assembleArchive("resourceE", "/resolver/requirebundleE");
