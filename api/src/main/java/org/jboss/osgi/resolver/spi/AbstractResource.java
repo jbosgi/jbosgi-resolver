@@ -30,7 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
+import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
@@ -49,7 +51,6 @@ public class AbstractResource extends AbstractElement implements XResource {
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
     private XIdentityCapability identityCapability;
     private Boolean fragment;
-    private boolean mutable;
 
     protected void addCapability(Capability cap) {
         String namespace = cap.getNamespace();
@@ -63,22 +64,14 @@ public class AbstractResource extends AbstractElement implements XResource {
         getReqlist(null).add(req);
     }
 
-    boolean isMutable() {
-        return mutable;
-    }
-
-    void makeImmutable() {
+    @Override
+    public void validate() {
         for (Capability cap : getCaplist(null)) {
-            if (cap instanceof AbstractCapability) {
-                ((AbstractCapability)cap).validateAttributes();
-            }
+            ((XCapability) cap).validate();
         }
         for (Requirement req : getReqlist(null)) {
-            if (req instanceof AbstractRequirement) {
-                ((AbstractRequirement)req).validateAttributes();
-            }
+            ((XRequirement) req).validate();
         }
-        this.mutable = true;
     }
 
     @Override
@@ -98,7 +91,7 @@ public class AbstractResource extends AbstractElement implements XResource {
             if (caps.size() > 1)
                 throw MESSAGES.illegalStateMultipleIdentities(caps);
             if (caps.size() == 1)
-            	identityCapability = (XIdentityCapability) caps.get(0);
+                identityCapability = (XIdentityCapability) caps.get(0);
         }
         return identityCapability;
     }
@@ -132,7 +125,7 @@ public class AbstractResource extends AbstractElement implements XResource {
 
     public String toString() {
         XIdentityCapability id = getIdentityCapability();
-        String idstr = (id != null ? id.getSymbolicName()+ ":" + id.getVersion() : "anonymous");
+        String idstr = (id != null ? id.getSymbolicName() + ":" + id.getVersion() : "anonymous");
         return getClass().getSimpleName() + "[" + idstr + "]";
     }
 }

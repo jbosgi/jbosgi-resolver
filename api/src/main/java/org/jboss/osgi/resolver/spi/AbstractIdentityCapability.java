@@ -22,10 +22,9 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XResource;
@@ -49,10 +48,14 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
     }
 
     @Override
-    protected Set<String> getMandatoryAttributes() {
-        HashSet<String> result = new HashSet<String>();
-        Collections.addAll(result, IdentityNamespace.IDENTITY_NAMESPACE, IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        return Collections.unmodifiableSet(result);
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(IdentityNamespace.IDENTITY_NAMESPACE);
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        version = getVersion(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
     }
 
     @Override
@@ -62,9 +65,6 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
 
     @Override
     public Version getVersion() {
-        if (version == null) {
-            version = getVersion(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        }
         return version;
     }
 

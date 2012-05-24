@@ -22,13 +22,14 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jboss.osgi.resolver.XHostCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
+import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.HostNamespace;
 
 /**
@@ -48,8 +49,14 @@ public class AbstractHostCapability extends AbstractCapability implements XHostC
     }
 
     @Override
-    protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(HostNamespace.HOST_NAMESPACE);
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(HostNamespace.HOST_NAMESPACE);
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        version = getVersion(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override
@@ -59,9 +66,6 @@ public class AbstractHostCapability extends AbstractCapability implements XHostC
 
     @Override
     public Version getVersion() {
-        if (version == null) {
-            version = getVersion(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        }
         return version;
     }
 }

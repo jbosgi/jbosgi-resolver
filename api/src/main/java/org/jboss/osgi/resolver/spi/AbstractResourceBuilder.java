@@ -280,6 +280,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     addDynamicPackageRequirement(name, atts, dirs);
                 }
             }
+            resource.validate();
         } catch (RuntimeException ex) {
             String cachedAttributes = metadata.getCachedAttributes().toString();
             throw MESSAGES.resourceBuilderCannotInitializeResource(ex, cachedAttributes);
@@ -290,29 +291,34 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     @Override
     public XResourceBuilder loadFrom(Module module) throws ResourceBuilderException {
         assertResourceCreated();
-        ModuleIdentifier identifier = module.getIdentifier();
-        String symbolicName = identifier.getName();
-        Version version;
         try {
-            version = Version.parseVersion(identifier.getSlot());
-        } catch (IllegalArgumentException ex) {
-            version = Version.emptyVersion;
-        }
-
-        // Add the identity capability
-        addIdentityCapability(symbolicName, version, IdentityNamespace.TYPE_UNKNOWN, null, null);
-        resource.addAttachment(Module.class, module);
-
-        // Add a package capability for every exported path
-        for (String path : module.getExportedPaths()) {
-            if (path.startsWith("/"))
-                path = path.substring(1);
-            if (path.endsWith("/"))
-                path = path.substring(0, path.length() - 1);
-            if (!path.isEmpty() && !path.startsWith("META-INF")) {
-                String packageName = path.replace('/', '.');
-                addPackageCapability(packageName, null, null);
+            ModuleIdentifier identifier = module.getIdentifier();
+            String symbolicName = identifier.getName();
+            Version version;
+            try {
+                version = Version.parseVersion(identifier.getSlot());
+            } catch (IllegalArgumentException ex) {
+                version = Version.emptyVersion;
             }
+
+            // Add the identity capability
+            addIdentityCapability(symbolicName, version, IdentityNamespace.TYPE_UNKNOWN, null, null);
+            resource.addAttachment(Module.class, module);
+
+            // Add a package capability for every exported path
+            for (String path : module.getExportedPaths()) {
+                if (path.startsWith("/"))
+                    path = path.substring(1);
+                if (path.endsWith("/"))
+                    path = path.substring(0, path.length() - 1);
+                if (!path.isEmpty() && !path.startsWith("META-INF")) {
+                    String packageName = path.replace('/', '.');
+                    addPackageCapability(packageName, null, null);
+                }
+            }
+            resource.validate();
+        } catch (RuntimeException ex) {
+            throw MESSAGES.resourceBuilderCannotInitializeResource(ex, resource.toString());
         }
         return this;
     }
@@ -320,7 +326,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     @Override
     public XResource getResource() {
         if (resource instanceof AbstractResource) {
-            ((AbstractResource)resource).makeImmutable();
+            ((AbstractResource)resource).validate();
         }
         return resource;
     }

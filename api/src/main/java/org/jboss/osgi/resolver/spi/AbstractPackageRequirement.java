@@ -22,10 +22,10 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XCapability;
@@ -55,8 +55,15 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     }
 
     @Override
-    protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(PackageNamespace.PACKAGE_NAMESPACE);
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(PackageNamespace.PACKAGE_NAMESPACE);
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        versionrange = getVersionRange(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        dynamic = PackageNamespace.RESOLUTION_DYNAMIC.equals(getDirective(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE));
     }
 
     @Override
@@ -67,16 +74,12 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     @Override
     public VersionRange getVersionRange() {
         if (versionrange == null) {
-            versionrange = getVersionRange(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
         }
         return versionrange;
     }
 
     @Override
     public boolean isDynamic() {
-        if (dynamic == null) {
-            dynamic = PackageNamespace.RESOLUTION_DYNAMIC.equals(getDirective(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE));
-        }
         return dynamic;
     }
 

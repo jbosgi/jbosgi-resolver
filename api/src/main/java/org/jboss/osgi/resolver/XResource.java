@@ -41,4 +41,9 @@ public interface XResource extends XElement, Resource {
      * True if this resource is a fragment
      */
     boolean isFragment();
+
+    /**
+     * Validate the resource
+     */
+    void validate();
 }

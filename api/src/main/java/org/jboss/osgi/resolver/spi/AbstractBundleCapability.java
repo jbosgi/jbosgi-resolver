@@ -22,9 +22,9 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XResource;
@@ -44,12 +44,18 @@ public class AbstractBundleCapability extends AbstractCapability implements XBun
 
     protected AbstractBundleCapability(XResource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, BundleNamespace.BUNDLE_NAMESPACE, atts, dirs);
-        this.symbolicName = (String) atts.get(BundleNamespace.BUNDLE_NAMESPACE);
+        symbolicName = (String) atts.get(BundleNamespace.BUNDLE_NAMESPACE);
     }
 
     @Override
-    protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(BundleNamespace.BUNDLE_NAMESPACE, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        version = getVersion(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override
@@ -59,9 +65,6 @@ public class AbstractBundleCapability extends AbstractCapability implements XBun
 
     @Override
     public Version getVersion() {
-        if (version == null) {
-            version = getVersion(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        }
         return version;
     }
 }

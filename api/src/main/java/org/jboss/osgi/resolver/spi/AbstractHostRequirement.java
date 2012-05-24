@@ -22,9 +22,9 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XCapability;
@@ -51,8 +51,14 @@ public class AbstractHostRequirement extends AbstractRequirement implements XHos
     }
 
     @Override
-    protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(HostNamespace.HOST_NAMESPACE);
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(HostNamespace.HOST_NAMESPACE);
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        versionrange = getVersionRange(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
     }
 
     @Override
@@ -62,9 +68,6 @@ public class AbstractHostRequirement extends AbstractRequirement implements XHos
 
     @Override
     public VersionRange getVersionRange() {
-        if (versionrange == null) {
-            versionrange = getVersionRange(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        }
         return versionrange;
     }
 

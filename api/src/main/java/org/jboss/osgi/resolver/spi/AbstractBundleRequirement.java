@@ -22,9 +22,9 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XBundleCapability;
@@ -44,6 +44,7 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
 
     private final String symbolicName;
     private VersionRange versionrange;
+    private String visibility;
 
     protected AbstractBundleRequirement(XResource res, Map<String, Object> atts, Map<String, String> dirs) {
         super(res, BundleNamespace.BUNDLE_NAMESPACE, atts, dirs);
@@ -51,8 +52,15 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
     }
 
     @Override
-    protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(BundleNamespace.BUNDLE_NAMESPACE);
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(BundleNamespace.BUNDLE_NAMESPACE);
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        versionrange = getVersionRange(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+        visibility = getDirective(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
     }
 
     @Override
@@ -62,15 +70,12 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
 
     @Override
     public VersionRange getVersionRange() {
-        if (versionrange == null) {
-            versionrange = getVersionRange(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        }
         return versionrange;
     }
 
     @Override
     public String getVisibility() {
-        return getDirective(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
+        return visibility;
     }
 
     @Override

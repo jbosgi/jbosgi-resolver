@@ -26,8 +26,8 @@ import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
 
 import java.util.Collections;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XAttributeSupport;
@@ -54,7 +54,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     private final String namespace;
     private XAttributeSupport attributes;
     private XDirectiveSupport directives;
-    private Boolean optional;
+    private boolean optional;
     private Filter filter;
 
     protected AbstractRequirement(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
@@ -73,19 +73,43 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         this.directives = new DirectiveSupporter(dirs);
     }
 
-    protected void validateAttributes() {
-        if (getFilter() == null) {
-            for (String name : getMandatoryAttributes()) {
-                if (getAttribute(name) == null)
-                    throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
+    @Override
+    public void validate() {
+        String filterdir = getDirective(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE);
+        if (filterdir != null) {
+            try {
+                filter = FrameworkUtil.createFilter(filterdir);
+            } catch (InvalidSyntaxException e) {
+                throw MESSAGES.illegalArgumentInvalidFilterDirective(filterdir);
+            }
+        }
+        for (String name : getMandatoryAttributes()) {
+            if (getAttribute(name) == null) {
+                if (!name.equals(namespace) || namespaceValueFromFilter(filter, namespace) == null)
+                throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
             }
         }
         attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
         directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
+        String resdir = getDirective(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
+        optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
     }
 
-    protected Set<String> getMandatoryAttributes() {
-        return Collections.emptySet();
+    public static String namespaceValueFromFilter(Filter filter, String namespace) {
+        String result = null;
+        if (filter != null) {
+            String filterstr = filter.toString();
+            int index = filterstr.indexOf("(" + namespace + "=");
+            if (index >= 0) {
+                result = filterstr.substring(index + namespace.length() + 2);
+                result = result.substring(0, result.indexOf(")"));
+            }
+        }
+        return result;
+    }
+
+    protected List<String> getMandatoryAttributes() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -100,10 +124,6 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
 
     @Override
     public boolean isOptional() {
-        if (optional == null) {
-            String resdir = getDirective(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
-            optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
-        }
         return optional;
     }
 
@@ -152,21 +172,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     }
 
     protected boolean matchFilterValue(XCapability cap) {
-        return getFilter() != null ? getFilter().match(new Hashtable<String, Object>(cap.getAttributes())) : true;
-    }
-
-    private Filter getFilter() {
-        if (filter == null) {
-            String filterdir = getDirective(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE);
-            if (filterdir != null) {
-                try {
-                    filter = FrameworkUtil.createFilter(filterdir);
-                } catch (InvalidSyntaxException e) {
-                    throw MESSAGES.illegalArgumentInvalidFilterDirective(filterdir);
-                }
-            }
-        }
-        return filter;
+        return filter != null ? filter.match(new Hashtable<String, Object>(cap.getAttributes())) : true;
     }
 
     public String toString() {

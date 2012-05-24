@@ -22,9 +22,9 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XResource;
@@ -48,8 +48,14 @@ public class AbstractPackageCapability extends AbstractCapability implements XPa
     }
 
     @Override
-    protected Set<String> getMandatoryAttributes() {
-        return Collections.singleton(PackageNamespace.PACKAGE_NAMESPACE);
+    protected List<String> getMandatoryAttributes() {
+        return Arrays.asList(PackageNamespace.PACKAGE_NAMESPACE);
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        version = getVersion(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
     }
 
     @Override
@@ -59,9 +65,6 @@ public class AbstractPackageCapability extends AbstractCapability implements XPa
 
     @Override
     public Version getVersion() {
-        if (version == null) {
-            version = getVersion(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        }
         return version;
     }
 }

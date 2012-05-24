@@ -25,8 +25,8 @@ package org.jboss.osgi.resolver.spi;
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
@@ -65,7 +65,8 @@ public class AbstractCapability extends AbstractElement implements XCapability {
         this.directives = new DirectiveSupporter(dirs);
     }
 
-    protected void validateAttributes() {
+    @Override
+    public void validate() {
         for (String name : getMandatoryAttributes()) {
             if (getAttribute(name) == null)
                 throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
@@ -74,8 +75,8 @@ public class AbstractCapability extends AbstractElement implements XCapability {
         directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
     }
 
-    protected Set<String> getMandatoryAttributes() {
-        return Collections.emptySet();
+    protected List<String> getMandatoryAttributes() {
+        return Collections.emptyList();
     }
 
     @Override
