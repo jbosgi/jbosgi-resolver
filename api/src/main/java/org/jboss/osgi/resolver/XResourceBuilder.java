@@ -27,7 +27,6 @@ import java.util.Map;
 import org.jboss.modules.Module;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.osgi.framework.Constants;
-import org.osgi.framework.Version;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 
@@ -57,94 +56,90 @@ public interface XResourceBuilder {
      * Add the identity capability
      *
      * @param symbolicName The resource symbolic name
-     * @param version      The resource version
-     * @param type         The resource type
-     * @param atts         The attributes
-     * @param dirs         The directives
      */
-    XIdentityCapability addIdentityCapability(String symbolicName, Version version, String type, Map<String, Object> atts, Map<String, String> dirs);
-
-    /**
-     * Add identity requirement
-     *
-     * @param symbolicName The bundle symbolic name
-     * @param atts         The attributes
-     * @param dirs         The directives
-     */
-    XBundleRequirement addBundleRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+    XIdentityCapability addIdentityCapability(String symbolicName);
 
     /**
      * Add the bundle capability
      *
      * @param symbolicName The resource symbolic name
-     * @param version      The resource version
-     * @param atts         The attributes
-     * @param dirs         The directives
      */
-    XBundleCapability addBundleCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
+    XBundleCapability addBundleCapability(String symbolicName);
 
     /**
      * Add the fragment host capability
      *
      * @param symbolicName The resource symbolic name
-     * @param version      The resource version
-     * @param atts         The attributes
-     * @param dirs         The directives
      */
-    XHostCapability addHostCapability(String symbolicName, Version version, Map<String, Object> atts, Map<String, String> dirs);
-
-    /**
-     * Add fragment host requirement
-     *
-     * @param symbolicName The bundle symbolic name
-     * @param atts         The attributes
-     * @param dirs         The directives
-     */
-    XHostRequirement addHostRequirement(String symbolicName, Map<String, Object> atts, Map<String, String> dirs);
+    XHostCapability addHostCapability(String symbolicName);
 
     /**
      * Add a {@link Constants#EXPORT_PACKAGE} capability
      *
      * @param name The package name
-     * @param atts The attributes
-     * @param dirs The directives
      */
-    XPackageCapability addPackageCapability(String name, Map<String, Object> atts, Map<String, String> dirs);
-
-    /**
-     * Add a {@link Constants#IMPORT_PACKAGE} requirement
-     *
-     * @param name The package name
-     * @param atts The attributes
-     * @param dirs The directives
-     */
-    XPackageRequirement addPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
-
-    /**
-     * Add a {@link Constants#DYNAMICIMPORT_PACKAGE} requirement
-     *
-     * @param name The package name
-     * @param atts The attributes
-     */
-    XPackageRequirement addDynamicPackageRequirement(String name, Map<String, Object> atts, Map<String, String> dirs);
+    XPackageCapability addPackageCapability(String name);
 
     /**
      * Add a generic {@link Capability}
      *
      * @param namespace The namespace
-     * @param atts      The attributes
-     * @param dirs      The directives
+     * @param atts The attributes
+     * @param dirs The directives
      */
     XCapability addGenericCapability(String namespace, Map<String, Object> atts, Map<String, String> dirs);
+
+    /**
+     * Add a generic {@link Capability}
+     *
+     * @param namespace The namespace
+     * @param nsvalue The namespace value
+     */
+    XCapability addGenericCapability(String namespace, String nsvalue);
+
+    /**
+     * Add bundle requirement
+     *
+     * @param symbolicName The bundle symbolic name
+     */
+    XBundleRequirement addBundleRequirement(String symbolicName);
+
+    /**
+     * Add fragment host requirement
+     *
+     * @param symbolicName The bundle symbolic name
+     */
+    XHostRequirement addHostRequirement(String symbolicName);
+
+    /**
+     * Add a package requirement
+     *
+     * @param name The package name
+     */
+    XPackageRequirement addPackageRequirement(String name);
+
+    /**
+     * Add a dynamic package requirement
+     *
+     * @param name The package name
+     */
+    XPackageRequirement addDynamicPackageRequirement(String name);
 
     /**
      * Add a generic {@link Requirement}
      *
      * @param namespace The namespace
-     * @param atts      The attributes
-     * @param dirs      The directives
+     * @param atts The attributes
+     * @param dirs The directives
      */
     XRequirement addGenericRequirement(String namespace, Map<String, Object> atts, Map<String, String> dirs);
+
+    /**
+     * Add a generic {@link Requirement}
+     *
+     * @param namespace The namespace
+     */
+    XRequirement addGenericRequirement(String namespace);
 
     /**
      * Get the final resource from the builder

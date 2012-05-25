@@ -41,6 +41,7 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
 
     private final String symbolicName;
     private Version version;
+    private String type;
 
     protected AbstractIdentityCapability(XResource resource, Map<String, Object> atts, Map<String, String> dirs) {
         super(resource, IdentityNamespace.IDENTITY_NAMESPACE, atts, dirs);
@@ -56,6 +57,8 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
     public void validate() {
         super.validate();
         version = getVersion(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        String typeval = (String) getAttribute(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE);
+        type = typeval != null ? typeval : IdentityNamespace.TYPE_UNKNOWN;
     }
 
     @Override
@@ -70,7 +73,7 @@ public class AbstractIdentityCapability extends AbstractCapability implements XI
 
     @Override
     public String getType() {
-        return (String) getAttribute(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE);
+        return type;
     }
 
     public boolean isSingleton() {

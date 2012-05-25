@@ -77,7 +77,7 @@ public class AbstractResourceBuilderTestCase extends AbstractTestBase {
     @Test
     public void testAttributMutability() throws Exception {
         XResourceBuilder builder = XResourceBuilderFactory.create();
-        XIdentityCapability icap = builder.addIdentityCapability("test1", null, null, null, null);
+        XIdentityCapability icap = builder.addIdentityCapability("test1");
         icap.getAttributes().put(BundleNamespace.CAPABILITY_EFFECTIVE_DIRECTIVE, "meta");
         XResource res = builder.getResource();
         icap = res.getIdentityCapability();
