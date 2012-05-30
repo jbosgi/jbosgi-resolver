@@ -22,10 +22,24 @@
 
 package org.jboss.osgi.resolver;
 
+import java.net.URL;
+import java.util.Enumeration;
+
+import org.jboss.modules.ModuleClassLoader;
+import org.osgi.framework.wiring.BundleRevision;
+
 /**
+ * An extension to {@link BundleRevision}
+ *
  * @author thomas.diesler@jboss.com
- * @since 02-Jul-2010
+ * @since 15-Mar-2012
  */
-public interface XElement extends XAttachmentSupport {
+public interface XBundleRevision extends XResource, BundleRevision {
+
+    ModuleClassLoader getModuleClassLoader();
+    
+    int getRevisionId();
+
+    Enumeration<URL> findEntries(String path, String filePattern, boolean recursive);
 
 }

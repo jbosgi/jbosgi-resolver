@@ -24,31 +24,33 @@ package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
 
+import org.jboss.osgi.resolver.XResourceCapability;
 import org.jboss.osgi.resolver.XCapability;
-import org.jboss.osgi.resolver.XIdentityCapability;
 import org.osgi.framework.Version;
-import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.framework.namespace.BundleNamespace;
 
 /**
- * The abstract implementation of a {@link XIdentityCapability}.
+ * The abstract implementation of a {@link XResourceCapability}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractIdentityCapability extends AbstractCapabilityWrapper implements XIdentityCapability {
+class AbstractResourceCapability extends AbstractCapabilityWrapper implements XResourceCapability {
 
     private final String symbolicName;
-    private final Version version;
-    private final String type;
+    private Version version;
 
-    AbstractIdentityCapability(XCapability delegate) {
+    AbstractResourceCapability(XCapability delegate) {
         super(delegate);
-        symbolicName = (String) delegate.getAttribute(IdentityNamespace.IDENTITY_NAMESPACE);
-        version = AbstractCapability.getVersion(delegate, IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        String typeval = (String) getAttribute(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE);
-        type = typeval != null ? typeval : IdentityNamespace.TYPE_UNKNOWN;
-        if (IdentityNamespace.IDENTITY_NAMESPACE.equals(delegate.getNamespace()) == false)
+        symbolicName = (String) delegate.getAttribute(BundleNamespace.BUNDLE_NAMESPACE);
+        version = AbstractCapability.getVersion(delegate, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+        if (BundleNamespace.BUNDLE_NAMESPACE.equals(delegate.getNamespace()) == false)
             throw MESSAGES.illegalArgumentInvalidNamespace(delegate.getNamespace());
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
     }
 
     @Override
@@ -59,14 +61,5 @@ class AbstractIdentityCapability extends AbstractCapabilityWrapper implements XI
     @Override
     public Version getVersion() {
         return version;
-    }
-
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    public boolean isSingleton() {
-        return Boolean.parseBoolean(getDirective(IdentityNamespace.CAPABILITY_SINGLETON_DIRECTIVE));
     }
 }

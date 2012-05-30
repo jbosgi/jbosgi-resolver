@@ -22,12 +22,10 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
 
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
-import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.PackageNamespace;
 
@@ -37,25 +35,17 @@ import org.osgi.framework.namespace.PackageNamespace;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractPackageCapability extends AbstractCapability implements XPackageCapability {
+class AbstractPackageCapability extends AbstractCapabilityWrapper implements XPackageCapability {
 
     private final String packageName;
     private Version version;
 
-    public AbstractPackageCapability(XResource res, Map<String, Object> attrs, Map<String, String> dirs) {
-        super(res, PackageNamespace.PACKAGE_NAMESPACE, attrs, dirs);
-        packageName = (String) attrs.get(PackageNamespace.PACKAGE_NAMESPACE);
-    }
-
-    @Override
-    protected List<String> getMandatoryAttributes() {
-        return Arrays.asList(PackageNamespace.PACKAGE_NAMESPACE);
-    }
-
-    @Override
-    public void validate() {
-        super.validate();
-        version = getVersion(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+    AbstractPackageCapability(XCapability delegate) {
+        super(delegate);
+        packageName = (String) delegate.getAttribute(PackageNamespace.PACKAGE_NAMESPACE);
+        version = AbstractCapability.getVersion(delegate, PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+        if (PackageNamespace.PACKAGE_NAMESPACE.equals(delegate.getNamespace()) == false)
+            throw MESSAGES.illegalArgumentInvalidNamespace(delegate.getNamespace());
     }
 
     @Override

@@ -5,16 +5,16 @@
  * Copyright (C) 2010 - 2012 JBoss by Red Hat
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 2.1 of the
+ * it under the terms of the GNU Lesser General Public License as 
+ * published by the Free Software Foundation, either version 2.1 of the 
  * License, or (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- *
- * You should have received a copy of the GNU General Lesser Public
+ * 
+ * You should have received a copy of the GNU General Lesser Public 
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
@@ -22,38 +22,30 @@
 
 package org.jboss.osgi.resolver;
 
-import org.osgi.resource.Resource;
+import org.jboss.osgi.metadata.VersionRange;
+import org.osgi.framework.namespace.BundleNamespace;
 
 /**
- * An extension to {@link Resource}
- *
+ * A bundle requirement
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XResource extends XElement, Resource {
+public interface XResourceRequirement extends XRequirement {
 
     /**
-     * Get the identity capability for this resource
+     * The bundle symbolic name
      */
-    XIdentityCapability getIdentityCapability();
+    String getSymbolicName();
 
     /**
-     * True if this resource is a fragment
+     * The bundle version range
      */
-    boolean isFragment();
+    VersionRange getVersionRange();
 
     /**
-     * Validate the resource
+     * Get the value of the visibility directive
+     * @see {@link BundleNamespace#REQUIREMENT_VISIBILITY_DIRECTIVE}
      */
-    void validate();
-
-    /**
-     * True if the resource is mutable
-     */
-    boolean isMutable();
-
-    /**
-     * Make the resource immutable
-     */
-    void makeImmutable();
+    String getVisibility();
 }

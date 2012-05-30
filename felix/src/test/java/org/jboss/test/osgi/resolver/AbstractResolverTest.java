@@ -31,6 +31,7 @@ import java.util.jar.Manifest;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
+import org.jboss.osgi.resolver.XBundleRevisionBuilderFactory;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
 import org.jboss.osgi.resolver.XResolver;
@@ -44,6 +45,7 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.Node;
 import org.junit.Before;
 import org.osgi.framework.Constants;
+import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
@@ -70,7 +72,7 @@ public abstract class AbstractResolverTest extends OSGiTest {
 
     protected XResource createSystemResource() {
         XResourceBuilder builder = XResourceBuilderFactory.create();
-        builder.addIdentityCapability(Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
+        builder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
         return builder.getResource();
     }
 
@@ -78,7 +80,7 @@ public abstract class AbstractResolverTest extends OSGiTest {
         Node node = archive.get(JarFile.MANIFEST_NAME);
         Manifest manifest = new Manifest(node.getAsset().openStream());
         OSGiMetaData metadata = OSGiMetaDataBuilder.load(manifest);
-        return XResourceBuilderFactory.create().loadFrom(metadata).getResource();
+        return XBundleRevisionBuilderFactory.create().loadFrom(metadata).getResource();
     }
 
     XEnvironment installResources(XResource... resources) {

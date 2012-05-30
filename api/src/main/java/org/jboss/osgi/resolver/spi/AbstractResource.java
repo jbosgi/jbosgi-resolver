@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
@@ -49,59 +50,83 @@ public class AbstractResource extends AbstractElement implements XResource {
 
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
+    private final AtomicBoolean mutable = new AtomicBoolean(true);
     private XIdentityCapability identityCapability;
     private Boolean fragment;
 
     protected void addCapability(Capability cap) {
+        ensureMutable();
         String namespace = cap.getNamespace();
         getCaplist(namespace).add(cap);
         getCaplist(null).add(cap);
     }
 
     protected void addRequirement(Requirement req) {
+        ensureMutable();
         String namespace = req.getNamespace();
         getReqlist(namespace).add(req);
         getReqlist(null).add(req);
     }
 
     @Override
+    public void makeImmutable() {
+        mutable.set(false);
+    }
+
+    @Override
+    public boolean isMutable() {
+        return mutable.get();
+    }
+
+    @Override
     public void validate() {
+
+        // Validate the capabilities
         for (Capability cap : getCaplist(null)) {
             ((XCapability) cap).validate();
         }
+
+        // Validate the requirements
         for (Requirement req : getReqlist(null)) {
             ((XRequirement) req).validate();
         }
+
+        // identity
+        List<Capability> caps = getCaplist(IdentityNamespace.IDENTITY_NAMESPACE);
+        if (caps.size() > 1)
+            throw MESSAGES.illegalStateMultipleIdentities(caps);
+        if (caps.size() == 1) {
+            XCapability cap = (XCapability) caps.get(0);
+            identityCapability = cap.adapt(XIdentityCapability.class);
+        }
+
+        // fragment
+        List<Requirement> reqs = getReqlist(HostNamespace.HOST_NAMESPACE);
+        fragment = new Boolean(reqs.size() > 0);
+
     }
 
     @Override
     public List<Capability> getCapabilities(String namespace) {
+        ensureImmutable();
         return Collections.unmodifiableList(getCaplist(namespace));
     }
 
     @Override
     public List<Requirement> getRequirements(String namespace) {
+        ensureImmutable();
         return Collections.unmodifiableList(getReqlist(namespace));
     }
 
     @Override
     public XIdentityCapability getIdentityCapability() {
-        if (identityCapability == null) {
-            List<Capability> caps = getCapabilities(IdentityNamespace.IDENTITY_NAMESPACE);
-            if (caps.size() > 1)
-                throw MESSAGES.illegalStateMultipleIdentities(caps);
-            if (caps.size() == 1)
-                identityCapability = (XIdentityCapability) caps.get(0);
-        }
+        ensureImmutable();
         return identityCapability;
     }
 
     @Override
     public boolean isFragment() {
-        if (fragment == null) {
-            List<Requirement> reqs = getRequirements(HostNamespace.HOST_NAMESPACE);
-            fragment = new Boolean(reqs.size() > 0);
-        }
+        ensureImmutable();
         return fragment.booleanValue();
     }
 
@@ -124,7 +149,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     }
 
     public String toString() {
-        XIdentityCapability id = getIdentityCapability();
+        XIdentityCapability id = identityCapability;
         String idstr = (id != null ? id.getSymbolicName() + ":" + id.getVersion() : "anonymous");
         return getClass().getSimpleName() + "[" + idstr + "]";
     }

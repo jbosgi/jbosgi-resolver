@@ -46,27 +46,39 @@ public interface ResolverMessages {
     @Message(id = 10900, value = "%s is null")
     IllegalArgumentException illegalArgumentNull(String name);
 
-    @Message(id = 10901, value = "Cannot obtain attribute: %s")
-    IllegalArgumentException illegalArgumentCannotObtainAttribute(String name);
-
-    @Message(id = 10902, value = "Invalid filter directive: %s")
+    @Message(id = 10901, value = "Invalid filter directive: %s")
     IllegalArgumentException illegalArgumentInvalidFilterDirective(String filter);
 
-    @Message(id = 10903, value = "Invalid coordinates: %s")
+    @Message(id = 10902, value = "Invalid coordinates: %s")
     IllegalArgumentException illegalArgumentInvalidCoordinates(String coordinates);
 
-    @Message(id = 10904, value = "Resource already installed: %s")
+    @Message(id = 10903, value = "Invalid namespace: %s")
+    IllegalArgumentException illegalArgumentInvalidNamespace(String namespace);
+
+    @Message(id = 10904, value = "Cannot obtain attribute: %s")
+    IllegalStateException illegalStateCannotObtainAttribute(String name);
+
+    @Message(id = 10905, value = "Cannot obtain namespace value for: %s")
+    IllegalStateException illegalStateCannotObtainNamespaceValue(String name);
+
+    @Message(id = 10906, value = "Resource already installed: %s")
     IllegalStateException illegalStateResourceAlreadyInstalled(Resource resource);
 
-    @Message(id = 10905, value = "Multiple identities detected: %s")
+    @Message(id = 10907, value = "Multiple identities detected: %s")
     IllegalStateException illegalStateMultipleIdentities(List<Capability> caps);
 
-    @Message(id = 10906, value = "Resource not created")
+    @Message(id = 10908, value = "Resource not created")
     IllegalStateException illegalStateResourceNotCreated();
 
-    @Message(id = 10907, value = "Invalid artifact URL: %s")
+    @Message(id = 10909, value = "Invalid artifact URL: %s")
     IllegalStateException illegalStateInvalidArtifactURL(String urlspec);
 
-    @Message(id = 10908, value = "Cannot initialize resource from: %s")
+    @Message(id = 10910, value = "Cannot initialize resource from: %s")
     ResourceBuilderException resourceBuilderCannotInitializeResource(@Cause Throwable cause, String attributes);
+
+    @Message(id = 10911, value = "Invalid access to mutable resource")
+    IllegalStateException illegalStateInvalidAccessToMutableResource();
+
+    @Message(id = 10912, value = "Invalid access to immutable resource")
+    IllegalStateException illegalStateInvalidAccessToImmutableResource();
 }

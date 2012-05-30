@@ -25,28 +25,30 @@ package org.jboss.osgi.resolver.spi;
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
 
 import org.jboss.osgi.metadata.VersionRange;
-import org.jboss.osgi.resolver.XHostRequirement;
 import org.jboss.osgi.resolver.XRequirement;
+import org.jboss.osgi.resolver.XResourceRequirement;
 import org.osgi.framework.Version;
-import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.resource.Capability;
 
 /**
- * The abstract implementation of a {@link XHostRequirement}.
+ * The abstract implementation of a {@link XResourceRequirement}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractHostRequirement extends AbstractRequirementWrapper implements XHostRequirement {
+class AbstractResourceRequirement extends AbstractRequirementWrapper implements XResourceRequirement {
 
     private final String symbolicName;
     private final VersionRange versionrange;
+    private final String visibility;
 
-    public AbstractHostRequirement(XRequirement delegate) {
+    AbstractResourceRequirement(XRequirement delegate) {
         super(delegate);
         symbolicName = AbstractRequirement.getNamespaceValue(delegate);
-        versionrange = AbstractRequirement.getVersionRange(delegate, HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        if (HostNamespace.HOST_NAMESPACE.equals(delegate.getNamespace()) == false)
+        versionrange = AbstractRequirement.getVersionRange(delegate, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+        visibility = getDirective(BundleNamespace.REQUIREMENT_VISIBILITY_DIRECTIVE);
+        if (BundleNamespace.BUNDLE_NAMESPACE.equals(delegate.getNamespace()) == false)
             throw MESSAGES.illegalArgumentInvalidNamespace(delegate.getNamespace());
     }
 
@@ -61,6 +63,11 @@ public class AbstractHostRequirement extends AbstractRequirementWrapper implemen
     }
 
     @Override
+    public String getVisibility() {
+        return visibility;
+    }
+
+    @Override
     public boolean matches(Capability cap) {
 
         // match the namespace value
@@ -68,9 +75,13 @@ public class AbstractHostRequirement extends AbstractRequirementWrapper implemen
         if (nsvalue != null && !nsvalue.equals(cap.getAttributes().get(getNamespace())))
             return false;
 
+        // cannot require itself
+        if (getResource() == cap.getResource())
+            return false;
+
         // match the bundle version range
         if (getVersionRange() != null) {
-            Version version = AbstractCapability.getVersion(cap, HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+            Version version = AbstractCapability.getVersion(cap, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
             if (getVersionRange().isInRange(version) == false)
                 return false;
         }

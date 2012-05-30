@@ -22,12 +22,10 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
 
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XHostCapability;
-import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.HostNamespace;
@@ -38,25 +36,17 @@ import org.osgi.framework.namespace.HostNamespace;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractHostCapability extends AbstractCapability implements XHostCapability {
+class AbstractHostCapability extends AbstractCapabilityWrapper implements XHostCapability {
 
     private final String symbolicName;
-    private Version version;
+    private final Version version;
 
-    protected AbstractHostCapability(XResource res, Map<String, Object> atts, Map<String, String> dirs) {
-        super(res, HostNamespace.HOST_NAMESPACE, atts, dirs);
-        symbolicName = (String) atts.get(HostNamespace.HOST_NAMESPACE);
-    }
-
-    @Override
-    protected List<String> getMandatoryAttributes() {
-        return Arrays.asList(HostNamespace.HOST_NAMESPACE);
-    }
-
-    @Override
-    public void validate() {
-        super.validate();
-        version = getVersion(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+    AbstractHostCapability(XCapability delegate) {
+        super(delegate);
+        symbolicName = (String) delegate.getAttribute(HostNamespace.HOST_NAMESPACE);
+        version = AbstractCapability.getVersion(delegate, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+        if (HostNamespace.HOST_NAMESPACE.equals(delegate.getNamespace()) == false)
+            throw MESSAGES.illegalArgumentInvalidNamespace(delegate.getNamespace());
     }
 
     @Override

@@ -5,16 +5,16 @@
  * Copyright (C) 2010 - 2012 JBoss by Red Hat
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 2.1 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
+ *
+ * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
-import org.jboss.osgi.resolver.XHostRequirement;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
@@ -64,11 +63,7 @@ import org.osgi.resource.Wiring;
  */
 public class AbstractEnvironment implements XEnvironment {
 
-    private static final String[] ALL_IDENTITY_TYPES = new String[] {
-        IdentityNamespace.TYPE_BUNDLE,
-        IdentityNamespace.TYPE_FRAGMENT,
-        IdentityNamespace.TYPE_UNKNOWN
-    };
+    private static final String[] ALL_IDENTITY_TYPES = new String[] { IdentityNamespace.TYPE_BUNDLE, IdentityNamespace.TYPE_FRAGMENT, IdentityNamespace.TYPE_UNKNOWN };
 
     private final AtomicLong resourceIndex = new AtomicLong();
     private final Map<CacheKey, Set<Capability>> capabilityCache = new ConcurrentHashMap<CacheKey, Set<Capability>>();
@@ -154,20 +149,23 @@ public class AbstractEnvironment implements XEnvironment {
 
     @Override
     public synchronized List<Capability> findProviders(Requirement req) {
+        XRequirement xreq = (XRequirement) req;
         CacheKey cachekey = CacheKey.create(req);
         List<Capability> result = new ArrayList<Capability>();
         for (Capability cap : getCachedCapabilities(cachekey)) {
-            if (((XRequirement)req).matches((XCapability) cap)) {
+            if (xreq.matches(cap)) {
                 boolean ignoreCapability = false;
-                XResource res = (XResource) cap.getResource();
+                XCapability xcap = (XCapability) cap;
+                Resource res = xcap.getResource();
 
                 // Check if the package capability has been substituted
                 Wiring wiring = getWirings().get(res);
-                if (wiring != null && cap instanceof XPackageCapability) {
-                    String pkgname = ((XPackageCapability) cap).getPackageName();
+                if (wiring != null && xcap.adapt(XPackageCapability.class) != null) {
+                    String pkgname = xcap.adapt(XPackageCapability.class).getPackageName();
                     for (Wire wire : wiring.getRequiredResourceWires(cap.getNamespace())) {
-                        XPackageRequirement wirereq = (XPackageRequirement) wire.getRequirement();
-                        if (pkgname.equals(wirereq.getPackageName())) {
+                        XRequirement wirereq = (XRequirement) wire.getRequirement();
+                        XPackageRequirement preq = wirereq.adapt(XPackageRequirement.class);
+                        if (pkgname.equals(preq.getPackageName())) {
                             ignoreCapability = true;
                             break;
                         }
@@ -179,10 +177,10 @@ public class AbstractEnvironment implements XEnvironment {
                 // i.e. one of the hosts in the range is not resolved already
                 List<Requirement> hostreqs = res.getRequirements(HostNamespace.HOST_NAMESPACE);
                 if (wiring == null && !hostreqs.isEmpty()) {
-                    XHostRequirement hostreq = (XHostRequirement) hostreqs.get(0);
+                    XRequirement hostreq = (XRequirement) hostreqs.get(0);
                     boolean unresolvedHost = false;
                     for (Capability hostcap : capabilityCache.get(CacheKey.create(hostreq))) {
-                        if (hostreq.matches((XCapability) hostcap)) {
+                        if (hostreq.matches(hostcap)) {
                             Resource host = hostcap.getResource();
                             if (getWirings().get(host) == null) {
                                 unresolvedHost = true;
@@ -220,7 +218,7 @@ public class AbstractEnvironment implements XEnvironment {
                     provwiring = (XWiring) createWiring(provider, null);
                     wirings.put(provider, provwiring);
                 }
-                ((AbstractWiring)provwiring).addProvidedWire(wire);
+                ((AbstractWiring) provwiring).addProvidedWire(wire);
             }
             result.put(res, reswiring);
         }

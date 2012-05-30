@@ -36,4 +36,9 @@ public interface XCapability extends XElement, XAttributeSupport, XDirectiveSupp
      * Validate the capability
      */
     void validate();
+
+    /**
+     * Adapt this capability to another type
+     */
+    <T extends XCapability> T adapt(Class<T> clazz);
 }

@@ -23,23 +23,29 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.osgi.framework.namespace.BundleNamespace.BUNDLE_NAMESPACE;
+import static org.osgi.framework.namespace.HostNamespace.HOST_NAMESPACE;
+import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 
 import java.util.Collections;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XAttributeSupport;
-import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
+import org.jboss.osgi.resolver.XHostRequirement;
 import org.jboss.osgi.resolver.XIdentityCapability;
+import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XResourceRequirement;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 
 /**
@@ -57,7 +63,7 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     private boolean optional;
     private Filter filter;
 
-    protected AbstractRequirement(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+    public AbstractRequirement(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
             throw MESSAGES.illegalArgumentNull("resource");
         if (namespace == null)
@@ -74,25 +80,52 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     }
 
     @Override
+    public Resource getResource() {
+        return resource;
+    }
+
+    @Override
+    boolean isMutable() {
+        return resource.isMutable();
+    }
+
+    static String getNamespaceValue(XRequirement req) {
+        String namespaceValue = (String) req.getAttribute(req.getNamespace());
+        if (namespaceValue == null) {
+            namespaceValue = namespaceValueFromFilter(getFilterFromDirective(req), req.getNamespace());
+        }
+        if (namespaceValue == null) {
+            throw MESSAGES.illegalStateCannotObtainNamespaceValue(req.getNamespace());
+        }
+        return namespaceValue;
+    }
+
+    @Override
     public void validate() {
-        String filterdir = getDirective(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE);
-        if (filterdir != null) {
-            try {
-                filter = FrameworkUtil.createFilter(filterdir);
-            } catch (InvalidSyntaxException e) {
-                throw MESSAGES.illegalArgumentInvalidFilterDirective(filterdir);
-            }
-        }
-        for (String name : getMandatoryAttributes()) {
-            if (getAttribute(name) == null) {
-                if (!name.equals(namespace) || namespaceValueFromFilter(filter, namespace) == null)
-                throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
-            }
-        }
+        filter = getFilterFromDirective(this);
         attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
         directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
         String resdir = getDirective(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
         optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
+        if (BUNDLE_NAMESPACE.equals(getNamespace())) {
+            addAttachment(XResourceRequirement.class, new AbstractResourceRequirement(this));
+        } else if (HOST_NAMESPACE.equals(getNamespace())) {
+            addAttachment(XHostRequirement.class, new AbstractHostRequirement(this));
+        } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
+            addAttachment(XPackageRequirement.class, new AbstractPackageRequirement(this));
+        }
+    }
+
+    public static Filter getFilterFromDirective(Requirement req) {
+        String filterdir = req.getDirectives().get(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE);
+        if (filterdir != null) {
+            try {
+                return FrameworkUtil.createFilter(filterdir);
+            } catch (InvalidSyntaxException e) {
+                throw MESSAGES.illegalArgumentInvalidFilterDirective(filterdir);
+            }
+        }
+        return null;
     }
 
     public static String namespaceValueFromFilter(Filter filter, String namespace) {
@@ -106,15 +139,6 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
             }
         }
         return result;
-    }
-
-    protected List<String> getMandatoryAttributes() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Resource getResource() {
-        return resource;
     }
 
     @Override
@@ -148,30 +172,41 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
     }
 
     @Override
-    public boolean matches(XCapability cap) {
-        boolean matches = namespace.equals(cap.getNamespace());
+    public <T extends XRequirement> T adapt(Class<T> clazz) {
+        return getAttachment(clazz);
+    }
 
-        // match namespace value
-        matches &= matchNamespaceValue(cap);
+    @Override
+    public boolean matches(Capability cap) {
+        ensureImmutable();
 
-        // match filter
-        matches &= matchFilterValue(cap);
+        // The requirement matches the capability if their namespaces match and the requirement's
+        // filter is absent or matches the attributes.
+        boolean matches = namespace.equals(cap.getNamespace()) && matchFilter(cap);
+
+        if (matches == true) {
+            if (BUNDLE_NAMESPACE.equals(getNamespace())) {
+                matches = adapt(XResourceRequirement.class).matches(cap);
+            } else if (HOST_NAMESPACE.equals(getNamespace())) {
+                matches = adapt(XHostRequirement.class).matches(cap);
+            } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
+                matches = adapt(XPackageRequirement.class).matches(cap);
+            } else {
+                Object reqval = getAttribute(getNamespace());
+                Object capval = cap.getAttributes().get(getNamespace());
+                matches = (reqval == null || reqval.equals(capval));
+            }
+        }
 
         return matches;
     }
 
-    VersionRange getVersionRange(String attr) {
-        Object value = getAttribute(attr);
+    static VersionRange getVersionRange(XRequirement req, String attr) {
+        Object value = req.getAttribute(attr);
         return (value instanceof String) ? VersionRange.parse((String) value) : (VersionRange) value;
     }
 
-    protected boolean matchNamespaceValue(XCapability cap) {
-        Object thisatt = getAttribute(namespace);
-        Object otheratt = cap.getAttribute(namespace);
-        return thisatt.equals(otheratt);
-    }
-
-    protected boolean matchFilterValue(XCapability cap) {
+    private boolean matchFilter(Capability cap) {
         return filter != null ? filter.match(new Hashtable<String, Object>(cap.getAttributes())) : true;
     }
 

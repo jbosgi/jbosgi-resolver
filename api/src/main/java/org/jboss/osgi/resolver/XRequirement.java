@@ -22,6 +22,7 @@
 
 package org.jboss.osgi.resolver;
 
+import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 
 /**
@@ -40,10 +41,15 @@ public interface XRequirement extends XElement, XAttributeSupport, XDirectiveSup
     /**
      * Matches this requirement against the given capability.
      */
-    boolean matches(XCapability cap);
+    boolean matches(Capability cap);
 
     /**
      * Validate the requirement
      */
     void validate();
+
+    /**
+     * Adapt this requirement to another type
+     */
+    <T extends XRequirement> T adapt(Class<T> clazz);
 }

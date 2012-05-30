@@ -24,40 +24,35 @@ package org.jboss.osgi.resolver;
 
 import java.util.Map;
 
-import org.jboss.osgi.resolver.spi.AbstractCapability;
-import org.jboss.osgi.resolver.spi.AbstractRequirement;
-import org.jboss.osgi.resolver.spi.AbstractResource;
-import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
+import org.jboss.osgi.resolver.spi.AbstractBundleCapability;
+import org.jboss.osgi.resolver.spi.AbstractBundleRequirement;
+import org.jboss.osgi.resolver.spi.AbstractBundleRevision;
 
 /**
  * A factory for resource builders.
  *
  * @author thomas.diesler@jboss.com
- * @since 15-Mar-2012
+ * @since 30-Mar-2012
  */
-public class XResourceBuilderFactory {
+public class XBundleRevisionBuilderFactory extends XResourceBuilderFactory {
 
-    public static XResourceBuilder create(XResourceBuilderFactory factory) {
+    public static XResourceBuilder create(XBundleRevisionBuilderFactory factory) {
         return factory.createResourceBuilder();
     }
 
     public static XResourceBuilder create() {
-        return new XResourceBuilderFactory().createResourceBuilder();
+        return new XBundleRevisionBuilderFactory().createResourceBuilder();
     }
 
-    public XResourceBuilder createResourceBuilder() {
-        return new AbstractResourceBuilder(this);
+    public XBundleRevision createResource() {
+        return new AbstractBundleRevision();
     }
 
-    public XResource createResource() {
-        return new AbstractResource();
+    public XBundleCapability createCapability(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        return new AbstractBundleCapability(resource, namespace, atts, dirs);
     }
 
-    public XCapability createCapability(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
-        return new AbstractCapability(resource, namespace, atts, dirs);
-    }
-
-    public XRequirement createRequirement(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
-        return new AbstractRequirement(resource, namespace, atts, dirs);
+    public XBundleRequirement createRequirement(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        return new AbstractBundleRequirement(resource, namespace, atts, dirs);
     }
 }

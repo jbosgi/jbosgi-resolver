@@ -22,20 +22,21 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Arrays;
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
-import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
+import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.resource.Capability;
 
 /**
  * The abstract implementation of a {@link XPackageRequirement}.
@@ -43,27 +44,19 @@ import org.osgi.framework.namespace.PackageNamespace;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractPackageRequirement extends AbstractRequirement implements XPackageRequirement {
+public class AbstractPackageRequirement extends AbstractRequirementWrapper implements XPackageRequirement {
 
     private final String packageName;
-    private VersionRange versionrange;
-    private Boolean dynamic;
+    private final VersionRange versionrange;
+    private final boolean dynamic;
 
-    public AbstractPackageRequirement(XResource res, Map<String, Object> attrs, Map<String, String> dirs) {
-        super(res, PackageNamespace.PACKAGE_NAMESPACE, attrs, dirs);
-        packageName = (String) attrs.get(PackageNamespace.PACKAGE_NAMESPACE);
-    }
-
-    @Override
-    protected List<String> getMandatoryAttributes() {
-        return Arrays.asList(PackageNamespace.PACKAGE_NAMESPACE);
-    }
-
-    @Override
-    public void validate() {
-        super.validate();
-        versionrange = getVersionRange(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
+    public AbstractPackageRequirement(XRequirement delegate) {
+        super(delegate);
+        packageName = AbstractRequirement.getNamespaceValue(delegate);
+        versionrange = AbstractRequirement.getVersionRange(delegate, PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
         dynamic = PackageNamespace.RESOLUTION_DYNAMIC.equals(getDirective(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE));
+        if (PackageNamespace.PACKAGE_NAMESPACE.equals(delegate.getNamespace()) == false)
+            throw MESSAGES.illegalArgumentInvalidNamespace(delegate.getNamespace());
     }
 
     @Override
@@ -73,8 +66,6 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
 
     @Override
     public VersionRange getVersionRange() {
-        if (versionrange == null) {
-        }
         return versionrange;
     }
 
@@ -84,33 +75,16 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
     }
 
     @Override
-    public boolean matchNamespaceValue(XCapability cap) {
-
-        String packageName = getPackageName();
-        if (packageName.equals("*"))
-            return true;
-
-        XPackageCapability xcap = (XPackageCapability) cap;
-        if (packageName.endsWith(".*")) {
-            packageName = packageName.substring(0, packageName.length() - 2);
-            return xcap.getPackageName().startsWith(packageName);
-        }
-        else
-        {
-            return packageName.equals(xcap.getPackageName());
-        }
-    }
-
-    @Override
     @SuppressWarnings("deprecation")
-    public boolean matches(XCapability cap) {
+    public boolean matches(Capability cap) {
 
-        if(super.matches(cap) == false)
+        // match the namespace value
+        if (!matchNamespaceValue(cap))
             return false;
 
         // match the package version range
         if (getVersionRange() != null) {
-            Version version = ((XPackageCapability) cap).getVersion();
+            Version version = AbstractCapability.getVersion(cap, PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
             if (getVersionRange().isInRange(version) == false)
                 return false;
         }
@@ -171,4 +145,22 @@ public class AbstractPackageRequirement extends AbstractRequirement implements X
 
         return true;
     }
+
+    private boolean matchNamespaceValue(Capability cap) {
+
+        String packageName = getPackageName();
+        if (packageName.equals("*"))
+            return true;
+
+        String capvalue = (String) cap.getAttributes().get(getNamespace());
+        if (packageName.endsWith(".*")) {
+            packageName = packageName.substring(0, packageName.length() - 2);
+            return capvalue.startsWith(packageName);
+        }
+        else
+        {
+            return packageName.equals(capvalue);
+        }
+    }
+
 }

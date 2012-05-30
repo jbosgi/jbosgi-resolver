@@ -22,6 +22,8 @@
 
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,9 +38,21 @@ import org.jboss.osgi.resolver.XElement;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-class AbstractElement implements XElement {
+abstract class AbstractElement implements XElement {
 
     private XAttachmentSupport attachments;
+
+    abstract boolean isMutable();
+
+    void ensureImmutable() {
+        if (isMutable() == true)
+            throw MESSAGES.illegalStateInvalidAccessToMutableResource();
+    }
+
+    void ensureMutable() {
+        if (isMutable() == false)
+            throw MESSAGES.illegalStateInvalidAccessToImmutableResource();
+    }
 
     @Override
     public <T> T addAttachment(Class<T> clazz, T value) {
@@ -69,6 +83,7 @@ class AbstractElement implements XElement {
             if (attachments == null)
                 attachments = new HashMap<Class<?>, Object>();
 
+            @SuppressWarnings("unchecked")
             T result = (T) attachments.get(clazz);
             attachments.put(clazz, value);
             return result;
@@ -79,6 +94,7 @@ class AbstractElement implements XElement {
             if (attachments == null)
                 return null;
 
+            @SuppressWarnings("unchecked")
             T result = (T) attachments.get(clazz);
             return result;
         }
@@ -88,6 +104,7 @@ class AbstractElement implements XElement {
             if (attachments == null)
                 return null;
 
+            @SuppressWarnings("unchecked")
             T result = (T) attachments.remove(clazz);
             return result;
         }

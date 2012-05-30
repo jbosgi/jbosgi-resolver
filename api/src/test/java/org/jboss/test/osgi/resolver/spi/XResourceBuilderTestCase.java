@@ -27,9 +27,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.jboss.osgi.metadata.VersionRange;
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XHostCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
+import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
@@ -52,7 +54,7 @@ import org.osgi.resource.Resource;
  * @author <a href="david@redhat.com">David Bosschaert</a>
  * @author Thomas.Diesler@jboss.com
  */
-public class AbstractResourceBuilderTestCase extends AbstractTestBase {
+public class XResourceBuilderTestCase extends AbstractTestBase {
 
     @Test
     public void testAttributDirectiveTrimming() throws Exception {
@@ -77,10 +79,10 @@ public class AbstractResourceBuilderTestCase extends AbstractTestBase {
     @Test
     public void testAttributMutability() throws Exception {
         XResourceBuilder builder = XResourceBuilderFactory.create();
-        XIdentityCapability icap = builder.addIdentityCapability("test1");
-        icap.getAttributes().put(BundleNamespace.CAPABILITY_EFFECTIVE_DIRECTIVE, "meta");
+        XCapability cap = builder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "test1");
+        cap.getAttributes().put(BundleNamespace.CAPABILITY_EFFECTIVE_DIRECTIVE, "meta");
         XResource res = builder.getResource();
-        icap = res.getIdentityCapability();
+        XIdentityCapability icap = res.getIdentityCapability();
         Assert.assertEquals("test1", icap.getSymbolicName());
         Assert.assertEquals("meta", icap.getAttribute(BundleNamespace.CAPABILITY_EFFECTIVE_DIRECTIVE));
         try {
@@ -96,7 +98,7 @@ public class AbstractResourceBuilderTestCase extends AbstractTestBase {
         Assert.assertNotNull("Requirements not null", reqs);
         Assert.assertEquals(4, reqs.size());
         for (Requirement req : reqs) {
-            XPackageRequirement xreq = (XPackageRequirement) req;
+            XPackageRequirement xreq = ((XRequirement) req).adapt(XPackageRequirement.class);
             String packageName = xreq.getPackageName();
             if ("value1".equals(packageName)) {
                 Assert.assertNull(xreq.getVersionRange());
@@ -119,13 +121,15 @@ public class AbstractResourceBuilderTestCase extends AbstractTestBase {
     private void validateCapabilities(Resource resource) {
         List<Capability> caps = resource.getCapabilities(IdentityNamespace.IDENTITY_NAMESPACE);
         Assert.assertEquals(1, caps.size());
-        XIdentityCapability icap = (XIdentityCapability) caps.get(0);
+        XCapability cap = (XCapability) caps.get(0);
+        XIdentityCapability icap = cap.adapt(XIdentityCapability.class);
         Assert.assertEquals("test1", icap.getSymbolicName());
         Assert.assertEquals(Version.emptyVersion, icap.getVersion());
 
         caps = resource.getCapabilities(HostNamespace.HOST_NAMESPACE);
         Assert.assertEquals(1, caps.size());
-        XHostCapability hcap = (XHostCapability) caps.get(0);
+        cap = (XCapability) caps.get(0);
+        XHostCapability hcap = cap.adapt(XHostCapability.class);
         Assert.assertEquals("test1", hcap.getSymbolicName());
         Assert.assertEquals(Version.emptyVersion, hcap.getVersion());
     }

@@ -23,17 +23,24 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.osgi.framework.namespace.BundleNamespace.BUNDLE_NAMESPACE;
+import static org.osgi.framework.namespace.HostNamespace.HOST_NAMESPACE;
+import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
+import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
+import org.jboss.osgi.resolver.XHostCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
+import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XResourceCapability;
 import org.osgi.framework.Version;
+import org.osgi.resource.Capability;
 import org.osgi.resource.Resource;
 
 /**
@@ -49,7 +56,7 @@ public class AbstractCapability extends AbstractElement implements XCapability {
     private XAttributeSupport attributes;
     private XDirectiveSupport directives;
 
-    protected AbstractCapability(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+    public AbstractCapability(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
             throw MESSAGES.illegalArgumentNull("resource");
         if (namespace == null)
@@ -63,20 +70,6 @@ public class AbstractCapability extends AbstractElement implements XCapability {
         this.namespace = namespace;
         this.attributes = new AttributeSupporter(atts);
         this.directives = new DirectiveSupporter(dirs);
-    }
-
-    @Override
-    public void validate() {
-        for (String name : getMandatoryAttributes()) {
-            if (getAttribute(name) == null)
-                throw MESSAGES.illegalArgumentCannotObtainAttribute(name);
-        }
-        attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
-        directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
-    }
-
-    protected List<String> getMandatoryAttributes() {
-        return Collections.emptyList();
     }
 
     @Override
@@ -109,8 +102,35 @@ public class AbstractCapability extends AbstractElement implements XCapability {
         return attributes.getAttribute(key);
     }
 
-    Version getVersion(String attr) {
-        Object versionatt = getAttribute(attr);
+    @Override
+    boolean isMutable() {
+        return resource.isMutable();
+    }
+
+    @Override
+    public void validate() {
+        if (getAttribute(getNamespace()) == null)
+            throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
+        attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
+        directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
+        if (IDENTITY_NAMESPACE.equals(getNamespace())) {
+            addAttachment(XIdentityCapability.class, new AbstractIdentityCapability(this));
+        } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
+            addAttachment(XResourceCapability.class, new AbstractResourceCapability(this));
+        } else if (HOST_NAMESPACE.equals(getNamespace())) {
+            addAttachment(XHostCapability.class, new AbstractHostCapability(this));
+        } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
+            addAttachment(XPackageCapability.class, new AbstractPackageCapability(this));
+        }
+    }
+
+    @Override
+    public <T extends XCapability> T adapt(Class<T> clazz) {
+        return getAttachment(clazz);
+    }
+
+    static Version getVersion(Capability cap, String attr) {
+        Object versionatt = cap.getAttributes().get(attr);
         if (versionatt instanceof Version)
             return (Version) versionatt;
         else if (versionatt instanceof String)

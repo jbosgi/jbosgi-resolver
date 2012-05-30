@@ -22,49 +22,31 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XResource;
-import org.osgi.framework.Version;
-import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.wiring.BundleRevision;
 
 /**
- * The abstract implementation of a {@link XBundleCapability}.
+ * The abstract implementation of an {@link XBundleCapability}.
  *
  * @author thomas.diesler@jboss.com
- * @since 02-Jul-2010
+ * @since 30-May-2012
  */
 public class AbstractBundleCapability extends AbstractCapability implements XBundleCapability {
 
-    private final String symbolicName;
-    private Version version;
-
-    protected AbstractBundleCapability(XResource res, Map<String, Object> atts, Map<String, String> dirs) {
-        super(res, BundleNamespace.BUNDLE_NAMESPACE, atts, dirs);
-        symbolicName = (String) atts.get(BundleNamespace.BUNDLE_NAMESPACE);
+    public AbstractBundleCapability(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        super(resource, namespace, atts, dirs);
     }
 
     @Override
-    protected List<String> getMandatoryAttributes() {
-        return Arrays.asList(BundleNamespace.BUNDLE_NAMESPACE, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+    public BundleRevision getResource() {
+        return (BundleRevision) super.getResource();
     }
 
     @Override
-    public void validate() {
-        super.validate();
-        version = getVersion(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-    }
-
-    @Override
-    public String getSymbolicName() {
-        return symbolicName;
-    }
-
-    @Override
-    public Version getVersion() {
-        return version;
+    public BundleRevision getRevision() {
+        return (BundleRevision) super.getResource();
     }
 }
