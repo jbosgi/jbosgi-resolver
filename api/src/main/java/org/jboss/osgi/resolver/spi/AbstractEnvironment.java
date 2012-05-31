@@ -72,6 +72,18 @@ public class AbstractEnvironment implements XEnvironment {
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
     @Override
+    public Long nextResourceIndex(Long min) {
+        synchronized (resourceIndex) {
+            if (min != null) {
+                long diff = min - resourceIndex.get();
+                return resourceIndex.addAndGet(diff);
+            } else {
+                return resourceIndex.incrementAndGet();
+            }
+        }
+    }
+
+    @Override
     public synchronized void installResources(XResource... resources) {
         for (XResource res : resources) {
             XIdentityCapability icap = res.getIdentityCapability();
@@ -81,7 +93,7 @@ public class AbstractEnvironment implements XEnvironment {
             LOGGER.debugf("Install resource: %s", res);
 
             // Add resource to index
-            Long index = resourceIndex.getAndIncrement();
+            Long index = nextResourceIndex(res.getAttachment(Long.class));
             res.addAttachment(Long.class, index);
             resourceIndexCache.put(index, res);
 
