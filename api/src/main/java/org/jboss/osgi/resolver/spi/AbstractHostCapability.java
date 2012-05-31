@@ -23,12 +23,12 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.osgi.framework.namespace.HostNamespace.HOST_NAMESPACE;
 
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XHostCapability;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
-import org.osgi.framework.namespace.HostNamespace;
 
 /**
  * The abstract implementation of a {@link XHostCapability}.
@@ -43,9 +43,11 @@ class AbstractHostCapability extends AbstractCapabilityWrapper implements XHostC
 
     AbstractHostCapability(XCapability delegate) {
         super(delegate);
-        symbolicName = (String) delegate.getAttribute(HostNamespace.HOST_NAMESPACE);
+        symbolicName = (String) delegate.getAttribute(HOST_NAMESPACE);
+        if (symbolicName == null)
+            throw MESSAGES.illegalStateCannotObtainAttribute(HOST_NAMESPACE);
         version = AbstractCapability.getVersion(delegate, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        if (HostNamespace.HOST_NAMESPACE.equals(delegate.getNamespace()) == false)
+        if (HOST_NAMESPACE.equals(delegate.getNamespace()) == false)
             throw MESSAGES.illegalArgumentInvalidNamespace(delegate.getNamespace());
     }
 

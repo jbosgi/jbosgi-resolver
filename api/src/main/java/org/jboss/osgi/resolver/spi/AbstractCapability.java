@@ -109,8 +109,6 @@ public class AbstractCapability extends AbstractElement implements XCapability {
 
     @Override
     public void validate() {
-        if (getAttribute(getNamespace()) == null)
-            throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
         directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
         if (IDENTITY_NAMESPACE.equals(getNamespace())) {

@@ -23,9 +23,10 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.osgi.framework.namespace.BundleNamespace.BUNDLE_NAMESPACE;
 
-import org.jboss.osgi.resolver.XResourceCapability;
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XResourceCapability;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
 
@@ -42,9 +43,11 @@ class AbstractResourceCapability extends AbstractCapabilityWrapper implements XR
 
     AbstractResourceCapability(XCapability delegate) {
         super(delegate);
-        symbolicName = (String) delegate.getAttribute(BundleNamespace.BUNDLE_NAMESPACE);
+        symbolicName = (String) delegate.getAttribute(BUNDLE_NAMESPACE);
+        if (symbolicName == null)
+            throw MESSAGES.illegalStateCannotObtainAttribute(BUNDLE_NAMESPACE);
         version = AbstractCapability.getVersion(delegate, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        if (BundleNamespace.BUNDLE_NAMESPACE.equals(delegate.getNamespace()) == false)
+        if (BUNDLE_NAMESPACE.equals(delegate.getNamespace()) == false)
             throw MESSAGES.illegalArgumentInvalidNamespace(delegate.getNamespace());
     }
 

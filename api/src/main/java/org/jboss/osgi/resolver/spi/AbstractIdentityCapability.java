@@ -23,6 +23,7 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
 
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
@@ -43,11 +44,13 @@ class AbstractIdentityCapability extends AbstractCapabilityWrapper implements XI
 
     AbstractIdentityCapability(XCapability delegate) {
         super(delegate);
-        symbolicName = (String) delegate.getAttribute(IdentityNamespace.IDENTITY_NAMESPACE);
+        symbolicName = (String) delegate.getAttribute(IDENTITY_NAMESPACE);
+        if (symbolicName == null)
+            throw MESSAGES.illegalStateCannotObtainAttribute(IDENTITY_NAMESPACE);
         version = AbstractCapability.getVersion(delegate, IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE);
         String typeval = (String) getAttribute(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE);
         type = typeval != null ? typeval : IdentityNamespace.TYPE_UNKNOWN;
-        if (IdentityNamespace.IDENTITY_NAMESPACE.equals(delegate.getNamespace()) == false)
+        if (IDENTITY_NAMESPACE.equals(delegate.getNamespace()) == false)
             throw MESSAGES.illegalArgumentInvalidNamespace(delegate.getNamespace());
     }
 

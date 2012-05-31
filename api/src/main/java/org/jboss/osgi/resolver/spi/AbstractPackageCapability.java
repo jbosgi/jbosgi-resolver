@@ -23,6 +23,7 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
@@ -42,9 +43,11 @@ class AbstractPackageCapability extends AbstractCapabilityWrapper implements XPa
 
     AbstractPackageCapability(XCapability delegate) {
         super(delegate);
-        packageName = (String) delegate.getAttribute(PackageNamespace.PACKAGE_NAMESPACE);
+        packageName = (String) delegate.getAttribute(PACKAGE_NAMESPACE);
+        if (packageName == null)
+            throw MESSAGES.illegalStateCannotObtainAttribute(PACKAGE_NAMESPACE);
         version = AbstractCapability.getVersion(delegate, PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        if (PackageNamespace.PACKAGE_NAMESPACE.equals(delegate.getNamespace()) == false)
+        if (PACKAGE_NAMESPACE.equals(delegate.getNamespace()) == false)
             throw MESSAGES.illegalArgumentInvalidNamespace(delegate.getNamespace());
     }
 
