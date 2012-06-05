@@ -49,9 +49,7 @@ public interface XEnvironment {
 
     Collection<XResource> getResources(Set<String> types);
 
-    Long getResourceIndex(XResource res);
-
-    Long nextResourceIndex(Long min);
+    Long nextResourceIdentifier(Long value, String symbolicName);
 
     List<Capability> findProviders(Requirement req);
 

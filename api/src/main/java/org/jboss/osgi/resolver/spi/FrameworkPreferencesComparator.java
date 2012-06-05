@@ -28,6 +28,7 @@ import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 import java.util.Map;
 
 import org.jboss.osgi.resolver.XEnvironment;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -53,8 +54,8 @@ class FrameworkPreferencesComparator extends ResourceIndexComparator {
         Resource res2 = o2.getResource();
 
         // prefer system bundle
-        Long in1 = getResourceIndex(o1.getResource());
-        Long in2 = getResourceIndex(o2.getResource());
+        Long in1 = getResourceIndex((XResource) o1.getResource());
+        Long in2 = getResourceIndex((XResource) o2.getResource());
         if (in1 == 0 || in2 == 0) {
             return (int)(in1 - in2);
         }

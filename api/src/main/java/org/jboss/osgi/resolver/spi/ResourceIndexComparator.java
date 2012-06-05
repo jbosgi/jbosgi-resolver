@@ -27,7 +27,6 @@ import java.util.Comparator;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.resource.Capability;
-import org.osgi.resource.Resource;
 
 /**
  * A comparator that uses the provided resource index.
@@ -49,12 +48,12 @@ class ResourceIndexComparator implements Comparator<Capability> {
 
     @Override
     public int compare(Capability o1, Capability o2) {
-        Long in1 = getResourceIndex(o1.getResource());
-        Long in2 = getResourceIndex(o2.getResource());
+        Long in1 = getResourceIndex((XResource) o1.getResource());
+        Long in2 = getResourceIndex((XResource) o2.getResource());
         return in1.compareTo(in2);
     }
 
-    Long getResourceIndex(Resource res) {
-        return environment.getResourceIndex((XResource) res);
+    Long getResourceIndex(XResource res) {
+        return res.getAttachment(Long.class);
     }
 }

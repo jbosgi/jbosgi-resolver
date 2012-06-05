@@ -72,14 +72,17 @@ public class AbstractEnvironment implements XEnvironment {
     private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
     @Override
-    public Long nextResourceIndex(Long min) {
+    public Long nextResourceIdentifier(Long value, String symbolicName) {
         synchronized (resourceIndex) {
-            if (min != null) {
-                long diff = min - resourceIndex.get();
-                return resourceIndex.addAndGet(diff);
+            Long result;
+            if (value != null) {
+                resourceIndex.addAndGet(Math.max(0, value - resourceIndex.get()));
+                return result = value;
             } else {
-                return resourceIndex.incrementAndGet();
+                result = resourceIndex.incrementAndGet();
             }
+            LOGGER.tracef("Resource identifier for %s: [%d,%d]", symbolicName, value, result);
+            return result;
         }
     }
 
@@ -93,7 +96,7 @@ public class AbstractEnvironment implements XEnvironment {
             LOGGER.debugf("Install resource: %s", res);
 
             // Add resource to index
-            Long index = nextResourceIndex(res.getAttachment(Long.class));
+            Long index = nextResourceIdentifier(res.getAttachment(Long.class), icap.getSymbolicName());
             res.addAttachment(Long.class, index);
             resourceIndexCache.put(index, res);
 
@@ -239,11 +242,6 @@ public class AbstractEnvironment implements XEnvironment {
 
     protected Wiring createWiring(Resource res, List<Wire> wires) {
         return new AbstractWiring(res, wires);
-    }
-
-    @Override
-    public Long getResourceIndex(XResource res) {
-        return res.getAttachment(Long.class);
     }
 
     @Override
