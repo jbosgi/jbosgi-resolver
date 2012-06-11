@@ -22,37 +22,28 @@
 
 package org.jboss.osgi.resolver;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Enumeration;
+import java.util.List;
 
-import org.jboss.modules.ModuleClassLoader;
-import org.jboss.modules.ModuleIdentifier;
-import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.Bundle;
 
 /**
- * An extension to {@link BundleRevision}
+ * An extension to {@link Bundle}
  *
  * @author thomas.diesler@jboss.com
- * @since 15-Mar-2012
+ * @since 11-Jun-2012
  */
-public interface XBundleRevision extends XResource, BundleRevision {
+public interface XBundle extends Bundle {
 
-    XBundle getBundle();
-    
-    ModuleIdentifier getModuleIdentifier();
-    
-    ModuleClassLoader getModuleClassLoader();
-    
-    int getRevisionId();
+    /**
+     * Adapt this type to another that corresponds to the given type.
+     * 
+     * @return An instance instance of the target type or null 
+     */
+    <T> T adapt(Class<T> type);
 
-    URL getResource(String name);
+    boolean isResolved();
 
-    Enumeration<URL> getResources(String name) throws IOException;
+    XBundleRevision getBundleRevision();
 
-    Enumeration<URL> findEntries(String path, String filePattern, boolean recursive);
-    
-    URL getEntry(String path);
-
-    Enumeration<String> getEntryPaths(String path);
+    List<XBundleRevision> getAllBundleRevisions();
 }

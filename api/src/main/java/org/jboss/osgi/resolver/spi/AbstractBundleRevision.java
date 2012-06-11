@@ -22,12 +22,15 @@
 
 package org.jboss.osgi.resolver.spi;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
 import org.jboss.modules.ModuleClassLoader;
+import org.jboss.modules.ModuleIdentifier;
+import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
@@ -86,10 +89,25 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
     }
 
     @Override
-    public Bundle getBundle() {
-        return getAttachment(Bundle.class);
+    public int getTypes() {
+        return isFragment() ? TYPE_FRAGMENT : 0;
+    }
+
+    @Override
+    public BundleWiring getWiring() {
+        return getAttachment(BundleWiring.class);
+    }
+
+    @Override
+    public XBundle getBundle() {
+        return (XBundle) getAttachment(Bundle.class);
     }
     
+    @Override
+    public ModuleIdentifier getModuleIdentifier() {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     public ModuleClassLoader getModuleClassLoader() {
         throw new UnsupportedOperationException();
@@ -101,12 +119,22 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
     }
 
     @Override
-    public int getTypes() {
-        return isFragment() ? TYPE_FRAGMENT : 0;
+    public URL getResource(String name) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public BundleWiring getWiring() {
-        return getAttachment(BundleWiring.class);
+    public Enumeration<URL> getResources(String name) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public URL getEntry(String path) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Enumeration<String> getEntryPaths(String path) {
+        throw new UnsupportedOperationException();
     }
 }
