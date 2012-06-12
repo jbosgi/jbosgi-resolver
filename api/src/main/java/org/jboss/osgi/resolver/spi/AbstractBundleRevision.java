@@ -26,13 +26,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.modules.ModuleClassLoader;
 import org.jboss.modules.ModuleIdentifier;
 import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
@@ -48,8 +49,8 @@ import org.osgi.resource.Requirement;
  */
 public class AbstractBundleRevision extends AbstractResource implements XBundleRevision {
 
-    private List<BundleCapability> bundleCapabilities;
-    private List<BundleRequirement> bundleRequirements;
+    private final Map<String, List<BundleCapability>> capabilities = new HashMap<String, List<BundleCapability>>();
+    private final Map<String, List<BundleRequirement>> requirements = new HashMap<String, List<BundleRequirement>>();
 
     @Override
     public String getSymbolicName() {
@@ -63,29 +64,28 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public List<BundleCapability> getDeclaredCapabilities(String namespace) {
-        if (bundleCapabilities == null) {
-            bundleCapabilities = new ArrayList<BundleCapability>();
+        List<BundleCapability> result = capabilities.get(namespace);
+        if (result == null) {
+            result = new ArrayList<BundleCapability>();
             for (Capability cap : getCapabilities(namespace)) {
-                bundleCapabilities.add((BundleCapability) cap);
+                result.add((BundleCapability) cap);
             }
+            capabilities.put(namespace, result);
         }
-        return bundleCapabilities;
+        return result;
     }
 
     @Override
     public List<BundleRequirement> getDeclaredRequirements(String namespace) {
-        if (bundleRequirements == null) {
-            bundleRequirements = new ArrayList<BundleRequirement>();
-            for (Requirement cap : getRequirements(namespace)) {
-                bundleRequirements.add((BundleRequirement) cap);
+        List<BundleRequirement> result = requirements.get(namespace);
+        if (result == null) {
+            result = new ArrayList<BundleRequirement>();
+            for (Requirement req : getRequirements(namespace)) {
+                result.add((BundleRequirement) req);
             }
+            requirements.put(namespace, result);
         }
-        return bundleRequirements;
-    }
-
-    @Override
-    public int getRevisionId() {
-        return 0;
+        return result;
     }
 
     @Override
@@ -95,12 +95,17 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public BundleWiring getWiring() {
-        return getAttachment(BundleWiring.class);
+        return null;
+    }
+
+    @Override
+    public int getRevisionId() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public XBundle getBundle() {
-        return (XBundle) getAttachment(Bundle.class);
+        throw new UnsupportedOperationException();
     }
     
     @Override

@@ -28,6 +28,7 @@ import java.util.Enumeration;
 
 import org.jboss.modules.ModuleClassLoader;
 import org.jboss.modules.ModuleIdentifier;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleRevision;
 
 /**
@@ -44,15 +45,31 @@ public interface XBundleRevision extends XResource, BundleRevision {
     
     ModuleClassLoader getModuleClassLoader();
     
+    // [TODO] remove
     int getRevisionId();
 
+    /**
+     * @see {@link Bundle#getResource(String)}
+     */
     URL getResource(String name);
 
+    /**
+     * @see {@link Bundle#getResources(String)}
+     */
     Enumeration<URL> getResources(String name) throws IOException;
 
+    /**
+     * @see {@link Bundle#findEntries(String, String, boolean)}
+     */
     Enumeration<URL> findEntries(String path, String filePattern, boolean recursive);
     
+    /**
+     * @see {@link Bundle#getEntry(String)}
+     */
     URL getEntry(String path);
 
+    /**
+     * @see {@link Bundle#getEntryPaths(String)}
+     */
     Enumeration<String> getEntryPaths(String path);
 }

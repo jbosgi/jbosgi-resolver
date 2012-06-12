@@ -22,23 +22,17 @@
 
 package org.jboss.osgi.resolver;
 
-import java.util.List;
-
-import org.osgi.framework.Bundle;
 
 /**
- * An extension to {@link Bundle}
+ * A type that can be adapted to another type.
  *
  * @author thomas.diesler@jboss.com
- * @since 11-Jun-2012
+ * @since 12-Jun-2012
  */
-public interface XBundle extends Adaptable, Bundle {
+public interface Adaptable {
 
-    boolean isResolved();
-
-    boolean isFragment();
-
-    XBundleRevision getBundleRevision();
-
-    List<XBundleRevision> getAllBundleRevisions();
+    /**
+     * Adapt to another type
+     */
+    <T> T adapt(Class<T> clazz);
 }
