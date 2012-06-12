@@ -22,6 +22,8 @@
 
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -29,6 +31,7 @@ import java.util.Map;
 
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
+import org.jboss.osgi.resolver.internal.ResolverLogger;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -59,17 +62,19 @@ public class AbstractResolveContext extends XResolveContext {
     }
 
     @Override
-    public List<Capability> findProviders(Requirement requirement) {
-        List<Capability> providers = environment.findProviders(requirement);
+    public List<Capability> findProviders(Requirement req) {
+        List<Capability> providers = environment.findProviders(req);
         Collections.sort(providers, getComparator());
+        LOGGER.tracef("Ctx provides: %s => %s", req, providers);
         return providers;
     }
 
     @Override
-    public int insertHostedCapability(List<Capability> capabilities, HostedCapability hostedCapability) {
-        capabilities.add(hostedCapability);
-        Collections.sort(capabilities, getComparator());
-        return capabilities.indexOf(hostedCapability);
+    public int insertHostedCapability(List<Capability> caps, HostedCapability hostedCapability) {
+        caps.add(hostedCapability);
+        Collections.sort(caps, getComparator());
+        LOGGER.tracef("Insert hosted capability: %s => %s", hostedCapability, caps);
+        return caps.indexOf(hostedCapability);
     }
 
     @Override

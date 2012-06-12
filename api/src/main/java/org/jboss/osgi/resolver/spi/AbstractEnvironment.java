@@ -199,7 +199,7 @@ public class AbstractEnvironment implements XEnvironment {
             }
         }
 
-        LOGGER.tracef("findProviders: %s => %s", req, result);
+        LOGGER.tracef("Env provides: %s => %s", req, result);
         return result;
     }
 
