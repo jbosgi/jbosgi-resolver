@@ -55,5 +55,7 @@ public interface XEnvironment {
 
     Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> delta);
 
+    Wiring createWiring(XResource res, List<Wire> wires);
+    
     Map<Resource, Wiring> getWirings();
 }

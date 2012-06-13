@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.osgi.resolver.XWiring;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -39,13 +39,13 @@ import org.osgi.resource.Wiring;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractWiring implements XWiring {
+public class AbstractWiring implements Wiring {
 
     private final Resource resource;
     private final List<Wire> required;
     private List<Wire> provided;
 
-    public AbstractWiring(Resource resource, List<Wire> wires) {
+    public AbstractWiring(XResource resource, List<Wire> wires) {
         this.resource = resource;
         this.required = wires;
     }
