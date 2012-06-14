@@ -19,18 +19,17 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-
-
 package org.jboss.test.osgi.resolver;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import junit.framework.Assert;
 
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.spi.OSGiManifestBuilder;
@@ -38,10 +37,10 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
-import org.osgi.framework.namespace.PackageNamespace;
-import org.osgi.resource.Requirement;
+import org.osgi.resource.Capability;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
+import org.osgi.resource.Wiring;
 
 /**
  * Test the default resolver integration.
@@ -113,28 +112,14 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         // Verify that javax.servlet wires to the API bundle 
         List<Wire> wires = map.get(resourceB);
         assertEquals(1, wires.size());
-        for (Wire wire : wires) {
-            Requirement req = wire.getRequirement();
-            String pkgname = (String) req.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
-            if ("javax.servlet".equals(pkgname)) {
-                assertSame(resourceA, wire.getProvider());
-            } else {
-                fail("Unexpected package name: " + pkgname);
-            }
-        }
+        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertSame(resourceA, wires.get(0).getProvider());
         
         // Verify that javax.servlet wires to the API bundle 
         wires = map.get(resourceC);
         assertEquals(1, wires.size());
-        for (Wire wire : wires) {
-            Requirement req = wire.getRequirement();
-            String pkgname = (String) req.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
-            if ("javax.servlet".equals(pkgname)) {
-                assertSame(resourceA, wire.getProvider());
-            } else {
-                fail("Unexpected package name: " + pkgname);
-            }
-        }
+        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertSame(resourceA, wires.get(0).getProvider());
         
         // Bundle-SymbolicName: war.extender.jar
         // ImportPackage: org.ops4j.pax.web.service
@@ -161,16 +146,54 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         // Verify that javax.servlet wires to the API bundle 
         wires = map.get(resourceD);
         assertEquals(2, wires.size());
+        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertSame(resourceC, wires.get(0).getProvider());
+        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(1).getCapability()));
+        Assert.assertSame(resourceA, wires.get(1).getProvider());
+        
+        // Verify wiring of A
+        Wiring wiringA = getWiring(resourceA);
+        Assert.assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        wires = wiringA.getProvidedResourceWires(null);
+        Assert.assertEquals(3, wires.size());
+        List<XResource> requierers = new ArrayList<XResource>(Arrays.asList(resourceB, resourceC, resourceD));
         for (Wire wire : wires) {
-            Requirement req = wire.getRequirement();
-            String pkgname = (String) req.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
-            if ("org.ops4j.pax.web.service".equals(pkgname)) {
-                assertSame(resourceC, wire.getProvider());
-            } else if ("javax.servlet".equals(pkgname)) {
-                assertSame(resourceA, wire.getProvider());
-            } else {
-                fail("Unexpected package name: " + pkgname);
-            }
+            Assert.assertEquals("javax.servlet", getNamespaceValue(wire.getCapability()));
+            requierers.remove(wire.getRequirer());
         }
+        Assert.assertTrue(requierers.isEmpty());
+        
+        // Verify wiring of B
+        Wiring wiringB = getWiring(resourceB);
+        wires = wiringB.getRequiredResourceWires(null);
+        Assert.assertEquals(1, wires.size());
+        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertSame(resourceA, wires.get(0).getProvider());
+        Assert.assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+        
+        // Verify wiring of C
+        Wiring wiringC = getWiring(resourceC);
+        wires = wiringC.getRequiredResourceWires(null);
+        Assert.assertEquals(1, wires.size());
+        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertSame(resourceA, wires.get(0).getProvider());
+        wires = wiringC.getProvidedResourceWires(null);
+        Assert.assertEquals(1, wires.size());
+        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertSame(resourceD, wires.get(0).getRequirer());
+        
+        // Verify wiring of D
+        Wiring wiringD = getWiring(resourceD);
+        wires = wiringD.getRequiredResourceWires(null);
+        Assert.assertEquals(2, wires.size());
+        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertSame(resourceC, wires.get(0).getProvider());
+        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(1).getCapability()));
+        Assert.assertSame(resourceA, wires.get(1).getProvider());
+        Assert.assertEquals(0, wiringD.getProvidedResourceWires(null).size());
+    }
+
+    private String getNamespaceValue(Capability cap) {
+        return (String) cap.getAttributes().get(cap.getNamespace());
     }
 }

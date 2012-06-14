@@ -22,6 +22,8 @@
 
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +37,7 @@ import org.osgi.resource.Wiring;
 
 /**
  * The abstract implementation of a {@link Wiring}.
- *
+ * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -43,18 +45,15 @@ public class AbstractWiring implements Wiring {
 
     private final Resource resource;
     private final List<Wire> required;
-    private List<Wire> provided;
+    private final List<Wire> provided;
 
-    public AbstractWiring(XResource resource, List<Wire> wires) {
+    public AbstractWiring(XResource resource, List<Wire> required, List<Wire> provided) {
+        if (resource == null)
+            throw MESSAGES.illegalArgumentNull("resource");
         this.resource = resource;
-        this.required = wires;
-    }
-
-    protected void addProvidedWire(Wire wire) {
-        if (provided == null) {
-            provided = new ArrayList<Wire>();
-        }
-        provided.add(wire);
+        List<Wire> emptywires = Collections.emptyList();
+        this.required = required != null ? required : emptywires;
+        this.provided = provided != null ? provided : emptywires;
     }
 
     @Override

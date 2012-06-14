@@ -153,6 +153,7 @@ public class PackageImportResolverTest extends AbstractResolverTest {
         assertSame(resourceA, wireA.getRequirer());
         assertSame(resourceB, wireA.getProvider());
 
+        wiringB = getWiring(resourceB);
         assertEquals(1, wiringB.getProvidedResourceWires(null).size());
         Wire wireB = wiringB.getProvidedResourceWires(null).get(0);
         assertSame(resourceA, wireB.getRequirer());

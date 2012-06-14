@@ -222,38 +222,45 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     public synchronized Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> wiremap) {
-        Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
+        Map<Resource, WireInfo> infos = new HashMap<Resource, WireInfo>();
         for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
-            XResource res = (XResource) entry.getKey();
-            List<Wire> wires = entry.getValue();
-            Wiring reswiring = res.getAttachment(Wiring.class);
-            if (reswiring == null) {
-                reswiring = createWiringInternal(res, wires);
-                res.addAttachment(Wiring.class, reswiring);
-            }
-            for (Wire wire : wires) {
+            WireInfo reqinfo = getWireInfo(infos, (XResource) entry.getKey());
+            reqinfo.required.addAll(entry.getValue());
+            for (Wire wire : entry.getValue()) {
                 XResource provider = (XResource) wire.getProvider();
-                Wiring provwiring = provider.getAttachment(Wiring.class);
-                if (provwiring == null) {
-                    provwiring = createWiringInternal(provider, null);
-                    provider.addAttachment(Wiring.class, provwiring);
-                }
-                ((AbstractWiring) provwiring).addProvidedWire(wire);
+                WireInfo provinfo = getWireInfo(infos, provider);
+                provinfo.provided.add(wire);
             }
-            result.put(res, reswiring);
+        }
+        
+        Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
+        for (WireInfo info : infos.values()) {
+            Wiring reswiring = updateRsourceWiring(info);
+            result.put(info.resource, reswiring);
         }
         return Collections.unmodifiableMap(result);
     }
 
-    private Wiring createWiringInternal(XResource res, List<Wire> wires) {
-        Wiring wiring = createWiring(res, wires);
-        wirings.put(res, wiring);
+    private WireInfo getWireInfo(Map<Resource, WireInfo> infos, XResource resource) {
+        WireInfo info = infos.get(resource);
+        if (info == null) {
+            Wiring reswiring = resource.getAttachment(Wiring.class);
+            info = new WireInfo(resource, reswiring);
+            infos.put(resource, info);
+        }
+        return info;
+    }
+
+    private Wiring updateRsourceWiring(WireInfo info) {
+        Wiring wiring = createWiring(info.resource, info.required, info.provided);
+        info.resource.addAttachment(Wiring.class, wiring);
+        wirings.put(info.resource, wiring);
         return wiring;
     }
     
     @Override
-    public Wiring createWiring(XResource res, List<Wire> wires) {
-        return new AbstractWiring(res, wires);
+    public Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {
+        return new AbstractWiring(res, required, provided);
     }
 
     @Override
@@ -277,6 +284,19 @@ public class AbstractEnvironment implements XEnvironment {
             resourceTypeCache.put(type, typeset);
         }
         return typeset;
+    }
+
+    private static class WireInfo {
+        final XResource resource; 
+        final List<Wire> required = new ArrayList<Wire>();
+        final List<Wire> provided = new ArrayList<Wire>();
+        WireInfo(Resource resource, Wiring wiring) {
+            this.resource = (XResource) resource;
+            if (wiring != null) {
+                required.addAll(wiring.getRequiredResourceWires(null));
+                provided.addAll(wiring.getProvidedResourceWires(null));
+            }
+        }
     }
 
     private static class CacheKey {
