@@ -22,6 +22,7 @@
 package org.jboss.test.osgi.resolver;
 
 import static org.junit.Assert.assertEquals;
+import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
@@ -162,6 +164,10 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
             requierers.remove(wire.getRequirer());
         }
         Assert.assertTrue(requierers.isEmpty());
+        Assert.assertEquals(0, wiringA.getResourceRequirements(PACKAGE_NAMESPACE).size());
+        List<Capability> caps = wiringA.getResourceCapabilities(PACKAGE_NAMESPACE);
+        Assert.assertEquals(1, caps.size());
+        Assert.assertEquals("javax.servlet", getNamespaceValue(caps.get(0)));
         
         // Verify wiring of B
         Wiring wiringB = getWiring(resourceB);
@@ -170,6 +176,12 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(0).getCapability()));
         Assert.assertSame(resourceA, wires.get(0).getProvider());
         Assert.assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+        List<Requirement> reqs = wiringB.getResourceRequirements(PACKAGE_NAMESPACE);
+        Assert.assertEquals(1, reqs.size());
+        Assert.assertEquals("javax.servlet", getNamespaceValue(reqs.get(0)));
+        caps = wiringB.getResourceCapabilities(PACKAGE_NAMESPACE);
+        Assert.assertEquals(1, caps.size());
+        Assert.assertEquals("org.osgi.service.http", getNamespaceValue(caps.get(0)));
         
         // Verify wiring of C
         Wiring wiringC = getWiring(resourceC);
@@ -181,6 +193,13 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         Assert.assertEquals(1, wires.size());
         Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(wires.get(0).getCapability()));
         Assert.assertSame(resourceD, wires.get(0).getRequirer());
+        reqs = wiringC.getResourceRequirements(PACKAGE_NAMESPACE);
+        Assert.assertEquals(1, reqs.size());
+        Assert.assertEquals("javax.servlet", getNamespaceValue(reqs.get(0)));
+        caps = wiringC.getResourceCapabilities(PACKAGE_NAMESPACE);
+        Assert.assertEquals(2, caps.size());
+        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(caps.get(0)));
+        Assert.assertEquals("org.osgi.service.http", getNamespaceValue(caps.get(1)));
         
         // Verify wiring of D
         Wiring wiringD = getWiring(resourceD);
@@ -191,9 +210,18 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(1).getCapability()));
         Assert.assertSame(resourceA, wires.get(1).getProvider());
         Assert.assertEquals(0, wiringD.getProvidedResourceWires(null).size());
+        reqs = wiringD.getResourceRequirements(PACKAGE_NAMESPACE);
+        Assert.assertEquals(2, reqs.size());
+        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(reqs.get(0)));
+        Assert.assertEquals("javax.servlet", getNamespaceValue(reqs.get(1)));
+        Assert.assertEquals(0, wiringD.getResourceCapabilities(PACKAGE_NAMESPACE).size());
     }
 
     private String getNamespaceValue(Capability cap) {
         return (String) cap.getAttributes().get(cap.getNamespace());
+    }
+    
+    private String getNamespaceValue(Requirement req) {
+        return (String) req.getAttributes().get(req.getNamespace());
     }
 }

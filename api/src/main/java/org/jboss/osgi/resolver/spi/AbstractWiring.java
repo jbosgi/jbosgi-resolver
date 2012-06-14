@@ -26,10 +26,12 @@ import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.resource.Capability;
+import org.osgi.resource.Namespace;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
@@ -58,12 +60,64 @@ public class AbstractWiring implements Wiring {
 
     @Override
     public List<Capability> getResourceCapabilities(String namespace) {
-        return resource.getCapabilities(namespace);
+        List<Capability> caps = new ArrayList<Capability>(resource.getCapabilities(namespace));
+        Iterator<Capability> capit = caps.iterator();
+        while(capit.hasNext()) {
+            Capability cap = capit.next();
+            // Capabilities with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE} 
+            // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not returned
+            String effdir = cap.getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
+            if (effdir != null && !effdir.equals(Namespace.EFFECTIVE_RESOLVE)) {
+                capit.remove();
+            }
+            // A package declared to be both exported and imported, 
+            // only one is selected and the other is discarded
+            String capns = cap.getNamespace();
+            Object capval = cap.getAttributes().get(capns);
+            for (Wire wire : required) {
+                Capability wirecap = wire.getCapability();
+                Object wirecapval = wirecap.getAttributes().get(wirecap.getNamespace());
+                if (capns.equals(wirecap.getNamespace()) && capval.equals(wirecapval)) {
+                    capit.remove();
+                }
+            }
+        }
+        return caps;
     }
 
     @Override
     public List<Requirement> getResourceRequirements(String namespace) {
-        return resource.getRequirements(namespace);
+        List<Requirement> reqs = resource.getRequirements(namespace);
+        Iterator<Requirement> reqit = reqs.iterator();
+        while(reqit.hasNext()) {
+            Requirement req = reqit.next();
+            // Requirements with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE} 
+            // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not returned
+            String effdir = req.getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
+            if (effdir != null && !Namespace.EFFECTIVE_RESOLVE.equals(effdir)) {
+                reqit.remove();
+            }
+            // A package declared to be optionally imported and is not
+            // actually imported, the requirement must be discarded
+            String resdir = req.getDirectives().get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
+            if (Namespace.RESOLUTION_OPTIONAL.equals(resdir)) {
+                String reqns = req.getNamespace();
+                Object reqval = req.getAttributes().get(reqns);
+                boolean packageWireFound = false;
+                for (Wire wire : required) {
+                    Capability wirecap = wire.getCapability();
+                    Object wirecapval = wirecap.getAttributes().get(wirecap.getNamespace());
+                    if (reqns.equals(wirecap.getNamespace()) && reqval.equals(wirecapval)) {
+                        packageWireFound = true;
+                        break;
+                    }
+                }
+                if (!packageWireFound) {
+                    reqit.remove();
+                }
+            }
+        }
+        return reqs;
     }
 
     @Override
