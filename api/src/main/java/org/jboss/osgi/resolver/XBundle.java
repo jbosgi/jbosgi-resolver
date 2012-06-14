@@ -34,6 +34,8 @@ import org.osgi.framework.Bundle;
  */
 public interface XBundle extends Adaptable, Bundle {
 
+    String getCanonicalName();
+    
     boolean isResolved();
 
     boolean isFragment();

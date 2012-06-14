@@ -22,10 +22,13 @@
 
 package org.jboss.osgi.resolver;
 
+import static org.osgi.framework.namespace.IdentityNamespace.TYPE_BUNDLE;
+import static org.osgi.framework.namespace.IdentityNamespace.TYPE_FRAGMENT;
+import static org.osgi.framework.namespace.IdentityNamespace.TYPE_UNKNOWN;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
@@ -41,13 +44,15 @@ import org.osgi.resource.Wiring;
  */
 public interface XEnvironment {
 
+    String[] ALL_IDENTITY_TYPES = new String[] { TYPE_BUNDLE, TYPE_FRAGMENT, TYPE_UNKNOWN };
+    
     void installResources(XResource... resources);
 
     void uninstallResources(XResource... resources);
 
     void refreshResources(XResource... resources);
 
-    Collection<XResource> getResources(Set<String> types);
+    Collection<XResource> getResources(String... types);
 
     Long nextResourceIdentifier(Long value, String symbolicName);
 

@@ -26,7 +26,6 @@ import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,7 +46,6 @@ import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.omg.CORBA.Environment;
 import org.osgi.framework.namespace.HostNamespace;
-import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -61,8 +59,6 @@ import org.osgi.resource.Wiring;
  * @since 02-Jul-2010
  */
 public class AbstractEnvironment implements XEnvironment {
-
-    private static final String[] ALL_IDENTITY_TYPES = new String[] { IdentityNamespace.TYPE_BUNDLE, IdentityNamespace.TYPE_FRAGMENT, IdentityNamespace.TYPE_UNKNOWN };
 
     private final AtomicLong resourceIndex = new AtomicLong();
     private final Map<CacheKey, Set<Capability>> capabilityCache = new ConcurrentHashMap<CacheKey, Set<Capability>>();
@@ -159,9 +155,9 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     @Override
-    public synchronized Collection<XResource> getResources(Set<String> types) {
+    public synchronized Collection<XResource> getResources(String... types) {
         Set<XResource> result = new HashSet<XResource>();
-        for (String type : (types != null ? types : Arrays.asList(ALL_IDENTITY_TYPES))) {
+        for (String type : (types != null ? types : ALL_IDENTITY_TYPES)) {
             result.addAll(getCachedResources(type));
         }
         return result;
