@@ -34,13 +34,30 @@ import org.osgi.framework.Bundle;
  */
 public interface XBundle extends Adaptable, Bundle {
 
-    String getCanonicalName();
-    
-    boolean isResolved();
-
-    boolean isFragment();
-
+    /**
+     * Get the current {@link XBundleRevision}
+     */
     XBundleRevision getBundleRevision();
 
+    /**
+     * Get all {@link XBundleRevision}s
+     */
     List<XBundleRevision> getAllBundleRevisions();
+    
+    /**
+     * Get the bundle canonical name
+     * 
+     * [symbolicName:version]
+     */
+    String getCanonicalName();
+    
+    /**
+     * True if the bundle is resolved.
+     */
+    boolean isResolved();
+
+    /**
+     * True if the bundle is a fragment.
+     */
+    boolean isFragment();
 }

@@ -100,11 +100,6 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
     }
 
     @Override
-    public int getRevisionId() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public XBundle getBundle() {
         throw new UnsupportedOperationException();
     }

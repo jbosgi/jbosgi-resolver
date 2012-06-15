@@ -39,15 +39,23 @@ import org.osgi.framework.wiring.BundleRevision;
  */
 public interface XBundleRevision extends XResource, BundleRevision {
 
+    /**
+     * Get the associated {@link XBundle}
+     */
     XBundle getBundle();
     
+    /**
+     * Get the associated {@link ModuleIdentifier}
+     * or null if the revision is not resolved
+     */
     ModuleIdentifier getModuleIdentifier();
     
+    /**
+     * Get the associated {@link ModuleIdentifier}
+     * or null if the revision is not resolved
+     */
     ModuleClassLoader getModuleClassLoader();
     
-    // [TODO] remove
-    int getRevisionId();
-
     /**
      * @see {@link Bundle#getResource(String)}
      */

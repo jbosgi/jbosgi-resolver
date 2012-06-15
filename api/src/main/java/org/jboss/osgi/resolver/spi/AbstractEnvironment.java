@@ -231,7 +231,7 @@ public class AbstractEnvironment implements XEnvironment {
         
         Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
         for (WireInfo info : infos.values()) {
-            Wiring reswiring = updateRsourceWiring(info);
+            Wiring reswiring = updateResourceWiring(info);
             result.put(info.resource, reswiring);
         }
         return Collections.unmodifiableMap(result);
@@ -247,7 +247,7 @@ public class AbstractEnvironment implements XEnvironment {
         return info;
     }
 
-    private Wiring updateRsourceWiring(WireInfo info) {
+    private Wiring updateResourceWiring(WireInfo info) {
         Wiring wiring = createWiring(info.resource, info.required, info.provided);
         info.resource.addAttachment(Wiring.class, wiring);
         wirings.put(info.resource, wiring);

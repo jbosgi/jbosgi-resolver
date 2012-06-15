@@ -87,7 +87,7 @@ public class AbstractWiring implements Wiring {
 
     @Override
     public List<Requirement> getResourceRequirements(String namespace) {
-        List<Requirement> reqs = resource.getRequirements(namespace);
+        List<Requirement> reqs = new ArrayList<Requirement>(resource.getRequirements(namespace));
         Iterator<Requirement> reqit = reqs.iterator();
         while(reqit.hasNext()) {
             Requirement req = reqit.next();
