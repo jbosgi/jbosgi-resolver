@@ -217,10 +217,13 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                 version = Version.emptyVersion;
             }
 
-            // Add the identity capability
+            // Add identity capability
             XCapability icap = addCapability(IdentityNamespace.IDENTITY_NAMESPACE, symbolicName);
             icap.getAttributes().put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, version);
-            resource.addAttachment(Module.class, module);
+
+            // Add bundle capability
+            XCapability bcap = addCapability(BundleNamespace.BUNDLE_NAMESPACE, symbolicName);
+            bcap.getAttributes().put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, version);
 
             // Add a package capability for every exported path
             for (String path : module.getExportedPaths()) {
