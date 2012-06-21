@@ -68,7 +68,7 @@ public interface ResolverMessages {
     IllegalStateException illegalStateInvalidArtifactURL(String urlspec);
 
     @Message(id = 10908, value = "Cannot initialize resource from: %s")
-    ResourceBuilderException resourceBuilderCannotInitializeResource(@Cause Throwable cause, String attributes);
+    ResourceBuilderException resourceBuilderCannotInitializeResource(@Cause Throwable cause, String input);
 
     @Message(id = 10909, value = "Invalid namespace: %s")
     IllegalArgumentException illegalArgumentInvalidNamespace(String namespace);

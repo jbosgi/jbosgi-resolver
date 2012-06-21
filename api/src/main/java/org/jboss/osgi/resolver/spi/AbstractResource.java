@@ -81,29 +81,37 @@ public class AbstractResource extends AbstractElement implements XResource {
     @Override
     public void validate() {
 
-        // Validate the capabilities
-        for (Capability cap : getCaplist(null)) {
-            ((XCapability) cap).validate();
-        }
-
-        // Validate the requirements
-        for (Requirement req : getReqlist(null)) {
-            ((XRequirement) req).validate();
-        }
-
         // identity
         List<Capability> caps = getCaplist(IdentityNamespace.IDENTITY_NAMESPACE);
         if (caps.size() > 1)
             throw MESSAGES.illegalStateMultipleIdentities(caps);
         if (caps.size() == 1) {
             XCapability cap = (XCapability) caps.get(0);
+            cap.validate();
             identityCapability = cap.adapt(XIdentityCapability.class);
+        }
+
+        // Validate the capabilities
+        for (Capability cap : getCaplist(null)) {
+            try {
+                ((XCapability) cap).validate();
+            } catch (RuntimeException ex) {
+                throw new ResourceValidationException("Invalid capability", ex, cap);
+            }
+        }
+
+        // Validate the requirements
+        for (Requirement req : getReqlist(null)) {
+            try {
+                ((XRequirement) req).validate();
+            } catch (RuntimeException ex) {
+                throw new ResourceValidationException("Invalid requirement", ex, req);
+            }
         }
 
         // fragment
         List<Requirement> reqs = getReqlist(HostNamespace.HOST_NAMESPACE);
         fragment = new Boolean(reqs.size() > 0);
-
     }
 
     @Override
@@ -120,13 +128,11 @@ public class AbstractResource extends AbstractElement implements XResource {
 
     @Override
     public XIdentityCapability getIdentityCapability() {
-        ensureImmutable();
         return identityCapability;
     }
 
     @Override
     public boolean isFragment() {
-        ensureImmutable();
         return fragment.booleanValue();
     }
 
@@ -148,6 +154,7 @@ public class AbstractResource extends AbstractElement implements XResource {
         return reqlist;
     }
 
+    @Override
     public String toString() {
         XIdentityCapability id = identityCapability;
         String idstr = (id != null ? id.getSymbolicName() + ":" + id.getVersion() : "anonymous");

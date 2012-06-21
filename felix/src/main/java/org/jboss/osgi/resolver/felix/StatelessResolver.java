@@ -5,16 +5,16 @@
  * Copyright (C) 2010 - 2012 JBoss by Red Hat
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
- * published by the Free Software Foundation, either version 2.1 of the 
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 2.1 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- * 
- * You should have received a copy of the GNU General Lesser Public 
+ *
+ * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
@@ -25,13 +25,13 @@ package org.jboss.osgi.resolver.felix;
 import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.felix.resolver.FelixResolveContext;
 import org.apache.felix.resolver.impl.HostedRequirement;
 import org.apache.felix.resolver.impl.ResolverImpl;
-import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResolveContext;
@@ -50,7 +50,7 @@ import org.osgi.service.resolver.ResolveContext;
  * An implementation of the Resolver.
  * <p/>
  * This implemantion should use no framework specific API. It is the extension point for a framework specific Resolver.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
@@ -84,19 +84,19 @@ public class StatelessResolver implements XResolver {
         Map<Resource, List<Wire>> wiremap = resolve(context);
         return context.getEnvironment().updateWiring(wiremap);
     }
-    
+
     @Override
-    public XResolveContext createResolverContext(XEnvironment environment, final Collection<Resource> mandatory, final Collection<Resource> optional) {
+    public XResolveContext createResolverContext(XEnvironment environment, final Collection<? extends Resource> mandatory, final Collection<? extends Resource> optional) {
         return new AbstractResolveContext(environment) {
 
             @Override
             public Collection<Resource> getMandatoryResources() {
-                return mandatory != null ? mandatory : super.getMandatoryResources();
+                return mandatory != null ? Collections.unmodifiableCollection(mandatory) : super.getMandatoryResources();
             }
 
             @Override
             public Collection<Resource> getOptionalResources() {
-                return optional != null ? optional : super.getOptionalResources();
+                return optional != null ? Collections.unmodifiableCollection(optional) : super.getOptionalResources();
             }
         };
     }
@@ -138,11 +138,11 @@ public class StatelessResolver implements XResolver {
         public int insertHostedCapability(List<Capability> capabilities, HostedCapability hostedCapability) {
             return context.insertHostedCapability(capabilities, hostedCapability);
         }
-        
+
         @Override
         public boolean matches(Requirement req, Capability cap) {
             XRequirement xreq = (XRequirement)(req instanceof HostedRequirement ? ((HostedRequirement)req).getOriginalRequirement() : req);
-            return xreq.matches((XCapability) cap);
+            return xreq.matches(cap);
         }
 
         @Override

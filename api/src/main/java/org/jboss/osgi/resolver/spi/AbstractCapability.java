@@ -137,10 +137,11 @@ public class AbstractCapability extends AbstractElement implements XCapability {
             return Version.emptyVersion;
     }
 
+    @Override
     public String toString() {
         String attstr = "atts=" + attributes;
         String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
-        XIdentityCapability icap = ((XResource) getResource()).getIdentityCapability();
+        XIdentityCapability icap = resource.getIdentityCapability();
         String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
         return getClass().getSimpleName() + "[" + attstr + dirstr + resname + "]";
     }

@@ -210,10 +210,11 @@ public class AbstractRequirement extends AbstractElement implements XRequirement
         return filter != null ? filter.match(new Hashtable<String, Object>(cap.getAttributes())) : true;
     }
 
+    @Override
     public String toString() {
         String attstr = "atts=" + attributes;
         String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
-        XIdentityCapability icap = ((XResource) getResource()).getIdentityCapability();
+        XIdentityCapability icap = resource.getIdentityCapability();
         String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
         return getClass().getSimpleName() + "[" + attstr + dirstr + resname + "]";
     }

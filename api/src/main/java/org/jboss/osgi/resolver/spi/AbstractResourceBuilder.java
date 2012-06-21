@@ -197,9 +197,10 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                 }
             }
             resource.validate();
+        } catch (ResourceValidationException ex) {
+            throw MESSAGES.resourceBuilderCannotInitializeResource(ex, ex.getOffendingInput());
         } catch (RuntimeException ex) {
-            String cachedAttributes = metadata.getCachedAttributes().toString();
-            throw MESSAGES.resourceBuilderCannotInitializeResource(ex, cachedAttributes);
+            throw MESSAGES.resourceBuilderCannotInitializeResource(ex, metadata.toString());
         }
         return this;
     }
