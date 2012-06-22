@@ -97,7 +97,7 @@ public class AbstractEnvironment implements XEnvironment {
 
             // Add resource by type
             getCachedResources(icap.getType()).add(res);
-            
+
             // Add resource capabilites
             for (Capability cap : res.getCapabilities(null)) {
                 getCachedCapabilities(CacheKey.create(cap)).add(cap);
@@ -108,7 +108,7 @@ public class AbstractEnvironment implements XEnvironment {
                     LOGGER.debugf("   %s", req);
                 }
             }
-            
+
             // Add the wiring
             Wiring wiring = res.getAttachment(Wiring.class);
             if (wiring != null) {
@@ -143,6 +143,9 @@ public class AbstractEnvironment implements XEnvironment {
                     capabilityCache.remove(cachekey);
                 }
             }
+
+            // Remove wirings
+            wirings.remove(res);
         }
     }
 
@@ -217,6 +220,7 @@ public class AbstractEnvironment implements XEnvironment {
         return result;
     }
 
+    @Override
     public synchronized Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> wiremap) {
         Map<Resource, WireInfo> infos = new HashMap<Resource, WireInfo>();
         for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
@@ -228,7 +232,7 @@ public class AbstractEnvironment implements XEnvironment {
                 provinfo.provided.add(wire);
             }
         }
-        
+
         Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
         for (WireInfo info : infos.values()) {
             Wiring reswiring = updateResourceWiring(info);
@@ -253,7 +257,7 @@ public class AbstractEnvironment implements XEnvironment {
         wirings.put(info.resource, wiring);
         return wiring;
     }
-    
+
     @Override
     public Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {
         return new AbstractWiring(res, required, provided);
@@ -283,7 +287,7 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     private static class WireInfo {
-        final XResource resource; 
+        final XResource resource;
         final List<Wire> required = new ArrayList<Wire>();
         final List<Wire> provided = new ArrayList<Wire>();
         WireInfo(Resource resource, Wiring wiring) {
