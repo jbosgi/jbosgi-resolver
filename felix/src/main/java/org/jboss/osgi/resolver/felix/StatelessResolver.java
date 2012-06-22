@@ -29,9 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.felix.resolver.FelixResolveContext;
-import org.apache.felix.resolver.impl.HostedRequirement;
-import org.apache.felix.resolver.impl.ResolverImpl;
+import org.apache.felix.resolver.ResolverImpl;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
 import org.jboss.osgi.resolver.XResolver;
@@ -79,7 +77,7 @@ public class StatelessResolver implements XResolver {
     }
 
     @Override
-    public XResolveContext createResolverContext(XEnvironment environment, final Collection<? extends Resource> mandatory, final Collection<? extends Resource> optional) {
+    public XResolveContext createResolveContext(XEnvironment environment, final Collection<? extends Resource> mandatory, final Collection<? extends Resource> optional) {
         return new AbstractResolveContext(environment) {
 
             @Override
@@ -92,60 +90,5 @@ public class StatelessResolver implements XResolver {
                 return optional != null ? Collections.unmodifiableCollection(optional) : super.getOptionalResources();
             }
         };
-    }
-
-    static class ResolveContextDelegate extends FelixResolveContext {
-
-        private final XResolveContext context;
-
-        ResolveContextDelegate(XResolveContext context) {
-            this.context = context;
-        }
-
-        @Override
-        public boolean isEffective(Requirement req) {
-            return context.isEffective(req);
-        }
-
-        @Override
-        public Map<Resource, Wiring> getWirings() {
-            return context.getWirings();
-        }
-
-        @Override
-        public Collection<Resource> getMandatoryResources() {
-            return context.getMandatoryResources();
-        }
-
-        @Override
-        public Collection<Resource> getOptionalResources() {
-            return context.getOptionalResources();
-        }
-
-        @Override
-        public List<Capability> findProviders(Requirement req) {
-            return context.findProviders(req);
-        }
-
-        @Override
-        public int insertHostedCapability(List<Capability> capabilities, HostedCapability hostedCapability) {
-            return context.insertHostedCapability(capabilities, hostedCapability);
-        }
-
-        @Override
-        public boolean matches(Requirement req, Capability cap) {
-            XRequirement xreq = (XRequirement)(req instanceof HostedRequirement ? ((HostedRequirement)req).getOriginalRequirement() : req);
-            return xreq.matches(cap);
-        }
-
-        @Override
-        public void checkExecutionEnvironment(Resource resource) throws ResolutionException {
-            // not implemented
-        }
-
-        @Override
-        public void checkNativeLibraries(Resource resource) throws ResolutionException {
-            // not implemented
-        }
     }
 }
