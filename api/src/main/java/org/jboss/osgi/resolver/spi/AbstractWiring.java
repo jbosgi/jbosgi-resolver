@@ -23,6 +23,7 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jboss.osgi.resolver.XResource;
+import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Namespace;
 import org.osgi.resource.Requirement;
@@ -61,6 +63,15 @@ public class AbstractWiring implements Wiring {
     @Override
     public List<Capability> getResourceCapabilities(String namespace) {
         List<Capability> caps = new ArrayList<Capability>(resource.getCapabilities(namespace));
+        // Add capabilities from attached fragments
+        for (Wire wire : getProvidedResourceWires(HostNamespace.HOST_NAMESPACE)) {
+            for (Capability cap : wire.getRequirer().getCapabilities(null)) {
+                if (IDENTITY_NAMESPACE.equals(cap.getNamespace())) 
+                    continue;
+                if (namespace == null || namespace.equals(cap.getNamespace())) 
+                    caps.add(new AbstractHostedCapability(cap.getResource(), cap));
+            }
+        }
         Iterator<Capability> capit = caps.iterator();
         while(capit.hasNext()) {
             Capability cap = capit.next();
@@ -123,12 +134,10 @@ public class AbstractWiring implements Wiring {
     @Override
     public List<Wire> getProvidedResourceWires(String namespace) {
         List<Wire> result = new ArrayList<Wire>();
-        if (provided != null) {
-            for (Wire wire : provided) {
-                Capability cap = wire.getCapability();
-                if (namespace == null || namespace.equals(cap.getNamespace())) {
-                    result.add(wire);
-                }
+        for (Wire wire : provided) {
+            Capability cap = wire.getCapability();
+            if (namespace == null || namespace.equals(cap.getNamespace())) {
+                result.add(wire);
             }
         }
         return Collections.unmodifiableList(result);
@@ -137,12 +146,10 @@ public class AbstractWiring implements Wiring {
     @Override
     public List<Wire> getRequiredResourceWires(String namespace) {
         List<Wire> result = new ArrayList<Wire>();
-        if (required != null) {
-            for (Wire wire : required) {
-                Requirement req = wire.getRequirement();
-                if (namespace == null || namespace.equals(req.getNamespace())) {
-                    result.add(wire);
-                }
+        for (Wire wire : required) {
+            Requirement req = wire.getRequirement();
+            if (namespace == null || namespace.equals(req.getNamespace())) {
+                result.add(wire);
             }
         }
         return Collections.unmodifiableList(result);

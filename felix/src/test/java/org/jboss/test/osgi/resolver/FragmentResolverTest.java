@@ -36,11 +36,14 @@ import org.jboss.osgi.resolver.XResolveContext;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
+import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
+import org.osgi.service.resolver.HostedCapability;
 import org.osgi.service.resolver.ResolutionException;
 
 /**
@@ -78,7 +81,16 @@ public class FragmentResolverTest extends AbstractResolverTest {
         Wire hwireA = wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceA, hwireA.getProvider());
         assertSame(resourceB, hwireA.getRequirer());
-
+        
+        assertEquals(4, wiringA.getResourceCapabilities(null).size());
+        assertEquals(1, wiringA.getResourceCapabilities(IdentityNamespace.IDENTITY_NAMESPACE).size());
+        assertEquals(1, wiringA.getResourceCapabilities(HostNamespace.HOST_NAMESPACE).size());
+        assertEquals(1, wiringA.getResourceCapabilities(BundleNamespace.BUNDLE_NAMESPACE).size());
+        assertEquals(1, wiringA.getResourceCapabilities(PackageNamespace.PACKAGE_NAMESPACE).size());
+        HostedCapability hcap = (HostedCapability) wiringA.getResourceCapabilities(PackageNamespace.PACKAGE_NAMESPACE).get(0);
+        assertEquals("org.jboss.osgi.test.fragment.export", hcap.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE));
+        assertSame(resourceB, hcap.getResource());
+        
         Wiring wiringB = getWiring(resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
         assertEquals(1, wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).size());
