@@ -93,10 +93,12 @@ public class AbstractResource extends AbstractElement implements XResource {
 
         // Validate the capabilities
         for (Capability cap : getCaplist(null)) {
-            try {
-                ((XCapability) cap).validate();
-            } catch (RuntimeException ex) {
-                throw new ResourceValidationException("Invalid capability", ex, cap);
+            if (cap != identityCapability) {
+                try {
+                    ((XCapability) cap).validate();
+                } catch (RuntimeException ex) {
+                    throw new ResourceValidationException("Invalid capability", ex, cap);
+                }
             }
         }
 

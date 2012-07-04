@@ -89,7 +89,7 @@ public class FragmentResolverTest extends AbstractResolverTest {
         assertEquals(1, wiringA.getResourceCapabilities(PackageNamespace.PACKAGE_NAMESPACE).size());
         HostedCapability hcap = (HostedCapability) wiringA.getResourceCapabilities(PackageNamespace.PACKAGE_NAMESPACE).get(0);
         assertEquals("org.jboss.osgi.test.fragment.export", hcap.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE));
-        assertSame(resourceB, hcap.getResource());
+        assertSame(resourceA, hcap.getResource());
         
         Wiring wiringB = getWiring(resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());

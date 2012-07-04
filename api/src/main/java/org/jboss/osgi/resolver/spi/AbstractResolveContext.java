@@ -31,7 +31,6 @@ import java.util.Map;
 
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
-import org.jboss.osgi.resolver.internal.ResolverLogger;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;

@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.resource.Capability;
@@ -38,6 +39,7 @@ import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
+import org.osgi.service.resolver.HostedCapability;
 
 /**
  * The abstract implementation of a {@link Wiring}.
@@ -47,7 +49,7 @@ import org.osgi.resource.Wiring;
  */
 public class AbstractWiring implements Wiring {
 
-    private final Resource resource;
+    private final XResource resource;
     private final List<Wire> required;
     private final List<Wire> provided;
 
@@ -69,7 +71,7 @@ public class AbstractWiring implements Wiring {
                 if (IDENTITY_NAMESPACE.equals(cap.getNamespace())) 
                     continue;
                 if (namespace == null || namespace.equals(cap.getNamespace())) 
-                    caps.add(new AbstractHostedCapability(cap.getResource(), cap));
+                    caps.add(getHostedCapability((XCapability) cap));
             }
         }
         Iterator<Capability> capit = caps.iterator();
@@ -94,6 +96,10 @@ public class AbstractWiring implements Wiring {
             }
         }
         return caps;
+    }
+    
+    protected HostedCapability getHostedCapability(XCapability cap) {
+        return new AbstractHostedCapability(resource, cap);
     }
 
     @Override

@@ -23,8 +23,11 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.osgi.framework.namespace.AbstractWiringNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE;
 import static org.osgi.framework.namespace.BundleNamespace.BUNDLE_NAMESPACE;
 import static org.osgi.framework.namespace.HostNamespace.HOST_NAMESPACE;
+import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE;
+import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE;
 import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
 import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 
@@ -40,6 +43,7 @@ import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceCapability;
 import org.osgi.framework.Version;
+import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Resource;
 
@@ -49,12 +53,14 @@ import org.osgi.resource.Resource;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractCapability extends AbstractElement implements XCapability {
+public class AbstractCapability extends AbstractElement implements XIdentityCapability, XHostCapability, XPackageCapability, XResourceCapability {
 
     private final String namespace;
     private final XResource resource;
     private XAttributeSupport attributes;
     private XDirectiveSupport directives;
+    private Version version;
+    private String canonicalName;
 
     public AbstractCapability(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -112,19 +118,75 @@ public class AbstractCapability extends AbstractElement implements XCapability {
         attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
         directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
         if (IDENTITY_NAMESPACE.equals(getNamespace())) {
-            addAttachment(XIdentityCapability.class, new AbstractIdentityCapability(this));
+            if (getSymbolicName() == null) 
+                throw MESSAGES.illegalStateCannotObtainAttribute(IDENTITY_NAMESPACE);
         } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
-            addAttachment(XResourceCapability.class, new AbstractResourceCapability(this));
+            if (getSymbolicName() == null) 
+                throw MESSAGES.illegalStateCannotObtainAttribute(BUNDLE_NAMESPACE);
         } else if (HOST_NAMESPACE.equals(getNamespace())) {
-            addAttachment(XHostCapability.class, new AbstractHostCapability(this));
+            if (getSymbolicName() == null) 
+                throw MESSAGES.illegalStateCannotObtainAttribute(HOST_NAMESPACE);
         } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
-            addAttachment(XPackageCapability.class, new AbstractPackageCapability(this));
+            if (getPackageName() == null) 
+                throw MESSAGES.illegalStateCannotObtainAttribute(PACKAGE_NAMESPACE);
         }
+        version = getVersion();
+        canonicalName = toString();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends XCapability> T adapt(Class<T> clazz) {
-        return getAttachment(clazz);
+        T result = null;
+        if (XIdentityCapability.class == clazz && IDENTITY_NAMESPACE.equals(getNamespace())) {
+            result = (T) this;
+        } else if (XResourceCapability.class == clazz && BUNDLE_NAMESPACE.equals(getNamespace())) {
+                result = (T) this;
+        } else if (XHostCapability.class == clazz && HOST_NAMESPACE.equals(getNamespace())) {
+            result = (T) this;
+        } else if (XPackageCapability.class == clazz && PACKAGE_NAMESPACE.equals(getNamespace())) {
+            result = (T) this;
+        }
+        return result;
+    }
+
+    @Override
+    public String getPackageName() {
+        String result = null;
+        if (PACKAGE_NAMESPACE.equals(getNamespace())) {
+            result = (String) getAttribute(PACKAGE_NAMESPACE);
+        }
+        return result;
+    }
+
+    @Override
+    public String getSymbolicName() {
+        String result = null;
+        if (IDENTITY_NAMESPACE.equals(getNamespace())) {
+            result = (String) getAttribute(IDENTITY_NAMESPACE);
+        } else if (HOST_NAMESPACE.equals(getNamespace())) {
+            result = (String) getAttribute(HOST_NAMESPACE);
+        } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
+            result = (String) getAttribute(BUNDLE_NAMESPACE);
+        }
+        return result;
+    }
+
+    @Override
+    public Version getVersion() {
+        Version result = version;
+        if (result == null) {
+            if (IDENTITY_NAMESPACE.equals(getNamespace())) {
+                result = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
+            } else if (HOST_NAMESPACE.equals(getNamespace())) {
+                result = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+            } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
+                result = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+            } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
+                result = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
+            }
+        }
+        return result;
     }
 
     static Version getVersion(Capability cap, String attr) {
@@ -138,11 +200,36 @@ public class AbstractCapability extends AbstractElement implements XCapability {
     }
 
     @Override
+    public String getType() {
+        String typeval = (String) getAttribute(CAPABILITY_TYPE_ATTRIBUTE);
+        return typeval != null ? typeval : IdentityNamespace.TYPE_UNKNOWN;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return Boolean.parseBoolean(getDirective(IdentityNamespace.CAPABILITY_SINGLETON_DIRECTIVE));
+    }
+
+    @Override
     public String toString() {
-        String attstr = "atts=" + attributes;
-        String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
-        XIdentityCapability icap = resource.getIdentityCapability();
-        String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
-        return getClass().getSimpleName() + "[" + attstr + dirstr + resname + "]";
+        String result = canonicalName;
+        if (result == null) {
+            String type = getClass().getSimpleName();
+            if (IDENTITY_NAMESPACE.equals(getNamespace())) {
+                type = XIdentityCapability.class.getSimpleName();
+            } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
+                type = XResourceCapability.class.getSimpleName();
+            } else if (HOST_NAMESPACE.equals(getNamespace())) {
+                type = XHostCapability.class.getSimpleName();
+            } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
+                type = XPackageCapability.class.getSimpleName();
+            }
+            String attstr = "atts=" + attributes;
+            String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
+            XIdentityCapability icap = resource.getIdentityCapability();
+            String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
+            result = type + "[" + attstr + dirstr + resname + "]";
+        }
+        return result;
     }
 }
