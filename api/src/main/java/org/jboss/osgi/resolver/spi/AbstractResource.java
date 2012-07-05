@@ -97,7 +97,7 @@ public class AbstractResource extends AbstractElement implements XResource {
                 try {
                     ((XCapability) cap).validate();
                 } catch (RuntimeException ex) {
-                    throw new ResourceValidationException("Invalid capability", ex, cap);
+                    throw new ResourceValidationException(MESSAGES.validationInvalidCapability(cap), ex, cap);
                 }
             }
         }
@@ -107,7 +107,7 @@ public class AbstractResource extends AbstractElement implements XResource {
             try {
                 ((XRequirement) req).validate();
             } catch (RuntimeException ex) {
-                throw new ResourceValidationException("Invalid requirement", ex, req);
+                throw new ResourceValidationException(MESSAGES.validationInvalidRequirement(req), ex, req);
             }
         }
 

@@ -28,7 +28,9 @@ import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
 import org.jboss.osgi.resolver.ResourceBuilderException;
+import org.jboss.osgi.resolver.spi.ResourceValidationException;
 import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 
 /**
@@ -84,4 +86,10 @@ public interface ResolverMessages {
 
     @Message(id = 10913, value = "Invalid access to immutable resource")
     IllegalStateException illegalStateInvalidAccessToImmutableResource();
+
+    @Message(id = 10914, value = "Invalid capability: %s")
+    String validationInvalidCapability(Capability cap);
+
+    @Message(id = 10915, value = "Invalid requirement: %s")
+    String validationInvalidRequirement(Requirement req);
 }

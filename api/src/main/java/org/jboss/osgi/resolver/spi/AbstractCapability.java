@@ -117,17 +117,26 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     public void validate() {
         attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
         directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
-        namespaceValue = (String)getAttribute(getNamespace());
-        if (namespaceValue == null) 
-            throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         if (IDENTITY_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
+            namespaceValue = (String)getAttribute(getNamespace());
+            if (namespaceValue == null) 
+                throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+            namespaceValue = (String)getAttribute(getNamespace());
+            if (namespaceValue == null) 
+                throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         } else if (HOST_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+            namespaceValue = (String)getAttribute(getNamespace());
+            if (namespaceValue == null) 
+                throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
+            namespaceValue = (String)getAttribute(getNamespace());
+            if (namespaceValue == null) 
+                throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         }
         canonicalName = toString();
     }

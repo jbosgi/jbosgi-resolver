@@ -22,13 +22,14 @@
 
 package org.jboss.osgi.resolver;
 
+
 /**
  * Adds attachment support
  * 
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XAttachmentSupport {
+public interface XAttachmentSupport  {
     /**
      * Attach an arbirtary object with this element.
      * 

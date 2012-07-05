@@ -35,8 +35,9 @@ import org.osgi.resource.Requirement;
 public class ResourceValidationException extends RuntimeException {
 
     private static final long serialVersionUID = 6996504110476446968L;
-    private Capability invalidCapability;
-    private Requirement invalidRequirement;
+    
+    private transient Capability invalidCapability;
+    private transient Requirement invalidRequirement;
 
     ResourceValidationException(String message, Throwable cause, Capability cap) {
         super(message, cause);
