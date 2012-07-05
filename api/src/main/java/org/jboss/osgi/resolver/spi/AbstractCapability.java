@@ -45,7 +45,6 @@ import org.jboss.osgi.resolver.XResourceCapability;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
-import org.osgi.resource.Resource;
 
 /**
  * The abstract implementation of a {@link XCapability}.
@@ -59,8 +58,9 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     private final XResource resource;
     private XAttributeSupport attributes;
     private XDirectiveSupport directives;
-    private Version version;
+    private String namespaceValue;
     private String canonicalName;
+    private Version version;
 
     public AbstractCapability(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -79,7 +79,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     }
 
     @Override
-    public Resource getResource() {
+    public XResource getResource() {
         return resource;
     }
 
@@ -117,20 +117,18 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     public void validate() {
         attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
         directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
+        namespaceValue = (String)getAttribute(getNamespace());
+        if (namespaceValue == null) 
+            throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         if (IDENTITY_NAMESPACE.equals(getNamespace())) {
-            if (getSymbolicName() == null) 
-                throw MESSAGES.illegalStateCannotObtainAttribute(IDENTITY_NAMESPACE);
+            version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
         } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
-            if (getSymbolicName() == null) 
-                throw MESSAGES.illegalStateCannotObtainAttribute(BUNDLE_NAMESPACE);
+            version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
         } else if (HOST_NAMESPACE.equals(getNamespace())) {
-            if (getSymbolicName() == null) 
-                throw MESSAGES.illegalStateCannotObtainAttribute(HOST_NAMESPACE);
+            version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
         } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
-            if (getPackageName() == null) 
-                throw MESSAGES.illegalStateCannotObtainAttribute(PACKAGE_NAMESPACE);
+            version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
         }
-        version = getVersion();
         canonicalName = toString();
     }
 
@@ -152,41 +150,17 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
 
     @Override
     public String getPackageName() {
-        String result = null;
-        if (PACKAGE_NAMESPACE.equals(getNamespace())) {
-            result = (String) getAttribute(PACKAGE_NAMESPACE);
-        }
-        return result;
+        return namespaceValue;
     }
 
     @Override
     public String getSymbolicName() {
-        String result = null;
-        if (IDENTITY_NAMESPACE.equals(getNamespace())) {
-            result = (String) getAttribute(IDENTITY_NAMESPACE);
-        } else if (HOST_NAMESPACE.equals(getNamespace())) {
-            result = (String) getAttribute(HOST_NAMESPACE);
-        } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
-            result = (String) getAttribute(BUNDLE_NAMESPACE);
-        }
-        return result;
+        return namespaceValue;
     }
 
     @Override
     public Version getVersion() {
-        Version result = version;
-        if (result == null) {
-            if (IDENTITY_NAMESPACE.equals(getNamespace())) {
-                result = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
-            } else if (HOST_NAMESPACE.equals(getNamespace())) {
-                result = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
-                result = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
-                result = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
-            }
-        }
-        return result;
+        return version;
     }
 
     static Version getVersion(Capability cap, String attr) {

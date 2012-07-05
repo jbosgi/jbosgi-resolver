@@ -42,7 +42,6 @@ import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
@@ -137,16 +136,19 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             }
 
             // Host Capability
+            if (fragmentHost == null) {
+                XCapability cap = addCapability(HostNamespace.HOST_NAMESPACE, symbolicName);
+                cap.getAttributes().put(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE, bundleVersion);
+                cap.getAttributes().putAll(getAttributes(idparams));
+                cap.getDirectives().putAll(getDirectives(idparams));
+            }
+
+            // Host Requirement
             if (fragmentHost != null) {
                 String hostName = fragmentHost.getAttribute();
                 XRequirement req = addRequirement(HostNamespace.HOST_NAMESPACE, hostName);
                 req.getAttributes().putAll(getAttributes(fragmentHost));
                 req.getDirectives().putAll(getDirectives(fragmentHost));
-            } else if (Constants.SYSTEM_BUNDLE_SYMBOLICNAME.equals(symbolicName) == false) {
-                XCapability cap = addCapability(HostNamespace.HOST_NAMESPACE, symbolicName);
-                cap.getAttributes().put(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE, bundleVersion);
-                cap.getAttributes().putAll(getAttributes(idparams));
-                cap.getDirectives().putAll(getDirectives(idparams));
             }
 
             // Required Bundles
@@ -196,6 +198,29 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     req.getDirectives().putAll(getDirectives(attr));
                 }
             }
+            
+            // Provide-Capability
+            List<ParameterizedAttribute> providedCapabilities = metadata.getProvidedCapabilities();
+            if (providedCapabilities != null && providedCapabilities.isEmpty() == false) {
+                for (ParameterizedAttribute attr : providedCapabilities) {
+                    String capname = attr.getAttribute();
+                    XCapability cap = addCapability(capname, capname);
+                    cap.getAttributes().putAll(getAttributes(attr));
+                    cap.getDirectives().putAll(getDirectives(attr));
+                }
+            }
+            
+            // Require-Capability
+            List<ParameterizedAttribute> requiredCapabilities = metadata.getRequiredCapabilities();
+            if (requiredCapabilities != null && requiredCapabilities.isEmpty() == false) {
+                for (ParameterizedAttribute attr : requiredCapabilities) {
+                    String reqname = attr.getAttribute();
+                    XRequirement req = addRequirement(reqname, reqname);
+                    req.getAttributes().putAll(getAttributes(attr));
+                    req.getDirectives().putAll(getDirectives(attr));
+                }
+            }
+            
             resource.validate();
         } catch (ResourceValidationException ex) {
             throw MESSAGES.resourceBuilderCannotInitializeResource(ex, ex.getOffendingInput());
