@@ -92,6 +92,8 @@ import org.osgi.framework.ServiceRegistration;
  * 
  * @ThreadSafe
  * @version $Revision: 5900 $
+ *
+ * Extended by {@link #getResourceURL(Bundle, String)}
  */
 public class XMLParserActivator implements BundleActivator, ServiceFactory {
 	/** Context of this bundle */
@@ -158,12 +160,14 @@ public class XMLParserActivator implements BundleActivator, ServiceFactory {
 		this.context = context;
 		Bundle parserBundle = context.getBundle();
 		// check for sax parsers
-		registerSAXParsers(getParserFactoryClassNames(parserBundle
-				.getResource(SAXCLASSFILE)));
+		registerSAXParsers(getParserFactoryClassNames(getResourceURL(parserBundle, SAXCLASSFILE)));
 		// check for dom parsers
-		registerDOMParsers(getParserFactoryClassNames(parserBundle
-				.getResource(DOMCLASSFILE)));
+		registerDOMParsers(getParserFactoryClassNames(getResourceURL(parserBundle, DOMCLASSFILE)));
 	}
+
+    protected URL getResourceURL(Bundle parserBundle, String resname) {
+        return parserBundle.getResource(resname);
+    }
 
 	/**
 	 * This method has nothing to do as all active service registrations will

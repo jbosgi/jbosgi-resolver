@@ -55,7 +55,7 @@ public class AbstractHostedCapability extends AbstractElement implements HostedC
     }
 
     @Override
-    public XResource getResource() {
+    public Resource getResource() {
         return resource;
     }
 
