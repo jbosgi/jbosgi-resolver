@@ -20,7 +20,7 @@
 
 package org.jboss.osgi.resolver.felix;
 
-import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
+import static org.jboss.osgi.resolver.ResolverLogger.LOGGER;
 
 import java.util.Collection;
 import java.util.Collections;

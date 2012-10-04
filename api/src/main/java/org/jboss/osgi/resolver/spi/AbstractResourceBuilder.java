@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.metadata.OSGiMetaData.ANONYMOUS_BUNDLE_SYMBOLIC_NAME;
-import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -196,7 +196,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     req.getDirectives().putAll(getDirectives(attr));
                 }
             }
-            
+
             // Provide-Capability
             List<ParameterizedAttribute> providedCapabilities = metadata.getProvidedCapabilities();
             if (providedCapabilities != null && providedCapabilities.isEmpty() == false) {
@@ -207,7 +207,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     cap.getDirectives().putAll(getDirectives(attr));
                 }
             }
-            
+
             // Require-Capability
             List<ParameterizedAttribute> requiredCapabilities = metadata.getRequiredCapabilities();
             if (requiredCapabilities != null && requiredCapabilities.isEmpty() == false) {
@@ -218,7 +218,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     req.getDirectives().putAll(getDirectives(attr));
                 }
             }
-            
+
             resource.validate();
         } catch (ResourceValidationException ex) {
             throw MESSAGES.resourceBuilderCannotInitializeResource(ex, ex.getOffendingInput());

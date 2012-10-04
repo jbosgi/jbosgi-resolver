@@ -22,8 +22,8 @@ package org.jboss.osgi.resolver.spi;
 
 import java.util.Map;
 
-import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XBundleRequirement;
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRevision;

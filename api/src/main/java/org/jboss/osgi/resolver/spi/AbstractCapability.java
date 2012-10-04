@@ -20,7 +20,7 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 import static org.osgi.framework.namespace.AbstractWiringNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE;
 import static org.osgi.framework.namespace.BundleNamespace.BUNDLE_NAMESPACE;
 import static org.osgi.framework.namespace.HostNamespace.HOST_NAMESPACE;

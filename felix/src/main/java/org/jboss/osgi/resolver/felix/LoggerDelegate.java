@@ -20,9 +20,9 @@
 
 package org.jboss.osgi.resolver.felix;
 
-import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
+import static org.jboss.osgi.resolver.ResolverLogger.LOGGER;
 
-import org.jboss.osgi.resolver.internal.ResolverLogger;
+import org.jboss.osgi.resolver.ResolverLogger;
 
 /**
  * An integration with the resolver Logger.

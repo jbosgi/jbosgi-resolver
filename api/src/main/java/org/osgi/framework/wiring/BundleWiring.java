@@ -19,6 +19,7 @@ package org.osgi.framework.wiring;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleReference;
 import org.osgi.framework.namespace.IdentityNamespace;

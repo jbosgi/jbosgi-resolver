@@ -20,7 +20,7 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
+import static org.jboss.osgi.resolver.ResolverLogger.LOGGER;
 
 import java.util.Collections;
 import java.util.Comparator;

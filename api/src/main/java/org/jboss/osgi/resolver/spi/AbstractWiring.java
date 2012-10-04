@@ -20,7 +20,7 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
 
 import java.util.ArrayList;

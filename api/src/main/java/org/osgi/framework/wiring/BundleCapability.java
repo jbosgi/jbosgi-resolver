@@ -17,6 +17,7 @@
 package org.osgi.framework.wiring;
 
 import java.util.Map;
+
 import org.osgi.framework.namespace.AbstractWiringNamespace;
 import org.osgi.resource.Capability;
 

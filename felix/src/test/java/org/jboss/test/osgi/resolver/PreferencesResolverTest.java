@@ -21,20 +21,20 @@
 
 package org.jboss.test.osgi.resolver;
 
-import org.jboss.osgi.resolver.XResource;
-import org.jboss.shrinkwrap.api.Archive;
-import org.junit.Test;
-import org.osgi.resource.Resource;
-import org.osgi.resource.Wire;
-import org.osgi.resource.Wiring;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertSame;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertSame;
+import org.jboss.osgi.resolver.XResource;
+import org.jboss.shrinkwrap.api.Archive;
+import org.junit.Test;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
+import org.osgi.resource.Wiring;
 
 /**
  * Test the default resolver integration.

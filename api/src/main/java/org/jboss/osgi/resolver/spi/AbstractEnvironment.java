@@ -20,8 +20,8 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import static org.jboss.osgi.resolver.internal.ResolverLogger.LOGGER;
-import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.jboss.osgi.resolver.ResolverLogger.LOGGER;
+import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -20,7 +20,7 @@
 
 package org.jboss.osgi.resolver;
 
-import static org.jboss.osgi.resolver.internal.ResolverMessages.MESSAGES;
+import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 
 import java.net.MalformedURLException;
 import java.net.URL;

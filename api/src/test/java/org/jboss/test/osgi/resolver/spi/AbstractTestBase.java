@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.jar.Attributes.Name;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
-import org.jboss.osgi.metadata.internal.AbstractOSGiMetaData;
+import org.jboss.osgi.metadata.spi.AbstractOSGiMetaData;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
