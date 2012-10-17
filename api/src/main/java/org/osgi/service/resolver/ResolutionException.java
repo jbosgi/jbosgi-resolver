@@ -40,7 +40,7 @@ public class ResolutionException extends Exception {
 
 	private static final long				serialVersionUID	= 1L;
 
-	private final Collection<Requirement>	unresolvedRequirements;
+	private transient final Collection<Requirement>	unresolvedRequirements;
 
 	/**
 	 * Create a {@code ResolutionException} with the specified message, cause
@@ -81,7 +81,8 @@ public class ResolutionException extends Exception {
 		unresolvedRequirements = emptyCollection();
 	}
 
-	private static <T> Collection<T> emptyCollection() {
+	@SuppressWarnings("unchecked")
+    private static <T> Collection<T> emptyCollection() {
 		return Collections.EMPTY_LIST;
 	}
 

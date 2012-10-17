@@ -90,7 +90,8 @@ public abstract class ResolveContext {
 		return emptyCollection();
 	}
 
-	private static <T> Collection<T> emptyCollection() {
+	@SuppressWarnings("unchecked")
+    private static <T> Collection<T> emptyCollection() {
 		return Collections.EMPTY_LIST;
 	}
 
