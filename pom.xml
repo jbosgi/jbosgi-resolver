@@ -54,7 +54,7 @@
         <version.jboss.osgi.testing>2.0.0.Alpha1</version.jboss.osgi.testing>
         <version.jboss.shrinkwrap>1.0.0</version.jboss.shrinkwrap>
         <version.junit>4.10</version.junit>
-        <version.osgi.core>5.0.0</version.osgi.core>
+        <version.osgi>5.0.0</version.osgi>
     </properties>
 
     <!-- Dependency Management -->
@@ -95,7 +95,12 @@
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
-                <version>${version.osgi.core}</version>
+                <version>${version.osgi}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.enterprise</artifactId>
+                <version>${version.osgi}</version>
             </dependency>
 
             <!-- Test Dependencies -->
