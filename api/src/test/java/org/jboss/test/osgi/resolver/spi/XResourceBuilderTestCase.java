@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XHostCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
@@ -38,6 +37,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
@@ -102,13 +102,13 @@ public class XResourceBuilderTestCase extends AbstractTestBase {
                 Assert.assertNull(xreq.getVersionRange());
                 Assert.assertFalse(xreq.isOptional());
             } else if ("value2".equals(packageName)) {
-                Assert.assertEquals(VersionRange.parse("1.0.1"), xreq.getVersionRange());
+                Assert.assertEquals(new VersionRange("1.0.1"), xreq.getVersionRange());
                 Assert.assertFalse(xreq.isOptional());
             } else if ("value3".equals(packageName)) {
                 Assert.assertNull(xreq.getVersionRange());
                 Assert.assertTrue(xreq.isOptional());
             } else if ("value4".equals(packageName)) {
-                Assert.assertEquals(VersionRange.parse("3"), xreq.getVersionRange());
+                Assert.assertEquals(new VersionRange("3"), xreq.getVersionRange());
                 Assert.assertTrue(xreq.isOptional());
             } else {
                 Assert.fail("Incorrect package name: " + req);

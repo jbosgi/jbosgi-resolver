@@ -20,7 +20,7 @@
 
 package org.jboss.osgi.resolver;
 
-import org.jboss.osgi.metadata.VersionRange;
+import org.osgi.framework.VersionRange;
 
 /**
  * A fragment host requirement

@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.jboss.osgi.metadata.VersionRange;
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XDirectiveSupport;
@@ -49,6 +48,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.Version;
+import org.osgi.framework.VersionRange;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.HostNamespace;
@@ -238,7 +238,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         // match the bundle version range
         if (getVersionRange() != null) {
             Version version = AbstractCapability.getVersion(cap, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            if (getVersionRange().isInRange(version) == false)
+            if (getVersionRange().includes(version) == false)
                 return false;
         }
 
@@ -255,7 +255,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         // match the bundle version range
         if (getVersionRange() != null) {
             Version version = AbstractCapability.getVersion(cap, HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            if (getVersionRange().isInRange(version) == false)
+            if (getVersionRange().includes(version) == false)
                 return false;
         }
 
@@ -272,7 +272,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         // match the package version range
         if (getVersionRange() != null) {
             Version version = AbstractCapability.getVersion(cap, PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-            if (getVersionRange().isInRange(version) == false)
+            if (getVersionRange().includes(version) == false)
                 return false;
         }
 
@@ -303,8 +303,8 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             XResource capres = (XResource) cap.getResource();
             XIdentityCapability idcap = capres.getIdentityCapability();
             Version targetVersion = idcap != null ? idcap.getVersion() : null;
-            VersionRange versionRange = VersionRange.parse(versionstr);
-            if (targetVersion != null && versionRange.isInRange(targetVersion) == false)
+            VersionRange versionRange = new VersionRange(versionstr);
+            if (targetVersion != null && versionRange.includes(targetVersion) == false)
                 return false;
         }
 
@@ -352,7 +352,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
 
     static VersionRange getVersionRange(XRequirement req, String attr) {
         Object value = req.getAttribute(attr);
-        return (value instanceof String) ? VersionRange.parse((String) value) : (VersionRange) value;
+        return (value instanceof String) ? new VersionRange((String) value) : (VersionRange) value;
     }
 
     private boolean matchFilter(Capability cap) {
