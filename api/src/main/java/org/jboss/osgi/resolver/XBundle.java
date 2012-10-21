@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,7 @@ import org.osgi.framework.Bundle;
  * @author thomas.diesler@jboss.com
  * @since 11-Jun-2012
  */
-public interface XBundle extends Adaptable, Bundle {
+public interface XBundle extends XAttachmentSupport, Adaptable, Bundle {
 
     /**
      * Get the current {@link XBundleRevision}
@@ -41,14 +41,14 @@ public interface XBundle extends Adaptable, Bundle {
      * Get all {@link XBundleRevision}s
      */
     List<XBundleRevision> getAllBundleRevisions();
-    
+
     /**
      * Get the bundle canonical name
-     * 
+     *
      * [symbolicName:version]
      */
     String getCanonicalName();
-    
+
     /**
      * True if the bundle is resolved.
      */

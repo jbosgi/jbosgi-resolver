@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,8 +19,6 @@
  */
 
 package org.jboss.osgi.resolver.spi;
-
-import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,21 +34,9 @@ import org.jboss.osgi.resolver.XElement;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-abstract class AbstractElement implements XElement {
+public abstract class AbstractElement implements XElement {
 
     private XAttachmentSupport attachments;
-
-    abstract boolean isMutable();
-
-    void ensureImmutable() {
-        if (isMutable() == true)
-            throw MESSAGES.illegalStateInvalidAccessToMutableResource();
-    }
-
-    void ensureMutable() {
-        if (isMutable() == false)
-            throw MESSAGES.illegalStateInvalidAccessToImmutableResource();
-    }
 
     @Override
     public <T> T addAttachment(Class<T> clazz, T value) {
@@ -127,6 +113,7 @@ abstract class AbstractElement implements XElement {
             return attributes;
         }
 
+        @Override
         public String toString() {
             return getAttributes().toString();
         }
@@ -151,6 +138,7 @@ abstract class AbstractElement implements XElement {
             return directives;
         }
 
+        @Override
         public String toString() {
             return getDirectives().toString();
         }

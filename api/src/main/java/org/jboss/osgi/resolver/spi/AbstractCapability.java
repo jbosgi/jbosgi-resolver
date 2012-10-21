@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -106,9 +106,18 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
         return attributes.getAttribute(key);
     }
 
-    @Override
-    boolean isMutable() {
+    public boolean isMutable() {
         return resource.isMutable();
+    }
+
+    public void ensureImmutable() {
+        if (isMutable() == true)
+            throw MESSAGES.illegalStateInvalidAccessToMutableResource();
+    }
+
+    public void ensureMutable() {
+        if (isMutable() == false)
+            throw MESSAGES.illegalStateInvalidAccessToImmutableResource();
     }
 
     @Override
@@ -118,22 +127,22 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
         if (IDENTITY_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
             namespaceValue = (String)getAttribute(getNamespace());
-            if (namespaceValue == null) 
+            if (namespaceValue == null)
                 throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
             namespaceValue = (String)getAttribute(getNamespace());
-            if (namespaceValue == null) 
+            if (namespaceValue == null)
                 throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         } else if (HOST_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
             namespaceValue = (String)getAttribute(getNamespace());
-            if (namespaceValue == null) 
+            if (namespaceValue == null)
                 throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
             namespaceValue = (String)getAttribute(getNamespace());
-            if (namespaceValue == null) 
+            if (namespaceValue == null)
                 throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         }
         canonicalName = toString();

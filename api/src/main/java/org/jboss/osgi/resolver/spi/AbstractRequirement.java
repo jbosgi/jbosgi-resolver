@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,7 +59,7 @@ import org.osgi.resource.Resource;
 
 /**
  * The abstract implementation of a {@link XRequirement}.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -94,9 +94,18 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         return resource;
     }
 
-    @Override
-    boolean isMutable() {
+    public boolean isMutable() {
         return resource.isMutable();
+    }
+
+    public void ensureImmutable() {
+        if (isMutable() == true)
+            throw MESSAGES.illegalStateInvalidAccessToMutableResource();
+    }
+
+    public void ensureMutable() {
+        if (isMutable() == false)
+            throw MESSAGES.illegalStateInvalidAccessToImmutableResource();
     }
 
     static String getNamespaceValue(XRequirement req) {
@@ -235,7 +244,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
 
         return true;
     }
-    
+
     private boolean matchesHostRequirement(Capability cap) {
 
         // match the namespace value
@@ -252,7 +261,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
 
         return true;
     }
-    
+
     @SuppressWarnings("deprecation")
     private boolean matchesPackageRequirement(Capability cap) {
 
@@ -340,7 +349,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             return packageName.equals(capvalue);
         }
     }
-    
+
     static VersionRange getVersionRange(XRequirement req, String attr) {
         Object value = req.getAttribute(attr);
         return (value instanceof String) ? VersionRange.parse((String) value) : (VersionRange) value;
