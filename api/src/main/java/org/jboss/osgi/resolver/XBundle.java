@@ -30,7 +30,7 @@ import org.osgi.framework.Bundle;
  * @author thomas.diesler@jboss.com
  * @since 11-Jun-2012
  */
-public interface XBundle extends XAttachmentSupport, Adaptable, Bundle {
+public interface XBundle extends XAttachmentSupport, Bundle {
 
     /**
      * Get the current {@link XBundleRevision}
