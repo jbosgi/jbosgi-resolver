@@ -36,6 +36,7 @@ import java.util.Map;
 
 import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XCapabilityRequirement;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XHostRequirement;
 import org.jboss.osgi.resolver.XIdentityCapability;
@@ -63,7 +64,7 @@ import org.osgi.resource.Resource;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractRequirement extends AbstractElement implements XHostRequirement, XPackageRequirement, XResourceRequirement {
+public class AbstractRequirement extends AbstractElement implements XHostRequirement, XPackageRequirement, XResourceRequirement, XCapabilityRequirement {
 
     private final XResource resource;
     private final String namespace;
@@ -108,13 +109,10 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             throw MESSAGES.illegalStateInvalidAccessToImmutableResource();
     }
 
-    static String getNamespaceValue(XRequirement req) {
-        String namespaceValue = (String) req.getAttribute(req.getNamespace());
+    static String getNamespaceValue(Requirement req) {
+        String namespaceValue = (String) req.getAttributes().get(req.getNamespace());
         if (namespaceValue == null) {
             namespaceValue = namespaceValueFromFilter(getFilterFromDirective(req), req.getNamespace());
-        }
-        if (namespaceValue == null) {
-            throw MESSAGES.illegalStateCannotObtainNamespaceValue(req.getNamespace());
         }
         return namespaceValue;
     }
@@ -126,7 +124,6 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
         String resdir = getDirective(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
         optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
-        getNamespaceValue(this);
         canonicalName = toString();
     }
 
@@ -403,19 +400,46 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
     public String toString() {
         String result = canonicalName;
         if (result == null) {
-            String type = getClass().getSimpleName();
+            String type;
+            String nsval = null; 
             if (BUNDLE_NAMESPACE.equals(getNamespace())) {
                 type = XResourceRequirement.class.getSimpleName();
             } else if (HOST_NAMESPACE.equals(getNamespace())) {
                 type = XHostRequirement.class.getSimpleName();
             } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
                 type = XPackageRequirement.class.getSimpleName();
+            } else {
+                type = XCapabilityRequirement.class.getSimpleName();
+                nsval = namespace;
             }
-            String attstr = "atts=" + attributes;
-            String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
+            StringBuffer buffer = new StringBuffer(type + "[");
+            boolean addcomma = false;
+            if (nsval != null) {
+                buffer.append(nsval);
+                addcomma = true;
+            }
+            if (!getAttributes().isEmpty()) {
+                buffer.append(addcomma ? "," : "");
+                buffer.append("atts=" + attributes);
+                addcomma = true;
+            }
+            if (!getDirectives().isEmpty()) {
+                buffer.append(addcomma ? "," : "");
+                buffer.append("dirs=" + directives);
+                addcomma = true;
+            }
             XIdentityCapability icap = resource.getIdentityCapability();
-            String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
-            result = type + "[" + attstr + dirstr + resname + "]";
+            if (icap != null) {
+                buffer.append(addcomma ? "," : "");
+                buffer.append("[" + icap.getSymbolicName() + ":" + icap.getVersion() + "]");
+                addcomma = true;
+            } else {
+                buffer.append(addcomma ? "," : "");
+                buffer.append("[anonymous]");
+                addcomma = true;
+            }
+            buffer.append("]");
+            result = buffer.toString();
         }
         return result;
     }

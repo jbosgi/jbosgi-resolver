@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -272,6 +273,14 @@ public class AbstractEnvironment implements XEnvironment {
             capset = new LinkedHashSet<Capability>();
             capabilityCache.put(key, capset);
         }
+        if (capset.isEmpty() && key.getValue() == null) {
+            for (Entry<CacheKey, Set<Capability>> entry : capabilityCache.entrySet()) {
+                CacheKey auxkey = entry.getKey();
+                if (auxkey.getNamespace().equals(key.getNamespace())) {
+                    capset.addAll(entry.getValue());
+                }
+            }
+        }
         return capset;
     }
 
@@ -299,25 +308,39 @@ public class AbstractEnvironment implements XEnvironment {
 
     private static class CacheKey {
 
-        private final String key;
+        private final String namespace;
+        private final String value;
+        private final String keyspec;
 
         static CacheKey create(Capability cap) {
             String namespace = cap.getNamespace();
-            return new CacheKey(namespace, (String) cap.getAttributes().get(namespace));
+            String nsvalue = (String) cap.getAttributes().get(namespace);
+            return new CacheKey(namespace, nsvalue);
         }
 
         static CacheKey create(Requirement req) {
             String namespace = req.getNamespace();
-            return new CacheKey(namespace, (String) req.getAttributes().get(namespace));
+            String nsvalue = AbstractRequirement.getNamespaceValue(req);
+            return new CacheKey(namespace, (String) nsvalue);
         }
 
         private CacheKey(String namespace, String value) {
-            key = namespace + ":" + value;
+            this.namespace = namespace;
+            this.value = value;
+            this.keyspec = namespace + ":" + value;
+        }
+
+        String getNamespace() {
+            return namespace;
+        }
+
+        String getValue() {
+            return value;
         }
 
         @Override
         public int hashCode() {
-            return key.hashCode();
+            return keyspec.hashCode();
         }
 
         @Override
@@ -329,12 +352,12 @@ public class AbstractEnvironment implements XEnvironment {
             if (getClass() != obj.getClass())
                 return false;
             CacheKey other = (CacheKey) obj;
-            return key.equals(other.key);
+            return keyspec.equals(other.keyspec);
         }
 
         @Override
         public String toString() {
-            return "[" + key + "]";
+            return "[" + keyspec + "]";
         }
     }
 }

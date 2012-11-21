@@ -38,6 +38,7 @@ import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XHostCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
+import org.jboss.osgi.resolver.XProvidedCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceCapability;
 import org.osgi.framework.Version;
@@ -50,7 +51,7 @@ import org.osgi.resource.Capability;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractCapability extends AbstractElement implements XIdentityCapability, XHostCapability, XPackageCapability, XResourceCapability {
+public class AbstractCapability extends AbstractElement implements XIdentityCapability, XHostCapability, XPackageCapability, XResourceCapability, XProvidedCapability {
 
     private final String namespace;
     private final XResource resource;
@@ -204,7 +205,8 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     public String toString() {
         String result = canonicalName;
         if (result == null) {
-            String type = getClass().getSimpleName();
+            String type;
+            String nsval = null; 
             if (IDENTITY_NAMESPACE.equals(getNamespace())) {
                 type = XIdentityCapability.class.getSimpleName();
             } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
@@ -213,12 +215,38 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
                 type = XHostCapability.class.getSimpleName();
             } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
                 type = XPackageCapability.class.getSimpleName();
+            } else {
+                type = XProvidedCapability.class.getSimpleName();
+                nsval = namespace;
             }
-            String attstr = "atts=" + attributes;
-            String dirstr = !getDirectives().isEmpty() ? ",dirs=" + directives : "";
+            StringBuffer buffer = new StringBuffer(type + "[");
+            boolean addcomma = false;
+            if (nsval != null) {
+                buffer.append(nsval);
+                addcomma = true;
+            }
+            if (!getAttributes().isEmpty()) {
+                buffer.append(addcomma ? "," : "");
+                buffer.append("atts=" + attributes);
+                addcomma = true;
+            }
+            if (!getDirectives().isEmpty()) {
+                buffer.append(addcomma ? "," : "");
+                buffer.append("dirs=" + directives);
+                addcomma = true;
+            }
             XIdentityCapability icap = resource.getIdentityCapability();
-            String resname = ",[" + (icap != null ? icap.getSymbolicName() + ":" + icap.getVersion() : "anonymous") + "]";
-            result = type + "[" + attstr + dirstr + resname + "]";
+            if (icap != null) {
+                buffer.append(addcomma ? "," : "");
+                buffer.append("[" + icap.getSymbolicName() + ":" + icap.getVersion() + "]");
+                addcomma = true;
+            } else {
+                buffer.append(addcomma ? "," : "");
+                buffer.append("[anonymous]");
+                addcomma = true;
+            }
+            buffer.append("]");
+            result = buffer.toString();
         }
         return result;
     }

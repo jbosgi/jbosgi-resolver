@@ -24,7 +24,7 @@ import static org.jboss.osgi.metadata.OSGiMetaData.ANONYMOUS_BUNDLE_SYMBOLIC_NAM
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +90,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     @Override
     public XRequirement addRequirement(String namespace, Filter filter) {
         assertResourceCreated();
-        Map<String, String> dirs = new HashMap<String, String>();
+        Map<String, String> dirs = new LinkedHashMap<String, String>();
         if (filter != null)
             dirs.put(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE, filter.toString());
         return addRequirement(namespace, null, dirs);
@@ -99,7 +99,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     @Override
     public XRequirement addRequirement(String namespace, String nsvalue) {
         assertResourceCreated();
-        Map<String, Object> atts = new HashMap<String, Object>();
+        Map<String, Object> atts = new LinkedHashMap<String, Object>();
         if (nsvalue != null)
             atts.put(namespace, nsvalue);
         return addRequirement(namespace, atts, null);
@@ -187,8 +187,8 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             if (dynamicImports != null && dynamicImports.isEmpty() == false) {
                 for (PackageAttribute attr : dynamicImports) {
                     String packageName = attr.getAttribute();
-                    Map<String, Object> atts = new HashMap<String, Object>();
-                    Map<String, String> dirs = new HashMap<String, String>();
+                    Map<String, Object> atts = new LinkedHashMap<String, Object>();
+                    Map<String, String> dirs = new LinkedHashMap<String, String>();
                     atts.put(PackageNamespace.PACKAGE_NAMESPACE, packageName);
                     dirs.put(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE, PackageNamespace.RESOLUTION_DYNAMIC);
                     XRequirement req = addRequirement(PackageNamespace.PACKAGE_NAMESPACE, atts, dirs);
@@ -202,7 +202,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             if (providedCapabilities != null && providedCapabilities.isEmpty() == false) {
                 for (ParameterizedAttribute attr : providedCapabilities) {
                     String capname = attr.getAttribute();
-                    XCapability cap = addCapability(capname, capname);
+                    XCapability cap = addCapability(capname, null, null);
                     cap.getAttributes().putAll(getAttributes(attr));
                     cap.getDirectives().putAll(getDirectives(attr));
                 }
@@ -213,7 +213,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             if (requiredCapabilities != null && requiredCapabilities.isEmpty() == false) {
                 for (ParameterizedAttribute attr : requiredCapabilities) {
                     String reqname = attr.getAttribute();
-                    XRequirement req = addRequirement(reqname, reqname);
+                    XRequirement req = addRequirement(reqname, null, null);
                     req.getAttributes().putAll(getAttributes(attr));
                     req.getDirectives().putAll(getDirectives(attr));
                 }
@@ -287,33 +287,33 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     }
 
     private Map<String, Object> getAttributes(ParameterizedAttribute patts) {
-        Map<String, Object> atts = new HashMap<String, Object>();
+        Map<String, Object> atts = new LinkedHashMap<String, Object>();
         if (patts != null) {
             for (String key : patts.getAttributes().keySet()) {
                 Parameter param = patts.getAttribute(key);
-                atts.put(key.trim(), param.getValue().toString().trim());
+                atts.put(key, param.getValue());
             }
         }
         return atts;
     }
 
     private Map<String, String> getDirectives(ParameterizedAttribute patts) {
-        Map<String, String> dirs = new HashMap<String, String>();
+        Map<String, String> dirs = new LinkedHashMap<String, String>();
         if (patts != null) {
             for (String key : patts.getDirectives().keySet()) {
                 String value = patts.getDirectiveValue(key, String.class);
-                dirs.put(key.trim(), value.trim());
+                dirs.put(key, value);
             }
         }
         return dirs;
     }
 
     private Map<String, Object> mutableAttributes(Map<String, Object> atts) {
-        return new HashMap<String, Object>(atts != null ? atts : new HashMap<String, Object>());
+        return new LinkedHashMap<String, Object>(atts != null ? atts : new LinkedHashMap<String, Object>());
     }
 
     private Map<String, String> mutableDirectives(Map<String, String> dirs) {
-        return new HashMap<String, String>(dirs != null ? dirs : new HashMap<String, String>());
+        return new LinkedHashMap<String, String>(dirs != null ? dirs : new LinkedHashMap<String, String>());
     }
 
     private void assertResourceCreated() {

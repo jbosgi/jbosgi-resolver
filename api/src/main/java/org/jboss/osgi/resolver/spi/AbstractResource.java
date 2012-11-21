@@ -57,6 +57,9 @@ public class AbstractResource extends AbstractElement implements XResource {
         String namespace = cap.getNamespace();
         getCaplist(namespace).add(cap);
         getCaplist(null).add(cap);
+        if (IdentityNamespace.IDENTITY_NAMESPACE.equals(namespace)) {
+            identityCapability = (XIdentityCapability) cap;
+        }
     }
 
     protected void addRequirement(Requirement req) {

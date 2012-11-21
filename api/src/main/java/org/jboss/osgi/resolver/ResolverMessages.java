@@ -74,8 +74,8 @@ public interface ResolverMessages {
     @Message(id = 10910, value = "Cannot obtain attribute: %s")
     IllegalStateException illegalStateCannotObtainAttribute(String name);
 
-    @Message(id = 10911, value = "Cannot obtain namespace value for: %s")
-    IllegalStateException illegalStateCannotObtainNamespaceValue(String name);
+    //@Message(id = 10911, value = "Cannot obtain namespace value for: %s")
+    //IllegalStateException illegalStateCannotObtainNamespaceValue(String name);
 
     @Message(id = 10912, value = "Invalid access to mutable resource")
     IllegalStateException illegalStateInvalidAccessToMutableResource();
