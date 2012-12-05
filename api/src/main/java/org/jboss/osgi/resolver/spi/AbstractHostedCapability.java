@@ -131,6 +131,21 @@ public class AbstractHostedCapability extends AbstractElement implements HostedC
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!(obj instanceof HostedCapability))
+            return false;
+        HostedCapability other = (HostedCapability) obj;
+        return resource.equals(other.getResource()) && capability.equals(other.getDeclaredCapability());
+    }
+
+    @Override
+    public int hashCode() {
+        return 31*resource.hashCode() + capability.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "HostedCapability[" + resource + "," + capability + "]";
     }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ import org.osgi.service.resolver.HostedCapability;
 
 /**
  * The abstract implementation of a {@link Wiring}.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
@@ -66,22 +66,22 @@ public class AbstractWiring implements Wiring {
         // Add capabilities from attached fragments
         for (Wire wire : getProvidedResourceWires(HostNamespace.HOST_NAMESPACE)) {
             for (Capability cap : wire.getRequirer().getCapabilities(null)) {
-                if (IDENTITY_NAMESPACE.equals(cap.getNamespace())) 
+                if (IDENTITY_NAMESPACE.equals(cap.getNamespace()))
                     continue;
-                if (namespace == null || namespace.equals(cap.getNamespace())) 
+                if (namespace == null || namespace.equals(cap.getNamespace()))
                     caps.add(getHostedCapability((XCapability) cap));
             }
         }
         Iterator<Capability> capit = caps.iterator();
         while(capit.hasNext()) {
             Capability cap = capit.next();
-            // Capabilities with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE} 
+            // Capabilities with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE}
             // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not returned
             String effdir = cap.getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
             if (effdir != null && !effdir.equals(Namespace.EFFECTIVE_RESOLVE)) {
                 capit.remove();
             }
-            // A package declared to be both exported and imported, 
+            // A package declared to be both exported and imported,
             // only one is selected and the other is discarded
             String capns = cap.getNamespace();
             Object capval = cap.getAttributes().get(capns);
@@ -93,9 +93,9 @@ public class AbstractWiring implements Wiring {
                 }
             }
         }
-        return caps;
+        return Collections.unmodifiableList(caps);
     }
-    
+
     protected HostedCapability getHostedCapability(XCapability cap) {
         return new AbstractHostedCapability(resource, cap);
     }
@@ -106,7 +106,7 @@ public class AbstractWiring implements Wiring {
         Iterator<Requirement> reqit = reqs.iterator();
         while(reqit.hasNext()) {
             Requirement req = reqit.next();
-            // Requirements with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE} 
+            // Requirements with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE}
             // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not returned
             String effdir = req.getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
             if (effdir != null && !Namespace.EFFECTIVE_RESOLVE.equals(effdir)) {
@@ -132,7 +132,7 @@ public class AbstractWiring implements Wiring {
                 }
             }
         }
-        return reqs;
+        return Collections.unmodifiableList(reqs);
     }
 
     @Override
