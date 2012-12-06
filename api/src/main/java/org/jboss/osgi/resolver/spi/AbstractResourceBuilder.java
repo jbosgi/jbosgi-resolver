@@ -112,6 +112,8 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             String symbolicName = metadata.getBundleSymbolicName();
             Version bundleVersion = metadata.getBundleVersion();
             ParameterizedAttribute idparams = metadata.getBundleParameters();
+            Map<String, Object> idatts = getAttributes(idparams);
+            Map<String, String> isdirs = getDirectives(idparams);
 
             if (symbolicName == null)
                 symbolicName = ANONYMOUS_BUNDLE_SYMBOLIC_NAME;
@@ -122,23 +124,24 @@ public class AbstractResourceBuilder implements XResourceBuilder {
             XCapability icap = addCapability(IdentityNamespace.IDENTITY_NAMESPACE, symbolicName);
             icap.getAttributes().put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, bundleVersion);
             icap.getAttributes().put(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE, identityType);
-            icap.getAttributes().putAll(getAttributes(idparams));
-            icap.getDirectives().putAll(getDirectives(idparams));
+            icap.getAttributes().putAll(idatts);
+            icap.getDirectives().putAll(isdirs);
 
             // Bundle Capability
             if (IdentityNamespace.TYPE_BUNDLE.equals(identityType)) {
                 XCapability cap = addCapability(BundleNamespace.BUNDLE_NAMESPACE, symbolicName);
                 cap.getAttributes().put(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE, bundleVersion);
-                cap.getAttributes().putAll(getAttributes(idparams));
-                cap.getDirectives().putAll(getDirectives(idparams));
+                cap.getAttributes().putAll(idatts);
+                cap.getDirectives().putAll(isdirs);
             }
 
             // Host Capability
-            if (fragmentHost == null) {
+            String fragmentAttachemnt = isdirs.get(HostNamespace.CAPABILITY_FRAGMENT_ATTACHMENT_DIRECTIVE);
+            if (fragmentHost == null && !HostNamespace.FRAGMENT_ATTACHMENT_NEVER.equals(fragmentAttachemnt)) {
                 XCapability cap = addCapability(HostNamespace.HOST_NAMESPACE, symbolicName);
                 cap.getAttributes().put(HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE, bundleVersion);
-                cap.getAttributes().putAll(getAttributes(idparams));
-                cap.getDirectives().putAll(getDirectives(idparams));
+                cap.getAttributes().putAll(idatts);
+                cap.getDirectives().putAll(isdirs);
             }
 
             // Host Requirement
