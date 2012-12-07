@@ -41,7 +41,7 @@ public class Activator implements BundleActivator
             }
         }
         bc.registerService(
-            Resolver.class.getName(),
+            Resolver.class,
             new ResolverImpl(new Logger(logLevel)),
             null);
     }
