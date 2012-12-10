@@ -21,9 +21,6 @@
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
-import static org.osgi.framework.namespace.AbstractWiringNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE;
-import static org.osgi.framework.namespace.BundleNamespace.BUNDLE_NAMESPACE;
-import static org.osgi.framework.namespace.HostNamespace.HOST_NAMESPACE;
 import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 
 import java.util.Map;
@@ -31,7 +28,6 @@ import java.util.Map;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XResource;
-import org.osgi.framework.Version;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Resource;
 import org.osgi.service.resolver.HostedCapability;
@@ -42,7 +38,7 @@ import org.osgi.service.resolver.HostedCapability;
  * @author thomas.diesler@jboss.com
  * @since 29-Jun-2012
  */
-public class AbstractHostedCapability extends AbstractElement implements HostedCapability, XPackageCapability {
+public class AbstractHostedCapability extends AbstractElement implements HostedCapability, XCapability {
 
     private final XResource resource;
     private final XCapability capability;
@@ -98,26 +94,6 @@ public class AbstractHostedCapability extends AbstractElement implements HostedC
     @Override
     public void validate() {
         capability.validate();
-    }
-
-    @Override
-    public String getPackageName() {
-        String result = null;
-        if (PACKAGE_NAMESPACE.equals(getNamespace())) {
-            result = (String) getAttribute(PACKAGE_NAMESPACE);
-        }
-        return result;
-    }
-
-    @Override
-    public Version getVersion() {
-        Version result = null;
-        if (HOST_NAMESPACE.equals(getNamespace())) {
-            result = AbstractCapability.getVersion(capability, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
-            result = AbstractCapability.getVersion(capability, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        }
-        return result;
     }
 
     @Override

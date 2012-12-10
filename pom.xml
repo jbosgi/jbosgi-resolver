@@ -49,7 +49,7 @@
         <version.jboss.logging>3.1.2.GA</version.jboss.logging>
         <version.jboss.logging.processor>1.1.0.Beta1</version.jboss.logging.processor>
         <version.jboss.logmanager>1.4.0.Beta1</version.jboss.logmanager>
-        <version.jboss.osgi.metadata>3.0.0.Alpha4</version.jboss.osgi.metadata>
+        <version.jboss.osgi.metadata>3.0.0.Alpha5-SNAPSHOT</version.jboss.osgi.metadata>
         <version.jboss.osgi.spi>4.0.0.Alpha2</version.jboss.osgi.spi>
         <version.jboss.osgi.testing>2.0.0.Alpha2</version.jboss.osgi.testing>
         <version.jboss.shrinkwrap>1.0.0</version.jboss.shrinkwrap>

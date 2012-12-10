@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,6 +31,8 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
+import org.jboss.osgi.resolver.XPackageCapability;
+import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
@@ -44,7 +46,7 @@ import org.osgi.resource.Wiring;
 
 /**
  * Test the default resolver integration.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 12-Mar-2012
  */
@@ -57,6 +59,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         // ExportPackage: javax.servlet;version=2.5
         final JavaArchive archiveA = ShrinkWrap.create(JavaArchive.class, "javax.servlet.api");
         archiveA.setManifest(new Asset() {
+            @Override
             public InputStream openStream() {
                 OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
                 builder.addBundleManifestVersion(2);
@@ -72,6 +75,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         // ImportPackage: javax.servlet;resolution:=optional
         final JavaArchive archiveB = ShrinkWrap.create(JavaArchive.class, "enterprise.jar");
         archiveB.setManifest(new Asset() {
+            @Override
             public InputStream openStream() {
                 OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
                 builder.addBundleManifestVersion(2);
@@ -90,6 +94,7 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         // ImportPackage: javax.servlet;version="[2.3.0,2.6.0)";resolution:=optional
         final JavaArchive archiveC = ShrinkWrap.create(JavaArchive.class, "http.service.provider");
         archiveC.setManifest(new Asset() {
+            @Override
             public InputStream openStream() {
                 OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
                 builder.addBundleManifestVersion(2);
@@ -108,24 +113,25 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         List<XResource> mandatory = Arrays.asList(resourceA, resourceB, resourceC);
         Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
-        
-        // Verify that javax.servlet wires to the API bundle 
+
+        // Verify that javax.servlet wires to the API bundle
         List<Wire> wires = map.get(resourceB);
         assertEquals(1, wires.size());
-        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertEquals("javax.servlet", getPackageName(wires.get(0).getCapability()));
         Assert.assertSame(resourceA, wires.get(0).getProvider());
-        
-        // Verify that javax.servlet wires to the API bundle 
+
+        // Verify that javax.servlet wires to the API bundle
         wires = map.get(resourceC);
         assertEquals(1, wires.size());
-        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertEquals("javax.servlet", getPackageName(wires.get(0).getCapability()));
         Assert.assertSame(resourceA, wires.get(0).getProvider());
-        
+
         // Bundle-SymbolicName: war.extender.jar
         // ImportPackage: org.ops4j.pax.web.service
         // ImportPackage: javax.servlet;version="[2.3,3.0)"
         final JavaArchive archiveD = ShrinkWrap.create(JavaArchive.class, "war.extender.jar");
         archiveD.setManifest(new Asset() {
+            @Override
             public InputStream openStream() {
                 OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
                 builder.addBundleManifestVersion(2);
@@ -142,15 +148,15 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         mandatory = Arrays.asList(resourceD);
         map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
-        
-        // Verify that javax.servlet wires to the API bundle 
+
+        // Verify that javax.servlet wires to the API bundle
         wires = map.get(resourceD);
         assertEquals(2, wires.size());
-        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertEquals("org.ops4j.pax.web.service", getPackageName(wires.get(0).getCapability()));
         Assert.assertSame(resourceC, wires.get(0).getProvider());
-        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(1).getCapability()));
+        Assert.assertEquals("javax.servlet", getPackageName(wires.get(1).getCapability()));
         Assert.assertSame(resourceA, wires.get(1).getProvider());
-        
+
         // Verify wiring of A
         Wiring wiringA = getWiring(resourceA);
         Assert.assertEquals(0, wiringA.getRequiredResourceWires(null).size());
@@ -158,68 +164,67 @@ public class UsesDirectiveResolverTest extends AbstractResolverTest {
         Assert.assertEquals(3, wires.size());
         List<XResource> requierers = new ArrayList<XResource>(Arrays.asList(resourceB, resourceC, resourceD));
         for (Wire wire : wires) {
-            Assert.assertEquals("javax.servlet", getNamespaceValue(wire.getCapability()));
+            Assert.assertEquals("javax.servlet", getPackageName(wire.getCapability()));
             requierers.remove(wire.getRequirer());
         }
         Assert.assertTrue(requierers.isEmpty());
         Assert.assertEquals(0, wiringA.getResourceRequirements(PACKAGE_NAMESPACE).size());
         List<Capability> caps = wiringA.getResourceCapabilities(PACKAGE_NAMESPACE);
         Assert.assertEquals(1, caps.size());
-        Assert.assertEquals("javax.servlet", getNamespaceValue(caps.get(0)));
-        
+        Assert.assertEquals("javax.servlet", getPackageName(caps.get(0)));
+
         // Verify wiring of B
         Wiring wiringB = getWiring(resourceB);
         wires = wiringB.getRequiredResourceWires(null);
         Assert.assertEquals(1, wires.size());
-        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertEquals("javax.servlet", getPackageName(wires.get(0).getCapability()));
         Assert.assertSame(resourceA, wires.get(0).getProvider());
         Assert.assertEquals(0, wiringB.getProvidedResourceWires(null).size());
         List<Requirement> reqs = wiringB.getResourceRequirements(PACKAGE_NAMESPACE);
         Assert.assertEquals(1, reqs.size());
-        Assert.assertEquals("javax.servlet", getNamespaceValue(reqs.get(0)));
         caps = wiringB.getResourceCapabilities(PACKAGE_NAMESPACE);
         Assert.assertEquals(1, caps.size());
-        Assert.assertEquals("org.osgi.service.http", getNamespaceValue(caps.get(0)));
-        
+        Assert.assertEquals("org.osgi.service.http", getPackageName(caps.get(0)));
+
         // Verify wiring of C
         Wiring wiringC = getWiring(resourceC);
         wires = wiringC.getRequiredResourceWires(null);
         Assert.assertEquals(1, wires.size());
-        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertEquals("javax.servlet", getPackageName(wires.get(0).getCapability()));
         Assert.assertSame(resourceA, wires.get(0).getProvider());
         wires = wiringC.getProvidedResourceWires(null);
         Assert.assertEquals(1, wires.size());
-        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertEquals("org.ops4j.pax.web.service", getPackageName(wires.get(0).getCapability()));
         Assert.assertSame(resourceD, wires.get(0).getRequirer());
         reqs = wiringC.getResourceRequirements(PACKAGE_NAMESPACE);
         Assert.assertEquals(1, reqs.size());
-        Assert.assertEquals("javax.servlet", getNamespaceValue(reqs.get(0)));
+        Assert.assertEquals("javax.servlet", getPackageName((XPackageRequirement) reqs.get(0)));
         caps = wiringC.getResourceCapabilities(PACKAGE_NAMESPACE);
         Assert.assertEquals(2, caps.size());
-        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(caps.get(0)));
-        Assert.assertEquals("org.osgi.service.http", getNamespaceValue(caps.get(1)));
-        
+        Assert.assertEquals("org.ops4j.pax.web.service", getPackageName(caps.get(0)));
+        Assert.assertEquals("org.osgi.service.http", getPackageName(caps.get(1)));
+
         // Verify wiring of D
         Wiring wiringD = getWiring(resourceD);
         wires = wiringD.getRequiredResourceWires(null);
         Assert.assertEquals(2, wires.size());
-        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(wires.get(0).getCapability()));
+        Assert.assertEquals("org.ops4j.pax.web.service", getPackageName(wires.get(0).getCapability()));
         Assert.assertSame(resourceC, wires.get(0).getProvider());
-        Assert.assertEquals("javax.servlet", getNamespaceValue(wires.get(1).getCapability()));
+        Assert.assertEquals("javax.servlet", getPackageName(wires.get(1).getCapability()));
         Assert.assertSame(resourceA, wires.get(1).getProvider());
         Assert.assertEquals(0, wiringD.getProvidedResourceWires(null).size());
         reqs = wiringD.getResourceRequirements(PACKAGE_NAMESPACE);
         Assert.assertEquals(2, reqs.size());
-        Assert.assertEquals("org.ops4j.pax.web.service", getNamespaceValue(reqs.get(0)));
-        Assert.assertEquals("javax.servlet", getNamespaceValue(reqs.get(1)));
+        Assert.assertEquals("org.ops4j.pax.web.service", getPackageName((XPackageRequirement) reqs.get(0)));
+        Assert.assertEquals("javax.servlet", getPackageName((XPackageRequirement) reqs.get(1)));
         Assert.assertEquals(0, wiringD.getResourceCapabilities(PACKAGE_NAMESPACE).size());
     }
 
-    private String getNamespaceValue(Capability cap) {
-        return (String) cap.getAttributes().get(cap.getNamespace());
+    private String getPackageName(Capability cap) {
+        return ((XPackageCapability)cap).getPackageName();
     }
-    
-    private String getNamespaceValue(Requirement req) {
-        return (String) req.getAttributes().get(req.getNamespace());
+
+    private String getPackageName(XPackageRequirement req) {
+        return req.getPackageName();
     }
 }

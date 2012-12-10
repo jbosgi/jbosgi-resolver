@@ -17,7 +17,6 @@
  * limitations under the License.
  * #L%
  */
-
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
@@ -29,6 +28,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XPackageCapability;
+import org.jboss.osgi.resolver.XPackageRequirement;
+import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.resource.Capability;
@@ -69,28 +71,45 @@ public class AbstractWiring implements Wiring {
                 if (IDENTITY_NAMESPACE.equals(cap.getNamespace()))
                     continue;
                 if (namespace == null || namespace.equals(cap.getNamespace()))
-                    caps.add(getHostedCapability((XCapability) cap));
+                    caps.add(cap);
             }
         }
+
+        // Remove unwanted caps
         Iterator<Capability> capit = caps.iterator();
         while(capit.hasNext()) {
-            Capability cap = capit.next();
+            boolean removed = false;
+            XCapability cap = (XCapability) capit.next();
+            XResource res = (XResource) cap.getResource();
+
             // Capabilities with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE}
             // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not returned
             String effdir = cap.getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
             if (effdir != null && !effdir.equals(Namespace.EFFECTIVE_RESOLVE)) {
                 capit.remove();
+                removed = true;
             }
+
             // A package declared to be both exported and imported,
             // only one is selected and the other is discarded
-            String capns = cap.getNamespace();
-            Object capval = cap.getAttributes().get(capns);
-            for (Wire wire : required) {
-                Capability wirecap = wire.getCapability();
-                Object wirecapval = wirecap.getAttributes().get(wirecap.getNamespace());
-                if (capns.equals(wirecap.getNamespace()) && capval.equals(wirecapval)) {
-                    capit.remove();
+            if (!removed) {
+                String capns = cap.getNamespace();
+                Object capval = cap.getAttributes().get(capns);
+                for (Wire wire : required) {
+                    Capability wirecap = wire.getCapability();
+                    Object wirecapval = wirecap.getAttributes().get(wirecap.getNamespace());
+                    if (capns.equals(wirecap.getNamespace()) && capval.equals(wirecapval)) {
+                        capit.remove();
+                        removed = true;
+                        break;
+                    }
                 }
+            }
+
+            // Remove identity capability for fragments
+            if (!removed && res.isFragment() && IDENTITY_NAMESPACE.equals(cap.getNamespace())) {
+                capit.remove();
+                removed = true;
             }
         }
         return Collections.unmodifiableList(caps);
@@ -105,7 +124,7 @@ public class AbstractWiring implements Wiring {
         List<Requirement> reqs = new ArrayList<Requirement>(resource.getRequirements(namespace));
         Iterator<Requirement> reqit = reqs.iterator();
         while(reqit.hasNext()) {
-            Requirement req = reqit.next();
+            XRequirement req = (XRequirement) reqit.next();
             // Requirements with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE}
             // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not returned
             String effdir = req.getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
@@ -115,14 +134,12 @@ public class AbstractWiring implements Wiring {
             // A package declared to be optionally imported and is not
             // actually imported, the requirement must be discarded
             String resdir = req.getDirectives().get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
-            if (Namespace.RESOLUTION_OPTIONAL.equals(resdir)) {
-                String reqns = req.getNamespace();
-                Object reqval = req.getAttributes().get(reqns);
+            if (req.adapt(XPackageRequirement.class) != null && Namespace.RESOLUTION_OPTIONAL.equals(resdir)) {
+                String packageName = ((XPackageRequirement)req).getPackageName();
                 boolean packageWireFound = false;
                 for (Wire wire : required) {
-                    Capability wirecap = wire.getCapability();
-                    Object wirecapval = wirecap.getAttributes().get(wirecap.getNamespace());
-                    if (reqns.equals(wirecap.getNamespace()) && reqval.equals(wirecapval)) {
+                    XPackageCapability wirecap = (XPackageCapability) wire.getCapability();
+                    if (packageName.equals(wirecap.getPackageName())) {
                         packageWireFound = true;
                         break;
                     }

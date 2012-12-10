@@ -17,7 +17,6 @@
  * limitations under the License.
  * #L%
  */
-
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
@@ -29,9 +28,10 @@ import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 import static org.osgi.framework.namespace.PackageNamespace.RESOLUTION_DYNAMIC;
 import static org.osgi.resource.Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import org.jboss.osgi.resolver.XAttributeSupport;
@@ -52,7 +52,6 @@ import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
 import org.osgi.framework.namespace.BundleNamespace;
-import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
@@ -91,43 +90,48 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
     }
 
     @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    @Override
     public Resource getResource() {
         return resource;
-    }
-
-    public boolean isMutable() {
-        return resource.isMutable();
-    }
-
-    public void ensureImmutable() {
-        if (isMutable() == true)
-            throw MESSAGES.illegalStateInvalidAccessToMutableResource();
-    }
-
-    public void ensureMutable() {
-        if (isMutable() == false)
-            throw MESSAGES.illegalStateInvalidAccessToImmutableResource();
     }
 
     static String getNamespaceValue(Requirement req) {
         String namespaceValue = (String) req.getAttributes().get(req.getNamespace());
         if (namespaceValue == null) {
-            namespaceValue = namespaceValueFromFilter(getFilterFromDirective(req), req.getNamespace());
+            namespaceValue = getValueFromFilter(getFilterFromDirective(req), req.getNamespace());
         }
         return namespaceValue;
     }
 
     @Override
     public void validate() {
+        Map<String, Object> atts = attributes.getAttributes();
+        Map<String, String> dirs = directives.getDirectives();
+
+        // Requirements in namespace osgi.wiring.* cannot have attributes and must have a filter
+        if (namespace.startsWith("osgi.wiring.")) {
+            if (!atts.isEmpty() && !dirs.containsKey(Constants.FILTER_DIRECTIVE)) {
+                generateFilterDirective(namespace, atts, dirs);
+            }
+            if (!atts.isEmpty())
+                throw MESSAGES.illegalArgumentRequirementCannotHaveAttributes(namespace, atts);
+            if (!dirs.containsKey(Constants.FILTER_DIRECTIVE))
+                throw MESSAGES.illegalArgumentRequirementMustHaveFilterDirective(namespace, dirs);
+        }
+
         filter = getFilterFromDirective(this);
-        attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
-        directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
+        attributes = new AttributeSupporter(Collections.unmodifiableMap(atts));
+        directives = new DirectiveSupporter(Collections.unmodifiableMap(dirs));
         String resdir = getDirective(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
         optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
         canonicalName = toString();
     }
 
-    public static Filter getFilterFromDirective(Requirement req) {
+    private static Filter getFilterFromDirective(Requirement req) {
         String filterdir = req.getDirectives().get(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE);
         if (filterdir != null) {
             try {
@@ -139,13 +143,13 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         return null;
     }
 
-    public static String namespaceValueFromFilter(Filter filter, String namespace) {
+    private static String getValueFromFilter(Filter filter, String attrname) {
         String result = null;
         if (filter != null) {
             String filterstr = filter.toString();
-            int index = filterstr.indexOf("(" + namespace + "=");
+            int index = filterstr.indexOf("(" + attrname + "=");
             if (index >= 0) {
-                result = filterstr.substring(index + namespace.length() + 2);
+                result = filterstr.substring(index + attrname.length() + 2);
                 result = result.substring(0, result.indexOf(")"));
             }
         }
@@ -198,10 +202,9 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
 
     @Override
     public boolean matches(Capability cap) {
-        ensureImmutable();
+        assertImmutable();
 
-        // The requirement matches the capability if their namespaces match and the requirement's
-        // filter is absent or matches the attributes.
+        // The requirement matches the capability if their namespaces match and the filter is absent or matches the attributes.
         boolean matches = namespace.equals(cap.getNamespace()) && matchFilter(cap);
 
         if (matches == true) {
@@ -222,129 +225,28 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
     }
 
     private boolean matchesResourceRequirement(Capability cap) {
-
-        // match the namespace value
-        String nsvalue = (String) getAttribute(getNamespace());
-        if (nsvalue != null && !nsvalue.equals(cap.getAttributes().get(getNamespace())))
-            return false;
-
         // cannot require itself
-        if (getResource() == cap.getResource())
-            return false;
-
-        // match the bundle version range
-        if (getVersionRange() != null) {
-            Version version = AbstractCapability.getVersion(cap, BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            if (getVersionRange().includes(version) == false)
-                return false;
-        }
-
-        return true;
+        return getResource() != cap.getResource();
     }
 
     private boolean matchesHostRequirement(Capability cap) {
-
-        // match the namespace value
-        String nsvalue = (String) getAttribute(getNamespace());
-        if (nsvalue != null && !nsvalue.equals(cap.getAttributes().get(getNamespace())))
-            return false;
-
-        // match the bundle version range
-        if (getVersionRange() != null) {
-            Version version = AbstractCapability.getVersion(cap, HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            if (getVersionRange().includes(version) == false)
-                return false;
-        }
-
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     private boolean matchesPackageRequirement(Capability cap) {
-
-        // match the namespace value
-        if (!matchPackageName(cap))
-            return false;
-
-        // match the package version range
-        if (getVersionRange() != null) {
-            Version version = AbstractCapability.getVersion(cap, PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-            if (getVersionRange().includes(version) == false)
-                return false;
-        }
-
-        Map<String, Object> reqatts = new HashMap<String, Object> (getAttributes());
-        reqatts.remove(PackageNamespace.PACKAGE_NAMESPACE);
-        reqatts.remove(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        reqatts.remove(Constants.PACKAGE_SPECIFICATION_VERSION);
-
-        Map<String, Object> capatts = new HashMap<String, Object> (cap.getAttributes());
-        capatts.remove(PackageNamespace.PACKAGE_NAMESPACE);
-        capatts.remove(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
-        capatts.remove(Constants.PACKAGE_SPECIFICATION_VERSION);
-
-
-        // match package's bundle-symbolic-name
-        String symbolicName = (String) reqatts.remove(PackageNamespace.CAPABILITY_BUNDLE_SYMBOLICNAME_ATTRIBUTE);
-        if (symbolicName != null) {
-            XResource capres = (XResource) cap.getResource();
-            XIdentityCapability idcap = capres.getIdentityCapability();
-            String targetSymbolicName = idcap != null ? idcap.getSymbolicName() : null;
-            if (symbolicName.equals(targetSymbolicName) == false)
-                return false;
-        }
-
-        // match package's bundle-version
-        String versionstr = (String) reqatts.remove(PackageNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        if (versionstr != null) {
-            XResource capres = (XResource) cap.getResource();
-            XIdentityCapability idcap = capres.getIdentityCapability();
-            Version targetVersion = idcap != null ? idcap.getVersion() : null;
-            VersionRange versionRange = new VersionRange(versionstr);
-            if (targetVersion != null && versionRange.includes(targetVersion) == false)
-                return false;
-        }
 
         // match mandatory attributes on the capability
         String dirstr = ((XCapability) cap).getDirective(PackageNamespace.CAPABILITY_MANDATORY_DIRECTIVE);
         if (dirstr != null) {
-            for (String att : dirstr.split(",")) {
-                Object capval = capatts.remove(att);
-                if (capval != null) {
-                    Object reqval = reqatts.remove(att);
-                    if (!capval.equals(reqval))
-                        return false;
+            for (String attname : dirstr.split(",")) {
+                String attval = getValueFromFilter(filter, attname);
+                if (attval == null) {
+                    return false;
                 }
             }
         }
 
-        // match package attributes on the requirement
-        for (Map.Entry<String,Object> entry : reqatts.entrySet()) {
-            String att = entry.getKey();
-            Object reqval = entry.getValue();
-            Object capval = capatts.remove(att);
-            if (!reqval.equals(capval))
-                return false;
-        }
-
         return true;
-    }
-
-    private boolean matchPackageName(Capability cap) {
-
-        String packageName = getPackageName();
-        if (packageName.equals("*"))
-            return true;
-
-        String capvalue = (String) cap.getAttributes().get(getNamespace());
-        if (packageName.endsWith(".*")) {
-            packageName = packageName.substring(0, packageName.length() - 2);
-            return capvalue.startsWith(packageName);
-        }
-        else
-        {
-            return packageName.equals(capvalue);
-        }
     }
 
     static VersionRange getVersionRange(XRequirement req, String attr) {
@@ -353,7 +255,26 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
     }
 
     private boolean matchFilter(Capability cap) {
-        return filter != null ? filter.match(new Hashtable<String, Object>(cap.getAttributes())) : true;
+        Map<String, Object> capatts;
+
+        // Add bundle-symbolic-name and version to the package cap atts
+        if (adapt(XPackageRequirement.class) != null) {
+            capatts = new HashMap<String, Object>(cap.getAttributes());
+            XResource res = (XResource) cap.getResource();
+            XIdentityCapability icap = res.getIdentityCapability();
+            String symbolicName = icap.getSymbolicName();
+            if (symbolicName != null) {
+                capatts.put(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE, symbolicName);
+            }
+            Version version = icap.getVersion();
+            if (version != null) {
+                capatts.put(Constants.BUNDLE_VERSION_ATTRIBUTE, version);
+            }
+        } else {
+            capatts = cap.getAttributes();
+        }
+
+        return filter != null ? filter.matches(capatts) : true;
     }
 
     @Override
@@ -384,8 +305,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         VersionRange result = null;
         if (HOST_NAMESPACE.equals(getNamespace()) || BUNDLE_NAMESPACE.equals(getNamespace())) {
             result = AbstractRequirement.getVersionRange(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-        }
-        else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
+        } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
             result = AbstractRequirement.getVersionRange(this, CAPABILITY_VERSION_ATTRIBUTE);
         }
         return result;
@@ -396,12 +316,62 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         return RESOLUTION_DYNAMIC.equals(getDirective(REQUIREMENT_RESOLUTION_DIRECTIVE));
     }
 
+    private void generateFilterDirective(String namespace, Map<String, Object> atts, Map<String, String> dirs) {
+        List<String> parts = new ArrayList<String>();
+        if (atts.containsKey(namespace)) {
+            addAttributePart(atts, namespace, parts);
+            addVersionRangePart(atts, Constants.BUNDLE_VERSION_ATTRIBUTE, parts);
+            addVersionRangePart(atts, Constants.VERSION_ATTRIBUTE, parts);
+            for (String key : new ArrayList<String>(atts.keySet())) {
+                addAttributePart(atts, key, parts);
+            }
+            StringBuffer filterSpec = new StringBuffer(parts.remove(0));
+            for (String part : parts) {
+                filterSpec.insert(0, "(&");
+                filterSpec.append(part + ")");
+            }
+            try {
+                Filter filter = FrameworkUtil.createFilter(filterSpec.toString());
+                dirs.put(Constants.FILTER_DIRECTIVE, filter.toString());
+            } catch (InvalidSyntaxException ex) {
+                throw new IllegalArgumentException(ex);
+            }
+        }
+    }
+
+    private void addAttributePart(Map<String, Object> atts, String attrname, List<String> parts) {
+        Object attrval = atts.remove(attrname);
+        if (attrval instanceof String) {
+            parts.add("(" + attrname + "=" + attrval + ")");
+        }
+    }
+
+    private void addVersionRangePart(Map<String, Object> atts, String attrname, List<String> parts) {
+        Object versionAtt = atts.remove(attrname);
+        if (versionAtt instanceof VersionRange) {
+            VersionRange versionRange = (VersionRange) versionAtt;
+            parts.add(versionRange.toFilterString(attrname));
+        } else if (versionAtt instanceof String) {
+            VersionRange versionRange = new VersionRange((String) versionAtt);
+            parts.add(versionRange.toFilterString(attrname));
+        }
+    }
+
+    private boolean isMutable() {
+        return resource.isMutable();
+    }
+
+    private void assertImmutable() {
+        if (isMutable() == true)
+            throw MESSAGES.illegalStateInvalidAccessToMutableResource();
+    }
+
     @Override
     public String toString() {
         String result = canonicalName;
         if (result == null) {
             String type;
-            String nsval = null; 
+            String nsval = null;
             if (BUNDLE_NAMESPACE.equals(getNamespace())) {
                 type = XResourceRequirement.class.getSimpleName();
             } else if (HOST_NAMESPACE.equals(getNamespace())) {

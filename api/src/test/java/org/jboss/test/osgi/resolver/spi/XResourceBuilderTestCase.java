@@ -20,10 +20,9 @@
 
 package org.jboss.test.osgi.resolver.spi;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XHostCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
@@ -56,20 +55,18 @@ public class XResourceBuilderTestCase extends AbstractTestBase {
 
     @Test
     public void testAttributDirectiveTrimming() throws Exception {
-        Map<String, String> attrs = new HashMap<String, String>();
-        attrs.put("Bundle-SymbolicName", "test1");
-        attrs.put("Import-Package", "value1,value2; version= 1.0.1,value3;resolution:= optional,value4;version = 3 ; resolution := optional ");
-        Resource resource = createResource(attrs);
+        OSGiMetaDataBuilder builder = OSGiMetaDataBuilder.createBuilder("test1");
+        builder.addImportPackages("value1", "value2; version= 1.0.1", "value3;resolution:= optional", "value4;version = 3 ; resolution := optional ");
+        Resource resource = XResourceBuilderFactory.create().loadFrom(builder.getOSGiMetaData()).getResource();
         validateRequirements(resource);
         validateCapabilities(resource);
     }
 
     @Test
     public void testAttributDirectiveNoTrimming() throws Exception {
-        Map<String, String> attrs = new HashMap<String, String>();
-        attrs.put("Bundle-SymbolicName", "test1");
-        attrs.put("Import-Package", "value1,value2;version=1.0.1,value3;resolution:=optional,value4;version=3;resolution:=optional");
-        Resource resource = createResource(attrs);
+        OSGiMetaDataBuilder builder = OSGiMetaDataBuilder.createBuilder("test1");
+        builder.addImportPackages("value1", "value2;version=1.0.1", "value3;resolution:=optional", "value4;version=3;resolution:=optional");
+        Resource resource = XResourceBuilderFactory.create().loadFrom(builder.getOSGiMetaData()).getResource();
         validateRequirements(resource);
         validateCapabilities(resource);
     }
@@ -99,16 +96,16 @@ public class XResourceBuilderTestCase extends AbstractTestBase {
             XPackageRequirement xreq = ((XRequirement) req).adapt(XPackageRequirement.class);
             String packageName = xreq.getPackageName();
             if ("value1".equals(packageName)) {
-                Assert.assertNull(xreq.getVersionRange());
+                Assert.assertEquals("(osgi.wiring.package=value1)", xreq.getFilter().toString());
                 Assert.assertFalse(xreq.isOptional());
             } else if ("value2".equals(packageName)) {
-                Assert.assertEquals(new VersionRange("1.0.1"), xreq.getVersionRange());
+                Assert.assertEquals("(&(osgi.wiring.package=value2)(version>=1.0.1))", xreq.getFilter().toString());
                 Assert.assertFalse(xreq.isOptional());
             } else if ("value3".equals(packageName)) {
-                Assert.assertNull(xreq.getVersionRange());
+                Assert.assertEquals("(osgi.wiring.package=value3)", xreq.getFilter().toString());
                 Assert.assertTrue(xreq.isOptional());
             } else if ("value4".equals(packageName)) {
-                Assert.assertEquals(new VersionRange("3"), xreq.getVersionRange());
+                Assert.assertEquals("(&(osgi.wiring.package=value4)(version>=3.0.0))", xreq.getFilter().toString());
                 Assert.assertTrue(xreq.isOptional());
             } else {
                 Assert.fail("Incorrect package name: " + req);

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,13 +32,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.resource.Capability;
-import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
@@ -46,7 +46,7 @@ import org.osgi.service.resolver.ResolutionException;
 
 /**
  * Test the default resolver integration.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @author <a href="david@redhat.com">David Bosschaert</a>
  * @since 31-May-2010
@@ -55,7 +55,7 @@ public class PackageImportResolverTest extends AbstractResolverTest {
 
     @Test
     public void testSimpleImport() throws Exception {
-        
+
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
@@ -78,9 +78,8 @@ public class PackageImportResolverTest extends AbstractResolverTest {
         Wire wireA = wiresA.get(0);
         assertEquals(resourceA, wireA.getRequirer());
         assertEquals(resourceB, wireA.getProvider());
-        Requirement reqA = wireA.getRequirement();
-        String reqApack = (String) reqA.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
-        assertEquals("org.jboss.test.osgi.classloader.support.a", reqApack);
+        XPackageRequirement reqA = (XPackageRequirement) wireA.getRequirement();
+        assertEquals("org.jboss.test.osgi.classloader.support.a", reqA.getPackageName());
         Capability capA = wireA.getCapability();
         String capApack = (String) capA.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE);
         assertEquals("org.jboss.test.osgi.classloader.support.a", capApack);
@@ -115,7 +114,7 @@ public class PackageImportResolverTest extends AbstractResolverTest {
 
     @Test
     public void testExplicitBundleResolve() throws Exception {
-        
+
         // Bundle-SymbolicName: simpleimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/simpleimport");
@@ -280,7 +279,7 @@ public class PackageImportResolverTest extends AbstractResolverTest {
         Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         assertNotNull("Wire map not null", map);
         assertEquals(1, map.size());
-        
+
         applyResolverResults(map);
         Wiring wiringA = getWiring(resourceA);
         assertNotNull("Wiring not null", wiringA);
@@ -309,7 +308,7 @@ public class PackageImportResolverTest extends AbstractResolverTest {
 
     @Test
     public void testBundleNameImportPackage() throws Exception {
-        
+
         // Bundle-SymbolicName: bundlenameimport
         // Import-Package: org.jboss.test.osgi.classloader.support.a;bundle-symbolic-name=simpleexport
         Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/bundlenameimport");

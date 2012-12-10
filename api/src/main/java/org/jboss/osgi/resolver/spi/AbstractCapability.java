@@ -17,7 +17,6 @@
  * limitations under the License.
  * #L%
  */
-
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
@@ -107,45 +106,31 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
         return attributes.getAttribute(key);
     }
 
-    public boolean isMutable() {
-        return resource.isMutable();
-    }
-
-    public void ensureImmutable() {
-        if (isMutable() == true)
-            throw MESSAGES.illegalStateInvalidAccessToMutableResource();
-    }
-
-    public void ensureMutable() {
-        if (isMutable() == false)
-            throw MESSAGES.illegalStateInvalidAccessToImmutableResource();
-    }
-
     @Override
     public void validate() {
-        attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
-        directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
         if (IDENTITY_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
-            namespaceValue = (String)getAttribute(getNamespace());
+            namespaceValue = (String) getAttribute(getNamespace());
             if (namespaceValue == null)
                 throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            namespaceValue = (String)getAttribute(getNamespace());
+            namespaceValue = (String) getAttribute(getNamespace());
             if (namespaceValue == null)
                 throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         } else if (HOST_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            namespaceValue = (String)getAttribute(getNamespace());
+            namespaceValue = (String) getAttribute(getNamespace());
             if (namespaceValue == null)
                 throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
             version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
-            namespaceValue = (String)getAttribute(getNamespace());
+            namespaceValue = (String) getAttribute(getNamespace());
             if (namespaceValue == null)
                 throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
         }
+        attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
+        directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
         canonicalName = toString();
     }
 
@@ -156,7 +141,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
         if (XIdentityCapability.class == clazz && IDENTITY_NAMESPACE.equals(getNamespace())) {
             result = (T) this;
         } else if (XResourceCapability.class == clazz && BUNDLE_NAMESPACE.equals(getNamespace())) {
-                result = (T) this;
+            result = (T) this;
         } else if (XHostCapability.class == clazz && HOST_NAMESPACE.equals(getNamespace())) {
             result = (T) this;
         } else if (XPackageCapability.class == clazz && PACKAGE_NAMESPACE.equals(getNamespace())) {
@@ -180,14 +165,13 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
         return version;
     }
 
-    static Version getVersion(Capability cap, String attr) {
-        Object versionatt = cap.getAttributes().get(attr);
-        if (versionatt instanceof Version)
-            return (Version) versionatt;
-        else if (versionatt instanceof String)
-            return Version.parseVersion((String) versionatt);
-        else
-            return Version.emptyVersion;
+    static Version getVersion(Capability cap, String attname) {
+        Object attval = cap.getAttributes().get(attname);
+        if (attval != null && !(attval instanceof Version)) {
+            attval = new Version(attval.toString());
+            cap.getAttributes().put(attname, attval);
+        }
+        return attval != null ? (Version)attval : Version.emptyVersion;
     }
 
     @Override
@@ -206,7 +190,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
         String result = canonicalName;
         if (result == null) {
             String type;
-            String nsval = null; 
+            String nsval = null;
             if (IDENTITY_NAMESPACE.equals(getNamespace())) {
                 type = XIdentityCapability.class.getSimpleName();
             } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {

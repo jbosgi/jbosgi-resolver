@@ -224,9 +224,11 @@ public class AbstractEnvironment implements XEnvironment {
     public synchronized Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> wiremap) {
         Map<Resource, WireInfo> infos = new HashMap<Resource, WireInfo>();
         for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
-            WireInfo reqinfo = getWireInfo(infos, (XResource) entry.getKey());
-            reqinfo.required.addAll(entry.getValue());
-            for (Wire wire : entry.getValue()) {
+            XResource resource = (XResource) entry.getKey();
+            WireInfo reqinfo = getWireInfo(infos, resource);
+            List<Wire> wires = entry.getValue();
+            reqinfo.required.addAll(wires);
+            for (Wire wire : wires) {
                 XResource provider = (XResource) wire.getProvider();
                 WireInfo provinfo = getWireInfo(infos, provider);
                 provinfo.provided.add(wire);

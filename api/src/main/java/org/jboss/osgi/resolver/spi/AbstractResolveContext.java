@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
+import org.osgi.framework.Constants;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -44,7 +45,7 @@ import org.osgi.service.resolver.HostedCapability;
 public class AbstractResolveContext extends XResolveContext {
 
     private final XEnvironment environment;
-    
+
     public AbstractResolveContext(XEnvironment environment) {
         this.environment = environment;
     }
@@ -52,7 +53,7 @@ public class AbstractResolveContext extends XResolveContext {
     protected Comparator<Capability> getComparator() {
         return new FrameworkPreferencesComparator(environment);
     }
-    
+
     @Override
     public XEnvironment getEnvironment() {
         return environment;
@@ -75,8 +76,10 @@ public class AbstractResolveContext extends XResolveContext {
     }
 
     @Override
-    public boolean isEffective(Requirement requirement) {
-        return true;
+    public boolean isEffective(Requirement req) {
+        // Ignore reqs that are not effective:=resolve
+        String effective = req.getDirectives().get(Constants.EFFECTIVE_DIRECTIVE);
+        return effective == null || effective.equals(Constants.EFFECTIVE_RESOLVE);
     }
 
     @Override

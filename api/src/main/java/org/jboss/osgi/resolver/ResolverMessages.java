@@ -20,6 +20,7 @@
 package org.jboss.osgi.resolver;
 
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
@@ -88,4 +89,10 @@ public interface ResolverMessages {
 
     @Message(id = 10915, value = "Invalid requirement: %s")
     String validationInvalidRequirement(Requirement req);
+
+    @Message(id = 10916, value = "A requirement in namespace '%s' cannot have attributes: %s")
+    IllegalArgumentException illegalArgumentRequirementCannotHaveAttributes(String namespace, Map<String, Object> atts);
+
+    @Message(id = 10917, value = "A requirement in namespace '%s' must have a filter directive: %s")
+    IllegalArgumentException illegalArgumentRequirementMustHaveFilterDirective(String namespace, Map<String, String> dirs);
 }

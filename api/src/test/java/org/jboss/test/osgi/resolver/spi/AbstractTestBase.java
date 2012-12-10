@@ -20,19 +20,10 @@
 
 package org.jboss.test.osgi.resolver.spi;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.Attributes.Name;
-
-import org.jboss.osgi.metadata.OSGiMetaData;
-import org.jboss.osgi.metadata.spi.AbstractOSGiMetaData;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResource;
-import org.jboss.osgi.resolver.XResourceBuilder;
-import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
 import org.junit.Before;
-import org.osgi.framework.BundleException;
 
 /**
  * @author Thomas.Diesler@jboss.com
@@ -49,37 +40,5 @@ public abstract class AbstractTestBase {
     XEnvironment installResources(XResource... resources) {
         environment.installResources(resources);
         return environment;
-    }
-
-    XResource createResource(Map<String, String> attrs) throws BundleException {
-        XResourceBuilder builder = buildResource(attrs);
-        return builder.getResource();
-    }
-
-    XResourceBuilder buildResource(Map<String, String> attrs) throws BundleException {
-        OSGiMetaData metaData = new TestOSGiMetaData(attrs);
-        XResourceBuilder builder = XResourceBuilderFactory.create();
-        return builder.loadFrom(metaData);
-    }
-
-    private static class TestOSGiMetaData extends AbstractOSGiMetaData {
-        private final HashMap<Name, String> attributes;
-
-        TestOSGiMetaData(Map<String, String> attrMap) {
-            attributes = new HashMap<Name, String>();
-            for (Map.Entry<String, String> entry : attrMap.entrySet()) {
-                attributes.put(new Name(entry.getKey()), entry.getValue());
-            }
-        }
-
-        @Override
-        protected Map<Name, String> getMainAttributes() {
-            return attributes;
-        }
-
-        @Override
-        protected String getMainAttribute(String key) {
-            return attributes.get(new Name(key));
-        }
     }
 }

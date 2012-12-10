@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,23 +17,21 @@
  * limitations under the License.
  * #L%
  */
-
 package org.jboss.test.osgi.resolver.spi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
-import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME;
-import static org.osgi.framework.Constants.EXPORT_PACKAGE;
-import static org.osgi.framework.Constants.IMPORT_PACKAGE;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XResourceBuilder;
+import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.junit.Test;
+import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
@@ -48,20 +46,20 @@ public class XEnvironmentTestCase extends AbstractTestBase {
     @Test
     public void testFindProviders() throws Exception {
 
-        Map<String, String> attrs = new HashMap<String, String>();
-        attrs.put(BUNDLE_SYMBOLICNAME, "testA");
-        attrs.put(IMPORT_PACKAGE, "org.jboss.foo");
-        XResource resourceA = createResource(attrs);
+        XResourceBuilder builderA = XResourceBuilderFactory.create();
+        builderA.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "testA");
+        builderA.addRequirement(PackageNamespace.PACKAGE_NAMESPACE, "org.jboss.foo");
+        XResource resourceA = builderA.getResource();
 
-        attrs = new HashMap<String, String>();
-        attrs.put(BUNDLE_SYMBOLICNAME, "testB");
-        attrs.put(EXPORT_PACKAGE, "org.jboss.foo");
-        XResource resourceB = createResource(attrs);
+        XResourceBuilder builderB = XResourceBuilderFactory.create();
+        builderB.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "testB");
+        builderB.addCapability(PackageNamespace.PACKAGE_NAMESPACE, "org.jboss.foo");
+        XResource resourceB = builderB.getResource();
 
-        attrs = new HashMap<String, String>();
-        attrs.put(BUNDLE_SYMBOLICNAME, "testC");
-        attrs.put(EXPORT_PACKAGE, "org.jboss.foo");
-        XResource resourceC = createResource(attrs);
+        XResourceBuilder builderC = XResourceBuilderFactory.create();
+        builderC.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "testB");
+        builderC.addCapability(PackageNamespace.PACKAGE_NAMESPACE, "org.jboss.foo");
+        XResource resourceC = builderC.getResource();
 
         XEnvironment env = installResources(resourceA, resourceB, resourceC);
 

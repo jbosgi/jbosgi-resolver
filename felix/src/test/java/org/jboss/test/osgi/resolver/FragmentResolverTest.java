@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XResolveContext;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.shrinkwrap.api.Archive;
@@ -41,12 +42,11 @@ import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
-import org.osgi.service.resolver.HostedCapability;
 import org.osgi.service.resolver.ResolutionException;
 
 /**
  * Test the default resolver integration.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
@@ -79,16 +79,16 @@ public class FragmentResolverTest extends AbstractResolverTest {
         Wire hwireA = wiringA.getProvidedResourceWires(HostNamespace.HOST_NAMESPACE).get(0);
         assertSame(resourceA, hwireA.getProvider());
         assertSame(resourceB, hwireA.getRequirer());
-        
+
         assertEquals(4, wiringA.getResourceCapabilities(null).size());
         assertEquals(1, wiringA.getResourceCapabilities(IdentityNamespace.IDENTITY_NAMESPACE).size());
         assertEquals(1, wiringA.getResourceCapabilities(HostNamespace.HOST_NAMESPACE).size());
         assertEquals(1, wiringA.getResourceCapabilities(BundleNamespace.BUNDLE_NAMESPACE).size());
         assertEquals(1, wiringA.getResourceCapabilities(PackageNamespace.PACKAGE_NAMESPACE).size());
-        HostedCapability hcap = (HostedCapability) wiringA.getResourceCapabilities(PackageNamespace.PACKAGE_NAMESPACE).get(0);
-        assertEquals("org.jboss.osgi.test.fragment.export", hcap.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE));
-        assertSame(resourceA, hcap.getResource());
-        
+        XPackageCapability pcap = (XPackageCapability) wiringA.getResourceCapabilities(PackageNamespace.PACKAGE_NAMESPACE).get(0);
+        assertEquals("org.jboss.osgi.test.fragment.export", pcap.getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE));
+        assertSame(resourceB, pcap.getResource());
+
         Wiring wiringB = getWiring(resourceB);
         assertEquals(1, wiringB.getRequiredResourceWires(null).size());
         assertEquals(1, wiringB.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE).size());
@@ -226,7 +226,7 @@ public class FragmentResolverTest extends AbstractResolverTest {
         XResource resourceA = createResource(assemblyA);
 
         installResources(resourceA);
-        
+
         List<XResource> mandatory = Arrays.asList(resourceA);
         Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
@@ -278,7 +278,7 @@ public class FragmentResolverTest extends AbstractResolverTest {
         XResource resourceB = createResource(assemblyB);
 
         installResources(resourceA, resourceB);
-        
+
         List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
