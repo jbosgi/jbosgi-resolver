@@ -108,8 +108,8 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             throw MESSAGES.illegalStateInvalidAccessToImmutableResource();
     }
 
-    static String getNamespaceValue(XRequirement req) {
-        String namespaceValue = (String) req.getAttribute(req.getNamespace());
+    static String getNamespaceValue(Requirement req) {
+        String namespaceValue = (String) req.getAttributes().get(req.getNamespace());
         if (namespaceValue == null) {
             namespaceValue = namespaceValueFromFilter(getFilterFromDirective(req), req.getNamespace());
         }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -98,7 +99,8 @@ public class AbstractEnvironment implements XEnvironment {
 
             // Add resource capabilites
             for (Capability cap : res.getCapabilities(null)) {
-                getCachedCapabilities(CacheKey.create(cap)).add(cap);
+                CacheKey cachekey = CacheKey.create(cap);
+                getCachedCapabilities(cachekey).add(cap);
                 LOGGER.debugf("   %s", cap);
             }
             if (LOGGER.isDebugEnabled()) {
@@ -135,9 +137,9 @@ public class AbstractEnvironment implements XEnvironment {
             // Remove resource capabilities
             for (Capability cap : res.getCapabilities(null)) {
                 CacheKey cachekey = CacheKey.create(cap);
-                Set<Capability> capset = getCachedCapabilities(cachekey);
-                capset.remove(cap);
-                if (capset.isEmpty()) {
+                Set<Capability> cachecaps = getCachedCapabilities(cachekey);
+                cachecaps.remove(cap);
+                if (cachecaps.isEmpty()) {
                     capabilityCache.remove(cachekey);
                 }
             }
@@ -148,7 +150,7 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     @Override
-    public void refreshResources(XResource... resources) {
+    public synchronized void refreshResources(XResource... resources) {
         for (XResource res : resources) {
             res.removeAttachment(Wiring.class);
             wirings.remove(res);
@@ -169,7 +171,7 @@ public class AbstractEnvironment implements XEnvironment {
         XRequirement xreq = (XRequirement) req;
         CacheKey cachekey = CacheKey.create(req);
         List<Capability> result = new ArrayList<Capability>();
-        for (Capability cap : getCachedCapabilities(cachekey)) {
+        for (Capability cap : findCachedCapabilities(cachekey)) {
             if (xreq.matches(cap)) {
                 boolean ignoreCapability = false;
                 XCapability xcap = (XCapability) cap;
@@ -222,9 +224,11 @@ public class AbstractEnvironment implements XEnvironment {
     public synchronized Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> wiremap) {
         Map<Resource, WireInfo> infos = new HashMap<Resource, WireInfo>();
         for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
-            WireInfo reqinfo = getWireInfo(infos, (XResource) entry.getKey());
-            reqinfo.required.addAll(entry.getValue());
-            for (Wire wire : entry.getValue()) {
+            XResource resource = (XResource) entry.getKey();
+            WireInfo reqinfo = getWireInfo(infos, resource);
+            List<Wire> wires = entry.getValue();
+            reqinfo.required.addAll(wires);
+            for (Wire wire : wires) {
                 XResource provider = (XResource) wire.getProvider();
                 WireInfo provinfo = getWireInfo(infos, provider);
                 provinfo.provided.add(wire);
@@ -275,7 +279,24 @@ public class AbstractEnvironment implements XEnvironment {
         return capset;
     }
 
-    private synchronized Set<XResource> getCachedResources(String type) {
+    private synchronized Set<Capability> findCachedCapabilities(CacheKey key) {
+        Set<Capability> capset = capabilityCache.get(key);
+        if (capset == null) {
+            capset = new LinkedHashSet<Capability>();
+            // do not add this to the capabilityCache
+        }
+        if (capset.isEmpty() && key.getValue() == null) {
+            for (Entry<CacheKey, Set<Capability>> entry : capabilityCache.entrySet()) {
+                CacheKey auxkey = entry.getKey();
+                if (auxkey.getNamespace().equals(key.getNamespace())) {
+                    capset.addAll(entry.getValue());
+                }
+            }
+        }
+        return Collections.unmodifiableSet(capset);
+    }
+
+    private Set<XResource> getCachedResources(String type) {
         Set<XResource> typeset = resourceTypeCache.get(type);
         if (typeset == null) {
             typeset = new LinkedHashSet<XResource>();
@@ -299,42 +320,54 @@ public class AbstractEnvironment implements XEnvironment {
 
     private static class CacheKey {
 
-        private final String key;
+        private final String namespace;
+        private final String value;
+        private final String keyspec;
 
         static CacheKey create(Capability cap) {
             String namespace = cap.getNamespace();
-            return new CacheKey(namespace, (String) cap.getAttributes().get(namespace));
+            String nsvalue = (String) cap.getAttributes().get(namespace);
+            return new CacheKey(namespace, nsvalue);
         }
 
         static CacheKey create(Requirement req) {
             String namespace = req.getNamespace();
-            return new CacheKey(namespace, (String) req.getAttributes().get(namespace));
+            String nsvalue = AbstractRequirement.getNamespaceValue(req);
+            return new CacheKey(namespace, nsvalue);
         }
 
         private CacheKey(String namespace, String value) {
-            key = namespace + ":" + value;
+            this.namespace = namespace;
+            this.value = value;
+            this.keyspec = namespace + ":" + value;
+        }
+
+        String getNamespace() {
+            return namespace;
+        }
+
+        String getValue() {
+            return value;
         }
 
         @Override
         public int hashCode() {
-            return key.hashCode();
+            return keyspec.hashCode();
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj)
                 return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
+            if (!(obj instanceof CacheKey))
                 return false;
             CacheKey other = (CacheKey) obj;
-            return key.equals(other.key);
+            return keyspec.equals(other.keyspec);
         }
 
         @Override
         public String toString() {
-            return "[" + key + "]";
+            return "[" + keyspec + "]";
         }
     }
 }
