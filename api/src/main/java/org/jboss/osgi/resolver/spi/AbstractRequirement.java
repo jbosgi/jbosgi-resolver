@@ -40,6 +40,7 @@ import org.jboss.osgi.resolver.XCapabilityRequirement;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XHostRequirement;
 import org.jboss.osgi.resolver.XIdentityCapability;
+import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
@@ -260,6 +261,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         return (value instanceof String) ? new VersionRange((String) value) : (VersionRange) value;
     }
 
+    @SuppressWarnings("deprecation")
     private boolean matchFilter(Capability cap) {
         Map<String, Object> capatts;
 
@@ -275,6 +277,10 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             Version version = icap.getVersion();
             if (version != null) {
                 capatts.put(Constants.BUNDLE_VERSION_ATTRIBUTE, version);
+            }
+            version = ((XPackageCapability)cap).getVersion();
+            if (version != null) {
+                capatts.put(Constants.PACKAGE_SPECIFICATION_VERSION, version);
             }
         } else {
             capatts = cap.getAttributes();
