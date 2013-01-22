@@ -147,9 +147,15 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         String result = null;
         if (filter != null) {
             String filterstr = filter.toString();
-            int index = filterstr.indexOf("(" + attrname + "=");
+            int index = filterstr.indexOf("(" + attrname);
             if (index >= 0) {
-                result = filterstr.substring(index + attrname.length() + 2);
+                index += attrname.length() + 1;
+                char ch = filterstr.charAt(index);
+                String delims = "<=>";
+                while (delims.indexOf(ch) >= 0) {
+                    ch = filterstr.charAt(++index);
+                }
+                result = filterstr.substring(index);
                 result = result.substring(0, result.indexOf(")"));
             }
         }
