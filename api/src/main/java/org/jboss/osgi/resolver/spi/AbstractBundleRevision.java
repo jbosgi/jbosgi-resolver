@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@
  */
 
 package org.jboss.osgi.resolver.spi;
+
+import static org.jboss.osgi.metadata.OSGiMetaData.ANONYMOUS_BUNDLE_SYMBOLIC_NAME;
 
 import java.io.IOException;
 import java.net.URL;
@@ -53,7 +55,8 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public String getSymbolicName() {
-        return getIdentityCapability().getSymbolicName();
+        String symbolicName = getIdentityCapability().getSymbolicName();
+        return ANONYMOUS_BUNDLE_SYMBOLIC_NAME.equals(symbolicName) ? null : symbolicName;
     }
 
     @Override
@@ -101,7 +104,7 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
     public XBundle getBundle() {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public ModuleIdentifier getModuleIdentifier() {
         throw new UnsupportedOperationException();
