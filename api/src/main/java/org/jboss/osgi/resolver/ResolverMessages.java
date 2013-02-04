@@ -26,6 +26,8 @@ import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.hooks.resolver.ResolverHookFactory;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -95,4 +97,7 @@ public interface ResolverMessages {
 
     @Message(id = 10917, value = "A requirement in namespace '%s' must have a filter directive: %s")
     IllegalArgumentException illegalArgumentRequirementMustHaveFilterDirective(String namespace, Map<String, String> dirs);
+
+    @Message(id = 10918, value = "Resolver hook unregistered while in resolve operation: %s")
+    IllegalStateException illegalStateResolverHookUnregistered(ServiceReference<ResolverHookFactory> sref);
 }

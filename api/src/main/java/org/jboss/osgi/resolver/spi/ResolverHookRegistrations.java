@@ -19,13 +19,14 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import org.jboss.osgi.resolver.XBundle;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -45,10 +46,12 @@ import org.osgi.resource.Resource;
 public class ResolverHookRegistrations {
 
     private static ThreadLocal<ResolverHookRegistrations> association = new ThreadLocal<ResolverHookRegistrations>();
+    private final BundleContext syscontext;
     private List<ResolverHookRegistration> registrations;
     private Collection<BundleRevision> candidates;
 
     public ResolverHookRegistrations(BundleContext syscontext, Collection<XBundle> unresolved) {
+        this.syscontext = syscontext;
 
         // Get the set of unresolved candidates
         candidates = new ArrayList<BundleRevision>();
@@ -94,7 +97,7 @@ public class ResolverHookRegistrations {
         return candidates != null && candidates.contains(res);
     }
 
-    public void begin(BundleContext syscontext, Collection<? extends Resource> mandatory, Collection<? extends Resource> optional) {
+    public void begin(Collection<? extends Resource> mandatory, Collection<? extends Resource> optional) {
 
         // Get the initial set of trigger bundles
         Collection<BundleRevision> triggers = new ArrayList<BundleRevision>();
@@ -127,48 +130,57 @@ public class ResolverHookRegistrations {
 
     public void filterResolvable() {
         for (ResolverHookRegistration hookreg : registrations) {
-            ResolverHook hook = hookreg.hook;
-            if (hook != null && hookreg.lastException == null) {
-                try {
+            try {
+                ResolverHook hook = hookreg.getResolverHook();
+                if (hook != null && hookreg.lastException == null) {
                     hook.filterResolvable(candidates);
-                } catch (RuntimeException ex) {
-                    hookreg.lastException = ex;
-                    throw new ResolverHookException(ex);
                 }
+            } catch (RuntimeException ex) {
+                hookreg.lastException = ex;
+                throw new ResolverHookException(ex);
             }
         }
     }
 
     public void filterMatches(BundleRequirement breq, Collection<BundleCapability> bcaps) {
         for (ResolverHookRegistration hookreg : registrations) {
-            ResolverHook hook = hookreg.hook;
-            if (hook != null && hookreg.lastException == null) {
-                try {
+            try {
+                ResolverHook hook = hookreg.getResolverHook();
+                if (hook != null && hookreg.lastException == null) {
                     hook.filterMatches(breq, bcaps);
-                } catch (RuntimeException ex) {
-                    hookreg.lastException = ex;
-                    throw new ResolverHookException(ex);
                 }
+            } catch (RuntimeException ex) {
+                hookreg.lastException = ex;
+                throw new ResolverHookException(ex);
             }
         }
     }
 
     public void end() {
-
-        // Call end on every {@link ResolverHook}
-        for (ResolverHookRegistration hookreg : registrations) {
-            ResolverHook hook = hookreg.hook;
-            if (hook != null) {
+        ResolverHookException endException = null;
+        try {
+            // Call end on every {@link ResolverHook}
+            for (ResolverHookRegistration hookreg : registrations) {
                 try {
-                    hook.end();
+                    ResolverHook hook = hookreg.getResolverHook();
+                    if (hook != null) {
+                        hook.end();
+                    }
                 } catch (RuntimeException ex) {
                     hookreg.lastException = ex;
+                    if (endException == null) {
+                        endException = new ResolverHookException(ex);
+                    }
                 }
             }
+        } finally {
+            // Clear the thread association
+            association.remove();
         }
-
-        // Clear the thread association
-        association.remove();
+        // [TODO] The TCK expects to see the exception thrown in end() which would
+        // shadow a previous exception comming from filterResolvable
+        if (endException != null)
+            throw endException;
     }
 
     class ResolverHookRegistration {
@@ -180,8 +192,11 @@ public class ResolverHookRegistrations {
             this.sref = sref;
         }
 
-        Bundle getBundle() {
-            return sref.getBundle();
+        ResolverHook getResolverHook() {
+            if (syscontext.getService(sref) == null) {
+                throw MESSAGES.illegalStateResolverHookUnregistered(sref);
+            }
+            return hook;
         }
     }
 }
