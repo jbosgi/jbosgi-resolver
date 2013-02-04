@@ -19,38 +19,38 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import java.util.HashMap;
+import java.util.Map;
 
-import org.jboss.osgi.resolver.XAttachmentSupport;
-import org.jboss.osgi.resolver.XElement;
+import org.jboss.osgi.resolver.XDirectiveSupport;
 
 /**
- * The abstract implementation of a {@link XElement}.
+ * An implementation of {@link XDirectiveSupport}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class AbstractElement implements XElement {
+public class DirectiveSupporter implements XDirectiveSupport {
+    private Map<String, String> directives;
 
-    private XAttachmentSupport attachments;
-
-    @Override
-    public <T> T addAttachment(Class<T> clazz, T value) {
-        if (attachments == null)
-            attachments = new AttachmentSupporter();
-        return attachments.addAttachment(clazz, value);
+    DirectiveSupporter(Map<String, String> directives) {
+        this.directives = directives;
     }
 
     @Override
-    public <T> T getAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.getAttachment(clazz);
+    public String getDirective(String key) {
+        return directives != null ? directives.get(key) : null;
     }
 
     @Override
-    public <T> T removeAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.removeAttachment(clazz);
+    public Map<String, String> getDirectives() {
+        if (directives == null)
+            directives = new HashMap<String, String>();
+        return directives;
+    }
+
+    @Override
+    public String toString() {
+        return getDirectives().toString();
     }
 }

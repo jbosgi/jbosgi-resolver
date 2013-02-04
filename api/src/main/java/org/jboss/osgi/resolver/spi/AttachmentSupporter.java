@@ -17,41 +17,51 @@
  * limitations under the License.
  * #L%
  */
-package org.jboss.osgi.resolver;
+package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.spi.AttachmentSupporter;
-import org.osgi.service.resolver.ResolveContext;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jboss.osgi.resolver.XAttachmentSupport;
 
 /**
- * An extension of the {@link ResolveContext}
+ * An implementation of {@link XAttachmentSupport}.
  *
  * @author thomas.diesler@jboss.com
- * @since 02-Apr-2012
+ * @since 02-Jul-2010
  */
-public abstract class XResolveContext extends ResolveContext implements XAttachmentSupport {
+public class AttachmentSupporter implements XAttachmentSupport {
 
-    private XAttachmentSupport attachments;
-
-    public abstract XEnvironment getEnvironment();
+    private Map<Class<?>, Object> attachments;
 
     @Override
     public <T> T addAttachment(Class<T> clazz, T value) {
         if (attachments == null)
-            attachments = new AttachmentSupporter();
-        return attachments.addAttachment(clazz, value);
+            attachments = new HashMap<Class<?>, Object>();
+
+        @SuppressWarnings("unchecked")
+        T result = (T) attachments.get(clazz);
+        attachments.put(clazz, value);
+        return result;
     }
 
     @Override
     public <T> T getAttachment(Class<T> clazz) {
         if (attachments == null)
             return null;
-        return attachments.getAttachment(clazz);
+
+        @SuppressWarnings("unchecked")
+        T result = (T) attachments.get(clazz);
+        return result;
     }
 
     @Override
     public <T> T removeAttachment(Class<T> clazz) {
         if (attachments == null)
             return null;
-        return attachments.removeAttachment(clazz);
+
+        @SuppressWarnings("unchecked")
+        T result = (T) attachments.remove(clazz);
+        return result;
     }
 }

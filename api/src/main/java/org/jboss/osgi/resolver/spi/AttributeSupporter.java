@@ -19,38 +19,38 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import java.util.HashMap;
+import java.util.Map;
 
-import org.jboss.osgi.resolver.XAttachmentSupport;
-import org.jboss.osgi.resolver.XElement;
+import org.jboss.osgi.resolver.XAttributeSupport;
 
 /**
- * The abstract implementation of a {@link XElement}.
+ * An implementation of {@link XAttributeSupport}.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public abstract class AbstractElement implements XElement {
+public class AttributeSupporter implements XAttributeSupport {
+    private Map<String, Object> attributes;
 
-    private XAttachmentSupport attachments;
-
-    @Override
-    public <T> T addAttachment(Class<T> clazz, T value) {
-        if (attachments == null)
-            attachments = new AttachmentSupporter();
-        return attachments.addAttachment(clazz, value);
+    AttributeSupporter(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 
     @Override
-    public <T> T getAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.getAttachment(clazz);
+    public Object getAttribute(String key) {
+        return attributes != null ? attributes.get(key) : null;
     }
 
     @Override
-    public <T> T removeAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.removeAttachment(clazz);
+    public Map<String, Object> getAttributes() {
+        if (attributes == null)
+            attributes = new HashMap<String, Object>();
+        return attributes;
+    }
+
+    @Override
+    public String toString() {
+        return getAttributes().toString();
     }
 }

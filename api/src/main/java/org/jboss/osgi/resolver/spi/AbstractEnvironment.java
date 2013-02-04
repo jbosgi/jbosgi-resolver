@@ -17,17 +17,18 @@
  * limitations under the License.
  * #L%
  */
-
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.ResolverLogger.LOGGER;
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
+import static org.jboss.osgi.resolver.spi.ResolverHookRegistrations.getResolverHookRegistrations;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XIdentityCapability;
@@ -45,6 +47,8 @@ import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.omg.CORBA.Environment;
 import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -212,6 +216,30 @@ public class AbstractEnvironment implements XEnvironment {
 
                 if (!ignoreCapability) {
                     result.add(cap);
+                }
+            }
+        }
+
+        // Filter the matches by calling the registered {@link ResolverHook}s
+        ResolverHookRegistrations hookregs = getResolverHookRegistrations();
+        if (hookregs != null && req instanceof BundleRequirement) {
+            Collection<BundleCapability> bcaps = new ArrayList<BundleCapability>();
+            for (Capability cap : result) {
+                Resource res = cap.getResource();
+                XBundleRevision brev = (XBundleRevision) res;
+                if (brev.getWiring() != null || hookregs.hasResource(res)) {
+                    bcaps.add((BundleCapability) cap);
+                }
+            }
+            bcaps = new RemoveOnlyCollection<BundleCapability>(bcaps);
+            hookregs.filterMatches((BundleRequirement) req, bcaps);
+
+            // Remove the filtered caps
+            Iterator<Capability> iterator = result.iterator();
+            while(iterator.hasNext()) {
+                Capability cap = iterator.next();
+                if (!bcaps.contains(cap)) {
+                    iterator.remove();
                 }
             }
         }
