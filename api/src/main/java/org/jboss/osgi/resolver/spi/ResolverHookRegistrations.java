@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jboss.osgi.resolver.XBundle;
+import org.jboss.osgi.resolver.XBundleRevision;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -101,16 +103,8 @@ public class ResolverHookRegistrations {
 
         // Get the initial set of trigger bundles
         Collection<BundleRevision> triggers = new ArrayList<BundleRevision>();
-        if (mandatory != null) {
-            for (Resource res : mandatory) {
-                triggers.add((BundleRevision) res);
-            }
-        }
-        if (optional != null) {
-            for (Resource res : optional) {
-                triggers.add((BundleRevision) res);
-            }
-        }
+        addTriggers(mandatory, triggers);
+        addTriggers(optional, triggers);
         triggers = new RemoveOnlyCollection<BundleRevision>(triggers);
 
         // Create a {@link ResolverHook} for each factory
@@ -126,6 +120,17 @@ public class ResolverHookRegistrations {
 
         // Set the thread association
         association.set(this);
+    }
+
+    private void addTriggers(Collection<? extends Resource> resources, Collection<BundleRevision> triggers) {
+        if (resources != null) {
+            for (Resource res : resources) {
+                XBundleRevision brev = (XBundleRevision) res;
+                if (brev.getBundle().getState() != Bundle.UNINSTALLED) {
+                    triggers.add(brev);
+                }
+            }
+        }
     }
 
     public void filterResolvable() {
