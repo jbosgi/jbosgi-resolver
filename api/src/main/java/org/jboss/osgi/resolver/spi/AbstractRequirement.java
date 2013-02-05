@@ -30,7 +30,6 @@ import static org.osgi.resource.Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +39,6 @@ import org.jboss.osgi.resolver.XCapabilityRequirement;
 import org.jboss.osgi.resolver.XDirectiveSupport;
 import org.jboss.osgi.resolver.XHostRequirement;
 import org.jboss.osgi.resolver.XIdentityCapability;
-import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
@@ -49,7 +47,6 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
 import org.osgi.framework.namespace.BundleNamespace;
@@ -261,31 +258,8 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         return (value instanceof String) ? new VersionRange((String) value) : (VersionRange) value;
     }
 
-    @SuppressWarnings("deprecation")
     private boolean matchFilter(Capability cap) {
-        Map<String, Object> capatts;
-
-        // Add bundle-symbolic-name and version to the package cap atts
-        if (adapt(XPackageRequirement.class) != null) {
-            capatts = new HashMap<String, Object>(cap.getAttributes());
-            XResource res = (XResource) cap.getResource();
-            XIdentityCapability icap = res.getIdentityCapability();
-            String symbolicName = icap.getSymbolicName();
-            if (symbolicName != null) {
-                capatts.put(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE, symbolicName);
-            }
-            Version version = icap.getVersion();
-            if (version != null) {
-                capatts.put(Constants.BUNDLE_VERSION_ATTRIBUTE, version);
-            }
-            version = ((XPackageCapability)cap).getVersion();
-            if (version != null) {
-                capatts.put(Constants.PACKAGE_SPECIFICATION_VERSION, version);
-            }
-        } else {
-            capatts = cap.getAttributes();
-        }
-
+        Map<String, Object> capatts = cap.getAttributes();
         return filter != null ? filter.matches(capatts) : true;
     }
 

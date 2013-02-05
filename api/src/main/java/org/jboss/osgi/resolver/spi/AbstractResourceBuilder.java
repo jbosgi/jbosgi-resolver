@@ -40,6 +40,7 @@ import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
@@ -105,6 +106,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         return addRequirement(namespace, atts, null);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public XResourceBuilder loadFrom(OSGiMetaData metadata) throws ResourceBuilderException {
         assertResourceCreated();
@@ -171,6 +173,24 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     XCapability cap = addCapability(PackageNamespace.PACKAGE_NAMESPACE, packageName);
                     cap.getAttributes().putAll(getAttributes(attr));
                     cap.getDirectives().putAll(getDirectives(attr));
+
+                    // Add infered package capability attributes
+                    Map<String, Object> capatts = cap.getAttributes();
+                    if (!capatts.containsKey(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE))
+                        capatts.put(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE, symbolicName);
+                    if (!capatts.containsKey(Constants.BUNDLE_VERSION_ATTRIBUTE))
+                        capatts.put(Constants.BUNDLE_VERSION_ATTRIBUTE, bundleVersion);
+                    if (!capatts.containsKey(Constants.PACKAGE_SPECIFICATION_VERSION)) {
+                        Object vspec = capatts.get(Constants.VERSION_ATTRIBUTE);
+                        if (vspec != null) {
+                            try {
+                                Version version = Version.parseVersion(vspec.toString());
+                                capatts.put(Constants.PACKAGE_SPECIFICATION_VERSION, version);
+                            } catch (RuntimeException ex) {
+                                // ignore
+                            }
+                        }
+                    }
                 }
             }
 
