@@ -33,7 +33,6 @@ import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.spi.AbstractResolveContext;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
-import org.osgi.resource.Wiring;
 import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.ResolveContext;
 
@@ -68,9 +67,10 @@ public class StatelessResolver implements XResolver {
     }
 
     @Override
-    public synchronized Map<Resource, Wiring> resolveAndApply(XResolveContext context) throws ResolutionException {
+    public synchronized Map<Resource, List<Wire>> resolveAndApply(XResolveContext context) throws ResolutionException {
         Map<Resource, List<Wire>> wiremap = resolve(context);
-        return context.getEnvironment().updateWiring(wiremap);
+        context.getEnvironment().updateWiring(wiremap);
+        return wiremap;
     }
 
     @Override

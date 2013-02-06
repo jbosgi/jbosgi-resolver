@@ -57,8 +57,10 @@ public class ResolverHookRegistrations {
 
         // Get the set of unresolved candidates
         candidates = new ArrayList<BundleRevision>();
-        for (XBundle bundle : unresolved) {
-            candidates.add(bundle.getBundleRevision());
+        if (unresolved != null) {
+            for (XBundle bundle : unresolved) {
+                candidates.add(bundle.getBundleRevision());
+            }
         }
         candidates = new RemoveOnlyCollection<BundleRevision>(candidates);
 
@@ -101,6 +103,9 @@ public class ResolverHookRegistrations {
 
     public void begin(Collection<? extends Resource> mandatory, Collection<? extends Resource> optional) {
 
+        // Set the thread association
+        association.set(this);
+
         // Get the initial set of trigger bundles
         Collection<BundleRevision> triggers = new ArrayList<BundleRevision>();
         addTriggers(mandatory, triggers);
@@ -108,18 +113,17 @@ public class ResolverHookRegistrations {
         triggers = new RemoveOnlyCollection<BundleRevision>(triggers);
 
         // Create a {@link ResolverHook} for each factory
-        for (ResolverHookRegistration hookreg : registrations) {
-            try {
-                ResolverHookFactory hookFactory = syscontext.getService(hookreg.sref);
-                hookreg.hook = hookFactory.begin(triggers);
-            } catch (RuntimeException ex) {
-                hookreg.lastException = ex;
-                throw new ResolverHookException(ex);
+        if (registrations != null) {
+            for (ResolverHookRegistration hookreg : registrations) {
+                try {
+                    ResolverHookFactory hookFactory = syscontext.getService(hookreg.sref);
+                    hookreg.hook = hookFactory.begin(triggers);
+                } catch (RuntimeException ex) {
+                    hookreg.lastException = ex;
+                    throw new ResolverHookException(ex);
+                }
             }
         }
-
-        // Set the thread association
-        association.set(this);
     }
 
     private void addTriggers(Collection<? extends Resource> resources, Collection<BundleRevision> triggers) {
@@ -134,29 +138,33 @@ public class ResolverHookRegistrations {
     }
 
     public void filterResolvable() {
-        for (ResolverHookRegistration hookreg : registrations) {
-            try {
-                ResolverHook hook = hookreg.getResolverHook();
-                if (hook != null && hookreg.lastException == null) {
-                    hook.filterResolvable(candidates);
+        if (registrations != null) {
+            for (ResolverHookRegistration hookreg : registrations) {
+                try {
+                    ResolverHook hook = hookreg.getResolverHook();
+                    if (hook != null && hookreg.lastException == null) {
+                        hook.filterResolvable(candidates);
+                    }
+                } catch (RuntimeException ex) {
+                    hookreg.lastException = ex;
+                    throw new ResolverHookException(ex);
                 }
-            } catch (RuntimeException ex) {
-                hookreg.lastException = ex;
-                throw new ResolverHookException(ex);
             }
         }
     }
 
     public void filterMatches(BundleRequirement breq, Collection<BundleCapability> bcaps) {
-        for (ResolverHookRegistration hookreg : registrations) {
-            try {
-                ResolverHook hook = hookreg.getResolverHook();
-                if (hook != null && hookreg.lastException == null) {
-                    hook.filterMatches(breq, bcaps);
+        if (registrations != null) {
+            for (ResolverHookRegistration hookreg : registrations) {
+                try {
+                    ResolverHook hook = hookreg.getResolverHook();
+                    if (hook != null && hookreg.lastException == null) {
+                        hook.filterMatches(breq, bcaps);
+                    }
+                } catch (RuntimeException ex) {
+                    hookreg.lastException = ex;
+                    throw new ResolverHookException(ex);
                 }
-            } catch (RuntimeException ex) {
-                hookreg.lastException = ex;
-                throw new ResolverHookException(ex);
             }
         }
     }
@@ -165,16 +173,18 @@ public class ResolverHookRegistrations {
         ResolverHookException endException = null;
         try {
             // Call end on every {@link ResolverHook}
-            for (ResolverHookRegistration hookreg : registrations) {
-                try {
-                    ResolverHook hook = hookreg.getResolverHook();
-                    if (hook != null) {
-                        hook.end();
-                    }
-                } catch (RuntimeException ex) {
-                    hookreg.lastException = ex;
-                    if (endException == null) {
-                        endException = new ResolverHookException(ex);
+            if (registrations != null) {
+                for (ResolverHookRegistration hookreg : registrations) {
+                    try {
+                        ResolverHook hook = hookreg.getResolverHook();
+                        if (hook != null) {
+                            hook.end();
+                        }
+                    } catch (RuntimeException ex) {
+                        hookreg.lastException = ex;
+                        if (endException == null) {
+                            endException = new ResolverHookException(ex);
+                        }
                     }
                 }
             }

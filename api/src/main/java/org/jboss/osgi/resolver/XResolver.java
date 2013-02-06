@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,10 +21,11 @@
 package org.jboss.osgi.resolver;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.osgi.resource.Resource;
-import org.osgi.resource.Wiring;
+import org.osgi.resource.Wire;
 import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.Resolver;
 
@@ -37,6 +38,6 @@ import org.osgi.service.resolver.Resolver;
 public interface XResolver extends Resolver {
 
     XResolveContext createResolveContext(XEnvironment environment, Collection<? extends Resource> mandatory, Collection<? extends Resource> optional);
-    
-    Map<Resource, Wiring> resolveAndApply(XResolveContext context) throws ResolutionException;
+
+    Map<Resource, List<Wire>> resolveAndApply(XResolveContext context) throws ResolutionException;
 }

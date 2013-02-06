@@ -100,4 +100,7 @@ public interface ResolverMessages {
 
     @Message(id = 10918, value = "Resolver hook unregistered while in resolve operation: %s")
     IllegalStateException illegalStateResolverHookUnregistered(ServiceReference<ResolverHookFactory> sref);
+
+    @Message(id = 10919, value = "Resolver Hooks are not allowed to start another resolve operation")
+    IllegalStateException illegalStateResolverHookCannotTriggerResolveOperation();
 }
