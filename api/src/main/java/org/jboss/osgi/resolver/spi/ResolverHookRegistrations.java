@@ -19,21 +19,27 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.ResolverLogger.LOGGER;
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.hooks.resolver.ResolverHook;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;
+import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
@@ -48,9 +54,13 @@ import org.osgi.resource.Resource;
 public class ResolverHookRegistrations {
 
     private static ThreadLocal<ResolverHookRegistrations> association = new ThreadLocal<ResolverHookRegistrations>();
-    private final BundleContext syscontext;
     private List<ResolverHookRegistration> registrations;
     private Collection<BundleRevision> candidates;
+    private final BundleContext syscontext;
+
+    public interface SingletonLocator {
+        Collection<BundleCapability> findCollisionCandidates(BundleCapability icap);
+    }
 
     public ResolverHookRegistrations(BundleContext syscontext, Collection<XBundle> unresolved) {
         this.syscontext = syscontext;
@@ -149,6 +159,54 @@ public class ResolverHookRegistrations {
                     hookreg.lastException = ex;
                     throw new ResolverHookException(ex);
                 }
+            }
+        }
+    }
+
+    public void filterSingletonCollisions(SingletonLocator locator) {
+        if (registrations != null) {
+
+            // Collect the singleton capabilities from all candidate revisions
+            Map<BundleCapability, Collection<BundleCapability>> singletons = new HashMap<BundleCapability, Collection<BundleCapability>>();
+            for (BundleRevision brev : candidates) {
+                List<BundleCapability> bcaps = brev.getDeclaredCapabilities(BundleNamespace.BUNDLE_NAMESPACE);
+                if (bcaps.size() == 1) {
+                    BundleCapability bcap = bcaps.get(0);
+                    String spec = bcap.getDirectives().get(Constants.SINGLETON_DIRECTIVE);
+                    if (Boolean.parseBoolean(spec)) {
+                        Collection<BundleCapability> collisions = locator.findCollisionCandidates(bcap);
+                        singletons.put(bcap, new RemoveOnlyCollection<BundleCapability>(collisions));
+                    }
+                }
+            }
+
+            Collection<BundleCapability> removed = new HashSet<BundleCapability>();
+
+            for (ResolverHookRegistration hookreg : registrations) {
+                try {
+                    ResolverHook hook = hookreg.getResolverHook();
+                    if (hook != null && hookreg.lastException == null) {
+                        for (Map.Entry<BundleCapability, Collection<BundleCapability>> entry : singletons.entrySet()) {
+                            BundleCapability cap = entry.getKey();
+                            Collection<BundleCapability> collisions = entry.getValue();
+                            Collection<BundleCapability> before = new HashSet<BundleCapability>(collisions);
+                            hook.filterSingletonCollisions(cap, collisions);
+                            for (BundleCapability aux : before) {
+                                if (!collisions.contains(aux)) {
+                                    removed.add(aux);
+                                }
+                            }
+                        }
+                    }
+                } catch (RuntimeException ex) {
+                    hookreg.lastException = ex;
+                    throw new ResolverHookException(ex);
+                }
+            }
+
+            for (BundleCapability aux : removed) {
+                LOGGER.debugf("ResolverHook removed singleton: %s", aux);
+                candidates.remove(aux.getResource());
             }
         }
     }
