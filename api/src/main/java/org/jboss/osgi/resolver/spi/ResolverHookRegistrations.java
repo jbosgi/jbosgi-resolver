@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.hooks.resolver.ResolverHook;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;
-import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
@@ -127,7 +128,9 @@ public class ResolverHookRegistrations {
             for (ResolverHookRegistration hookreg : registrations) {
                 try {
                     ResolverHookFactory hookFactory = syscontext.getService(hookreg.sref);
-                    hookreg.hook = hookFactory.begin(triggers);
+                    if (hookreg.isRegistered()) {
+                        hookreg.hook = hookFactory.begin(triggers);
+                    }
                 } catch (RuntimeException ex) {
                     hookreg.lastException = ex;
                     throw new ResolverHookException(ex);
@@ -153,7 +156,13 @@ public class ResolverHookRegistrations {
                 try {
                     ResolverHook hook = hookreg.getResolverHook();
                     if (hook != null && hookreg.lastException == null) {
+                        Collection<BundleRevision> before = new HashSet<BundleRevision>(candidates);
                         hook.filterResolvable(candidates);
+                        for (BundleRevision aux : before) {
+                            if (candidates.contains(aux) == false) {
+                                LOGGER.debugf("ResolverHook filtered resolvable: %s", aux);
+                            }
+                        }
                     }
                 } catch (RuntimeException ex) {
                     hookreg.lastException = ex;
@@ -169,7 +178,7 @@ public class ResolverHookRegistrations {
             // Collect the singleton capabilities from all candidate revisions
             Map<BundleCapability, Collection<BundleCapability>> singletons = new HashMap<BundleCapability, Collection<BundleCapability>>();
             for (BundleRevision brev : candidates) {
-                List<BundleCapability> bcaps = brev.getDeclaredCapabilities(BundleNamespace.BUNDLE_NAMESPACE);
+                List<BundleCapability> bcaps = brev.getDeclaredCapabilities(IdentityNamespace.IDENTITY_NAMESPACE);
                 if (bcaps.size() == 1) {
                     BundleCapability bcap = bcaps.get(0);
                     String spec = bcap.getDirectives().get(Constants.SINGLETON_DIRECTIVE);
@@ -180,44 +189,50 @@ public class ResolverHookRegistrations {
                 }
             }
 
-            Collection<BundleCapability> removed = new HashSet<BundleCapability>();
-
-            for (ResolverHookRegistration hookreg : registrations) {
-                try {
-                    ResolverHook hook = hookreg.getResolverHook();
-                    if (hook != null && hookreg.lastException == null) {
-                        for (Map.Entry<BundleCapability, Collection<BundleCapability>> entry : singletons.entrySet()) {
-                            BundleCapability cap = entry.getKey();
-                            Collection<BundleCapability> collisions = entry.getValue();
-                            Collection<BundleCapability> before = new HashSet<BundleCapability>(collisions);
-                            hook.filterSingletonCollisions(cap, collisions);
-                            for (BundleCapability aux : before) {
-                                if (!collisions.contains(aux)) {
-                                    removed.add(aux);
-                                }
-                            }
+            for (Map.Entry<BundleCapability, Collection<BundleCapability>> entry : singletons.entrySet()) {
+                BundleCapability bcap = entry.getKey();
+                Collection<BundleCapability> collisions = entry.getValue();
+                for (ResolverHookRegistration hookreg : registrations) {
+                    try {
+                        ResolverHook hook = hookreg.getResolverHook();
+                        if (hook != null && hookreg.lastException == null) {
+                            hook.filterSingletonCollisions(bcap, collisions);
                         }
+                    } catch (RuntimeException ex) {
+                        hookreg.lastException = ex;
+                        throw new ResolverHookException(ex);
                     }
-                } catch (RuntimeException ex) {
-                    hookreg.lastException = ex;
-                    throw new ResolverHookException(ex);
                 }
-            }
-
-            for (BundleCapability aux : removed) {
-                LOGGER.debugf("ResolverHook removed singleton: %s", aux);
-                candidates.remove(aux.getResource());
+                // Remove the collisions that will not resolve because they are no candidates
+                for (Iterator<BundleCapability> iterator = collisions.iterator(); iterator.hasNext();) {
+                    BundleRevision brev = iterator.next().getResource();
+                    if (brev.getBundle().getState() == Bundle.INSTALLED && !candidates.contains(brev)) {
+                        iterator.remove();
+                    }
+                }
+                if (!collisions.isEmpty()) {
+                    BundleRevision brev = bcap.getResource();
+                    LOGGER.debugf("ResolverHook found singleton collision of %s with %s", bcap, collisions);
+                    LOGGER.debugf("ResolverHook removed resolution candidate %s", brev);
+                    candidates.remove(brev);
+                }
             }
         }
     }
 
-    public void filterMatches(BundleRequirement breq, Collection<BundleCapability> bcaps) {
+    public void filterMatches(BundleRequirement breq, Collection<BundleCapability> matching) {
         if (registrations != null) {
             for (ResolverHookRegistration hookreg : registrations) {
                 try {
                     ResolverHook hook = hookreg.getResolverHook();
                     if (hook != null && hookreg.lastException == null) {
-                        hook.filterMatches(breq, bcaps);
+                        Collection<BundleCapability> before = new HashSet<BundleCapability>(matching);
+                        hook.filterMatches(breq, matching);
+                        for (BundleCapability aux : before) {
+                            if (matching.contains(aux) == false) {
+                                LOGGER.debugf("ResolverHook filtered match: %s", aux);
+                            }
+                        }
                     }
                 } catch (RuntimeException ex) {
                     hookreg.lastException = ex;
@@ -265,11 +280,17 @@ public class ResolverHookRegistrations {
             this.sref = sref;
         }
 
+        boolean isRegistered() {
+            return syscontext.getService(sref) != null;
+        }
+
         ResolverHook getResolverHook() {
-            if (syscontext.getService(sref) == null) {
+            if (isRegistered() == false) {
                 throw MESSAGES.illegalStateResolverHookUnregistered(sref);
             }
             return hook;
         }
+
+
     }
 }
