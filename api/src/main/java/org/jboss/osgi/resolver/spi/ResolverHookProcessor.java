@@ -44,6 +44,7 @@ import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.resource.Resource;
 
 /**
@@ -52,9 +53,9 @@ import org.osgi.resource.Resource;
  * @author thomas.diesler@jboss.com
  * @since 01-Feb-2013
  */
-public class ResolverHookRegistrations {
+public class ResolverHookProcessor {
 
-    private static ThreadLocal<ResolverHookRegistrations> association = new ThreadLocal<ResolverHookRegistrations>();
+    private static ThreadLocal<ResolverHookProcessor> processorAssociation = new ThreadLocal<ResolverHookProcessor>();
     private List<ResolverHookRegistration> registrations;
     private Collection<BundleRevision> candidates;
     private final BundleContext syscontext;
@@ -63,7 +64,7 @@ public class ResolverHookRegistrations {
         Collection<BundleCapability> findCollisionCandidates(BundleCapability icap);
     }
 
-    public ResolverHookRegistrations(BundleContext syscontext, Collection<XBundle> unresolved) {
+    public ResolverHookProcessor(BundleContext syscontext, Collection<XBundle> unresolved) {
         this.syscontext = syscontext;
 
         // Get the set of unresolved candidates
@@ -96,8 +97,8 @@ public class ResolverHookRegistrations {
         }
     }
 
-    public static ResolverHookRegistrations getResolverHookRegistrations() {
-        return association.get();
+    public static ResolverHookProcessor getCurrentProcessor() {
+        return processorAssociation.get();
     }
 
     public boolean hasResolverHooks() {
@@ -115,7 +116,7 @@ public class ResolverHookRegistrations {
     public void begin(Collection<? extends Resource> mandatory, Collection<? extends Resource> optional) {
 
         // Set the thread association
-        association.set(this);
+        processorAssociation.set(this);
 
         // Get the initial set of trigger bundles
         Collection<BundleRevision> triggers = new ArrayList<BundleRevision>();
@@ -176,47 +177,82 @@ public class ResolverHookRegistrations {
         if (registrations != null) {
 
             // Collect the singleton capabilities from all candidate revisions
-            Map<BundleCapability, Collection<BundleCapability>> singletons = new HashMap<BundleCapability, Collection<BundleCapability>>();
+            Map<BundleCapability, Collection<BundleCapability>> collisionCandidates = new HashMap<BundleCapability, Collection<BundleCapability>>();
             for (BundleRevision brev : candidates) {
                 List<BundleCapability> bcaps = brev.getDeclaredCapabilities(IdentityNamespace.IDENTITY_NAMESPACE);
                 if (bcaps.size() == 1) {
                     BundleCapability bcap = bcaps.get(0);
-                    String spec = bcap.getDirectives().get(Constants.SINGLETON_DIRECTIVE);
-                    if (Boolean.parseBoolean(spec)) {
-                        Collection<BundleCapability> collisions = locator.findCollisionCandidates(bcap);
-                        singletons.put(bcap, new RemoveOnlyCollection<BundleCapability>(collisions));
+                    if (Boolean.parseBoolean(bcap.getDirectives().get(Constants.SINGLETON_DIRECTIVE))) {
+                        populateCollisionCandidates(bcap, collisionCandidates, locator);
                     }
                 }
             }
 
-            for (Map.Entry<BundleCapability, Collection<BundleCapability>> entry : singletons.entrySet()) {
+            for (Map.Entry<BundleCapability, Collection<BundleCapability>> entry : collisionCandidates.entrySet()) {
                 BundleCapability bcap = entry.getKey();
                 Collection<BundleCapability> collisions = entry.getValue();
-                for (ResolverHookRegistration hookreg : registrations) {
-                    try {
-                        ResolverHook hook = hookreg.getResolverHook();
-                        if (hook != null && hookreg.lastException == null) {
-                            hook.filterSingletonCollisions(bcap, collisions);
-                        }
-                    } catch (RuntimeException ex) {
-                        hookreg.lastException = ex;
-                        throw new ResolverHookException(ex);
+
+                // Collect the already resolved capabilities for reverse checking
+                Collection<BundleCapability> reverse = new HashSet<BundleCapability>();
+                for (BundleCapability aux : collisions) {
+                    BundleRevision resource = aux.getResource();
+                    BundleWiring wiring = resource.getBundle().adapt(BundleWiring.class);
+                    if (wiring != null) {
+                        reverse.add(aux);
                     }
                 }
-                // Remove the collisions that will not resolve because they are no candidates
-                for (Iterator<BundleCapability> iterator = collisions.iterator(); iterator.hasNext();) {
-                    BundleRevision brev = iterator.next().getResource();
-                    if (brev.getBundle().getState() == Bundle.INSTALLED && !candidates.contains(brev)) {
-                        iterator.remove();
-                    }
-                }
-                if (!collisions.isEmpty()) {
+
+                // Remove the resolution candidate if we still have collisions
+                if (!processCollisionCandidates(bcap, collisions) || !processReverseCollisionCandidates(bcap, reverse)) {
                     BundleRevision brev = bcap.getResource();
                     LOGGER.debugf("ResolverHook found singleton collision of %s with %s", bcap, collisions);
                     LOGGER.debugf("ResolverHook removed resolution candidate %s", brev);
                     candidates.remove(brev);
                 }
             }
+        }
+    }
+
+    private boolean processReverseCollisionCandidates(BundleCapability bcap, Collection<BundleCapability> reverse) {
+        for (BundleCapability aux : reverse) {
+            Collection<BundleCapability> collisions = new HashSet<BundleCapability>(Collections.singleton(bcap));
+            if (!processCollisionCandidates(aux, new RemoveOnlyCollection<BundleCapability>(collisions))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean processCollisionCandidates(BundleCapability bcap, Collection<BundleCapability> collisions) {
+
+        // Remove the collisions that will not resolve because they are no candidates
+        for (Iterator<BundleCapability> iterator = collisions.iterator(); iterator.hasNext();) {
+            BundleRevision brev = iterator.next().getResource();
+            if (brev.getBundle().getState() == Bundle.INSTALLED && !candidates.contains(brev)) {
+                iterator.remove();
+            }
+        }
+
+        // Call the registered {@link ResolverHook}s
+        for (ResolverHookRegistration hookreg : registrations) {
+            try {
+                ResolverHook hook = hookreg.getResolverHook();
+                if (hook != null && hookreg.lastException == null) {
+                    hook.filterSingletonCollisions(bcap, collisions);
+                }
+            } catch (RuntimeException ex) {
+                hookreg.lastException = ex;
+                throw new ResolverHookException(ex);
+            }
+        }
+
+        return collisions.isEmpty();
+    }
+
+    private void populateCollisionCandidates(BundleCapability bcap, Map<BundleCapability, Collection<BundleCapability>> map, SingletonLocator locator) {
+        if (map.containsKey(bcap) == false) {
+            Collection<BundleCapability> candidates = locator.findCollisionCandidates(bcap);
+            map.put(bcap, new RemoveOnlyCollection<BundleCapability>(candidates));
         }
     }
 
@@ -263,7 +299,7 @@ public class ResolverHookRegistrations {
             }
         } finally {
             // Clear the thread association
-            association.remove();
+            processorAssociation.remove();
         }
         // [TODO] The TCK expects to see the exception thrown in end() which would
         // shadow a previous exception comming from filterResolvable
@@ -290,7 +326,6 @@ public class ResolverHookRegistrations {
             }
             return hook;
         }
-
 
     }
 }

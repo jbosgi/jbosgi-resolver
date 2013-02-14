@@ -21,7 +21,7 @@ package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.resolver.ResolverLogger.LOGGER;
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
-import static org.jboss.osgi.resolver.spi.ResolverHookRegistrations.getResolverHookRegistrations;
+import static org.jboss.osgi.resolver.spi.ResolverHookProcessor.getCurrentProcessor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -221,7 +221,7 @@ public class AbstractEnvironment implements XEnvironment {
         }
 
         // Filter the matches by calling the registered {@link ResolverHook}s
-        ResolverHookRegistrations hookregs = getResolverHookRegistrations();
+        ResolverHookProcessor hookregs = getCurrentProcessor();
         if (hookregs != null && req instanceof BundleRequirement) {
             Collection<BundleCapability> bcaps = new ArrayList<BundleCapability>();
             for (Capability cap : result) {
