@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import java.util.jar.Manifest;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
+import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XBundleRevisionBuilderFactory;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
@@ -37,7 +38,9 @@ import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.jboss.osgi.resolver.felix.StatelessResolver;
+import org.jboss.osgi.resolver.spi.AbstractBundleWiring;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
+import org.jboss.osgi.resolver.spi.AbstractWiring;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.Node;
@@ -63,7 +66,16 @@ public abstract class AbstractResolverTest extends OSGiTest {
     public void setUp() throws Exception {
         super.setUp();
         resolver = new StatelessResolver();
-        environment = new AbstractEnvironment();
+        environment = new AbstractEnvironment() {
+            @Override
+            public Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {
+                if (res instanceof XBundleRevision) {
+                    return new AbstractBundleWiring((XBundleRevision) res, required, provided);
+                } else {
+                    return new AbstractWiring(res, required, provided);
+                }
+            }
+        };
         XResource sysres = createSystemResource();
         environment.installResources(sysres);
     }

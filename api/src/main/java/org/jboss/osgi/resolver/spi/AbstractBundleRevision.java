@@ -40,7 +40,6 @@ import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
-import org.osgi.resource.Wiring;
 
 /**
  * The abstract implementation of an {@link XBundleRevision}.
@@ -97,7 +96,7 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public BundleWiring getWiring() {
-        return (BundleWiring) getAttachment(Wiring.class);
+        return (BundleWiring) getResourceWiring();
     }
 
     @Override

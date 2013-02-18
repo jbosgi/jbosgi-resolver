@@ -51,7 +51,7 @@
         <version.jboss.modules>1.2.0.CR1</version.jboss.modules>
         <version.jboss.osgi.metadata>3.0.0.Alpha5-SNAPSHOT</version.jboss.osgi.metadata>
         <version.jboss.osgi.spi>4.0.0.Alpha2</version.jboss.osgi.spi>
-        <version.jboss.osgi.testing>2.0.0.Alpha2</version.jboss.osgi.testing>
+        <version.jboss.osgi.testing>2.0.0.Alpha4-SNAPSHOT</version.jboss.osgi.testing>
         <version.jboss.shrinkwrap>1.0.0</version.jboss.shrinkwrap>
         <version.junit>4.10</version.junit>
         <version.osgi>5.0.0</version.osgi>

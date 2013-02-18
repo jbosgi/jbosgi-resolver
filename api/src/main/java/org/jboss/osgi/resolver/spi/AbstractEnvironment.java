@@ -37,7 +37,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XIdentityCapability;
@@ -67,7 +66,6 @@ public class AbstractEnvironment implements XEnvironment {
     private final Map<CacheKey, Set<Capability>> capabilityCache = new ConcurrentHashMap<CacheKey, Set<Capability>>();
     private final Map<String, Set<XResource>> resourceTypeCache = new ConcurrentHashMap<String, Set<XResource>>();
     private final Map<Long, XResource> resourceIndexCache = new ConcurrentHashMap<Long, XResource>();
-    private final Map<Resource, Wiring> wirings = new HashMap<Resource, Wiring>();
 
     @Override
     public Long nextResourceIdentifier(Long value, String symbolicName) {
@@ -112,12 +110,6 @@ public class AbstractEnvironment implements XEnvironment {
                     LOGGER.debugf("   %s", req);
                 }
             }
-
-            // Add the wiring
-            Wiring wiring = res.getAttachment(Wiring.class);
-            if (wiring != null) {
-                wirings.put(res, wiring);
-            }
         }
     }
 
@@ -149,15 +141,14 @@ public class AbstractEnvironment implements XEnvironment {
             }
 
             // Remove wirings
-            wirings.remove(res);
+            res.removeResourceWiring();
         }
     }
 
     @Override
     public synchronized void refreshResources(XResource... resources) {
         for (XResource res : resources) {
-            res.removeAttachment(Wiring.class);
-            wirings.remove(res);
+            res.removeResourceWiring();
         }
     }
 
@@ -182,7 +173,7 @@ public class AbstractEnvironment implements XEnvironment {
                 XResource res = (XResource) xcap.getResource();
 
                 // Check if the package capability has been substituted
-                Wiring wiring = res.getAttachment(Wiring.class);
+                Wiring wiring = res.getResourceWiring();
                 if (wiring != null && xcap.adapt(XPackageCapability.class) != null) {
                     String pkgname = xcap.adapt(XPackageCapability.class).getPackageName();
                     for (Wire wire : wiring.getRequiredResourceWires(cap.getNamespace())) {
@@ -205,7 +196,7 @@ public class AbstractEnvironment implements XEnvironment {
                     for (Capability hostcap : capabilityCache.get(CacheKey.create(hostreq))) {
                         if (hostreq.matches(hostcap)) {
                             XResource host = (XResource) hostcap.getResource();
-                            if (host.getAttachment(Wiring.class) == null) {
+                            if (host.getResourceWiring() == null) {
                                 unresolvedHost = true;
                                 break;
                             }
@@ -225,9 +216,8 @@ public class AbstractEnvironment implements XEnvironment {
         if (hookregs != null && req instanceof BundleRequirement) {
             Collection<BundleCapability> bcaps = new ArrayList<BundleCapability>();
             for (Capability cap : result) {
-                Resource res = cap.getResource();
-                XBundleRevision brev = (XBundleRevision) res;
-                if (brev.getWiring() != null || hookregs.hasResource(res)) {
+                XResource res = (XResource) cap.getResource();
+                if (res.getResourceWiring() != null || hookregs.hasResource(res)) {
                     bcaps.add((BundleCapability) cap);
                 }
             }
@@ -274,7 +264,7 @@ public class AbstractEnvironment implements XEnvironment {
     private WireInfo getWireInfo(Map<Resource, WireInfo> infos, XResource resource) {
         WireInfo info = infos.get(resource);
         if (info == null) {
-            Wiring reswiring = resource.getAttachment(Wiring.class);
+            Wiring reswiring = resource.getResourceWiring();
             info = new WireInfo(resource, reswiring);
             infos.put(resource, info);
         }
@@ -283,8 +273,7 @@ public class AbstractEnvironment implements XEnvironment {
 
     private Wiring updateResourceWiring(WireInfo info) {
         Wiring wiring = createWiring(info.resource, info.required, info.provided);
-        info.resource.addAttachment(Wiring.class, wiring);
-        wirings.put(info.resource, wiring);
+        info.resource.setResourceWiring(wiring);
         return wiring;
     }
 
@@ -295,7 +284,14 @@ public class AbstractEnvironment implements XEnvironment {
 
     @Override
     public synchronized Map<Resource, Wiring> getWirings() {
-        return Collections.unmodifiableMap(wirings);
+        Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
+        for(XResource res : resourceIndexCache.values()) {
+            Wiring wiring = res.getResourceWiring();
+            if (wiring != null) {
+                result.put(res, wiring);
+            }
+        }
+        return Collections.unmodifiableMap(result);
     }
 
     private synchronized Set<Capability> getCachedCapabilities(CacheKey key) {
