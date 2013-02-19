@@ -96,7 +96,7 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public BundleWiring getWiring() {
-        return (BundleWiring) getResourceWiring();
+        return (BundleWiring) getWirings().getCurrent();
     }
 
     @Override

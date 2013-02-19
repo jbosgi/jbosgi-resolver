@@ -30,10 +30,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
@@ -63,9 +65,8 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
 
     @Override
     public boolean isCurrent() {
-        Bundle bundle = getBundle();
-        BundleWiring current = bundle.adapt(BundleWiring.class);
-        return bundle.getState() != Bundle.UNINSTALLED && current == this;
+        BundleWiring current = getResource().getWiring();
+        return getBundle().getState() != Bundle.UNINSTALLED && current == this;
     }
 
     @Override
@@ -78,16 +79,29 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
     }
 
     private boolean transistiveInUse(AbstractBundleWiring wiring, boolean checkCurrent, Set<BundleWiring> visited) {
-        if (checkCurrent && wiring.isCurrent()) {
-            return true;
-        }
-        if (visited.contains(wiring) == false) {
+        if (wiring != null && !visited.contains(wiring)) {
             visited.add(wiring);
-            for (Wire wire : wiring.getProvidedResourceWires(null)) {
-                AbstractBundleWire bwire = (AbstractBundleWire) wire;
-                AbstractBundleWiring reqwiring = (AbstractBundleWiring) bwire.getRequirerWiring(false);
-                if (reqwiring != null && transistiveInUse(reqwiring, true, visited)) {
-                    return true;
+
+            if (checkCurrent && wiring.isCurrent()) {
+                return true;
+            }
+
+            XBundle bundle = (XBundle) wiring.getBundle();
+            if (bundle.isFragment()) {
+                for (Wire wire : wiring.getRequiredResourceWires(HostNamespace.HOST_NAMESPACE)) {
+                    AbstractBundleWire bwire = (AbstractBundleWire) wire;
+                    AbstractBundleWiring auxwiring = (AbstractBundleWiring) bwire.getProviderWiring(false);
+                    if (auxwiring != null && transistiveInUse(auxwiring, true, visited)) {
+                        return true;
+                    }
+                }
+            } else {
+                for (Wire wire : wiring.getProvidedResourceWires(null)) {
+                    AbstractBundleWire bwire = (AbstractBundleWire) wire;
+                    AbstractBundleWiring auxwiring = (AbstractBundleWiring) bwire.getRequirerWiring(false);
+                    if (auxwiring != null && transistiveInUse(auxwiring, true, visited)) {
+                        return true;
+                    }
                 }
             }
         }

@@ -29,16 +29,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jboss.osgi.resolver.ResolverLogger;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XWirings;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
-import org.osgi.resource.Wiring;
 
 /**
  * The abstract implementation of an {@link XResource}.
@@ -51,8 +50,8 @@ public class AbstractResource extends AbstractElement implements XResource {
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
     private final AtomicBoolean mutable = new AtomicBoolean(true);
+    private final XWirings wirings = new AbstractWirings();
     private XIdentityCapability identityCapability;
-    private Wiring wiring;
     private Boolean fragment;
 
     protected void addCapability(Capability cap) {
@@ -93,20 +92,8 @@ public class AbstractResource extends AbstractElement implements XResource {
     }
 
     @Override
-    public Wiring getResourceWiring() {
-        return wiring;
-    }
-
-    @Override
-    public void setResourceWiring(Wiring wiring) {
-        ResolverLogger.LOGGER.debugf("Add Wiring: %s", wiring);
-        this.wiring = wiring;
-    }
-
-    @Override
-    public void removeResourceWiring() {
-        ResolverLogger.LOGGER.debugf("Remove Wiring: %s", wiring);
-        this.wiring = null;
+    public XWirings getWirings() {
+        return wirings;
     }
 
     @Override

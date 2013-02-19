@@ -20,43 +20,40 @@
 
 package org.jboss.osgi.resolver;
 
-import org.osgi.resource.Resource;
+import java.util.List;
+
+import org.osgi.resource.Wiring;
 
 /**
- * An extension to {@link Resource}
+ * An extension to {@link Wiring}
  *
  * @author thomas.diesler@jboss.com
- * @since 02-Jul-2010
+ * @since 18-Feb-2013
  */
-public interface XResource extends XElement, Resource {
+public interface XWirings extends XElement {
 
     /**
-     * Get the identity capability for this resource
+     * Get the {@link Wiring} associated with this resource
      */
-    XIdentityCapability getIdentityCapability();
+    Wiring getCurrent();
 
     /**
-     * True if this resource is a fragment
+     * Set the {@link Wiring} associated with this resource
      */
-    boolean isFragment();
+    void setCurrent(Wiring wiring);
 
     /**
-     * Validate the resource
+     * Remove the {@link Wiring} associated with this resource
      */
-    void validate();
+    void removeCurrent();
 
     /**
-     * True if the resource is mutable
+     * Get the list of all {@link Wiring}s associated with this resource
      */
-    boolean isMutable();
+    List<Wiring> getNonCurrent();
 
     /**
-     * Make the resource immutable
+     * Refresh all {@link Wiring}s associated with this resource
      */
-    void makeImmutable();
-
-    /**
-     * Get the {@link XWirings} associated with this resource
-     */
-    XWirings getWirings();
+    void refresh();
 }

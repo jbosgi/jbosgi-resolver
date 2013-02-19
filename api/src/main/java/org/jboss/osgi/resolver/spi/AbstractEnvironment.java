@@ -141,14 +141,14 @@ public class AbstractEnvironment implements XEnvironment {
             }
 
             // Remove wirings
-            res.removeResourceWiring();
+            res.getWirings().refresh();
         }
     }
 
     @Override
     public synchronized void refreshResources(XResource... resources) {
         for (XResource res : resources) {
-            res.removeResourceWiring();
+            res.getWirings().refresh();
         }
     }
 
@@ -173,7 +173,7 @@ public class AbstractEnvironment implements XEnvironment {
                 XResource res = (XResource) xcap.getResource();
 
                 // Check if the package capability has been substituted
-                Wiring wiring = res.getResourceWiring();
+                Wiring wiring = res.getWirings().getCurrent();
                 if (wiring != null && xcap.adapt(XPackageCapability.class) != null) {
                     String pkgname = xcap.adapt(XPackageCapability.class).getPackageName();
                     for (Wire wire : wiring.getRequiredResourceWires(cap.getNamespace())) {
@@ -196,7 +196,7 @@ public class AbstractEnvironment implements XEnvironment {
                     for (Capability hostcap : capabilityCache.get(CacheKey.create(hostreq))) {
                         if (hostreq.matches(hostcap)) {
                             XResource host = (XResource) hostcap.getResource();
-                            if (host.getResourceWiring() == null) {
+                            if (host.getWirings().getCurrent() == null) {
                                 unresolvedHost = true;
                                 break;
                             }
@@ -217,7 +217,7 @@ public class AbstractEnvironment implements XEnvironment {
             Collection<BundleCapability> bcaps = new ArrayList<BundleCapability>();
             for (Capability cap : result) {
                 XResource res = (XResource) cap.getResource();
-                if (res.getResourceWiring() != null || hookregs.hasResource(res)) {
+                if (res.getWirings().getCurrent() != null || hookregs.hasResource(res)) {
                     bcaps.add((BundleCapability) cap);
                 }
             }
@@ -261,19 +261,19 @@ public class AbstractEnvironment implements XEnvironment {
         return Collections.unmodifiableMap(result);
     }
 
-    private WireInfo getWireInfo(Map<Resource, WireInfo> infos, XResource resource) {
-        WireInfo info = infos.get(resource);
+    private WireInfo getWireInfo(Map<Resource, WireInfo> infos, XResource res) {
+        WireInfo info = infos.get(res);
         if (info == null) {
-            Wiring reswiring = resource.getResourceWiring();
-            info = new WireInfo(resource, reswiring);
-            infos.put(resource, info);
+            Wiring reswiring = res.getWirings().getCurrent();
+            info = new WireInfo(res, reswiring);
+            infos.put(res, info);
         }
         return info;
     }
 
     private Wiring updateResourceWiring(WireInfo info) {
         Wiring wiring = createWiring(info.resource, info.required, info.provided);
-        info.resource.setResourceWiring(wiring);
+        info.resource.getWirings().setCurrent(wiring);
         return wiring;
     }
 
@@ -286,7 +286,7 @@ public class AbstractEnvironment implements XEnvironment {
     public synchronized Map<Resource, Wiring> getWirings() {
         Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
         for(XResource res : resourceIndexCache.values()) {
-            Wiring wiring = res.getResourceWiring();
+            Wiring wiring = res.getWirings().getCurrent();
             if (wiring != null) {
                 result.put(res, wiring);
             }
