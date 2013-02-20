@@ -20,11 +20,6 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.jboss.osgi.resolver.XWirings;
 import org.osgi.resource.Wiring;
 
@@ -37,7 +32,7 @@ import org.osgi.resource.Wiring;
 public class AbstractWirings extends AbstractElement implements XWirings {
 
     private Wiring current;
-    private List<Wiring> wirings;
+    private Wiring unresolved;
 
     @Override
     public synchronized Wiring getCurrent() {
@@ -46,35 +41,23 @@ public class AbstractWirings extends AbstractElement implements XWirings {
 
     @Override
     public synchronized void setCurrent(Wiring wiring) {
-        if (current != wiring) {
-            stashCurrent();
-            current = wiring;
-        }
+        current = wiring;
     }
 
     @Override
-    public synchronized void removeCurrent() {
-        stashCurrent();
+    public synchronized void unresolve() {
+        unresolved = current;
         current = null;
     }
 
     @Override
-    public synchronized List<Wiring> getNonCurrent() {
-        return wirings != null ? Collections.unmodifiableList(wirings) : Arrays.asList(new Wiring[0]);
+    public synchronized Wiring getUnresolved() {
+        return unresolved;
     }
 
     @Override
     public synchronized void refresh() {
-        wirings = null;
+        unresolved = null;
         current = null;
-    }
-
-    private void stashCurrent() {
-        if (current != null) {
-            if (wirings == null) {
-                wirings = new ArrayList<Wiring>();
-            }
-            wirings.add(current);
-        }
     }
 }

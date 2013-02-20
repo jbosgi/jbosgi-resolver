@@ -146,13 +146,6 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     @Override
-    public synchronized void refreshResources(XResource... resources) {
-        for (XResource res : resources) {
-            res.getWirings().refresh();
-        }
-    }
-
-    @Override
     public synchronized Collection<XResource> getResources(String... types) {
         Set<XResource> result = new HashSet<XResource>();
         for (String type : (types != null ? types : ALL_IDENTITY_TYPES)) {

@@ -20,8 +20,6 @@
 
 package org.jboss.osgi.resolver;
 
-import java.util.List;
-
 import org.osgi.resource.Wiring;
 
 /**
@@ -45,12 +43,12 @@ public interface XWirings extends XElement {
     /**
      * Remove the {@link Wiring} associated with this resource
      */
-    void removeCurrent();
+    void unresolve();
 
     /**
      * Get the list of all {@link Wiring}s associated with this resource
      */
-    List<Wiring> getNonCurrent();
+    Wiring getUnresolved();
 
     /**
      * Refresh all {@link Wiring}s associated with this resource
