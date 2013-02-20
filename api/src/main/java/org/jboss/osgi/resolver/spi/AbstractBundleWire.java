@@ -21,9 +21,11 @@ package org.jboss.osgi.resolver.spi;
  * #L%
  */
 
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRequirement;
-import org.osgi.framework.wiring.BundleRevision;
+import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
+
+import org.jboss.osgi.resolver.XBundleCapability;
+import org.jboss.osgi.resolver.XBundleRequirement;
+import org.jboss.osgi.resolver.XBundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.resource.Wire;
@@ -68,28 +70,32 @@ public class AbstractBundleWire extends AbstractWire implements BundleWire {
     }
 
     public void setProviderWiring(BundleWiring providerWiring) {
+        if (providerWiring == null)
+            throw MESSAGES.illegalArgumentNull("providerWiring");
         this.providerWiring = providerWiring;
     }
 
     public void setRequirerWiring(BundleWiring requirerWiring) {
+        if (providerWiring == null)
+            throw MESSAGES.illegalArgumentNull("requirerWiring");
         this.requirerWiring = requirerWiring;
     }
 
-    public BundleRevision getProvider() {
-        return (BundleRevision) super.getProvider();
+    public XBundleRevision getProvider() {
+        return (XBundleRevision) super.getProvider();
     }
 
-    public BundleRevision getRequirer() {
-        return (BundleRevision) super.getRequirer();
-    }
-
-    @Override
-    public BundleCapability getCapability() {
-        return (BundleCapability) super.getCapability();
+    public XBundleRevision getRequirer() {
+        return (XBundleRevision) super.getRequirer();
     }
 
     @Override
-    public BundleRequirement getRequirement() {
-        return (BundleRequirement) super.getRequirement();
+    public XBundleCapability getCapability() {
+        return (XBundleCapability) super.getCapability();
+    }
+
+    @Override
+    public XBundleRequirement getRequirement() {
+        return (XBundleRequirement) super.getRequirement();
     }
 }

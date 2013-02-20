@@ -163,10 +163,16 @@ public class AbstractEnvironment implements XEnvironment {
             if (xreq.matches(cap)) {
                 boolean ignoreCapability = false;
                 XCapability xcap = (XCapability) cap;
-                XResource res = (XResource) xcap.getResource();
+                XResource capres = (XResource) xcap.getResource();
+
+                // Do not allow new wires to unresolved resources
+                Wiring wiring = capres.getWirings().getCurrent();
+                Wiring unresolved = capres.getWirings().getUnresolved();
+                if (wiring == null && unresolved != null) {
+                    continue;
+                }
 
                 // Check if the package capability has been substituted
-                Wiring wiring = res.getWirings().getCurrent();
                 if (wiring != null && xcap.adapt(XPackageCapability.class) != null) {
                     String pkgname = xcap.adapt(XPackageCapability.class).getPackageName();
                     for (Wire wire : wiring.getRequiredResourceWires(cap.getNamespace())) {
@@ -178,11 +184,14 @@ public class AbstractEnvironment implements XEnvironment {
                         }
                     }
                 }
+                if (ignoreCapability) {
+                    continue;
+                }
 
                 // A fragment can only provide a capability if it is either already attached
                 // or if there is one possible hosts that it can attach to
                 // i.e. one of the hosts in the range is not resolved already
-                List<Requirement> hostreqs = res.getRequirements(HostNamespace.HOST_NAMESPACE);
+                List<Requirement> hostreqs = capres.getRequirements(HostNamespace.HOST_NAMESPACE);
                 if (wiring == null && !hostreqs.isEmpty()) {
                     XRequirement hostreq = (XRequirement) hostreqs.get(0);
                     boolean unresolvedHost = false;
@@ -326,9 +335,9 @@ public class AbstractEnvironment implements XEnvironment {
         final XResource resource;
         final List<Wire> required = new ArrayList<Wire>();
         final List<Wire> provided = new ArrayList<Wire>();
-        WireInfo(Resource resource, Wiring wiring) {
-            this.resource = (XResource) resource;
-            if (wiring != null) {
+        WireInfo(XResource resource, Wiring wiring) {
+            this.resource = resource;
+            if (!resource.isFragment() &&  wiring != null) {
                 required.addAll(wiring.getRequiredResourceWires(null));
                 provided.addAll(wiring.getProvidedResourceWires(null));
             }
