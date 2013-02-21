@@ -44,6 +44,7 @@ import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XWiring;
 import org.omg.CORBA.Environment;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.wiring.BundleCapability;
@@ -228,7 +229,7 @@ public class AbstractEnvironment implements XEnvironment {
 
             // Remove the filtered caps
             Iterator<Capability> iterator = result.iterator();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 Capability cap = iterator.next();
                 if (!bcaps.contains(cap)) {
                     iterator.remove();
@@ -242,41 +243,34 @@ public class AbstractEnvironment implements XEnvironment {
 
     @Override
     public synchronized Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> wiremap) {
-        Map<Resource, WireInfo> infos = new HashMap<Resource, WireInfo>();
+        Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
         for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
-            XResource resource = (XResource) entry.getKey();
-            WireInfo reqinfo = getWireInfo(infos, resource);
-            List<Wire> wires = entry.getValue();
-            reqinfo.required.addAll(wires);
-            for (Wire wire : wires) {
+
+            XResource requirer = (XResource) entry.getKey();
+            List<Wire> reqwires = entry.getValue();
+            Wiring reqwiring = requirer.getWirings().getCurrent();
+            if (reqwiring == null) {
+                reqwiring = createWiring(requirer, reqwires, null);
+                requirer.getWirings().setCurrent(reqwiring);
+            } else {
+                for (Wire wire : reqwires) {
+                    ((XWiring) reqwiring).addRequiredWire(wire);
+                }
+            }
+            result.put(requirer, reqwiring);
+
+            for (Wire wire : reqwires) {
                 XResource provider = (XResource) wire.getProvider();
-                WireInfo provinfo = getWireInfo(infos, provider);
-                provinfo.provided.add(wire);
+                Wiring provwiring = provider.getWirings().getCurrent();
+                if (provwiring == null) {
+                    provwiring = createWiring(provider, null, null);
+                    provider.getWirings().setCurrent(provwiring);
+                }
+                ((XWiring) provwiring).addProvidedWire(wire);
             }
         }
 
-        Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
-        for (WireInfo info : infos.values()) {
-            Wiring reswiring = updateResourceWiring(info);
-            result.put(info.resource, reswiring);
-        }
         return Collections.unmodifiableMap(result);
-    }
-
-    private WireInfo getWireInfo(Map<Resource, WireInfo> infos, XResource res) {
-        WireInfo info = infos.get(res);
-        if (info == null) {
-            Wiring reswiring = res.getWirings().getCurrent();
-            info = new WireInfo(res, reswiring);
-            infos.put(res, info);
-        }
-        return info;
-    }
-
-    private Wiring updateResourceWiring(WireInfo info) {
-        Wiring wiring = createWiring(info.resource, info.required, info.provided);
-        info.resource.getWirings().setCurrent(wiring);
-        return wiring;
     }
 
     @Override
@@ -287,7 +281,7 @@ public class AbstractEnvironment implements XEnvironment {
     @Override
     public synchronized Map<Resource, Wiring> getWirings() {
         Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
-        for(XResource res : resourceIndexCache.values()) {
+        for (XResource res : resourceIndexCache.values()) {
             Wiring wiring = res.getWirings().getCurrent();
             if (wiring != null) {
                 result.put(res, wiring);
@@ -329,19 +323,6 @@ public class AbstractEnvironment implements XEnvironment {
             resourceTypeCache.put(type, typeset);
         }
         return typeset;
-    }
-
-    private static class WireInfo {
-        final XResource resource;
-        final List<Wire> required = new ArrayList<Wire>();
-        final List<Wire> provided = new ArrayList<Wire>();
-        WireInfo(XResource resource, Wiring wiring) {
-            this.resource = resource;
-            if (!resource.isFragment() &&  wiring != null) {
-                required.addAll(wiring.getRequiredResourceWires(null));
-                provided.addAll(wiring.getProvidedResourceWires(null));
-            }
-        }
     }
 
     private static class CacheKey {

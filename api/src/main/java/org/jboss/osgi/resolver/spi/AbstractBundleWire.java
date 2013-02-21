@@ -21,8 +21,6 @@ package org.jboss.osgi.resolver.spi;
  * #L%
  */
 
-import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
-
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XBundleRequirement;
 import org.jboss.osgi.resolver.XBundleRevision;
@@ -37,9 +35,6 @@ import org.osgi.resource.Wire;
  * @since 23-Feb-2012
  */
 public class AbstractBundleWire extends AbstractWire implements BundleWire {
-
-    private BundleWiring providerWiring;
-    private BundleWiring requirerWiring;
 
     public AbstractBundleWire(Wire wire) {
         super(wire.getCapability(), wire.getRequirement(), wire.getProvider(), wire.getRequirer());
@@ -56,6 +51,7 @@ public class AbstractBundleWire extends AbstractWire implements BundleWire {
     }
 
     public BundleWiring getProviderWiring(boolean checkInUse) {
+        BundleWiring providerWiring = (BundleWiring) super.getProviderWiring();
         if (providerWiring != null) {
             return !checkInUse || providerWiring.isInUse() ? providerWiring : null;
         }
@@ -63,22 +59,11 @@ public class AbstractBundleWire extends AbstractWire implements BundleWire {
     }
 
     public BundleWiring getRequirerWiring(boolean checkInUse) {
+        BundleWiring requirerWiring = (BundleWiring) super.getRequirerWiring();
         if (requirerWiring != null) {
             return !checkInUse || requirerWiring.isInUse() ? requirerWiring : null;
         }
         return null;
-    }
-
-    public void setProviderWiring(BundleWiring providerWiring) {
-        if (providerWiring == null)
-            throw MESSAGES.illegalArgumentNull("providerWiring");
-        this.providerWiring = providerWiring;
-    }
-
-    public void setRequirerWiring(BundleWiring requirerWiring) {
-        if (providerWiring == null)
-            throw MESSAGES.illegalArgumentNull("requirerWiring");
-        this.requirerWiring = requirerWiring;
     }
 
     public XBundleRevision getProvider() {

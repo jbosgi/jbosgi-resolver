@@ -19,6 +19,8 @@ package org.jboss.osgi.resolver;
  * #L%
  */
 
+
+import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
 
 /**
@@ -27,30 +29,9 @@ import org.osgi.resource.Wiring;
  * @author thomas.diesler@jboss.com
  * @since 18-Feb-2013
  */
-public interface XWirings {
+public interface XWiring extends Wiring {
 
-    /**
-     * Get the {@link Wiring} associated with this resource
-     */
-    Wiring getCurrent();
+    void addRequiredWire(Wire wire);
 
-    /**
-     * Set the {@link Wiring} associated with this resource
-     */
-    void setCurrent(Wiring wiring);
-
-    /**
-     * Remove the {@link Wiring} associated with this resource
-     */
-    void unresolve();
-
-    /**
-     * Get the list of all {@link Wiring}s associated with this resource
-     */
-    Wiring getUnresolved();
-
-    /**
-     * Refresh all {@link Wiring}s associated with this resource
-     */
-    void refresh();
+    void addProvidedWire(Wire wire);
 }
