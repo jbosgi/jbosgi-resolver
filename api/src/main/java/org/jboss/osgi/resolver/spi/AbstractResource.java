@@ -33,7 +33,7 @@ import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
-import org.jboss.osgi.resolver.XWirings;
+import org.jboss.osgi.resolver.XWiringSupport;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
@@ -50,7 +50,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
     private final AtomicBoolean mutable = new AtomicBoolean(true);
-    private final XWirings wirings = new AbstractWirings();
+    private final XWiringSupport wirings = new AbstractWirings();
     private XIdentityCapability identityCapability;
     private Boolean fragment;
 
@@ -92,7 +92,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     }
 
     @Override
-    public XWirings getWirings() {
+    public XWiringSupport getWiringSupport() {
         return wirings;
     }
 

@@ -20,44 +20,43 @@
 
 package org.jboss.osgi.resolver.spi;
 
-import org.jboss.osgi.resolver.XWirings;
+import org.jboss.osgi.resolver.XWiringSupport;
 import org.osgi.resource.Wiring;
 
 /**
- * The abstract implementation of an {@link XWirings}.
+ * The abstract implementation of an {@link XWiringSupport}.
  *
  * @author thomas.diesler@jboss.com
  * @since 08-Feb-2013
  */
-public class AbstractWirings extends AbstractElement implements XWirings {
+public class AbstractWirings extends AbstractElement implements XWiringSupport {
 
-    private Wiring current;
-    private Wiring unresolved;
+    private Wiring wiring;
+    private boolean effective = true;
 
     @Override
-    public synchronized Wiring getCurrent() {
-        return current;
+    public boolean isEffective() {
+        return effective;
     }
 
     @Override
-    public synchronized void setCurrent(Wiring wiring) {
-        current = wiring;
+    public void makeUneffective() {
+        this.effective = false;
     }
 
     @Override
-    public synchronized void unresolve() {
-        unresolved = current;
-        current = null;
+    public synchronized Wiring getWiring(boolean checkEffective) {
+        return checkEffective ? (effective ? wiring : null) : wiring;
     }
 
     @Override
-    public synchronized Wiring getUnresolved() {
-        return unresolved;
+    public synchronized void setWiring(Wiring wiring) {
+        this.wiring = wiring;
     }
 
     @Override
     public synchronized void refresh() {
-        unresolved = null;
-        current = null;
+        effective = true;
+        wiring = null;
     }
 }

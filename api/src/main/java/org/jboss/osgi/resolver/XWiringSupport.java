@@ -27,30 +27,15 @@ import org.osgi.resource.Wiring;
  * @author thomas.diesler@jboss.com
  * @since 18-Feb-2013
  */
-public interface XWirings {
+public interface XWiringSupport {
 
-    /**
-     * Get the {@link Wiring} associated with this resource
-     */
-    Wiring getCurrent();
+    Wiring getWiring(boolean checkEffective);
 
-    /**
-     * Set the {@link Wiring} associated with this resource
-     */
-    void setCurrent(Wiring wiring);
+    void setWiring(Wiring wiring);
 
-    /**
-     * Remove the {@link Wiring} associated with this resource
-     */
-    void unresolve();
+    boolean isEffective();
 
-    /**
-     * Get the list of all {@link Wiring}s associated with this resource
-     */
-    Wiring getUnresolved();
+    void makeUneffective();
 
-    /**
-     * Refresh all {@link Wiring}s associated with this resource
-     */
     void refresh();
 }
