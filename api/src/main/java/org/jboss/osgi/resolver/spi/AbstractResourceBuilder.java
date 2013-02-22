@@ -31,6 +31,7 @@ import java.util.Map;
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleIdentifier;
 import org.jboss.osgi.metadata.OSGiMetaData;
+import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.metadata.PackageAttribute;
 import org.jboss.osgi.metadata.Parameter;
 import org.jboss.osgi.metadata.ParameterizedAttribute;
@@ -45,6 +46,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
 import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.ExecutionEnvironmentNamespace;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -106,8 +108,8 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         return addRequirement(namespace, atts, null);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
+    @SuppressWarnings("deprecation")
     public XResourceBuilder loadFrom(OSGiMetaData metadata) throws ResourceBuilderException {
         assertResourceCreated();
         try {
@@ -163,6 +165,14 @@ public class AbstractResourceBuilder implements XResourceBuilder {
                     req.getAttributes().putAll(getAttributes(attr));
                     req.getDirectives().putAll(getDirectives(attr));
                 }
+            }
+
+            // Required Execution Environment
+            List<String> requiredEnvironments = metadata.getRequiredExecutionEnvironment();
+            if (requiredEnvironments != null && requiredEnvironments.isEmpty() == false) {
+                // Frameworks must convert a Bundle-RequiredExecutionEnvironment header to a requirement in the osgi.ee namespace
+                Filter filter = OSGiMetaDataBuilder.convertExecutionEnvironmentHeader(requiredEnvironments);
+                addRequirement(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE, filter);
             }
 
             // Export-Package
@@ -250,6 +260,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
         }
         return this;
     }
+
 
     @Override
     public XResourceBuilder loadFrom(Module module) throws ResourceBuilderException {

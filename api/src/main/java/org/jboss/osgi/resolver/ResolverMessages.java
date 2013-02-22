@@ -19,7 +19,6 @@
  */
 package org.jboss.osgi.resolver;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,6 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;
-import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -105,7 +103,4 @@ public interface ResolverMessages {
 
     @Message(id = 10919, value = "Resolver Hooks are not allowed to start another resolve operation")
     IllegalStateException illegalStateResolverHookCannotTriggerResolveOperation();
-
-//    @Message(id = 10920, value = "Singleton capability %s collides with: %s")
-//    IllegalStateException illegalStateSingletonCapabilityCollision(BundleCapability cap, Collection<BundleCapability> collisions);
 }

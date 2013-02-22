@@ -1,3 +1,4 @@
+package org.jboss.test.osgi.resolver.spi;
 /*
  * #%L
  * JBossOSGi Resolver API
@@ -18,7 +19,6 @@
  * #L%
  */
 
-package org.jboss.test.osgi.resolver.spi;
 
 import java.util.List;
 
@@ -35,8 +35,10 @@ import org.jboss.osgi.resolver.spi.AbstractResourceBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.ExecutionEnvironmentNamespace;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -85,6 +87,29 @@ public class XResourceBuilderTestCase extends AbstractTestBase {
         } catch (UnsupportedOperationException ex) {
             // expected
         }
+    }
+
+    @Test
+    public void testRequiredExecutionEnvironment() throws Exception {
+        validateRequiredExecutionEnvironmentFilter("(&(osgi.ee=CDC/Foundation)(version=1.0))", "CDC-1.0/Foundation-1.0");
+        validateRequiredExecutionEnvironmentFilter("(&(osgi.ee=OSGi/Minimum)(version=1.2))", "OSGi/Minimum-1.2");
+        validateRequiredExecutionEnvironmentFilter("(&(osgi.ee=JavaSE)(version=1.4))", "J2SE-1.4");
+        validateRequiredExecutionEnvironmentFilter("(&(osgi.ee=JavaSE)(version=1.6))", "JavaSE-1.6");
+        validateRequiredExecutionEnvironmentFilter("(&(osgi.ee=AA/BB)(version=1.7))", "AA/BB-1.7");
+        validateRequiredExecutionEnvironmentFilter("(osgi.ee=V1-1.5/V2-1.6)", "V1-1.5/V2-1.6");
+        validateRequiredExecutionEnvironmentFilter("(osgi.ee=MyEE-badVersion)", "MyEE-badVersion");
+        validateRequiredExecutionEnvironmentFilter("(&(osgi.ee=EE/FF-YY)(version=2.0))", "EE-2.0/FF-YY");
+        validateRequiredExecutionEnvironmentFilter("(|(osgi.ee=div/tb7a)(osgi.ee=div/tb7b))", "div/tb7a", "div/tb7b");
+    }
+
+    private void validateRequiredExecutionEnvironmentFilter(String filter, String... envspecs) throws Exception {
+        OSGiMetaDataBuilder mdb = OSGiMetaDataBuilder.createBuilder("dummy-resource");
+        mdb.addRequiredExecutionEnvironments(envspecs);
+        XResourceBuilder builder = XResourceBuilderFactory.create();
+        XResource res = builder.loadFrom(mdb.getOSGiMetaData()).getResource();
+        List<Requirement> reqs = res.getRequirements(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE);
+        Assert.assertEquals(1, reqs.size());
+        Assert.assertEquals(filter, reqs.get(0).getDirectives().get(Constants.FILTER_DIRECTIVE));
     }
 
     private void validateRequirements(Resource resource) throws BundleException {

@@ -195,14 +195,17 @@ public class AbstractEnvironment implements XEnvironment {
                 // i.e. one of the hosts in the range is not resolved already
                 List<Requirement> hostreqs = capres.getRequirements(HostNamespace.HOST_NAMESPACE);
                 if (wiring == null && !hostreqs.isEmpty()) {
-                    XRequirement hostreq = (XRequirement) hostreqs.get(0);
                     boolean unresolvedHost = false;
-                    for (Capability hostcap : capabilityCache.get(CacheKey.create(hostreq))) {
-                        if (hostreq.matches(hostcap)) {
-                            XResource host = (XResource) hostcap.getResource();
-                            if (host.getWiringSupport().getWiring(true) == null) {
-                                unresolvedHost = true;
-                                break;
+                    XRequirement hostreq = (XRequirement) hostreqs.get(0);
+                    Set<Capability> hostcaps = capabilityCache.get(CacheKey.create(hostreq));
+                    if (hostcaps != null) {
+                        for (Capability hostcap : hostcaps) {
+                            if (hostreq.matches(hostcap)) {
+                                XResource host = (XResource) hostcap.getResource();
+                                if (host.getWiringSupport().getWiring(true) == null) {
+                                    unresolvedHost = true;
+                                    break;
+                                }
                             }
                         }
                     }
