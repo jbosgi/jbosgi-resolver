@@ -34,6 +34,7 @@ import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XWiringSupport;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.wiring.BundleCapability;
@@ -65,8 +66,8 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
 
     @Override
     public boolean isCurrent() {
-        BundleWiring current = getResource().getWiring();
-        return getBundle().getState() != Bundle.UNINSTALLED && current == this;
+        XBundleRevision brev = (XBundleRevision) getRevision();
+        return brev.getWiringSupport().getWiring(true) == this;
     }
 
     @Override

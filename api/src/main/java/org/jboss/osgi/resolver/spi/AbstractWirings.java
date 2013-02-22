@@ -35,12 +35,12 @@ public class AbstractWirings extends AbstractElement implements XWiringSupport {
     private boolean effective = true;
 
     @Override
-    public boolean isEffective() {
+    public synchronized boolean isEffective() {
         return effective;
     }
 
     @Override
-    public void makeUneffective() {
+    public synchronized void makeUneffective() {
         this.effective = false;
     }
 
@@ -56,7 +56,6 @@ public class AbstractWirings extends AbstractElement implements XWiringSupport {
 
     @Override
     public synchronized void refresh() {
-        effective = true;
         wiring = null;
     }
 }
