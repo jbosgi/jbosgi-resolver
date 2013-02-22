@@ -306,10 +306,10 @@ public class AbstractEnvironment implements XEnvironment {
             capset = new LinkedHashSet<Capability>();
             // do not add this to the capabilityCache
         }
-        if (capset.isEmpty() && key.getValue() == null) {
+        if (capset.isEmpty() && (key.value == null || key.hasFuzzyOperator())) {
             for (Entry<CacheKey, Set<Capability>> entry : capabilityCache.entrySet()) {
                 CacheKey auxkey = entry.getKey();
-                if (auxkey.getNamespace().equals(key.getNamespace())) {
+                if (auxkey.namespace.equals(key.namespace)) {
                     capset.addAll(entry.getValue());
                 }
             }
@@ -331,31 +331,31 @@ public class AbstractEnvironment implements XEnvironment {
         private final String namespace;
         private final String value;
         private final String keyspec;
+        private final String operator;
 
         static CacheKey create(Capability cap) {
             String namespace = cap.getNamespace();
             String nsvalue = (String) cap.getAttributes().get(namespace);
-            return new CacheKey(namespace, nsvalue);
+            return new CacheKey(namespace, nsvalue, null);
         }
 
         static CacheKey create(Requirement req) {
             String namespace = req.getNamespace();
-            String nsvalue = AbstractRequirement.getNamespaceValue(req);
-            return new CacheKey(namespace, nsvalue);
+            StringBuffer opbuffer = new StringBuffer();
+            String nsvalue = AbstractRequirement.getNamespaceValue(req, opbuffer);
+            String operator = opbuffer.length() > 0 ? opbuffer.toString() : null;
+            return new CacheKey(namespace, nsvalue, operator);
         }
 
-        private CacheKey(String namespace, String value) {
+        private CacheKey(String namespace, String value, String operator) {
             this.namespace = namespace;
             this.value = value;
+            this.operator = operator;
             this.keyspec = namespace + ":" + value;
         }
 
-        String getNamespace() {
-            return namespace;
-        }
-
-        String getValue() {
-            return value;
+        boolean hasFuzzyOperator() {
+            return operator != null && !operator.equals("=");
         }
 
         @Override

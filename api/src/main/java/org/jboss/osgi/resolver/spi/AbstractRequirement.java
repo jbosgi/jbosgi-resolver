@@ -98,11 +98,11 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
     }
 
     static String getNamespaceValue(Requirement req) {
-        String namespaceValue = (String) req.getAttributes().get(req.getNamespace());
-        if (namespaceValue == null) {
-            namespaceValue = getValueFromFilter(getFilterFromDirective(req), req.getNamespace());
-        }
-        return namespaceValue;
+        return getNamespaceValue(req, null);
+    }
+
+    static String getNamespaceValue(Requirement req, StringBuffer operator) {
+        return getValueFromFilter(getFilterFromDirective(req), req.getNamespace(), operator);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         return null;
     }
 
-    private static String getValueFromFilter(Filter filter, String attrname) {
+    private static String getValueFromFilter(Filter filter, String attrname, StringBuffer operator) {
         String result = null;
         if (filter != null) {
             String filterstr = filter.toString();
@@ -149,8 +149,10 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             if (index >= 0) {
                 index += attrname.length() + 1;
                 char ch = filterstr.charAt(index);
-                String delims = "<=>";
-                while (delims.indexOf(ch) >= 0) {
+                while ("~<=>".indexOf(ch) >= 0) {
+                    if (operator != null) {
+                        operator.append(ch);
+                    }
                     ch = filterstr.charAt(++index);
                 }
                 result = filterstr.substring(index);
@@ -243,7 +245,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         String dirstr = ((XCapability) cap).getDirective(PackageNamespace.CAPABILITY_MANDATORY_DIRECTIVE);
         if (dirstr != null) {
             for (String attname : dirstr.split(",")) {
-                String attval = getValueFromFilter(filter, attname);
+                String attval = getValueFromFilter(filter, attname, null);
                 if (attval == null) {
                     return false;
                 }
