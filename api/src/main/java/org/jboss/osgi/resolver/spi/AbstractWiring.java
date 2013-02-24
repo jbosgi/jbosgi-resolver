@@ -28,17 +28,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jboss.osgi.resolver.XCapability;
-import org.jboss.osgi.resolver.XPackageCapability;
-import org.jboss.osgi.resolver.XPackageRequirement;
-import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
-import org.jboss.osgi.resolver.XWiring;
 import org.jboss.osgi.resolver.XWire;
+import org.jboss.osgi.resolver.XWiring;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Namespace;
 import org.osgi.resource.Requirement;
-import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.resource.Wiring;
 import org.osgi.service.resolver.HostedCapability;
@@ -89,19 +85,23 @@ public class AbstractWiring implements XWiring {
 
     @Override
     public List<Capability> getResourceCapabilities(String namespace) {
-        List<Capability> caps = new ArrayList<Capability>(resource.getCapabilities(namespace));
+
+        List<Capability> result = new ArrayList<Capability>(resource.getCapabilities(namespace));
+
         // Add capabilities from attached fragments
         for (Wire wire : getProvidedResourceWires(HostNamespace.HOST_NAMESPACE)) {
-            for (Capability cap : wire.getRequirer().getCapabilities(null)) {
-                if (IDENTITY_NAMESPACE.equals(cap.getNamespace()))
+            for (Capability cap : wire.getRequirer().getCapabilities(namespace)) {
+                // The osgi.identity capability provided by attached fragment
+                // must not be included in the capabilities of the host wiring
+                if (IDENTITY_NAMESPACE.equals(cap.getNamespace())) {
                     continue;
-                if (namespace == null || namespace.equals(cap.getNamespace()))
-                    caps.add(cap);
+                }
+                result.add(cap);
             }
         }
 
         // Remove unwanted caps
-        Iterator<Capability> capit = caps.iterator();
+        Iterator<Capability> capit = result.iterator();
         while (capit.hasNext()) {
             boolean removed = false;
             XCapability cap = (XCapability) capit.next();
@@ -137,7 +137,8 @@ public class AbstractWiring implements XWiring {
                 removed = true;
             }
         }
-        return Collections.unmodifiableList(caps);
+
+        return Collections.unmodifiableList(result);
     }
 
     protected HostedCapability getHostedCapability(XCapability cap) {
@@ -146,35 +147,11 @@ public class AbstractWiring implements XWiring {
 
     @Override
     public List<Requirement> getResourceRequirements(String namespace) {
-        List<Requirement> reqs = new ArrayList<Requirement>(resource.getRequirements(namespace));
-        Iterator<Requirement> reqit = reqs.iterator();
-        while (reqit.hasNext()) {
-            XRequirement req = (XRequirement) reqit.next();
-            // Requirements with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE}
-            // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not returned
-            String effdir = req.getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
-            if (effdir != null && !Namespace.EFFECTIVE_RESOLVE.equals(effdir)) {
-                reqit.remove();
-            }
-            // A package declared to be optionally imported and is not
-            // actually imported, the requirement must be discarded
-            String resdir = req.getDirectives().get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
-            if (req.adapt(XPackageRequirement.class) != null && Namespace.RESOLUTION_OPTIONAL.equals(resdir)) {
-                String packageName = ((XPackageRequirement) req).getPackageName();
-                boolean packageWireFound = false;
-                for (Wire wire : required) {
-                    XPackageCapability wirecap = (XPackageCapability) wire.getCapability();
-                    if (packageName.equals(wirecap.getPackageName())) {
-                        packageWireFound = true;
-                        break;
-                    }
-                }
-                if (!packageWireFound) {
-                    reqit.remove();
-                }
-            }
+        List<Requirement> result = new ArrayList<Requirement>();
+        for (Wire wire : getRequiredResourceWires(namespace)) {
+            result.add(wire.getRequirement());
         }
-        return Collections.unmodifiableList(reqs);
+        return Collections.unmodifiableList(result);
     }
 
     @Override
@@ -202,7 +179,7 @@ public class AbstractWiring implements XWiring {
     }
 
     @Override
-    public Resource getResource() {
+    public XResource getResource() {
         return resource;
     }
 

@@ -34,7 +34,6 @@ import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XResource;
-import org.jboss.osgi.resolver.XWiringSupport;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.wiring.BundleCapability;
@@ -43,7 +42,6 @@ import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.resource.Capability;
-import org.osgi.resource.Requirement;
 import org.osgi.resource.Wire;
 import org.osgi.service.resolver.HostedCapability;
 
@@ -61,12 +59,12 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
 
     @Override
     protected HostedCapability getHostedCapability(XCapability cap) {
-        return new AbstractHostedBundleCapability((XResource) getResource(), cap);
+        return new AbstractHostedBundleCapability(getResource(), cap);
     }
 
     @Override
     public boolean isCurrent() {
-        XBundleRevision brev = (XBundleRevision) getRevision();
+        XBundleRevision brev = getRevision();
         return brev.getWiringSupport().getWiring(true) == this;
     }
 
@@ -129,8 +127,12 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
             return null;
         }
         List<BundleRequirement> result = new ArrayList<BundleRequirement>();
-        for (Requirement req : getResourceRequirements(namespace)) {
-            result.add((BundleRequirement) req);
+        for (BundleWire wire : getRequiredWires(namespace)) {
+            BundleRequirement req = wire.getRequirement();
+            // A fragment may have multiple wire for the same host requirement
+            if (!result.contains(req)) {
+                result.add(req);
+            }
         }
         return Collections.unmodifiableList(result);
     }
@@ -162,13 +164,13 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
     }
 
     @Override
-    public BundleRevision getRevision() {
+    public XBundleRevision getRevision() {
         return getResource();
     }
 
     @Override
-    public BundleRevision getResource() {
-        return (BundleRevision) super.getResource();
+    public XBundleRevision getResource() {
+        return (XBundleRevision) super.getResource();
     }
 
     @Override
@@ -177,7 +179,7 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
         if (isInUse() == false) {
             return null;
         }
-        XBundleRevision brev = (XBundleRevision) getRevision();
+        XBundleRevision brev = getRevision();
         return brev.getModuleClassLoader();
     }
 
@@ -188,7 +190,7 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
             return null;
         }
         List<URL> result = new ArrayList<URL>();
-        XBundleRevision brev = (XBundleRevision) getRevision();
+        XBundleRevision brev = getRevision();
         Enumeration<URL> entries = brev.findEntries(path, filePattern, options == FINDENTRIES_RECURSE);
         while (entries != null && entries.hasMoreElements()) {
             result.add(entries.nextElement());
