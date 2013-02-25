@@ -50,7 +50,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.VersionRange;
 import org.osgi.framework.namespace.AbstractWiringNamespace;
 import org.osgi.framework.namespace.BundleNamespace;
-import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -232,26 +231,31 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
 
     private boolean matchesResourceRequirement(Capability cap) {
         // cannot require itself
-        return getResource() != cap.getResource();
+        if (getResource() == cap.getResource())
+            return false;
+
+        return matchesMandatoryDirective(cap);
     }
 
     private boolean matchesHostRequirement(Capability cap) {
-        return true;
+        return matchesMandatoryDirective(cap);
     }
 
     private boolean matchesPackageRequirement(Capability cap) {
+        return matchesMandatoryDirective(cap);
+    }
 
+    private boolean matchesMandatoryDirective(Capability cap) {
         // match mandatory attributes on the capability
-        String dirstr = ((XCapability) cap).getDirective(PackageNamespace.CAPABILITY_MANDATORY_DIRECTIVE);
+        String dirstr = ((XCapability) cap).getDirective(Constants.MANDATORY_DIRECTIVE);
         if (dirstr != null) {
-            for (String attname : dirstr.split(",")) {
+            for (String attname : dirstr.split("[,\\s]")) {
                 String attval = getValueFromFilter(filter, attname, null);
                 if (attval == null) {
                     return false;
                 }
             }
         }
-
         return true;
     }
 
