@@ -24,8 +24,10 @@ import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XResource;
@@ -49,7 +51,7 @@ public class AbstractWiring implements XWiring {
 
     private final XResource resource;
     private final List<Wire> required = new ArrayList<Wire>();
-    private final List<Wire> provided = new ArrayList<Wire>();
+    private final Map<String, List<Wire>> provided = new HashMap<String, List<Wire>>();
 
     public AbstractWiring(XResource resource, List<Wire> reqwires, List<Wire> provwires) {
         if (resource == null)
@@ -80,7 +82,42 @@ public class AbstractWiring implements XWiring {
         if (wire instanceof AbstractWire) {
             ((XWire) wire).setProviderWiring(this);
         }
-        provided.add(wire);
+
+        Capability cap = wire.getCapability();
+        List<Wire> nswires = provided.get(cap.getNamespace());
+        if (nswires == null) {
+            nswires = new ArrayList<Wire>();
+            provided.put(cap.getNamespace(), nswires);
+        }
+
+        // Ensures an implementation delivers a bundle wiring's provided wires in
+        // the proper order. The ordering rules are as follows.
+        //
+        // (1) For a given name space, the list contains the wires in the order the
+        // capabilities were specified in the manifests of the bundle revision and
+        // the attached fragments of this bundle wiring.
+        //
+        // (2) There is no ordering defined between wires in different namespaces.
+        //
+        // (3) There is no ordering defined between multiple wires for the same
+        // capability, but the wires must be contiguous, and the group must be
+        // ordered as in (1).
+
+        int index = 0;
+        if (nswires.size() > 0) {
+            int capindex = getCapabilityIndex(cap);
+            for (Wire aux : nswires) {
+                int auxindex = getCapabilityIndex(aux.getCapability());
+                if (auxindex < capindex) {
+                    index++;
+                }
+            }
+        }
+        nswires.add(index, wire);
+    }
+
+    private int getCapabilityIndex(Capability cap) {
+        return getResource().getCapabilities(cap.getNamespace()).indexOf(cap);
     }
 
     @Override
@@ -161,10 +198,14 @@ public class AbstractWiring implements XWiring {
     @Override
     public List<Wire> getProvidedResourceWires(String namespace) {
         List<Wire> result = new ArrayList<Wire>();
-        for (Wire wire : provided) {
-            Capability cap = wire.getCapability();
-            if (namespace == null || namespace.equals(cap.getNamespace())) {
-                result.add(wire);
+        if (namespace != null) {
+            List<Wire> nswires = provided.get(namespace);
+            if (nswires != null) {
+                result.addAll(nswires);
+            }
+        } else {
+            for (List<Wire> wire : provided.values()) {
+                result.addAll(wire);
             }
         }
         return Collections.unmodifiableList(result);
