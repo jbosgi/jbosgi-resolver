@@ -149,7 +149,11 @@ public class AbstractWiring implements XWiring {
     public List<Requirement> getResourceRequirements(String namespace) {
         List<Requirement> result = new ArrayList<Requirement>();
         for (Wire wire : getRequiredResourceWires(namespace)) {
-            result.add(wire.getRequirement());
+            // A fragment may have multiple wire for the same host requirement
+            Requirement req = wire.getRequirement();
+            if (!result.contains(req)) {
+                result.add(req);
+            }
         }
         return Collections.unmodifiableList(result);
     }

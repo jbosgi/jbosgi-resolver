@@ -42,6 +42,7 @@ import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 import org.osgi.resource.Wire;
 import org.osgi.service.resolver.HostedCapability;
 
@@ -127,12 +128,8 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
             return null;
         }
         List<BundleRequirement> result = new ArrayList<BundleRequirement>();
-        for (BundleWire wire : getRequiredWires(namespace)) {
-            BundleRequirement req = wire.getRequirement();
-            // A fragment may have multiple wire for the same host requirement
-            if (!result.contains(req)) {
-                result.add(req);
-            }
+        for (Requirement req : getResourceRequirements(namespace)) {
+            result.add((BundleRequirement) req);
         }
         return Collections.unmodifiableList(result);
     }
@@ -191,7 +188,7 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
         }
         List<URL> result = new ArrayList<URL>();
         XBundleRevision brev = getRevision();
-        Enumeration<URL> entries = brev.findEntries(path, filePattern, options == FINDENTRIES_RECURSE);
+        Enumeration<URL> entries = brev.findEntries(path, filePattern, (options & FINDENTRIES_RECURSE) != 0);
         while (entries != null && entries.hasMoreElements()) {
             result.add(entries.nextElement());
         }
@@ -201,10 +198,30 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
     @Override
     public Collection<String> listResources(String path, String filePattern, int options) {
         // If this bundle wiring is not in use, null will be returned
-        if (isInUse() == false) {
+        if (isInUse() == false || getRevision().isFragment()) {
             return null;
         }
-        throw new UnsupportedOperationException();
+        Set<String> result = new HashSet<String>();
+        Enumeration<URL> entries = getRevision().findEntries(path, filePattern, true);
+        if (entries != null) {
+            while (entries.hasMoreElements()) {
+                URL entry = entries.nextElement();
+                result.add(entry.getPath());
+            }
+        }
+        if ((options & BundleWiring.LISTRESOURCES_RECURSE) != 0) {
+            for (BundleWire wire : getRequiredWires(null)) {
+                XBundleRevision brev = (XBundleRevision) wire.getProvider();
+                entries = brev.findEntries(path, filePattern, true);
+                if (entries != null) {
+                    while (entries.hasMoreElements()) {
+                        URL entry = entries.nextElement();
+                        result.add(entry.getPath());
+                    }
+                }
+            }
+        }
+        return Collections.unmodifiableSet(result);
     }
 
     @Override
