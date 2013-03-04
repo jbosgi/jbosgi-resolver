@@ -109,13 +109,13 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         Map<String, Object> atts = attributes.getAttributes();
         Map<String, String> dirs = directives.getDirectives();
 
-        // Requirements in namespace osgi.wiring.* cannot have attributes and must have a filter
+        // Attributes declared on Require-Capability will be visible in getAttributes, but attributes declared on
+        // other manifest entries which map to osgi.wiring.* namespace requirements will not be visible in getAttributes.
+        // There are instead used to form a generated filter directive which will be visible in getDirectives.
         if (namespace.startsWith("osgi.wiring.")) {
-            if (!atts.isEmpty() && !dirs.containsKey(Constants.FILTER_DIRECTIVE)) {
+            if (!atts.isEmpty()) {
                 generateFilterDirective(namespace, atts, dirs);
             }
-            if (!atts.isEmpty())
-                throw MESSAGES.illegalArgumentRequirementCannotHaveAttributes(namespace, atts);
             if (!dirs.containsKey(Constants.FILTER_DIRECTIVE))
                 throw MESSAGES.illegalArgumentRequirementMustHaveFilterDirective(namespace, dirs);
         }

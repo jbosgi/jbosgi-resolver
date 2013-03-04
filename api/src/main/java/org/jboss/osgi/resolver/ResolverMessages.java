@@ -92,15 +92,12 @@ public interface ResolverMessages {
     @Message(id = 10915, value = "Invalid requirement: %s")
     String validationInvalidRequirement(Requirement req);
 
-    @Message(id = 10916, value = "A requirement in namespace '%s' cannot have attributes: %s")
-    IllegalArgumentException illegalArgumentRequirementCannotHaveAttributes(String namespace, Map<String, Object> atts);
-
-    @Message(id = 10917, value = "A requirement in namespace '%s' must have a filter directive: %s")
+    @Message(id = 10916, value = "A requirement in namespace '%s' must have a filter directive: %s")
     IllegalArgumentException illegalArgumentRequirementMustHaveFilterDirective(String namespace, Map<String, String> dirs);
 
-    @Message(id = 10918, value = "Resolver hook unregistered while in resolve operation: %s")
+    @Message(id = 10917, value = "Resolver hook unregistered while in resolve operation: %s")
     IllegalStateException illegalStateResolverHookUnregistered(ServiceReference<ResolverHookFactory> sref);
 
-    @Message(id = 10919, value = "Resolver Hooks are not allowed to start another resolve operation")
+    @Message(id = 10918, value = "Resolver Hooks are not allowed to start another resolve operation")
     IllegalStateException illegalStateResolverHookCannotTriggerResolveOperation();
 }
