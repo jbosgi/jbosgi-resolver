@@ -24,6 +24,9 @@ package org.jboss.osgi.resolver.spi;
 import org.jboss.osgi.resolver.XBundleCapability;
 import org.jboss.osgi.resolver.XBundleRequirement;
 import org.jboss.osgi.resolver.XBundleRevision;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
+import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.resource.Wire;
@@ -38,6 +41,10 @@ public class AbstractBundleWire extends AbstractWire implements BundleWire {
 
     public AbstractBundleWire(Wire wire) {
         super(wire.getCapability(), wire.getRequirement(), wire.getProvider(), wire.getRequirer());
+    }
+
+    public AbstractBundleWire(BundleCapability cap, BundleRequirement req, BundleRevision provider, BundleRevision requirer) {
+        super(cap, req, provider, requirer);
     }
 
     @Override

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XWire;
 import org.jboss.osgi.resolver.XWiring;
@@ -190,6 +191,15 @@ public class AbstractWiring implements XWiring {
             Requirement req = wire.getRequirement();
             if (!result.contains(req)) {
                 result.add(req);
+            }
+        }
+        // Add dynamic package requirements that are not included already
+        for (Requirement req : getResource().getRequirements(namespace)) {
+            if (req instanceof XPackageRequirement) {
+                XPackageRequirement preq = (XPackageRequirement) req;
+                if (preq.isDynamic() && !result.contains(req)) {
+                    result.add(req);
+                }
             }
         }
         return Collections.unmodifiableList(result);

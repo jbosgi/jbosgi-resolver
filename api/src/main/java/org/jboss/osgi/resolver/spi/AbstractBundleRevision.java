@@ -26,9 +26,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.modules.ModuleClassLoader;
 import org.jboss.modules.ModuleIdentifier;
@@ -49,9 +47,6 @@ import org.osgi.resource.Requirement;
  */
 public class AbstractBundleRevision extends AbstractResource implements XBundleRevision {
 
-    private final Map<String, List<BundleCapability>> capabilities = new HashMap<String, List<BundleCapability>>();
-    private final Map<String, List<BundleRequirement>> requirements = new HashMap<String, List<BundleRequirement>>();
-
     @Override
     public String getSymbolicName() {
         String symbolicName = getIdentityCapability().getSymbolicName();
@@ -65,26 +60,18 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public List<BundleCapability> getDeclaredCapabilities(String namespace) {
-        List<BundleCapability> result = capabilities.get(namespace);
-        if (result == null) {
-            result = new ArrayList<BundleCapability>();
-            for (Capability cap : getCapabilities(namespace)) {
-                result.add((BundleCapability) cap);
-            }
-            capabilities.put(namespace, result);
+        List<BundleCapability> result = new ArrayList<BundleCapability>();
+        for (Capability cap : getCapabilities(namespace)) {
+            result.add((BundleCapability) cap);
         }
         return result;
     }
 
     @Override
     public List<BundleRequirement> getDeclaredRequirements(String namespace) {
-        List<BundleRequirement> result = requirements.get(namespace);
-        if (result == null) {
-            result = new ArrayList<BundleRequirement>();
-            for (Requirement req : getRequirements(namespace)) {
-                result.add((BundleRequirement) req);
-            }
-            requirements.put(namespace, result);
+        List<BundleRequirement> result = new ArrayList<BundleRequirement>();
+        for (Requirement req : getRequirements(namespace)) {
+            result.add((BundleRequirement) req);
         }
         return result;
     }

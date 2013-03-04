@@ -72,8 +72,8 @@ public class AbstractResource extends AbstractElement implements XResource {
     }
 
     @Override
-    public void makeImmutable() {
-        mutable.set(false);
+    public void setMutable(boolean flag) {
+        mutable.set(flag);
     }
 
     @Override

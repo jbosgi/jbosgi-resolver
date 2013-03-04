@@ -53,7 +53,7 @@ public interface XResource extends XElement, Resource {
     /**
      * Make the resource immutable
      */
-    void makeImmutable();
+    void setMutable(boolean mutable);
 
     /**
      * Get the {@link XWiringSupport} associated with this resource

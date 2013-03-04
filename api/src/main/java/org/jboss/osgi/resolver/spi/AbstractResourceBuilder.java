@@ -304,7 +304,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     @Override
     public XResource getResource() {
         resource.validate();
-        resource.makeImmutable();
+        resource.setMutable(false);
         return resource;
     }
 
