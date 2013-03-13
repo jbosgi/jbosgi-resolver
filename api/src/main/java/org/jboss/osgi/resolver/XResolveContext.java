@@ -19,7 +19,6 @@
  */
 package org.jboss.osgi.resolver;
 
-import org.jboss.osgi.resolver.spi.AttachmentSupporter;
 import org.osgi.service.resolver.ResolveContext;
 
 /**
@@ -28,30 +27,7 @@ import org.osgi.service.resolver.ResolveContext;
  * @author thomas.diesler@jboss.com
  * @since 02-Apr-2012
  */
-public abstract class XResolveContext extends ResolveContext implements XAttachmentSupport {
-
-    private XAttachmentSupport attachments;
+public abstract class XResolveContext extends ResolveContext {
 
     public abstract XEnvironment getEnvironment();
-
-    @Override
-    public <T> T addAttachment(Class<T> clazz, T value) {
-        if (attachments == null)
-            attachments = new AttachmentSupporter();
-        return attachments.addAttachment(clazz, value);
-    }
-
-    @Override
-    public <T> T getAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.getAttachment(clazz);
-    }
-
-    @Override
-    public <T> T removeAttachment(Class<T> clazz) {
-        if (attachments == null)
-            return null;
-        return attachments.removeAttachment(clazz);
-    }
 }

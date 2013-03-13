@@ -128,7 +128,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         canonicalName = toString();
     }
 
-    private static Filter getFilterFromDirective(Requirement req) {
+    public static Filter getFilterFromDirective(Requirement req) {
         String filterdir = req.getDirectives().get(AbstractWiringNamespace.REQUIREMENT_FILTER_DIRECTIVE);
         if (filterdir != null) {
             try {
