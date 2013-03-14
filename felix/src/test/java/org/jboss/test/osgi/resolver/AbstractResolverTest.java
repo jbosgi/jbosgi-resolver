@@ -17,7 +17,6 @@
  * limitations under the License.
  * #L%
  */
-
 package org.jboss.test.osgi.resolver;
 
 import java.util.ArrayList;
@@ -37,9 +36,9 @@ import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
-import org.jboss.osgi.resolver.felix.StatelessResolver;
 import org.jboss.osgi.resolver.spi.AbstractBundleWiring;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
+import org.jboss.osgi.resolver.spi.ResolverFactory;
 import org.jboss.osgi.resolver.spi.AbstractWiring;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.shrinkwrap.api.Archive;
@@ -65,7 +64,7 @@ public abstract class AbstractResolverTest extends OSGiTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        resolver = new StatelessResolver();
+        resolver = ResolverFactory.createResolver();
         environment = new AbstractEnvironment() {
             @Override
             public Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {

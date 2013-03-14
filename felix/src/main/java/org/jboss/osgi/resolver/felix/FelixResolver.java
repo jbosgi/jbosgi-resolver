@@ -42,7 +42,7 @@ import org.osgi.service.resolver.ResolveContext;
  * @author thomas.diesler@jboss.com
  * @since 31-May-2010
  */
-public class StatelessResolver implements XResolver {
+class FelixResolver implements XResolver {
 
     private ResolverImpl delegate = new ResolverImpl(new LoggerDelegate());
 
