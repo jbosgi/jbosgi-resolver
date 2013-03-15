@@ -21,15 +21,25 @@
  */
 package org.jboss.osgi.resolver.spi;
 
+import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.jboss.modules.ModuleClassLoader;
+import org.jboss.modules.ModuleLoadException;
+import org.jboss.modules.Resource;
+import org.jboss.modules.filter.PathFilter;
+import org.jboss.modules.filter.PathFilters;
 import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XCapability;
@@ -196,32 +206,70 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
     }
 
     @Override
-    public Collection<String> listResources(String path, String filePattern, int options) {
+    public Collection<String> listResources(String startPath, String filePattern, int options) {
+        if (startPath == null)
+            throw new IllegalArgumentException("Null rootPath");
+        if (startPath.startsWith("/"))
+            startPath = startPath.substring(1);
+        if (startPath.endsWith("/"))
+            startPath = startPath.substring(0, startPath.length() - 1);
+        if (filePattern == null)
+            filePattern = "*";
+
         // If this bundle wiring is not in use, null will be returned
         if (isInUse() == false || getRevision().isFragment()) {
             return null;
         }
-        Set<String> result = new HashSet<String>();
-        Enumeration<URL> entries = getRevision().findEntries(path, filePattern, true);
-        if (entries != null) {
-            while (entries.hasMoreElements()) {
-                URL entry = entries.nextElement();
-                result.add(entry.getPath());
-            }
-        }
-        if ((options & BundleWiring.LISTRESOURCES_RECURSE) != 0) {
-            for (BundleWire wire : getRequiredWires(null)) {
-                XBundleRevision brev = (XBundleRevision) wire.getProvider();
-                entries = brev.findEntries(path, filePattern, true);
-                if (entries != null) {
-                    while (entries.hasMoreElements()) {
-                        URL entry = entries.nextElement();
-                        result.add(entry.getPath());
+
+        boolean local = (options & BundleWiring.LISTRESOURCES_LOCAL) != 0;
+        boolean recurse = (options & BundleWiring.LISTRESOURCES_RECURSE) != 0;
+
+        Set<String> result = new LinkedHashSet<String>();
+        ModuleClassLoader moduleClassLoader = getRevision().getModuleClassLoader();
+        Pattern pattern = convertToPattern(filePattern);
+
+        Iterator<Resource> itResources = moduleClassLoader.iterateResources(startPath, recurse);
+        addResourceNames(itResources, pattern, result);
+
+        if (!local) {
+            try {
+                PathFilter pathFilter;
+                if (recurse && startPath.length() == 0) {
+                    pathFilter = PathFilters.acceptAll();
+                } else {
+                    pathFilter = PathFilters.is(startPath);
+                    if (recurse) {
+                        pathFilter = PathFilters.any(pathFilter, PathFilters.match(startPath + "/**"));
                     }
                 }
+                itResources = moduleClassLoader.getModule().iterateResources(pathFilter);
+            } catch (ModuleLoadException ex) {
+                throw MESSAGES.illegalStateCannotIterateOverModuleResources(ex, getRevision());
+            }
+            addResourceNames(itResources, pattern, result);
+        }
+
+        return Collections.unmodifiableSet(result);
+    }
+
+    // Convert file pattern (RFC 1960-based Filter) into a RegEx pattern
+    private static Pattern convertToPattern(String filePattern) {
+        filePattern = filePattern.replace("*", ".*");
+        return Pattern.compile("^" + filePattern + "$");
+    }
+
+    private void addResourceNames(Iterator<Resource> itResources, Pattern pattern, Set<String> result) {
+        while(itResources.hasNext()) {
+            String resname = itResources.next().getName();
+            if (resname.startsWith("/")) {
+                resname = resname.substring(1);
+            }
+            int lastIndex = resname.lastIndexOf('/');
+            String filename = lastIndex > 0 ? resname.substring(lastIndex + 1) : resname;
+            if (pattern.matcher(filename).matches()) {
+                result.add(resname);
             }
         }
-        return Collections.unmodifiableSet(result);
     }
 
     @Override

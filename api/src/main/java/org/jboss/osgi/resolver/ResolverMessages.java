@@ -100,4 +100,7 @@ public interface ResolverMessages {
 
     @Message(id = 10918, value = "Resolver Hooks are not allowed to start another resolve operation")
     IllegalStateException illegalStateResolverHookCannotTriggerResolveOperation();
+
+    @Message(id = 10919, value = "Cannot iterate over module resources for: %s")
+    IllegalStateException illegalStateCannotIterateOverModuleResources(@Cause Throwable cause, Resource res);
 }
