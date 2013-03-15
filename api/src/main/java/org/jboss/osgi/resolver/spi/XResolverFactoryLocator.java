@@ -21,7 +21,6 @@ package org.jboss.osgi.resolver.spi;
 
 import java.util.ServiceLoader;
 
-import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResolverFactory;
 
 /**
@@ -30,17 +29,15 @@ import org.jboss.osgi.resolver.XResolverFactory;
  * @author thomas.diesler@jboss.com
  * @since 14-Mar-2013
  */
-public class ResolverFactory {
+public class XResolverFactoryLocator {
 
     // Hide ctor
-    private ResolverFactory() {
+    private XResolverFactoryLocator() {
     }
 
-    public static XResolver createResolver() {
-        ClassLoader classLoader = ResolverFactory.class.getClassLoader();
+    public static XResolverFactory getResolverFactory() {
+        ClassLoader classLoader = XResolverFactoryLocator.class.getClassLoader();
         ServiceLoader<XResolverFactory> loader = ServiceLoader.load(XResolverFactory.class, classLoader);
-        XResolverFactory factory = loader.iterator().next();
-        return factory.createResolver();
+        return loader.iterator().next();
     }
-
 }

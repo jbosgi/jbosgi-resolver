@@ -33,13 +33,14 @@ import org.jboss.osgi.resolver.XBundleRevisionBuilderFactory;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
 import org.jboss.osgi.resolver.XResolver;
+import org.jboss.osgi.resolver.XResolverFactory;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.jboss.osgi.resolver.spi.AbstractBundleWiring;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
-import org.jboss.osgi.resolver.spi.ResolverFactory;
 import org.jboss.osgi.resolver.spi.AbstractWiring;
+import org.jboss.osgi.resolver.spi.XResolverFactoryLocator;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.Node;
@@ -64,7 +65,8 @@ public abstract class AbstractResolverTest extends OSGiTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        resolver = ResolverFactory.createResolver();
+        XResolverFactory resolverFactory = XResolverFactoryLocator.getResolverFactory();
+        resolver = resolverFactory.createResolver();
         environment = new AbstractEnvironment() {
             @Override
             public Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {
