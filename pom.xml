@@ -34,7 +34,7 @@
     <artifactId>jbosgi-resolver-parent</artifactId>
     <packaging>pom</packaging>
 
-    <version>4.0.0.CR4-SNAPSHOT</version>
+    <version>4.0.0.CR4</version>
 
     <!-- Source -->
     <scm>
