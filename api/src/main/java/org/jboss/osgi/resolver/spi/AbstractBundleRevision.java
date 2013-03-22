@@ -48,6 +48,8 @@ import org.osgi.resource.Requirement;
  */
 public class AbstractBundleRevision extends AbstractResource implements XBundleRevision {
 
+    private String canonicalName;
+
     @Override
     public String getSymbolicName() {
         String symbolicName = getIdentityCapability().getSymbolicName();
@@ -57,6 +59,14 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
     @Override
     public Version getVersion() {
         return getIdentityCapability().getVersion();
+    }
+
+    @Override
+    public String getCanonicalName() {
+        if (canonicalName == null) {
+            canonicalName = getSymbolicName() + ":" + getVersion();
+        }
+        return canonicalName;
     }
 
     @Override

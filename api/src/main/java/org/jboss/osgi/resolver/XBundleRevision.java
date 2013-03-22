@@ -44,6 +44,13 @@ public interface XBundleRevision extends XResource, BundleRevision {
     XBundle getBundle();
 
     /**
+     * Get the bundle canonical name
+     *
+     * [symbolicName:version]
+     */
+    String getCanonicalName();
+
+    /**
      * Get the associated {@link ModuleIdentifier}
      * or null if the revision is not resolved
      */
