@@ -36,6 +36,7 @@ import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XWiringSupport;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 
@@ -52,7 +53,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     private final AtomicBoolean mutable = new AtomicBoolean(true);
     private final XWiringSupport wirings = new AbstractWirings();
     private XIdentityCapability identityCapability;
-    private Boolean fragment;
+    private int types;
 
     protected void addCapability(Capability cap) {
         ensureMutable();
@@ -131,7 +132,7 @@ public class AbstractResource extends AbstractElement implements XResource {
 
         // fragment
         List<Requirement> reqs = getReqlist(HostNamespace.HOST_NAMESPACE);
-        fragment = new Boolean(reqs.size() > 0);
+        types = reqs.size() > 0 ? BundleRevision.TYPE_FRAGMENT : 0;
     }
 
     @Override
@@ -152,8 +153,8 @@ public class AbstractResource extends AbstractElement implements XResource {
     }
 
     @Override
-    public boolean isFragment() {
-        return fragment.booleanValue();
+    public int getTypes() {
+        return types;
     }
 
     private List<Capability> getCaplist(String namespace) {

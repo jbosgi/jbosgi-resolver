@@ -72,15 +72,14 @@ public class AbstractEnvironment implements XEnvironment {
     @Override
     public Long nextResourceIdentifier(Long value, String symbolicName) {
         synchronized (resourceIndex) {
-            Long result;
             if (value != null) {
                 resourceIndex.addAndGet(Math.max(0, value - resourceIndex.get()));
-                return result = value;
+                return value;
             } else {
-                result = resourceIndex.incrementAndGet();
+                Long result = resourceIndex.incrementAndGet();
+                LOGGER.tracef("Resource identifier for %s: [%d,%d]", symbolicName, value, result);
+                return result;
             }
-            LOGGER.tracef("Resource identifier for %s: [%d,%d]", symbolicName, value, result);
-            return result;
         }
     }
 

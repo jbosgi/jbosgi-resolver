@@ -36,11 +36,6 @@ public interface XResource extends XElement, Resource {
     XIdentityCapability getIdentityCapability();
 
     /**
-     * True if this resource is a fragment
-     */
-    boolean isFragment();
-
-    /**
      * Validate the resource
      */
     void validate();
@@ -59,4 +54,9 @@ public interface XResource extends XElement, Resource {
      * Get the {@link XWiringSupport} associated with this resource
      */
     XWiringSupport getWiringSupport();
+
+    /**
+     * Returns the special types of this resource.
+     */
+    int getTypes();
 }

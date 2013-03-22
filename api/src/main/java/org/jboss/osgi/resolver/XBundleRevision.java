@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,20 +40,21 @@ public interface XBundleRevision extends XResource, BundleRevision {
     /**
      * Get the associated {@link XBundle}
      */
+    @Override
     XBundle getBundle();
-    
+
     /**
      * Get the associated {@link ModuleIdentifier}
      * or null if the revision is not resolved
      */
     ModuleIdentifier getModuleIdentifier();
-    
+
     /**
      * Get the associated {@link ModuleIdentifier}
      * or null if the revision is not resolved
      */
     ModuleClassLoader getModuleClassLoader();
-    
+
     /**
      * @see {@link Bundle#getResource(String)}
      */
@@ -68,7 +69,7 @@ public interface XBundleRevision extends XResource, BundleRevision {
      * @see {@link Bundle#findEntries(String, String, boolean)}
      */
     Enumeration<URL> findEntries(String path, String filePattern, boolean recursive);
-    
+
     /**
      * @see {@link Bundle#getEntry(String)}
      */
@@ -78,4 +79,9 @@ public interface XBundleRevision extends XResource, BundleRevision {
      * @see {@link Bundle#getEntryPaths(String)}
      */
     Enumeration<String> getEntryPaths(String path);
+
+    /**
+     * True if this revision is a fragment
+     */
+    boolean isFragment();
 }
