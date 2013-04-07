@@ -20,8 +20,6 @@
 
 package org.jboss.osgi.resolver;
 
-import java.util.List;
-
 import org.osgi.framework.Bundle;
 
 /**
@@ -36,11 +34,6 @@ public interface XBundle extends XAttachmentSupport, Bundle {
      * Get the current {@link XBundleRevision}
      */
     XBundleRevision getBundleRevision();
-
-    /**
-     * Get all {@link XBundleRevision}s
-     */
-    List<XBundleRevision> getAllBundleRevisions();
 
     /**
      * Get the bundle canonical name
