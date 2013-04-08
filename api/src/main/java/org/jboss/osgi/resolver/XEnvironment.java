@@ -48,6 +48,8 @@ public interface XEnvironment {
 
     void uninstallResources(XResource... resources);
 
+    XResource getResourceById(long identifier);
+
     Collection<XResource> getResources(String... types);
 
     Long nextResourceIdentifier(Long value, String symbolicName);
