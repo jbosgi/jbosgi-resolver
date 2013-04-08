@@ -22,34 +22,15 @@ package org.jboss.osgi.resolver;
 
 
 /**
- * Adds attachment support
+ * A builder for bundle revisions.
  *
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XAttachmentSupport  {
+public interface XBundleRevisionBuilder extends XResourceBuilder<XBundleRevision> {
 
     /**
-     * Attach an arbirtary object with this element.
-     *
-     * @param key key for the attachment
-     * @return The previously attachment object or null
+     * Get the final resource from the builder
      */
-    <T> T addAttachment(XAttachmentKey<T> key, T value);
-
-    /**
-     * Get the attached object for a given key
-     *
-     * @param type key for the attachment
-     * @return The attached object or null
-     */
-    <T> T getAttachment(XAttachmentKey<T> type);
-
-    /**
-     * Remove an attached object for a given key
-     *
-     * @param clazz key for the attachment
-     * @return The attached object or null
-     */
-    <T> T removeAttachment(XAttachmentKey<T> clazz);
+    XBundleRevision getResource();
 }

@@ -22,6 +22,7 @@ package org.jboss.osgi.resolver.spi;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jboss.osgi.resolver.XAttachmentKey;
 import org.jboss.osgi.resolver.XAttachmentSupport;
 
 /**
@@ -32,12 +33,12 @@ import org.jboss.osgi.resolver.XAttachmentSupport;
  */
 public class AttachmentSupporter implements XAttachmentSupport {
 
-    private Map<Class<?>, Object> attachments;
+    private Map<XAttachmentKey<?>, Object> attachments;
 
     @Override
-    public <T> T addAttachment(Class<T> clazz, T value) {
+    public <T> T addAttachment(XAttachmentKey<T> clazz, T value) {
         if (attachments == null)
-            attachments = new HashMap<Class<?>, Object>();
+            attachments = new HashMap<XAttachmentKey<?>, Object>();
 
         @SuppressWarnings("unchecked")
         T result = (T) attachments.get(clazz);
@@ -46,7 +47,7 @@ public class AttachmentSupporter implements XAttachmentSupport {
     }
 
     @Override
-    public <T> T getAttachment(Class<T> clazz) {
+    public <T> T getAttachment(XAttachmentKey<T> clazz) {
         if (attachments == null)
             return null;
 
@@ -56,7 +57,7 @@ public class AttachmentSupporter implements XAttachmentSupport {
     }
 
     @Override
-    public <T> T removeAttachment(Class<T> clazz) {
+    public <T> T removeAttachment(XAttachmentKey<T> clazz) {
         if (attachments == null)
             return null;
 

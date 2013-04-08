@@ -30,6 +30,13 @@ import org.osgi.resource.Resource;
  */
 public interface XResource extends XElement, Resource {
 
+    /** The id attachment key */
+    XAttachmentKey<Long> RESOURCE_IDENTIFIER_KEY = XAttachmentKey.create(Long.class);
+
+    enum State {
+        INSTALLED, UNINSTALLED
+    }
+
     /**
      * Get the identity capability for this resource
      */
@@ -39,6 +46,11 @@ public interface XResource extends XElement, Resource {
      * Validate the resource
      */
     void validate();
+
+    /**
+     * Get the current resource state
+     */
+    State getState();
 
     /**
      * True if the resource is mutable

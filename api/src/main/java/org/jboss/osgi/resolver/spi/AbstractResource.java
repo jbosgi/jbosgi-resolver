@@ -53,7 +53,14 @@ public class AbstractResource extends AbstractElement implements XResource {
     private final AtomicBoolean mutable = new AtomicBoolean(true);
     private final XWiringSupport wirings = new AbstractWirings();
     private XIdentityCapability identityCapability;
+    private State state = State.UNINSTALLED;
     private int types;
+
+    static AbstractResource assertAbstractResource(XResource resource) {
+        assert resource != null : "Null resource";
+        assert resource instanceof AbstractResource : "Not an AbstractResource: " + resource;
+        return (AbstractResource) resource;
+    }
 
     protected void addCapability(Capability cap) {
         ensureMutable();
@@ -75,6 +82,15 @@ public class AbstractResource extends AbstractElement implements XResource {
     @Override
     public void setMutable(boolean flag) {
         mutable.set(flag);
+    }
+
+    @Override
+    public State getState() {
+        return state;
+    }
+
+    void setState(State state) {
+        this.state = state;
     }
 
     @Override

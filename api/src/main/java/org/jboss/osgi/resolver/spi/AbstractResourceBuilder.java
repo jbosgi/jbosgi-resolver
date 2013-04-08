@@ -57,12 +57,12 @@ import org.osgi.framework.namespace.PackageNamespace;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractResourceBuilder implements XResourceBuilder {
+public class AbstractResourceBuilder<T extends XResource> implements XResourceBuilder<T> {
 
-    private final XResourceBuilderFactory factory;
-    private final XResource resource;
+    private final XResourceBuilderFactory<T> factory;
+    private final T resource;
 
-    public AbstractResourceBuilder(XResourceBuilderFactory factory) {
+    public AbstractResourceBuilder(XResourceBuilderFactory<T> factory) {
         if (factory == null)
             throw MESSAGES.illegalArgumentNull("factory");
         this.factory = factory;
@@ -110,7 +110,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
     @Override
     @SuppressWarnings("deprecation")
-    public XResourceBuilder loadFrom(OSGiMetaData metadata) throws ResourceBuilderException {
+    public XResourceBuilder<T> loadFrom(OSGiMetaData metadata) throws ResourceBuilderException {
         assertResourceCreated();
         try {
             String symbolicName = metadata.getBundleSymbolicName();
@@ -263,7 +263,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
 
 
     @Override
-    public XResourceBuilder loadFrom(Module module) throws ResourceBuilderException {
+    public XResourceBuilder<T> loadFrom(Module module) throws ResourceBuilderException {
         assertResourceCreated();
         try {
             ModuleIdentifier identifier = module.getIdentifier();
@@ -302,7 +302,7 @@ public class AbstractResourceBuilder implements XResourceBuilder {
     }
 
     @Override
-    public XResource getResource() {
+    public T getResource() {
         resource.validate();
         resource.setMutable(false);
         return resource;

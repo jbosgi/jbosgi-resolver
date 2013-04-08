@@ -52,6 +52,6 @@ class ResourceIndexComparator implements Comparator<Capability> {
     }
 
     Long getResourceIndex(XResource res) {
-        return res.getAttachment(Long.class);
+        return res.getAttachment(XResource.RESOURCE_IDENTIFIER_KEY);
     }
 }

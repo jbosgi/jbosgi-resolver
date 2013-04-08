@@ -20,6 +20,7 @@
 package org.jboss.osgi.resolver.spi;
 
 
+import org.jboss.osgi.resolver.XAttachmentKey;
 import org.jboss.osgi.resolver.XAttachmentSupport;
 import org.jboss.osgi.resolver.XElement;
 
@@ -34,23 +35,23 @@ public abstract class AbstractElement implements XElement {
     private XAttachmentSupport attachments;
 
     @Override
-    public <T> T addAttachment(Class<T> clazz, T value) {
+    public <T> T addAttachment(XAttachmentKey<T> key, T value) {
         if (attachments == null)
             attachments = new AttachmentSupporter();
-        return attachments.addAttachment(clazz, value);
+        return attachments.addAttachment(key, value);
     }
 
     @Override
-    public <T> T getAttachment(Class<T> clazz) {
+    public <T> T getAttachment(XAttachmentKey<T> key) {
         if (attachments == null)
             return null;
-        return attachments.getAttachment(clazz);
+        return attachments.getAttachment(key);
     }
 
     @Override
-    public <T> T removeAttachment(Class<T> clazz) {
+    public <T> T removeAttachment(XAttachmentKey<T> key) {
         if (attachments == null)
             return null;
-        return attachments.removeAttachment(clazz);
+        return attachments.removeAttachment(key);
     }
 }

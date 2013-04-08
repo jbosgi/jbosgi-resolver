@@ -44,6 +44,7 @@ import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XResource.State;
 import org.jboss.osgi.resolver.XWiring;
 import org.jboss.osgi.resolver.XWiringSupport;
 import org.omg.CORBA.Environment;
@@ -85,6 +86,9 @@ public class AbstractEnvironment implements XEnvironment {
 
     @Override
     public synchronized void installResources(XResource... resources) {
+        if (resources == null)
+            throw MESSAGES.illegalArgumentNull("resources");
+
         for (XResource res : resources) {
             XIdentityCapability icap = res.getIdentityCapability();
             if (getCachedCapabilities(CacheKey.create(icap)).contains(icap))
@@ -93,8 +97,8 @@ public class AbstractEnvironment implements XEnvironment {
             LOGGER.debugf("Install resource: %s", res);
 
             // Add resource to index
-            Long index = nextResourceIdentifier(res.getAttachment(Long.class), icap.getSymbolicName());
-            res.addAttachment(Long.class, index);
+            Long index = nextResourceIdentifier(res.getAttachment(XResource.RESOURCE_IDENTIFIER_KEY), icap.getSymbolicName());
+            res.addAttachment(XResource.RESOURCE_IDENTIFIER_KEY, index);
             resourceIndexCache.put(index, res);
 
             // Add resource by type
@@ -111,15 +115,22 @@ public class AbstractEnvironment implements XEnvironment {
                     LOGGER.debugf("   %s", req);
                 }
             }
+
+            // Set the resource state
+            AbstractResource absres = AbstractResource.assertAbstractResource(res);
+            absres.setState(State.INSTALLED);
         }
     }
 
     @Override
     public synchronized void uninstallResources(XResource... resources) {
+        if (resources == null)
+            throw MESSAGES.illegalArgumentNull("resources");
+
         for (XResource res : resources) {
 
             // Remove resource by index
-            Long index = res.getAttachment(Long.class);
+            Long index = res.getAttachment(XResource.RESOURCE_IDENTIFIER_KEY);
             if (index == null || resourceIndexCache.remove(index) == null) {
                 LOGGER.debugf("Unknown resource: %s", res);
                 continue;
@@ -143,6 +154,10 @@ public class AbstractEnvironment implements XEnvironment {
 
             // Remove wirings
             res.getWiringSupport().refresh();
+
+            // Set the resource state
+            AbstractResource absres = AbstractResource.assertAbstractResource(res);
+            absres.setState(State.UNINSTALLED);
         }
     }
 
@@ -157,6 +172,9 @@ public class AbstractEnvironment implements XEnvironment {
 
     @Override
     public synchronized List<Capability> findProviders(Requirement req) {
+        if (req == null)
+            throw MESSAGES.illegalArgumentNull("req");
+
         XRequirement xreq = (XRequirement) req;
         CacheKey cachekey = CacheKey.create(req);
         List<Capability> result = new ArrayList<Capability>();
@@ -246,6 +264,9 @@ public class AbstractEnvironment implements XEnvironment {
 
     @Override
     public synchronized Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> wiremap) {
+        if (wiremap == null)
+            throw MESSAGES.illegalArgumentNull("wiremap");
+
         Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
         for (Map.Entry<Resource, List<Wire>> entry : wiremap.entrySet()) {
 
