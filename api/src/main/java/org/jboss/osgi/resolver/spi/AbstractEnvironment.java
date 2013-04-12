@@ -98,7 +98,7 @@ public class AbstractEnvironment implements XEnvironment {
 
             // Add resource to index
             Long index = nextResourceIdentifier(res.getAttachment(XResource.RESOURCE_IDENTIFIER_KEY), icap.getSymbolicName());
-            res.addAttachment(XResource.RESOURCE_IDENTIFIER_KEY, index);
+            res.putAttachment(XResource.RESOURCE_IDENTIFIER_KEY, index);
             resourceIndexCache.put(index, res);
 
             // Add resource by type

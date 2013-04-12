@@ -20,6 +20,7 @@
 
 package org.jboss.osgi.resolver;
 
+import org.jboss.osgi.spi.AttachmentKey;
 import org.osgi.resource.Resource;
 
 /**
@@ -31,7 +32,7 @@ import org.osgi.resource.Resource;
 public interface XResource extends XElement, Resource {
 
     /** The id attachment key */
-    XAttachmentKey<Long> RESOURCE_IDENTIFIER_KEY = XAttachmentKey.create(Long.class);
+    AttachmentKey<Long> RESOURCE_IDENTIFIER_KEY = AttachmentKey.create(Long.class);
 
     enum State {
         INSTALLED, UNINSTALLED
