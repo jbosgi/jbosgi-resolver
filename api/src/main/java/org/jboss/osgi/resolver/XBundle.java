@@ -20,7 +20,7 @@
 
 package org.jboss.osgi.resolver;
 
-import org.jboss.osgi.spi.Attachments;
+import org.jboss.osgi.spi.Attachable;
 import org.osgi.framework.Bundle;
 
 /**
@@ -29,7 +29,7 @@ import org.osgi.framework.Bundle;
  * @author thomas.diesler@jboss.com
  * @since 11-Jun-2012
  */
-public interface XBundle extends Attachments, Bundle {
+public interface XBundle extends Attachable, Bundle {
 
     /**
      * Get the current {@link XBundleRevision}

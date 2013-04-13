@@ -21,9 +21,9 @@ package org.jboss.osgi.resolver.spi;
 
 
 import org.jboss.osgi.resolver.XElement;
-import org.jboss.osgi.spi.AttachmentsSupport;
+import org.jboss.osgi.spi.AttachableSupport;
 import org.jboss.osgi.spi.AttachmentKey;
-import org.jboss.osgi.spi.Attachments;
+import org.jboss.osgi.spi.Attachable;
 
 /**
  * The abstract implementation of a {@link XElement}.
@@ -33,12 +33,12 @@ import org.jboss.osgi.spi.Attachments;
  */
 public abstract class AbstractElement implements XElement {
 
-    private Attachments attachments;
+    private Attachable attachments;
 
     @Override
     public <T> T putAttachment(AttachmentKey<T> key, T value) {
         if (attachments == null)
-            attachments = new AttachmentsSupport();
+            attachments = new AttachableSupport();
         return attachments.putAttachment(key, value);
     }
 
