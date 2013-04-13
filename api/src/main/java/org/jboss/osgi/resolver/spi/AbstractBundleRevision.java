@@ -32,6 +32,7 @@ import org.jboss.modules.ModuleClassLoader;
 import org.jboss.modules.ModuleIdentifier;
 import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
+import org.jboss.osgi.resolver.XBundleWiringSupport;
 import org.osgi.framework.Version;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
@@ -49,6 +50,11 @@ import org.osgi.resource.Requirement;
 public class AbstractBundleRevision extends AbstractResource implements XBundleRevision {
 
     private String canonicalName;
+
+    @Override
+    XBundleWiringSupport createWiringSupport() {
+        return new AbstractBundleWiringSupport();
+    }
 
     @Override
     public String getSymbolicName() {
@@ -99,12 +105,17 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public BundleWiring getWiring() {
-        return (BundleWiring) getWiringSupport().getWiring(false);
+        return getWiringSupport().getWiring(false);
     }
 
     @Override
     public XBundle getBundle() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public XBundleWiringSupport getWiringSupport() {
+        return (XBundleWiringSupport) super.getWiringSupport();
     }
 
     @Override

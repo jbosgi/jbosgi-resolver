@@ -40,8 +40,12 @@ public interface XBundleRevision extends XResource, BundleRevision {
     /**
      * Get the associated {@link XBundle}
      */
-    @Override
     XBundle getBundle();
+
+    /**
+     * Get the {@link XBundleWiringSupport} associated with this resource
+     */
+    XBundleWiringSupport getWiringSupport();
 
     /**
      * Get the bundle canonical name

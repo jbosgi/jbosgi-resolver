@@ -51,7 +51,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
     private final AtomicBoolean mutable = new AtomicBoolean(true);
-    private final XWiringSupport wirings = new AbstractWirings();
+    private final XWiringSupport wiringSupport;
     private XIdentityCapability identityCapability;
     private State state = State.UNINSTALLED;
     private int types;
@@ -60,6 +60,14 @@ public class AbstractResource extends AbstractElement implements XResource {
         assert resource != null : "Null resource";
         assert resource instanceof AbstractResource : "Not an AbstractResource: " + resource;
         return (AbstractResource) resource;
+    }
+
+    public AbstractResource() {
+        wiringSupport = createWiringSupport();
+    }
+
+    XWiringSupport createWiringSupport() {
+        return new AbstractWiringSupport();
     }
 
     protected void addCapability(Capability cap) {
@@ -110,7 +118,7 @@ public class AbstractResource extends AbstractElement implements XResource {
 
     @Override
     public XWiringSupport getWiringSupport() {
-        return wirings;
+        return wiringSupport;
     }
 
     @Override

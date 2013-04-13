@@ -29,7 +29,7 @@ import org.osgi.resource.Wiring;
  * @author thomas.diesler@jboss.com
  * @since 08-Feb-2013
  */
-public class AbstractWirings extends AbstractElement implements XWiringSupport {
+public class AbstractWiringSupport extends AbstractElement implements XWiringSupport {
 
     private Wiring wiring;
     private boolean effective = true;
