@@ -1,0 +1,3 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: packageexportnoversion
+Export-Package: org.acme.foo

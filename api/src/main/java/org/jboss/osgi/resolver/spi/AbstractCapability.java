@@ -59,6 +59,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     private String namespaceValue;
     private String canonicalName;
     private Version version;
+    private boolean valid;
 
     public AbstractCapability(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -108,30 +109,34 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
 
     @Override
     public void validate() {
-        if (IDENTITY_NAMESPACE.equals(getNamespace())) {
-            version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
-            namespaceValue = (String) getAttribute(getNamespace());
-            if (namespaceValue == null)
-                throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
-        } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
-            version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            namespaceValue = (String) getAttribute(getNamespace());
-            if (namespaceValue == null)
-                throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
-        } else if (HOST_NAMESPACE.equals(getNamespace())) {
-            version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
-            namespaceValue = (String) getAttribute(getNamespace());
-            if (namespaceValue == null)
-                throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
-        } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
-            version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
-            namespaceValue = (String) getAttribute(getNamespace());
-            if (namespaceValue == null)
-                throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
+        if (valid == false) {
+            if (IDENTITY_NAMESPACE.equals(getNamespace())) {
+                version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
+                namespaceValue = (String) getAttribute(getNamespace());
+                if (namespaceValue == null)
+                    throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
+            } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
+                version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+                namespaceValue = (String) getAttribute(getNamespace());
+                if (namespaceValue == null)
+                    throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
+            } else if (HOST_NAMESPACE.equals(getNamespace())) {
+                version = getVersion(this, CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+                namespaceValue = (String) getAttribute(getNamespace());
+                if (namespaceValue == null)
+                    throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
+            } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {
+                version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
+                attributes.getAttributes().put(CAPABILITY_VERSION_ATTRIBUTE, version);
+                namespaceValue = (String) getAttribute(getNamespace());
+                if (namespaceValue == null)
+                    throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
+            }
+            attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
+            directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
+            canonicalName = toString();
+            valid = true;
         }
-        attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
-        directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
-        canonicalName = toString();
     }
 
     @Override

@@ -69,6 +69,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
     private String canonicalName;
     private boolean optional;
     private Filter filter;
+    private boolean valid;
 
     public AbstractRequirement(XResource resource, String namespace, Map<String, Object> atts, Map<String, String> dirs) {
         if (resource == null)
@@ -106,26 +107,29 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
 
     @Override
     public void validate() {
-        Map<String, Object> atts = attributes.getAttributes();
-        Map<String, String> dirs = directives.getDirectives();
+        if (valid == false) {
+            Map<String, Object> atts = attributes.getAttributes();
+            Map<String, String> dirs = directives.getDirectives();
 
-        // Attributes declared on Require-Capability will be visible in getAttributes, but attributes declared on
-        // other manifest entries which map to osgi.wiring.* namespace requirements will not be visible in getAttributes.
-        // There are instead used to form a generated filter directive which will be visible in getDirectives.
-        if (namespace.startsWith("osgi.wiring.")) {
-            if (!atts.isEmpty()) {
-                generateFilterDirective(namespace, atts, dirs);
+            // Attributes declared on Require-Capability will be visible in getAttributes, but attributes declared on
+            // other manifest entries which map to osgi.wiring.* namespace requirements will not be visible in getAttributes.
+            // There are instead used to form a generated filter directive which will be visible in getDirectives.
+            if (namespace.startsWith("osgi.wiring.")) {
+                if (!atts.isEmpty()) {
+                    generateFilterDirective(namespace, atts, dirs);
+                }
+                if (!dirs.containsKey(Constants.FILTER_DIRECTIVE))
+                    throw MESSAGES.illegalArgumentRequirementMustHaveFilterDirective(namespace, dirs);
             }
-            if (!dirs.containsKey(Constants.FILTER_DIRECTIVE))
-                throw MESSAGES.illegalArgumentRequirementMustHaveFilterDirective(namespace, dirs);
-        }
 
-        filter = getFilterFromDirective(this);
-        attributes = new AttributeSupporter(Collections.unmodifiableMap(atts));
-        directives = new DirectiveSupporter(Collections.unmodifiableMap(dirs));
-        String resdir = getDirective(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
-        optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
-        canonicalName = toString();
+            filter = getFilterFromDirective(this);
+            attributes = new AttributeSupporter(Collections.unmodifiableMap(atts));
+            directives = new DirectiveSupporter(Collections.unmodifiableMap(dirs));
+            String resdir = getDirective(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
+            optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
+            canonicalName = toString();
+            valid = true;
+        }
     }
 
     public static Filter getFilterFromDirective(Requirement req) {

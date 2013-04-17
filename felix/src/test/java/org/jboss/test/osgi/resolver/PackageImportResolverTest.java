@@ -17,8 +17,6 @@
  * limitations under the License.
  * #L%
  */
-
-
 package org.jboss.test.osgi.resolver;
 
 import static junit.framework.Assert.assertEquals;
@@ -498,6 +496,66 @@ public class PackageImportResolverTest extends AbstractResolverTest {
         installResources(resourceA, resourceB);
         List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
         Map<Resource,List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
+        applyResolverResults(map);
+
+        Wiring wiringA = getWiring(resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(null).size());
+
+        Wiring wiringB = getWiring(resourceB);
+        assertEquals(1, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getRequiredResourceWires(null).get(0);
+        assertSame(resourceB, wireB.getRequirer());
+        assertSame(resourceA, wireB.getProvider());
+    }
+
+    @Test
+    public void testPackageImportNoVersion() throws Exception {
+
+        // Bundle-SymbolicName: packageexportnoversion
+        // Export-Package: org.acme.foo
+        Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportnoversion");
+        XResource resourceA = createResource(assemblyA);
+
+        // Bundle-SymbolicName: packageimportversionzero
+        // Import-Package: org.acme.foo
+        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageimportnoversion");
+        XResource resourceB = createResource(assemblyB);
+
+        installResources(resourceA, resourceB);
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
+        Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
+        applyResolverResults(map);
+
+        Wiring wiringA = getWiring(resourceA);
+        assertEquals(0, wiringA.getRequiredResourceWires(null).size());
+        assertEquals(1, wiringA.getProvidedResourceWires(null).size());
+
+        Wiring wiringB = getWiring(resourceB);
+        assertEquals(1, wiringB.getRequiredResourceWires(null).size());
+        assertEquals(0, wiringB.getProvidedResourceWires(null).size());
+        Wire wireB = wiringB.getRequiredResourceWires(null).get(0);
+        assertSame(resourceB, wireB.getRequirer());
+        assertSame(resourceA, wireB.getProvider());
+    }
+
+    @Test
+    public void testPackageImportVersionZero() throws Exception {
+
+        // Bundle-SymbolicName: packageexportnoversion
+        // Export-Package: org.acme.foo
+        Archive<?> assemblyA = assembleArchive("resourceA", "/resolver/packageexportnoversion");
+        XResource resourceA = createResource(assemblyA);
+
+        // Bundle-SymbolicName: packageimportversionzero
+        // Import-Package: org.acme.foo;version="0"
+        Archive<?> assemblyB = assembleArchive("resourceB", "/resolver/packageimportversionzero");
+        XResource resourceB = createResource(assemblyB);
+
+        installResources(resourceA, resourceB);
+        List<XResource> mandatory = Arrays.asList(resourceA, resourceB);
+        Map<Resource, List<Wire>> map = resolver.resolve(getResolveContext(mandatory, null));
         applyResolverResults(map);
 
         Wiring wiringA = getWiring(resourceA);
