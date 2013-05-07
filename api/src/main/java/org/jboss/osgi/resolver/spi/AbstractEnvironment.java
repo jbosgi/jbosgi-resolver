@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -63,12 +62,26 @@ import org.osgi.resource.Wiring;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractEnvironment implements XEnvironment {
+public class AbstractEnvironment implements XEnvironment, Cloneable {
 
     private final AtomicLong resourceIndex = new AtomicLong();
     private final Map<CacheKey, Set<Capability>> capabilityCache = new ConcurrentHashMap<CacheKey, Set<Capability>>();
     private final Map<String, Set<XResource>> resourceTypeCache = new ConcurrentHashMap<String, Set<XResource>>();
     private final Map<Long, XResource> resourceIndexCache = new ConcurrentHashMap<Long, XResource>();
+
+    public AbstractEnvironment() {
+    }
+
+    private AbstractEnvironment(AbstractEnvironment env) {
+        capabilityCache.putAll(env.capabilityCache);
+        resourceTypeCache.putAll(env.resourceTypeCache);
+        resourceIndexCache.putAll(env.resourceIndexCache);
+    }
+
+    @Override
+    public XEnvironment clone() {
+        return new AbstractEnvironment(this);
+    }
 
     @Override
     public Long nextResourceIdentifier(Long value, String symbolicName) {
@@ -167,12 +180,28 @@ public class AbstractEnvironment implements XEnvironment {
     }
 
     @Override
-    public synchronized Collection<XResource> getResources(String... types) {
-        Set<XResource> result = new HashSet<XResource>();
-        for (String type : (types != null ? types : ALL_IDENTITY_TYPES)) {
-            result.addAll(getCachedResources(type));
-        }
-        return result;
+    public synchronized Iterator<XResource> getResources(Set<String> types) {
+        final Iterator<String> ittype = (types != null ? types : resourceTypeCache.keySet()).iterator();
+        return new Iterator<XResource>() {
+            Iterator<XResource> itres = Collections.<XResource>emptyList().iterator();
+            @Override
+            public boolean hasNext() {
+                while (!itres.hasNext() && ittype.hasNext()) {
+                    itres = getCachedResources(ittype.next()).iterator();
+                }
+                return itres.hasNext();
+            }
+
+            @Override
+            public XResource next() {
+                return itres.next();
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     @Override
@@ -187,7 +216,7 @@ public class AbstractEnvironment implements XEnvironment {
             if (xreq.matches(cap)) {
                 boolean ignoreCapability = false;
                 XCapability xcap = (XCapability) cap;
-                XResource capres = (XResource) xcap.getResource();
+                XResource capres = xcap.getResource();
 
                 // Do not allow new wires to unresolved resources
                 XWiringSupport wiringSupport = capres.getWiringSupport();
@@ -277,10 +306,11 @@ public class AbstractEnvironment implements XEnvironment {
 
             XResource requirer = (XResource) entry.getKey();
             List<Wire> reqwires = entry.getValue();
-            Wiring reqwiring = requirer.getWiringSupport().getWiring(true);
+            XWiringSupport rwsupport = requirer.getWiringSupport();
+            Wiring reqwiring = rwsupport.getWiring(true);
             if (reqwiring == null) {
                 reqwiring = createWiring(requirer, reqwires, null);
-                requirer.getWiringSupport().setWiring(reqwiring);
+                rwsupport.setWiring(reqwiring);
             } else {
                 for (Wire wire : reqwires) {
                     ((XWiring) reqwiring).addRequiredWire(wire);
@@ -290,10 +320,11 @@ public class AbstractEnvironment implements XEnvironment {
 
             for (Wire wire : reqwires) {
                 XResource provider = (XResource) wire.getProvider();
-                Wiring provwiring = provider.getWiringSupport().getWiring(true);
+                XWiringSupport pwsupport = provider.getWiringSupport();
+                Wiring provwiring = pwsupport.getWiring(true);
                 if (provwiring == null) {
                     provwiring = createWiring(provider, null, null);
-                    provider.getWiringSupport().setWiring(provwiring);
+                    pwsupport.setWiring(provwiring);
                 }
                 ((XWiring) provwiring).addProvidedWire(wire);
             }

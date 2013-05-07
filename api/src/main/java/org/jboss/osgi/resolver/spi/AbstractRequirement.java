@@ -42,7 +42,7 @@ import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XPackageRequirement;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
-import org.jboss.osgi.resolver.XResourceRequirement;
+import org.jboss.osgi.resolver.XIdentityRequirement;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -52,7 +52,6 @@ import org.osgi.framework.namespace.AbstractWiringNamespace;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
-import org.osgi.resource.Resource;
 
 /**
  * The abstract implementation of a {@link XRequirement}.
@@ -60,7 +59,7 @@ import org.osgi.resource.Resource;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public class AbstractRequirement extends AbstractElement implements XHostRequirement, XPackageRequirement, XResourceRequirement, XCapabilityRequirement {
+public class AbstractRequirement extends AbstractElement implements XHostRequirement, XPackageRequirement, XIdentityRequirement, XCapabilityRequirement {
 
     private final XResource resource;
     private final String namespace;
@@ -93,7 +92,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
     }
 
     @Override
-    public Resource getResource() {
+    public XResource getResource() {
         return resource;
     }
 
@@ -199,7 +198,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
     @SuppressWarnings("unchecked")
     public <T extends XRequirement> T adapt(Class<T> clazz) {
         T result = null;
-        if (XResourceRequirement.class == clazz && BUNDLE_NAMESPACE.equals(getNamespace())) {
+        if (XIdentityRequirement.class == clazz && BUNDLE_NAMESPACE.equals(getNamespace())) {
             result = (T) this;
         } else if (XHostRequirement.class == clazz && HOST_NAMESPACE.equals(getNamespace())) {
             result = (T) this;
@@ -369,7 +368,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             String type;
             String nsval = null;
             if (BUNDLE_NAMESPACE.equals(getNamespace())) {
-                type = XResourceRequirement.class.getSimpleName();
+                type = XIdentityRequirement.class.getSimpleName();
             } else if (HOST_NAMESPACE.equals(getNamespace())) {
                 type = XHostRequirement.class.getSimpleName();
             } else if (PACKAGE_NAMESPACE.equals(getNamespace())) {

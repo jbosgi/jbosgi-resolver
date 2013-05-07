@@ -125,23 +125,21 @@ public class AbstractResource extends AbstractElement implements XResource {
     public void validate() {
 
         // identity
-        List<Capability> caps = getCaplist(IdentityNamespace.IDENTITY_NAMESPACE);
-        if (caps.size() > 1)
-            throw MESSAGES.illegalStateMultipleIdentities(caps);
-        if (caps.size() == 1) {
-            XCapability cap = (XCapability) caps.get(0);
-            cap.validate();
-            identityCapability = cap.adapt(XIdentityCapability.class);
-        }
+        List<Capability> icaps = getCaplist(IdentityNamespace.IDENTITY_NAMESPACE);
+        if (icaps.size() > 1)
+            throw MESSAGES.illegalStateMultipleIdentityCapabilities(icaps);
+        if (icaps.size() < 1)
+            throw MESSAGES.illegalStateNoIdentityCapability(this);
+
+        XCapability icap = (XCapability) icaps.get(0);
+        identityCapability = icap.adapt(XIdentityCapability.class);
 
         // Validate the capabilities
         for (Capability cap : getCaplist(null)) {
-            if (cap != identityCapability) {
-                try {
-                    ((XCapability) cap).validate();
-                } catch (RuntimeException ex) {
-                    throw new ResourceValidationException(MESSAGES.validationInvalidCapability(cap), ex, cap);
-                }
+            try {
+                ((XCapability) cap).validate();
+            } catch (RuntimeException ex) {
+                throw new ResourceValidationException(MESSAGES.validationInvalidCapability(cap), ex, cap);
             }
         }
 

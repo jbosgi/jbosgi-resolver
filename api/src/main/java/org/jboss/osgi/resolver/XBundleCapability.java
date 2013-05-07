@@ -30,4 +30,14 @@ import org.osgi.framework.wiring.BundleCapability;
  */
 public interface XBundleCapability extends XCapability, BundleCapability {
 
+    /**
+     * Get the bundle revision declaring this capability.
+     */
+    XBundleRevision getResource();
+
+    /**
+     * Get the bundle revision this capability.
+     */
+    XBundleRevision getRevision();
+
 }

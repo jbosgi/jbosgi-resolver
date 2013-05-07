@@ -31,6 +31,11 @@ import org.osgi.resource.Capability;
 public interface XCapability extends XElement, XAttributeSupport, XDirectiveSupport, Capability {
 
     /**
+     * Get the resource declaring this capability.
+     */
+    XResource getResource();
+    
+    /**
      * Validate the capability
      */
     void validate();

@@ -29,7 +29,6 @@ import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XPackageCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.resource.Capability;
-import org.osgi.resource.Resource;
 import org.osgi.service.resolver.HostedCapability;
 
 /**
@@ -51,7 +50,7 @@ public class AbstractHostedCapability extends AbstractElement implements HostedC
     }
 
     @Override
-    public Resource getResource() {
+    public XResource getResource() {
         return resource;
     }
 

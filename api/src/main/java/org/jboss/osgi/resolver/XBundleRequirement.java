@@ -30,4 +30,13 @@ import org.osgi.framework.wiring.BundleRequirement;
  */
 public interface XBundleRequirement extends XRequirement, BundleRequirement {
 
+    /**
+     * Get the bundle revision declaring this requirement.
+     */
+    XBundleRevision getResource();
+
+    /**
+     * Get the bundle revision this requirement.
+     */
+    XBundleRevision getRevision();
 }

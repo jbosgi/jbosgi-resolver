@@ -47,20 +47,20 @@ public interface ResolverMessages {
     @Message(id = 10900, value = "%s is null")
     IllegalArgumentException illegalArgumentNull(String name);
 
-    //@Message(id = 10901, value = "Cannot obtain attribute: %s")
-    //IllegalArgumentException illegalArgumentCannotObtainAttribute(String name);
+    @Message(id = 10901, value = "No identity capability in: %s")
+    IllegalStateException illegalStateNoIdentityCapability(Resource resource);
 
-    @Message(id = 10902, value = "Invalid filter directive: %s")
+    @Message(id = 10902, value = "Multiple identities detected: %s")
+    IllegalStateException illegalStateMultipleIdentityCapabilities(List<Capability> caps);
+
+    @Message(id = 10903, value = "Invalid filter directive: %s")
     IllegalArgumentException illegalArgumentInvalidFilterDirective(String filter);
 
-    @Message(id = 10903, value = "Invalid coordinates: %s")
+    @Message(id = 10904, value = "Invalid coordinates: %s")
     IllegalArgumentException illegalArgumentInvalidCoordinates(String coordinates);
 
-    @Message(id = 10904, value = "Resource already installed: %s")
+    @Message(id = 10905, value = "Resource already installed: %s")
     IllegalStateException illegalStateResourceAlreadyInstalled(Resource resource);
-
-    @Message(id = 10905, value = "Multiple identities detected: %s")
-    IllegalStateException illegalStateMultipleIdentities(List<Capability> caps);
 
     @Message(id = 10906, value = "Resource not created")
     IllegalStateException illegalStateResourceNotCreated();

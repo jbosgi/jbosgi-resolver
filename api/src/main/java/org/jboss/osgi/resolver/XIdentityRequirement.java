@@ -29,7 +29,7 @@ import org.osgi.framework.namespace.BundleNamespace;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XResourceRequirement extends XRequirement {
+public interface XIdentityRequirement extends XRequirement {
 
     /**
      * The bundle symbolic name

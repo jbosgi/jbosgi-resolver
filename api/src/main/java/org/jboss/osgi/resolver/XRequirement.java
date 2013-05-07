@@ -32,6 +32,11 @@ import org.osgi.resource.Requirement;
 public interface XRequirement extends XElement, XAttributeSupport, XDirectiveSupport, Requirement {
 
     /**
+     * Get the resource declaring this requirement.
+     */
+    XResource getResource();
+    
+    /**
      * Get the filter associated with this requirement.
      */
     Filter getFilter();

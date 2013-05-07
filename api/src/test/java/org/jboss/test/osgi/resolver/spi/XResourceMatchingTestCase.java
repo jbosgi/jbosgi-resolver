@@ -21,6 +21,7 @@ package org.jboss.test.osgi.resolver.spi;
 
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XRequirement;
+import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.junit.Assert;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.IdentityNamespace;
 
 /**
  * Unit tests for resource matching
@@ -38,11 +40,13 @@ public class XResourceMatchingTestCase extends AbstractTestBase {
 
     @Test
     public void testAttributOnSymbolicNameNoMatch() throws Exception {
-        XResourceBuilder cbuilder = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> cbuilder = XResourceBuilderFactory.create();
+        cbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "res1");
         XCapability cap = cbuilder.addCapability(BundleNamespace.BUNDLE_NAMESPACE, "org.jboss.test.cases.repository.tb1");
         cbuilder.getResource();
 
-        XResourceBuilder rbuilder = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> rbuilder = XResourceBuilderFactory.create();
+        rbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "res2");
         Filter filter = FrameworkUtil.createFilter("(&(osgi.wiring.bundle=org.jboss.test.cases.repository.tb1)(foo=bar))");
         XRequirement req = rbuilder.addRequirement("osgi.wiring.bundle", filter);
         rbuilder.getResource();
@@ -52,12 +56,14 @@ public class XResourceMatchingTestCase extends AbstractTestBase {
 
     @Test
     public void testAttributOnSymbolicNameMatch() throws Exception {
-        XResourceBuilder cbuilder = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> cbuilder = XResourceBuilderFactory.create();
+        cbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "res1");
         XCapability cap = cbuilder.addCapability(BundleNamespace.BUNDLE_NAMESPACE, "org.jboss.test.cases.repository.tb1");
         cap.getAttributes().put("foo", "bar");
         cbuilder.getResource();
 
-        XResourceBuilder rbuilder = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> rbuilder = XResourceBuilderFactory.create();
+        rbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "res2");
         Filter filter = FrameworkUtil.createFilter("(&(osgi.wiring.bundle=org.jboss.test.cases.repository.tb1)(foo=bar))");
         XRequirement req = rbuilder.addRequirement("osgi.wiring.bundle", filter);
         rbuilder.getResource();

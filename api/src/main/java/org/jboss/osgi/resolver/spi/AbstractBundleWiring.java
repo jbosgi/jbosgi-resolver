@@ -48,7 +48,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
-import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.resource.Capability;
@@ -284,13 +283,13 @@ public class AbstractBundleWiring extends AbstractWiring implements BundleWiring
         }
 
         @Override
-        public BundleRevision getRevision() {
-            return (BundleRevision) super.getResource();
+        public XBundleRevision getRevision() {
+            return (XBundleRevision) super.getResource();
         }
 
         @Override
-        public BundleRevision getResource() {
-            return (BundleRevision) super.getResource();
+        public XBundleRevision getResource() {
+            return (XBundleRevision) super.getResource();
         }
     }
 }

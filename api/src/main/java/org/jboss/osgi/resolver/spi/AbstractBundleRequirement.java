@@ -23,10 +23,10 @@ package org.jboss.osgi.resolver.spi;
 import java.util.Map;
 
 import org.jboss.osgi.resolver.XBundleRequirement;
+import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRevision;
 
 /**
  * The abstract implementation of an {@link XBundleRequirement}.
@@ -41,13 +41,13 @@ public class AbstractBundleRequirement extends AbstractRequirement implements XB
     }
 
     @Override
-    public BundleRevision getResource() {
-        return (BundleRevision) super.getResource();
+    public XBundleRevision getResource() {
+        return (XBundleRevision) super.getResource();
     }
 
     @Override
-    public BundleRevision getRevision() {
-        return (BundleRevision) super.getResource();
+    public XBundleRevision getRevision() {
+        return (XBundleRevision) super.getResource();
     }
 
     @Override
