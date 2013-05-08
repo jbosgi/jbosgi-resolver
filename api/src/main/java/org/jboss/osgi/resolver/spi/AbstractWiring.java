@@ -35,7 +35,6 @@ import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XWire;
 import org.jboss.osgi.resolver.XWiring;
 import org.osgi.framework.namespace.HostNamespace;
-import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Namespace;
 import org.osgi.resource.Requirement;
@@ -144,7 +143,7 @@ public class AbstractWiring implements XWiring {
         while (capit.hasNext()) {
             boolean removed = false;
             XCapability cap = (XCapability) capit.next();
-            XResource res = (XResource) cap.getResource();
+            XResource res = cap.getResource();
 
             // Capabilities with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE}
             // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not returned
@@ -171,8 +170,8 @@ public class AbstractWiring implements XWiring {
             }
 
             // Remove identity capability for fragments
-            boolean isFragment = (res.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0;
-            if (!removed && isFragment && IDENTITY_NAMESPACE.equals(cap.getNamespace())) {
+            String type = res.getIdentityCapability().getType();
+            if (!removed && IDENTITY_NAMESPACE.equals(cap.getNamespace()) && XResource.TYPE_FRAGMENT.equals(type)) {
                 capit.remove();
                 removed = true;
             }

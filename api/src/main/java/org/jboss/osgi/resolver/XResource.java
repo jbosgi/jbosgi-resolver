@@ -21,6 +21,7 @@
 package org.jboss.osgi.resolver;
 
 import org.jboss.osgi.spi.AttachmentKey;
+import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Resource;
 
 /**
@@ -29,7 +30,7 @@ import org.osgi.resource.Resource;
  * @author thomas.diesler@jboss.com
  * @since 02-Jul-2010
  */
-public interface XResource extends XElement, Resource {
+public interface XResource extends XElement, XAttributeSupport, Resource {
 
     /** The id attachment key */
     AttachmentKey<Long> RESOURCE_IDENTIFIER_KEY = AttachmentKey.create(Long.class);
@@ -45,10 +46,16 @@ public interface XResource extends XElement, Resource {
      */
     String MODULE_IDENTITY_NAMESPACE = "module.identity";
 
-    enum State {
-        INSTALLED, UNINSTALLED
-    }
-
+    /**
+     * Some predefined resource types
+     */
+    String TYPE_BUNDLE = IdentityNamespace.TYPE_BUNDLE;
+    String TYPE_FRAGMENT = IdentityNamespace.TYPE_FRAGMENT;
+    String TYPE_UNKNOWN = IdentityNamespace.TYPE_UNKNOWN;
+    String TYPE_ABSTRACT = "abstract";
+    String TYPE_MODULE = "module";
+    String TYPE_MAVEN = "maven";
+    
     /**
      * Get the identity capability for this resource
      */
@@ -80,7 +87,9 @@ public interface XResource extends XElement, Resource {
     XWiringSupport getWiringSupport();
 
     /**
-     * Returns the special types of this resource.
+     * The resource state in the {@link XEnvironment}
      */
-    int getTypes();
+    enum State {
+        INSTALLED, UNINSTALLED
+    }
 }

@@ -51,6 +51,11 @@ public interface XResourceBuilder<T extends XResource> {
     XResourceBuilder<T> loadFrom(Module module) throws ResourceBuilderException;
 
     /**
+     * Add a resource attributes
+     */
+    XResourceBuilder<T> addAttribute(String key, String value);
+    
+    /**
      * Add a {@link Capability}
      *
      * @param namespace The namespace

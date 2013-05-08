@@ -33,6 +33,7 @@ import org.jboss.modules.ModuleIdentifier;
 import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XBundleWiringSupport;
+import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Version;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
@@ -95,12 +96,13 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public int getTypes() {
-        return super.getTypes();
+        return isFragment() ? BundleRevision.TYPE_FRAGMENT : 0;
     }
 
     @Override
     public boolean isFragment() {
-        return (getTypes() & BundleRevision.TYPE_FRAGMENT) != 0;
+        String type = getIdentityCapability().getType();
+        return XResource.TYPE_FRAGMENT.equals(type);
     }
 
     @Override

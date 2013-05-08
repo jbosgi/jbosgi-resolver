@@ -17,7 +17,6 @@
  * limitations under the License.
  * #L%
  */
-
 package org.jboss.osgi.resolver.spi;
 
 import static org.jboss.osgi.metadata.OSGiMetaData.ANONYMOUS_BUNDLE_SYMBOLIC_NAME;
@@ -71,6 +70,13 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
             throw MESSAGES.illegalArgumentNull("factory");
         this.factory = factory;
         this.resource = factory.createResource();
+    }
+
+    @Override
+    public XResourceBuilder<T> addAttribute(String key, String value) {
+        assertResourceCreated();
+        resource.getAttributes().put(key, value);
+        return this;
     }
 
     @Override
@@ -282,6 +288,7 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
             // Add identity capability
             XCapability icap = addCapability(IdentityNamespace.IDENTITY_NAMESPACE, symbolicName);
             icap.getAttributes().put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, version);
+            icap.getAttributes().put(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE, XResource.TYPE_MODULE);
 
             // Add bundle capability
             XCapability bcap = addCapability(BundleNamespace.BUNDLE_NAMESPACE, symbolicName);

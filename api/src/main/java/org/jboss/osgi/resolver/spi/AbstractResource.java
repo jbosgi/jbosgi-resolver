@@ -29,14 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jboss.osgi.resolver.XAttributeSupport;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XWiringSupport;
-import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.IdentityNamespace;
-import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 
@@ -50,11 +49,11 @@ public class AbstractResource extends AbstractElement implements XResource {
 
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
+    private final XAttributeSupport attributes = new AttributeSupporter(null);
     private final AtomicBoolean mutable = new AtomicBoolean(true);
     private final XWiringSupport wiringSupport;
     private XIdentityCapability identityCapability;
     private State state = State.UNINSTALLED;
-    private int types;
 
     static AbstractResource assertAbstractResource(XResource resource) {
         assert resource != null : "Null resource";
@@ -85,6 +84,17 @@ public class AbstractResource extends AbstractElement implements XResource {
         String namespace = req.getNamespace();
         getReqlist(namespace).add(req);
         getReqlist(null).add(req);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        Map<String, Object> atts = attributes.getAttributes();
+        return isMutable() ? atts : Collections.unmodifiableMap(atts);
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return attributes.getAttribute(key);
     }
 
     @Override
@@ -151,10 +161,6 @@ public class AbstractResource extends AbstractElement implements XResource {
                 throw new ResourceValidationException(MESSAGES.validationInvalidRequirement(req), ex, req);
             }
         }
-
-        // fragment
-        List<Requirement> reqs = getReqlist(HostNamespace.HOST_NAMESPACE);
-        types = reqs.size() > 0 ? BundleRevision.TYPE_FRAGMENT : 0;
     }
 
     @Override
@@ -172,11 +178,6 @@ public class AbstractResource extends AbstractElement implements XResource {
     @Override
     public XIdentityCapability getIdentityCapability() {
         return identityCapability;
-    }
-
-    @Override
-    public int getTypes() {
-        return types;
     }
 
     private List<Capability> getCaplist(String namespace) {
