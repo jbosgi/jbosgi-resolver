@@ -118,6 +118,18 @@ public final class MavenCoordinates {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof MavenCoordinates)) return false;
+        MavenCoordinates other = (MavenCoordinates) obj;
+        return toExternalForm().equals(other.toExternalForm());
+    }
+
+    @Override
+    public int hashCode() {
+        return toExternalForm().hashCode();
+    }
+
+    @Override
     public String toString() {
         return "MavenCoordinates[" + toExternalForm() + "]";
     }

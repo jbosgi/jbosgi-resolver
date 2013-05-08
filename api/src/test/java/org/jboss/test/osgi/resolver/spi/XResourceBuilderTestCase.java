@@ -74,7 +74,7 @@ public class XResourceBuilderTestCase extends AbstractTestBase {
 
     @Test
     public void testAttributMutability() throws Exception {
-        XResourceBuilder builder = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> builder = XResourceBuilderFactory.create();
         XCapability cap = builder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "test1");
         cap.getAttributes().put(BundleNamespace.CAPABILITY_EFFECTIVE_DIRECTIVE, "meta");
         XResource res = builder.getResource();
@@ -105,7 +105,7 @@ public class XResourceBuilderTestCase extends AbstractTestBase {
     private void validateRequiredExecutionEnvironmentFilter(String filter, String... envspecs) throws Exception {
         OSGiMetaDataBuilder mdb = OSGiMetaDataBuilder.createBuilder("dummy-resource");
         mdb.addRequiredExecutionEnvironments(envspecs);
-        XResourceBuilder builder = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> builder = XResourceBuilderFactory.create();
         XResource res = builder.loadFrom(mdb.getOSGiMetaData()).getResource();
         List<Requirement> reqs = res.getRequirements(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE);
         Assert.assertEquals(1, reqs.size());

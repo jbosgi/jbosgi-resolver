@@ -17,7 +17,6 @@
  * limitations under the License.
  * #L%
  */
-
 package org.jboss.osgi.resolver;
 
 import org.osgi.resource.Capability;

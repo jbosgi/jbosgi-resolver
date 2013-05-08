@@ -24,7 +24,6 @@ import static org.junit.Assert.assertSame;
 
 import java.util.List;
 
-import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
@@ -46,17 +45,17 @@ public class XEnvironmentTestCase extends AbstractTestBase {
     @Test
     public void testFindProviders() throws Exception {
 
-        XResourceBuilder builderA = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> builderA = XResourceBuilderFactory.create();
         builderA.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "testA");
         builderA.addRequirement(PackageNamespace.PACKAGE_NAMESPACE, "org.jboss.foo");
         XResource resourceA = builderA.getResource();
 
-        XResourceBuilder builderB = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> builderB = XResourceBuilderFactory.create();
         builderB.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "testB");
         builderB.addCapability(PackageNamespace.PACKAGE_NAMESPACE, "org.jboss.foo");
         XResource resourceB = builderB.getResource();
 
-        XResourceBuilder builderC = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> builderC = XResourceBuilderFactory.create();
         builderC.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "testB");
         builderC.addCapability(PackageNamespace.PACKAGE_NAMESPACE, "org.jboss.foo");
         XResource resourceC = builderC.getResource();
