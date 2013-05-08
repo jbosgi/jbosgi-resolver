@@ -33,6 +33,17 @@ public interface XResource extends XElement, Resource {
 
     /** The id attachment key */
     AttachmentKey<Long> RESOURCE_IDENTIFIER_KEY = AttachmentKey.create(Long.class);
+    
+    /**
+     * Artifact coordinates may be given in simple groupId:artifactId:version form,
+     * or they may be fully qualified in the form groupId:artifactId:type:version[:classifier]
+     */
+    String MAVEN_IDENTITY_NAMESPACE = "maven.identity";
+    
+    /**
+     * Artifact coordinates may be given by {@link org.jboss.modules.ModuleIdentifier}
+     */
+    String MODULE_IDENTITY_NAMESPACE = "module.identity";
 
     enum State {
         INSTALLED, UNINSTALLED
