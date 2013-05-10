@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -276,13 +277,15 @@ class Candidates
             // not optional, then record and throw a resolve exception.
             else if (candidates.isEmpty() && !Util.isOptional(req))
             {
-                String msg = "Unable to resolve " + resource
-                    + ": missing requirement " + req;
+                String msg = "Unable to resolve " + resource + ": missing requirement " + req;
+                Set<Requirement> unresolvedRequirements = new LinkedHashSet<Requirement>();
+                unresolvedRequirements.add(req);
                 if (rethrow != null)
                 {
                     msg = msg + " [caused by: " + rethrow.getMessage() + "]";
+                    unresolvedRequirements.addAll(rethrow.getUnresolvedRequirements());
                 }
-                rethrow = new ResolutionException(msg, null, Collections.singleton(req));
+                rethrow = new ResolutionException(msg, null, unresolvedRequirements);
                 m_populateResultCache.put(resource, rethrow);
                 throw rethrow;
             }

@@ -116,6 +116,11 @@ public class AbstractResource extends AbstractElement implements XResource {
         return mutable.get();
     }
 
+    @Override
+    public boolean isAbstract() {
+        return identityCapability != null ? TYPE_ABSTRACT.equals(identityCapability.getType()) : true;
+    }
+
     public void ensureImmutable() {
         if (isMutable() == true)
             throw MESSAGES.illegalStateInvalidAccessToMutableResource();

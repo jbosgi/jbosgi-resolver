@@ -324,7 +324,9 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
     @Override
     public T getResource() {
         resource.validate();
-        resource.setMutable(false);
+        if (resource instanceof AbstractResource) {
+            ((AbstractResource) resource).setMutable(false);
+        }
         return resource;
     }
 

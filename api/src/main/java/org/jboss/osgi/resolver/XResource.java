@@ -47,6 +47,11 @@ public interface XResource extends XElement, XAttributeSupport, Resource {
     String MODULE_IDENTITY_NAMESPACE = "module.identity";
 
     /**
+     * The attribute on the {@link XIdentityCapability} for the below types  
+     */
+    String CAPABILITY_TYPE_ATTRIBUTE = IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE;
+    
+    /**
      * Some predefined resource types
      */
     String TYPE_BUNDLE = IdentityNamespace.TYPE_BUNDLE;
@@ -76,6 +81,11 @@ public interface XResource extends XElement, XAttributeSupport, Resource {
      */
     boolean isMutable();
 
+    /**
+     * True if the resource is abstract
+     */
+    boolean isAbstract();
+    
     /**
      * Make the resource immutable
      */
