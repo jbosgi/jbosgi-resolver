@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XIdentityCapability;
@@ -334,11 +335,6 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
     }
 
     @Override
-    public Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {
-        return new AbstractWiring(res, required, provided);
-    }
-
-    @Override
     public synchronized Map<Resource, Wiring> getWirings() {
         Map<Resource, Wiring> result = new HashMap<Resource, Wiring>();
         for (XResource res : resourceIndexCache.values()) {
@@ -348,6 +344,14 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
             }
         }
         return Collections.unmodifiableMap(result);
+    }
+
+    private Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {
+        if (res instanceof XBundleRevision) {
+            return new AbstractBundleWiring((XBundleRevision) res, required, provided);
+        } else {
+            return new AbstractWiring(res, required, provided);
+        }
     }
 
     private synchronized Set<Capability> getCachedCapabilities(CacheKey key) {

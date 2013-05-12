@@ -51,8 +51,6 @@ public interface XEnvironment {
 
     List<Capability> findProviders(Requirement req);
 
-    Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided);
-
     Map<Resource, Wiring> updateWiring(Map<Resource, List<Wire>> delta);
 
     Map<Resource, Wiring> getWirings();

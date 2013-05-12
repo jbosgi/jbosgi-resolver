@@ -28,7 +28,6 @@ import java.util.jar.Manifest;
 
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
-import org.jboss.osgi.resolver.XBundleRevision;
 import org.jboss.osgi.resolver.XBundleRevisionBuilderFactory;
 import org.jboss.osgi.resolver.XEnvironment;
 import org.jboss.osgi.resolver.XResolveContext;
@@ -37,9 +36,7 @@ import org.jboss.osgi.resolver.XResolverFactory;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
 import org.jboss.osgi.resolver.XResourceBuilderFactory;
-import org.jboss.osgi.resolver.spi.AbstractBundleWiring;
 import org.jboss.osgi.resolver.spi.AbstractEnvironment;
-import org.jboss.osgi.resolver.spi.AbstractWiring;
 import org.jboss.osgi.resolver.spi.XResolverFactoryLocator;
 import org.jboss.osgi.testing.OSGiTest;
 import org.jboss.shrinkwrap.api.Archive;
@@ -67,22 +64,13 @@ public abstract class AbstractResolverTest extends OSGiTest {
         super.setUp();
         XResolverFactory resolverFactory = XResolverFactoryLocator.getResolverFactory();
         resolver = resolverFactory.createResolver();
-        environment = new AbstractEnvironment() {
-            @Override
-            public Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {
-                if (res instanceof XBundleRevision) {
-                    return new AbstractBundleWiring((XBundleRevision) res, required, provided);
-                } else {
-                    return new AbstractWiring(res, required, provided);
-                }
-            }
-        };
+        environment = new AbstractEnvironment();
         XResource sysres = createSystemResource();
         environment.installResources(sysres);
     }
 
     protected XResource createSystemResource() {
-        XResourceBuilder builder = XResourceBuilderFactory.create();
+        XResourceBuilder<XResource> builder = XResourceBuilderFactory.create();
         builder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, Constants.SYSTEM_BUNDLE_SYMBOLICNAME);
         return builder.getResource();
     }
