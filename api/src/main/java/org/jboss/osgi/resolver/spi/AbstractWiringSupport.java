@@ -20,8 +20,8 @@
 
 package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XWiring;
 import org.jboss.osgi.resolver.XWiringSupport;
-import org.osgi.resource.Wiring;
 
 /**
  * The abstract implementation of an {@link XWiringSupport}.
@@ -31,7 +31,7 @@ import org.osgi.resource.Wiring;
  */
 public class AbstractWiringSupport extends AbstractElement implements XWiringSupport {
 
-    private Wiring wiring;
+    private XWiring wiring;
     private boolean effective = true;
 
     @Override
@@ -45,12 +45,12 @@ public class AbstractWiringSupport extends AbstractElement implements XWiringSup
     }
 
     @Override
-    public synchronized Wiring getWiring(boolean checkEffective) {
+    public synchronized XWiring getWiring(boolean checkEffective) {
         return checkEffective ? (effective ? wiring : null) : wiring;
     }
 
     @Override
-    public synchronized void setWiring(Wiring wiring) {
+    public synchronized void setWiring(XWiring wiring) {
         this.wiring = wiring;
     }
 

@@ -1,6 +1,7 @@
+package org.jboss.osgi.resolver;
 /*
  * #%L
- * JBossOSGi Resolver Felix
+ * JBossOSGi Resolver API
  * %%
  * Copyright (C) 2010 - 2012 JBoss by Red Hat
  * %%
@@ -17,22 +18,16 @@
  * limitations under the License.
  * #L%
  */
-package org.jboss.osgi.resolver.felix;
 
-import org.jboss.osgi.resolver.XResolver;
-import org.jboss.osgi.resolver.XResolverFactory;
+
+import org.osgi.framework.wiring.BundleWiring;
 
 /**
- * An implementation of the XResolverFactory.
+ * An extension to {@link BundleWiring}
  *
  * @author thomas.diesler@jboss.com
- * @since 13-Mar-2013
+ * @since 18-Feb-2013
  */
-public class FelixResolverFactory implements XResolverFactory {
-
-    @Override
-    public XResolver createResolver() {
-        return new FelixResolver();
-    }
+public interface XBundleWiring extends XWiring, BundleWiring {
 
 }

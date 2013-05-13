@@ -71,6 +71,16 @@ public class AbstractWiring implements XWiring {
     }
 
     @Override
+    public XResource getResource() {
+        return resource;
+    }
+
+    @Override
+    public boolean isEffective() {
+        return resource.getWiringSupport().isEffective();
+    }
+
+    @Override
     public void addRequiredWire(Wire wire) {
         if (wire instanceof AbstractWire) {
             ((XWire) wire).setRequirerWiring(this);
@@ -232,11 +242,6 @@ public class AbstractWiring implements XWiring {
             }
         }
         return Collections.unmodifiableList(result);
-    }
-
-    @Override
-    public XResource getResource() {
-        return resource;
     }
 
     @Override

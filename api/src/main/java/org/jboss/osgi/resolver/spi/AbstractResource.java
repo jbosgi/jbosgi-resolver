@@ -34,6 +34,7 @@ import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XWiring;
 import org.jboss.osgi.resolver.XWiringSupport;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
@@ -134,6 +135,11 @@ public class AbstractResource extends AbstractElement implements XResource {
     @Override
     public XWiringSupport getWiringSupport() {
         return wiringSupport;
+    }
+
+    @Override
+    public XWiring getWiring(boolean checkEffective) {
+        return wiringSupport.getWiring(checkEffective);
     }
 
     @Override

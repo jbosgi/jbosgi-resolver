@@ -20,8 +20,8 @@
 
 package org.jboss.osgi.resolver.spi;
 
+import org.jboss.osgi.resolver.XBundleWiring;
 import org.jboss.osgi.resolver.XBundleWiringSupport;
-import org.osgi.framework.wiring.BundleWiring;
 
 /**
  * The abstract implementation of an {@link XBundleWiringSupport}.
@@ -31,7 +31,7 @@ import org.osgi.framework.wiring.BundleWiring;
  */
 public class AbstractBundleWiringSupport extends AbstractWiringSupport implements XBundleWiringSupport {
 
-    public BundleWiring getWiring(boolean checkEffective) {
-        return (BundleWiring) super.getWiring(checkEffective);
+    public XBundleWiring getWiring(boolean checkEffective) {
+        return (XBundleWiring) super.getWiring(checkEffective);
     }
 }

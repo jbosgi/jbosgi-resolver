@@ -31,6 +31,8 @@ import org.osgi.resource.Wiring;
  */
 public interface XWiring extends Wiring {
 
+    boolean isEffective();
+    
     void addRequiredWire(Wire wire);
 
     void addProvidedWire(Wire wire);

@@ -74,8 +74,14 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
     }
 
     private AbstractEnvironment(AbstractEnvironment env) {
-        capabilityCache.putAll(env.capabilityCache);
-        resourceTypeCache.putAll(env.resourceTypeCache);
+        for (Entry<CacheKey, Set<Capability>> entry : env.capabilityCache.entrySet()) {
+            Set<Capability> caps = getCachedCapabilities(entry.getKey());
+            caps.addAll(entry.getValue());
+        }
+        for(Entry<String, Set<XResource>> entry : env.resourceTypeCache.entrySet()) {
+            Set<XResource> resset = getCachedResources(entry.getKey());
+            resset.addAll(entry.getValue());
+        }
         resourceIndexCache.putAll(env.resourceIndexCache);
     }
 
@@ -181,7 +187,7 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
     }
 
     @Override
-    public synchronized Iterator<XResource> getResources(Set<String> types) {
+    public synchronized Iterator<XResource> getResources(Collection<String> types) {
         final Iterator<String> ittype = (types != null ? types : resourceTypeCache.keySet()).iterator();
         return new Iterator<XResource>() {
             Iterator<XResource> itres = Collections.<XResource>emptyList().iterator();
@@ -308,13 +314,13 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
             XResource requirer = (XResource) entry.getKey();
             List<Wire> reqwires = entry.getValue();
             XWiringSupport rwsupport = requirer.getWiringSupport();
-            Wiring reqwiring = rwsupport.getWiring(true);
+            XWiring reqwiring = rwsupport.getWiring(true);
             if (reqwiring == null) {
                 reqwiring = createWiring(requirer, reqwires, null);
                 rwsupport.setWiring(reqwiring);
             } else {
                 for (Wire wire : reqwires) {
-                    ((XWiring) reqwiring).addRequiredWire(wire);
+                    reqwiring.addRequiredWire(wire);
                 }
             }
             result.put(requirer, reqwiring);
@@ -322,12 +328,12 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
             for (Wire wire : reqwires) {
                 XResource provider = (XResource) wire.getProvider();
                 XWiringSupport pwsupport = provider.getWiringSupport();
-                Wiring provwiring = pwsupport.getWiring(true);
+                XWiring provwiring = pwsupport.getWiring(true);
                 if (provwiring == null) {
                     provwiring = createWiring(provider, null, null);
                     pwsupport.setWiring(provwiring);
                 }
-                ((XWiring) provwiring).addProvidedWire(wire);
+                provwiring.addProvidedWire(wire);
             }
         }
 
@@ -346,7 +352,7 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
         return Collections.unmodifiableMap(result);
     }
 
-    private Wiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {
+    private XWiring createWiring(XResource res, List<Wire> required, List<Wire> provided) {
         if (res instanceof XBundleRevision) {
             return new AbstractBundleWiring((XBundleRevision) res, required, provided);
         } else {

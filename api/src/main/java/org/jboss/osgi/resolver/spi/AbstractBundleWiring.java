@@ -42,6 +42,7 @@ import org.jboss.modules.filter.PathFilter;
 import org.jboss.modules.filter.PathFilters;
 import org.jboss.osgi.resolver.XBundle;
 import org.jboss.osgi.resolver.XBundleRevision;
+import org.jboss.osgi.resolver.XBundleWiring;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XResource;
 import org.osgi.framework.Bundle;
@@ -61,7 +62,7 @@ import org.osgi.service.resolver.HostedCapability;
  * @author thomas.diesler@jboss.com
  * @since 23-Feb-2012
  */
-public class AbstractBundleWiring extends AbstractWiring implements BundleWiring {
+public class AbstractBundleWiring extends AbstractWiring implements XBundleWiring {
 
     public AbstractBundleWiring(XBundleRevision brev, List<Wire> required, List<Wire> provided) {
         super(brev, required, provided);

@@ -20,11 +20,10 @@
 
 package org.jboss.osgi.resolver;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -45,7 +44,7 @@ public interface XEnvironment {
 
     XResource getResourceById(long identifier);
 
-    Iterator<XResource> getResources(Set<String> types);
+    Iterator<XResource> getResources(Collection<String> types);
 
     Long nextResourceIdentifier(Long value, String symbolicName);
 

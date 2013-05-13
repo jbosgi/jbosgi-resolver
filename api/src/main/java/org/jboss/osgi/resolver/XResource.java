@@ -96,6 +96,8 @@ public interface XResource extends XElement, XAttributeSupport, Resource {
      */
     XWiringSupport getWiringSupport();
 
+    XWiring getWiring(boolean checkEffective);
+
     /**
      * The resource state in the {@link XEnvironment}
      */

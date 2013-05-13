@@ -56,9 +56,10 @@ import org.osgi.resource.Resource;
 public class ResolverHookProcessor {
 
     private static ThreadLocal<ResolverHookProcessor> processorAssociation = new ThreadLocal<ResolverHookProcessor>();
+    
+    private final BundleContext syscontext;
     private List<ResolverHookRegistration> registrations;
     private Collection<BundleRevision> candidates;
-    private final BundleContext syscontext;
 
     public interface SingletonLocator {
         Collection<BundleCapability> findCollisionCandidates(BundleCapability icap);

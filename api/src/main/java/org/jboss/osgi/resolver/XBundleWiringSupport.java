@@ -19,7 +19,6 @@ package org.jboss.osgi.resolver;
  * #L%
  */
 
-import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.resource.Wiring;
 
 /**
@@ -30,5 +29,5 @@ import org.osgi.resource.Wiring;
  */
 public interface XBundleWiringSupport extends XWiringSupport {
 
-    BundleWiring getWiring(boolean checkEffective);
+    XBundleWiring getWiring(boolean checkEffective);
 }

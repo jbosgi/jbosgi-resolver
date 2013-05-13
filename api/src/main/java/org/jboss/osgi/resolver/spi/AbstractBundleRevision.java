@@ -50,6 +50,7 @@ import org.osgi.resource.Requirement;
  */
 public class AbstractBundleRevision extends AbstractResource implements XBundleRevision {
 
+    private XBundle bundle;
     private String canonicalName;
 
     @Override
@@ -112,7 +113,11 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public XBundle getBundle() {
-        throw new UnsupportedOperationException();
+        return bundle;
+    }
+
+    public void setBundle(XBundle bundle) {
+        this.bundle = bundle;
     }
 
     @Override

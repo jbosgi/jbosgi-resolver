@@ -29,9 +29,9 @@ import org.osgi.resource.Wiring;
  */
 public interface XWiringSupport {
 
-    Wiring getWiring(boolean checkEffective);
+    XWiring getWiring(boolean checkEffective);
 
-    void setWiring(Wiring wiring);
+    void setWiring(XWiring wiring);
 
     boolean isEffective();
 
