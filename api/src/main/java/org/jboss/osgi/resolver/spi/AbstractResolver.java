@@ -89,6 +89,11 @@ public class AbstractResolver implements XResolver {
         return delegate.resolve(resolveContext);
     }
 
+    @Override
+    public Map<Resource, List<Wire>> resolveAndApply(XResolveContext context) throws ResolutionException {
+        throw new UnsupportedOperationException();
+    }
+
     private void removeUninstalled(Collection<Resource> manres, Collection<Resource> optres) {
         for (Resource res : getCombinedResources(manres, optres)) {
             if (res instanceof XBundleRevision) {

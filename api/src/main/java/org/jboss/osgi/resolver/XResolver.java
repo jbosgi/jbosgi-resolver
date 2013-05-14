@@ -21,7 +21,12 @@
 package org.jboss.osgi.resolver;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
+import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.Resolver;
 
 /**
@@ -33,4 +38,6 @@ import org.osgi.service.resolver.Resolver;
 public interface XResolver extends Resolver {
 
     XResolveContext createResolveContext(XEnvironment environment, Collection<? extends Resource> mandatory, Collection<? extends Resource> optional);
+
+    Map<Resource, List<Wire>> resolveAndApply(XResolveContext context) throws ResolutionException;
 }

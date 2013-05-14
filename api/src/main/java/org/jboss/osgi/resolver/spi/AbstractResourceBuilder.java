@@ -23,16 +23,11 @@ import static org.jboss.osgi.metadata.OSGiMetaData.ANONYMOUS_BUNDLE_SYMBOLIC_NAM
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleIdentifier;
-import org.jboss.modules.Resource;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.metadata.PackageAttribute;
@@ -295,6 +290,18 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
             bcap.getAttributes().put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, version);
 
             // Add a package capability for every exported path
+            for (String path : module.getExportedPaths()) {
+                if (path.startsWith("/"))
+                    path = path.substring(1);
+                if (path.endsWith("/"))
+                    path = path.substring(0, path.length() - 1);
+                if (!path.isEmpty() && !path.startsWith("META-INF")) {
+                    String packageName = path.replace('/', '.');
+                    addCapability(PackageNamespace.PACKAGE_NAMESPACE, packageName);
+                }
+            }
+
+            /*
             Set<String> paths = new HashSet<String>();
             Iterator<Resource> it = module.getClassLoader().iterateResources("", true);
             while (it.hasNext()) {
@@ -314,6 +321,8 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
                     addCapability(PackageNamespace.PACKAGE_NAMESPACE, packageName);
                 }
             }
+            */
+
             resource.validate();
         } catch (RuntimeException ex) {
             throw MESSAGES.resourceBuilderCannotInitializeResource(ex, resource.toString());
