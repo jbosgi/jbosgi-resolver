@@ -117,7 +117,7 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
             LOGGER.debugf("Install resource: %s", res);
 
             // Add resource to index
-            Long index = nextResourceIdentifier(res.getAttachment(XResource.RESOURCE_IDENTIFIER_KEY), icap.getSymbolicName());
+            Long index = nextResourceIdentifier(res.getAttachment(XResource.RESOURCE_IDENTIFIER_KEY), icap.getName());
             res.putAttachment(XResource.RESOURCE_IDENTIFIER_KEY, index);
             resourceIndexCache.put(index, res);
 

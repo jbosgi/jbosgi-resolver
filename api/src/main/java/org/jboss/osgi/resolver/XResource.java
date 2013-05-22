@@ -34,23 +34,23 @@ public interface XResource extends XElement, XAttributeSupport, Resource {
 
     /** The id attachment key */
     AttachmentKey<Long> RESOURCE_IDENTIFIER_KEY = AttachmentKey.create(Long.class);
-    
+
     /**
-     * Artifact coordinates may be given in simple groupId:artifactId:version form,
-     * or they may be fully qualified in the form groupId:artifactId:type:version[:classifier]
+     * Artifact coordinates may be defined by the simple groupId:artifactId:version form,
+     * or the fully qualified form groupId:artifactId:type:version[:classifier]
      */
     String MAVEN_IDENTITY_NAMESPACE = "maven.identity";
-    
+
     /**
-     * Artifact coordinates may be given by {@link org.jboss.modules.ModuleIdentifier}
+     * Artifact coordinates are defined by {@link org.jboss.modules.ModuleIdentifier}
      */
     String MODULE_IDENTITY_NAMESPACE = "module.identity";
 
     /**
-     * The attribute on the {@link XIdentityCapability} for the below types  
+     * The attribute on the {@link XIdentityCapability} for the below types
      */
     String CAPABILITY_TYPE_ATTRIBUTE = IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE;
-    
+
     /**
      * Some predefined resource types
      */
@@ -60,7 +60,7 @@ public interface XResource extends XElement, XAttributeSupport, Resource {
     String TYPE_ABSTRACT = "abstract";
     String TYPE_MODULE = "module";
     String TYPE_MAVEN = "maven";
-    
+
     /**
      * Get the identity capability for this resource
      */
@@ -85,7 +85,7 @@ public interface XResource extends XElement, XAttributeSupport, Resource {
      * True if the resource is abstract
      */
     boolean isAbstract();
-    
+
     /**
      * Make the resource immutable
      */

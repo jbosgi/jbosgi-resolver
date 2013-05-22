@@ -33,7 +33,7 @@ public interface XResourceCapability extends XCapability {
     /**
      * Get the bundle symbolic name.
      */
-    String getSymbolicName();
+    String getName();
 
     /**
      * Get the bundle version.

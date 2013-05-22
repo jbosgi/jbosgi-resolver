@@ -20,19 +20,15 @@
 package org.jboss.test.osgi.resolver.spi;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jboss.modules.ModuleIdentifier;
 import org.jboss.osgi.resolver.MavenCoordinates;
 import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XRequirementBuilder;
 import org.jboss.osgi.resolver.XResource;
+import org.jboss.osgi.resolver.XResourceBuilderFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.osgi.framework.Version;
-import org.osgi.framework.namespace.IdentityNamespace;
 
 /**
  * Unit tests for the {@link XRequirementBuilder} class
@@ -43,30 +39,27 @@ public class XRequirementBuilderTestCase extends AbstractTestBase {
 
     @Test
     public void testMavenCoordinates() throws Exception {
-        MavenCoordinates mvnid = MavenCoordinates.parse("org.jboss.spec.javax.transaction:jboss-transaction-api_1.1_spec:1.0.1.Final");
-        XRequirement req = XRequirementBuilder.create(mvnid).getRequirement();
+        MavenCoordinates mavenId = MavenCoordinates.parse("org.jboss.spec.javax.transaction:jboss-transaction-api_1.1_spec:1.0.1.Final");
+        XRequirement req = XRequirementBuilder.create(mavenId).getRequirement();
+        Assert.assertNotNull("Filter not null", req.getFilter());
         XResource res = req.getResource();
-        XIdentityCapability icap = (XIdentityCapability) res.getCapabilities(IdentityNamespace.IDENTITY_NAMESPACE).iterator().next();
-        Assert.assertEquals("org.jboss.spec.javax.transaction:jboss-transaction-api_1.1_spec", icap.getSymbolicName());
-        Assert.assertEquals(Version.parseVersion("1.0.1.Final"), icap.getVersion());
-        Map<String, Object> expected = new HashMap<String, Object>();
-        expected.put(IdentityNamespace.IDENTITY_NAMESPACE, "org.jboss.spec.javax.transaction:jboss-transaction-api_1.1_spec");
-        expected.put("version", Version.parseVersion("1.0.1.Final"));
-        expected.put("type", "jar");
-        Assert.assertEquals(expected, icap.getAttributes());
+        XIdentityCapability icap = (XIdentityCapability) res.getCapabilities(XResource.MAVEN_IDENTITY_NAMESPACE).iterator().next();
+        Assert.assertEquals("jboss-transaction-api_1.1_spec", icap.getName());
+
+        XIdentityCapability cap = XResourceBuilderFactory.<XResource>create().addIdentityCapability(mavenId);
+        Assert.assertTrue("Requirement matches", req.matches(cap));
     }
-    
+
     @Test
     public void testModuleIdentifier() throws Exception {
-        ModuleIdentifier modid = ModuleIdentifier.create("org.jboss.spec.javax.transaction", "1.0.1.Final");
-        XRequirement req = XRequirementBuilder.create(modid).getRequirement();
+        ModuleIdentifier moduleId = ModuleIdentifier.fromString("org.jboss.spec.javax.transaction:1.0.1.Final");
+        XRequirement req = XRequirementBuilder.create(moduleId).getRequirement();
+        Assert.assertNotNull("Filter not null", req.getFilter());
         XResource res = req.getResource();
-        XIdentityCapability icap = (XIdentityCapability) res.getCapabilities(IdentityNamespace.IDENTITY_NAMESPACE).iterator().next();
-        Assert.assertEquals("org.jboss.spec.javax.transaction", icap.getSymbolicName());
-        Assert.assertEquals(Version.parseVersion("1.0.1.Final"), icap.getVersion());
-        Map<String, Object> expected = new HashMap<String, Object>();
-        expected.put(IdentityNamespace.IDENTITY_NAMESPACE, "org.jboss.spec.javax.transaction");
-        expected.put("version", Version.parseVersion("1.0.1.Final"));
-        Assert.assertEquals(expected, icap.getAttributes());
+        XIdentityCapability icap = (XIdentityCapability) res.getCapabilities(XResource.MODULE_IDENTITY_NAMESPACE).iterator().next();
+        Assert.assertEquals("org.jboss.spec.javax.transaction", icap.getName());
+
+        XIdentityCapability cap = XResourceBuilderFactory.<XResource>create().addIdentityCapability(moduleId);
+        Assert.assertTrue("Requirement matches", req.matches(cap));
     }
 }

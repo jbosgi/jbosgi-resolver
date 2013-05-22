@@ -23,6 +23,7 @@ package org.jboss.osgi.resolver.spi;
 import static org.jboss.osgi.resolver.ResolverMessages.MESSAGES;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,8 @@ import org.osgi.resource.Requirement;
  * @since 02-Jul-2010
  */
 public class AbstractResource extends AbstractElement implements XResource {
+
+    static List<String> identityNamespaces = Arrays.asList(IdentityNamespace.IDENTITY_NAMESPACE, XResource.MODULE_IDENTITY_NAMESPACE, XResource.MAVEN_IDENTITY_NAMESPACE);
 
     private final Map<String, List<Capability>> capabilities = new HashMap<String, List<Capability>>();
     private final Map<String, List<Requirement>> requirements = new HashMap<String, List<Requirement>>();
@@ -75,7 +78,7 @@ public class AbstractResource extends AbstractElement implements XResource {
         String namespace = cap.getNamespace();
         getCaplist(namespace).add(cap);
         getCaplist(null).add(cap);
-        if (IdentityNamespace.IDENTITY_NAMESPACE.equals(namespace)) {
+        if (identityNamespaces.contains(namespace)) {
             identityCapability = (XIdentityCapability) cap;
         }
     }
@@ -146,7 +149,10 @@ public class AbstractResource extends AbstractElement implements XResource {
     public void validate() {
 
         // identity
-        List<Capability> icaps = getCaplist(IdentityNamespace.IDENTITY_NAMESPACE);
+        List<Capability> icaps = new ArrayList<Capability>();
+        icaps.addAll(getCaplist(IdentityNamespace.IDENTITY_NAMESPACE));
+        icaps.addAll(getCaplist(XResource.MODULE_IDENTITY_NAMESPACE));
+        icaps.addAll(getCaplist(XResource.MAVEN_IDENTITY_NAMESPACE));
         if (icaps.size() > 1)
             throw MESSAGES.illegalStateMultipleIdentityCapabilities(icaps);
         if (icaps.size() < 1)
@@ -212,7 +218,7 @@ public class AbstractResource extends AbstractElement implements XResource {
     @Override
     public String toString() {
         XIdentityCapability id = identityCapability;
-        String idstr = (id != null ? id.getSymbolicName() + ":" + id.getVersion() : "anonymous");
+        String idstr = (id != null ? id.getName() + ":" + id.getVersion() : "anonymous");
         return getClass().getSimpleName() + "[" + idstr + "]";
     }
 }

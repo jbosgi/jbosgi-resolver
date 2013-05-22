@@ -38,8 +38,10 @@ import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
 import org.jboss.osgi.metadata.PackageAttribute;
 import org.jboss.osgi.metadata.Parameter;
 import org.jboss.osgi.metadata.ParameterizedAttribute;
+import org.jboss.osgi.resolver.MavenCoordinates;
 import org.jboss.osgi.resolver.ResourceBuilderException;
 import org.jboss.osgi.resolver.XCapability;
+import org.jboss.osgi.resolver.XIdentityCapability;
 import org.jboss.osgi.resolver.XRequirement;
 import org.jboss.osgi.resolver.XResource;
 import org.jboss.osgi.resolver.XResourceBuilder;
@@ -77,6 +79,52 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
         assertResourceCreated();
         resource.getAttributes().put(key, value);
         return this;
+    }
+
+    @Override
+    public XIdentityCapability addIdentityCapability(String symbolicName, Version version) {
+        assertResourceCreated();
+        XIdentityCapability icap = (XIdentityCapability) addCapability(IdentityNamespace.IDENTITY_NAMESPACE, symbolicName);
+        icap.getAttributes().put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, version);
+        return icap;
+    }
+
+    @Override
+    public XIdentityCapability addIdentityCapability(ModuleIdentifier moduleId) {
+        assertResourceCreated();
+        String nsvalue = moduleId.getName();
+        Version version;
+        try {
+            version = Version.parseVersion(moduleId.getSlot());
+        } catch (IllegalArgumentException ex) {
+            version = Version.emptyVersion;
+        }
+        XIdentityCapability icap = (XIdentityCapability) addCapability(XResource.MODULE_IDENTITY_NAMESPACE, nsvalue);
+        icap.getAttributes().put("type", XResource.TYPE_MODULE);
+        icap.getAttributes().put("name", moduleId.getName());
+        icap.getAttributes().put("slot", moduleId.getSlot());
+        icap.getAttributes().put("version", version);
+        return icap;
+    }
+
+    @Override
+    public XIdentityCapability addIdentityCapability(MavenCoordinates mavenId) {
+        assertResourceCreated();
+        String nsvalue = mavenId.getArtifactId();
+        Version version;
+        try {
+            version = Version.parseVersion(mavenId.getVersion());
+        } catch (IllegalArgumentException ex) {
+            version = Version.emptyVersion;
+        }
+        XIdentityCapability icap = (XIdentityCapability) addCapability(XResource.MAVEN_IDENTITY_NAMESPACE, nsvalue);
+        icap.getAttributes().put("type", mavenId.getType());
+        icap.getAttributes().put("groupId", mavenId.getGroupId());
+        icap.getAttributes().put("artifactId", mavenId.getArtifactId());
+        icap.getAttributes().put("version", version);
+        if (mavenId.getClassifier() != null)
+            icap.getAttributes().put("classifier", mavenId.getClassifier());
+        return icap;
     }
 
     @Override
@@ -125,6 +173,7 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
         try {
             String symbolicName = metadata.getBundleSymbolicName();
             Version bundleVersion = metadata.getBundleVersion();
+            ParameterizedAttribute fragmentHost = metadata.getFragmentHost();
             ParameterizedAttribute idparams = metadata.getBundleParameters();
             Map<String, Object> idatts = getAttributes(idparams);
             Map<String, String> isdirs = getDirectives(idparams);
@@ -133,10 +182,8 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
                 symbolicName = ANONYMOUS_BUNDLE_SYMBOLIC_NAME;
 
             // Identity Capability
-            ParameterizedAttribute fragmentHost = metadata.getFragmentHost();
+            XCapability icap = addIdentityCapability(symbolicName, bundleVersion);
             String identityType = fragmentHost != null ? IdentityNamespace.TYPE_FRAGMENT : IdentityNamespace.TYPE_BUNDLE;
-            XCapability icap = addCapability(IdentityNamespace.IDENTITY_NAMESPACE, symbolicName);
-            icap.getAttributes().put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, bundleVersion);
             icap.getAttributes().put(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE, identityType);
             icap.getAttributes().putAll(idatts);
             icap.getDirectives().putAll(isdirs);
@@ -276,11 +323,11 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
     public XResourceBuilder<T> loadFrom(Module module) throws ResourceBuilderException {
         assertResourceCreated();
         try {
-            ModuleIdentifier identifier = module.getIdentifier();
-            String symbolicName = identifier.getName();
+            ModuleIdentifier moduleId = module.getIdentifier();
+            String symbolicName = moduleId.getName();
             Version version;
             try {
-                version = Version.parseVersion(identifier.getSlot());
+                version = Version.parseVersion(moduleId.getSlot());
             } catch (IllegalArgumentException ex) {
                 version = Version.emptyVersion;
             }

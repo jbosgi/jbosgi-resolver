@@ -31,9 +31,9 @@ import org.osgi.framework.namespace.IdentityNamespace;
 public interface XIdentityCapability extends XCapability {
 
     /**
-     * The symbolic name of this resource.
+     * The identity name of this resource.
      */
-    String getSymbolicName();
+    String getName();
 
     /**
      * The version of this resource.

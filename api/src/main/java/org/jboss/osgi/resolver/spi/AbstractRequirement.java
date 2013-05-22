@@ -143,7 +143,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         return null;
     }
 
-    private static String getValueFromFilter(Filter filter, String attrname, StringBuffer operator) {
+    public static String getValueFromFilter(Filter filter, String attrname, StringBuffer operator) {
         String result = null;
         if (filter != null) {
             String filterstr = filter.toString();
@@ -396,7 +396,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             XIdentityCapability icap = resource.getIdentityCapability();
             if (icap != null) {
                 buffer.append(addcomma ? "," : "");
-                buffer.append("[" + icap.getSymbolicName() + ":" + icap.getVersion() + "]");
+                buffer.append("[" + icap.getName() + ":" + icap.getVersion() + "]");
                 addcomma = true;
             } else {
                 buffer.append(addcomma ? "," : "");

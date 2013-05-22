@@ -25,7 +25,6 @@ import static org.osgi.framework.namespace.BundleNamespace.BUNDLE_NAMESPACE;
 import static org.osgi.framework.namespace.HostNamespace.HOST_NAMESPACE;
 import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE;
 import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE;
-import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
 import static org.osgi.framework.namespace.PackageNamespace.PACKAGE_NAMESPACE;
 
 import java.util.Collections;
@@ -110,7 +109,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     @Override
     public void validate() {
         if (valid == false) {
-            if (IDENTITY_NAMESPACE.equals(getNamespace())) {
+            if (AbstractResource.identityNamespaces.contains(getNamespace())) {
                 version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
                 namespaceValue = (String) getAttribute(getNamespace());
                 if (namespaceValue == null)
@@ -143,7 +142,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     @SuppressWarnings("unchecked")
     public <T extends XCapability> T adapt(Class<T> clazz) {
         T result = null;
-        if (XIdentityCapability.class == clazz && IDENTITY_NAMESPACE.equals(getNamespace())) {
+        if (XIdentityCapability.class == clazz && AbstractResource.identityNamespaces.contains(getNamespace())) {
             result = (T) this;
         } else if (XResourceCapability.class == clazz && BUNDLE_NAMESPACE.equals(getNamespace())) {
             result = (T) this;
@@ -161,7 +160,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     }
 
     @Override
-    public String getSymbolicName() {
+    public String getName() {
         return namespaceValue;
     }
 
@@ -196,7 +195,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
         if (result == null) {
             String type;
             String nsval = null;
-            if (IDENTITY_NAMESPACE.equals(getNamespace())) {
+            if (AbstractResource.identityNamespaces.contains(getNamespace())) {
                 type = XIdentityCapability.class.getSimpleName();
             } else if (BUNDLE_NAMESPACE.equals(getNamespace())) {
                 type = XResourceCapability.class.getSimpleName();
@@ -227,7 +226,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
             XIdentityCapability icap = resource.getIdentityCapability();
             if (icap != null) {
                 buffer.append(addcomma ? "," : "");
-                buffer.append("[" + icap.getSymbolicName() + ":" + icap.getVersion() + "]");
+                buffer.append("[" + icap.getName() + ":" + icap.getVersion() + "]");
                 addcomma = true;
             } else {
                 buffer.append(addcomma ? "," : "");

@@ -22,7 +22,9 @@ package org.jboss.test.osgi.resolver.spi;
 
 import java.util.List;
 
+import org.jboss.modules.ModuleIdentifier;
 import org.jboss.osgi.metadata.OSGiMetaDataBuilder;
+import org.jboss.osgi.resolver.MavenCoordinates;
 import org.jboss.osgi.resolver.XCapability;
 import org.jboss.osgi.resolver.XHostCapability;
 import org.jboss.osgi.resolver.XIdentityCapability;
@@ -79,7 +81,7 @@ public class XResourceBuilderTestCase extends AbstractTestBase {
         cap.getAttributes().put(BundleNamespace.CAPABILITY_EFFECTIVE_DIRECTIVE, "meta");
         XResource res = builder.getResource();
         XIdentityCapability icap = res.getIdentityCapability();
-        Assert.assertEquals("test1", icap.getSymbolicName());
+        Assert.assertEquals("test1", icap.getName());
         Assert.assertEquals("meta", icap.getAttribute(BundleNamespace.CAPABILITY_EFFECTIVE_DIRECTIVE));
         try {
             icap.getAttributes().remove(BundleNamespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
@@ -87,6 +89,42 @@ public class XResourceBuilderTestCase extends AbstractTestBase {
         } catch (UnsupportedOperationException ex) {
             // expected
         }
+    }
+
+    @Test
+    public void testBundleIdentity() throws Exception {
+        XResourceBuilder<XResource> builder = XResourceBuilderFactory.create();
+        builder.addIdentityCapability("test1", Version.parseVersion("1.0.0"));
+        XResource res = builder.getResource();
+        XIdentityCapability icap = res.getIdentityCapability();
+        Assert.assertEquals(IdentityNamespace.IDENTITY_NAMESPACE, icap.getNamespace());
+        Assert.assertEquals("test1", icap.getName());
+        Assert.assertEquals(Version.parseVersion("1.0.0"), icap.getVersion());
+    }
+
+    @Test
+    public void testModuleIdentity() throws Exception {
+        XResourceBuilder<XResource> builder = XResourceBuilderFactory.create();
+        builder.addIdentityCapability(ModuleIdentifier.fromString("test1:1.0.0"));
+        XResource res = builder.getResource();
+        XIdentityCapability icap = res.getIdentityCapability();
+        Assert.assertEquals(XResource.MODULE_IDENTITY_NAMESPACE, icap.getNamespace());
+        Assert.assertEquals("test1", icap.getName());
+        Assert.assertEquals(Version.parseVersion("1.0.0"), icap.getVersion());
+        Assert.assertEquals("1.0.0", icap.getAttribute("slot"));
+    }
+
+    @Test
+    public void testMavenIdentity() throws Exception {
+        XResourceBuilder<XResource> builder = XResourceBuilderFactory.create();
+        builder.addIdentityCapability(MavenCoordinates.parse("group1:test1:1.0.0"));
+        XResource res = builder.getResource();
+        XIdentityCapability icap = res.getIdentityCapability();
+        Assert.assertEquals(XResource.MAVEN_IDENTITY_NAMESPACE, icap.getNamespace());
+        Assert.assertEquals("test1", icap.getName());
+        Assert.assertEquals("group1", icap.getAttribute("groupId"));
+        Assert.assertEquals("test1", icap.getAttribute("artifactId"));
+        Assert.assertEquals(Version.parseVersion("1.0.0"), icap.getVersion());
     }
 
     @Test
@@ -142,14 +180,14 @@ public class XResourceBuilderTestCase extends AbstractTestBase {
         Assert.assertEquals(1, caps.size());
         XCapability cap = (XCapability) caps.get(0);
         XIdentityCapability icap = cap.adapt(XIdentityCapability.class);
-        Assert.assertEquals("test1", icap.getSymbolicName());
+        Assert.assertEquals("test1", icap.getName());
         Assert.assertEquals(Version.emptyVersion, icap.getVersion());
 
         caps = resource.getCapabilities(HostNamespace.HOST_NAMESPACE);
         Assert.assertEquals(1, caps.size());
         cap = (XCapability) caps.get(0);
         XHostCapability hcap = cap.adapt(XHostCapability.class);
-        Assert.assertEquals("test1", hcap.getSymbolicName());
+        Assert.assertEquals("test1", hcap.getName());
         Assert.assertEquals(Version.emptyVersion, hcap.getVersion());
     }
 }

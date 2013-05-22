@@ -60,7 +60,7 @@ public class AbstractBundleRevision extends AbstractResource implements XBundleR
 
     @Override
     public String getSymbolicName() {
-        String symbolicName = getIdentityCapability().getSymbolicName();
+        String symbolicName = getIdentityCapability().getName();
         return ANONYMOUS_BUNDLE_SYMBOLIC_NAME.equals(symbolicName) ? null : symbolicName;
     }
 

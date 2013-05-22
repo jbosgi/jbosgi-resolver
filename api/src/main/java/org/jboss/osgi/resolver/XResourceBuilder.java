@@ -23,8 +23,10 @@ package org.jboss.osgi.resolver;
 import java.util.Map;
 
 import org.jboss.modules.Module;
+import org.jboss.modules.ModuleIdentifier;
 import org.jboss.osgi.metadata.OSGiMetaData;
 import org.osgi.framework.Filter;
+import org.osgi.framework.Version;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 
@@ -54,7 +56,29 @@ public interface XResourceBuilder<T extends XResource> {
      * Add a resource attributes
      */
     XResourceBuilder<T> addAttribute(String key, String value);
-    
+
+    /**
+     * Add an {@link XIdentityCapability} for the {@link XResource#TYPE_BUNDLE} type.
+     *
+     * @param symbolicName The bundle symbolic name
+     * @param version The bundle version
+     */
+    XIdentityCapability addIdentityCapability(String symbolicName, Version version);
+
+    /**
+     * Add an {@link XIdentityCapability} for the {@link XResource#TYPE_MODULE} type.
+     *
+     * @param moduleId The module identifier
+     */
+    XIdentityCapability addIdentityCapability(ModuleIdentifier moduleId);
+
+    /**
+     * Add an {@link XIdentityCapability} for the {@link XResource#TYPE_MAVEN} type.
+     *
+     * @param mavenId The maven coordinates
+     */
+    XIdentityCapability addIdentityCapability(MavenCoordinates mavenId);
+
     /**
      * Add a {@link Capability}
      *

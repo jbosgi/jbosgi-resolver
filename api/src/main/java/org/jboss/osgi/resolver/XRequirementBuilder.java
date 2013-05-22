@@ -22,7 +22,6 @@ package org.jboss.osgi.resolver;
 import java.util.Map;
 
 import org.jboss.modules.ModuleIdentifier;
-import org.osgi.framework.Version;
 import org.osgi.framework.namespace.IdentityNamespace;
 
 /**
@@ -36,54 +35,48 @@ public final class XRequirementBuilder {
     private final XResourceBuilder<XResource> resbuilder;
     private final XRequirement requirement;
 
-    public static XRequirementBuilder create(ModuleIdentifier modid) {
-        XRequirementBuilder reqbuilder = createInternal(XResource.MODULE_IDENTITY_NAMESPACE, modid.toString(), false);
-        XCapability icap = reqbuilder.resbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, modid.getName());
-        try {
-            Version version = Version.parseVersion(modid.getSlot());
-            icap.getAttributes().put("version", version);
-        } catch (RuntimeException ex) {
-            icap.getAttributes().put("slot", modid.getSlot());
-        }
+    public static XRequirementBuilder create(ModuleIdentifier moduleId) {
+        XRequirementBuilder reqbuilder = createInternal(XResource.MODULE_IDENTITY_NAMESPACE, moduleId.getName());
+        reqbuilder.resbuilder.addCapability(XResource.MODULE_IDENTITY_NAMESPACE, moduleId.getName());
+        String npart = "(name=" + moduleId.getName() + ")";
+        String spart = "(slot=" + moduleId.getSlot() + ")";
+        String filter = "(&" + npart + spart + ")";
+        reqbuilder.requirement.getDirectives().put("filter", filter);
         return reqbuilder;
     }
 
-    public static XRequirementBuilder create(MavenCoordinates mvnid) {
-        XRequirementBuilder reqbuilder = createInternal(XResource.MAVEN_IDENTITY_NAMESPACE, mvnid.toExternalForm(), false);
-        String nsvalue;
-        Version version = null;
-        try {
-            version = Version.parseVersion(mvnid.getVersion());
-            nsvalue = mvnid.getGroupId() + ":" + mvnid.getArtifactId();
-        } catch (RuntimeException ex) {
-            nsvalue = mvnid.getGroupId() + ":" + mvnid.getArtifactId() + ":" + mvnid.getVersion();
-        }
-        XCapability icap = reqbuilder.resbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, nsvalue);
-        icap.getAttributes().put("type", mvnid.getType());
-        if (mvnid.getClassifier() != null)
-            icap.getAttributes().put("classifier", mvnid.getClassifier());
-        if (version != null) 
-            icap.getAttributes().put("version", version);
+    public static XRequirementBuilder create(MavenCoordinates mavenId) {
+        XRequirementBuilder reqbuilder = createInternal(XResource.MAVEN_IDENTITY_NAMESPACE, mavenId.getArtifactId());
+        reqbuilder.resbuilder.addCapability(XResource.MAVEN_IDENTITY_NAMESPACE, mavenId.getArtifactId());
+        String gpart = "(groupId=" + mavenId.getGroupId() + ")";
+        String apart = "(artifactId=" + mavenId.getArtifactId() + ")";
+        String tpart = "(type=" + mavenId.getType() + ")";
+        // TODO support version ranges
+        String vpart = "(version=" + mavenId.getVersion() + ")";
+        String cpart = mavenId.getClassifier() != null ? "(classifier=" + mavenId.getClassifier() + ")" : "";
+        String filter = "(&" + gpart + apart + tpart + vpart + cpart + ")";
+        reqbuilder.requirement.getDirectives().put("filter", filter);
         return reqbuilder;
     }
 
     public static XRequirementBuilder create(String namespace) {
-        return createInternal(namespace, null, true);
+        XRequirementBuilder reqbuilder = createInternal(namespace, null);
+        reqbuilder.resbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "anonymous");
+        return reqbuilder;
     }
 
     public static XRequirementBuilder create(String namespace, String nsvalue) {
-        return createInternal(namespace, nsvalue, true);
+        XRequirementBuilder reqbuilder = createInternal(namespace, nsvalue);
+        reqbuilder.resbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "anonymous");
+        return reqbuilder;
     }
 
-    private static XRequirementBuilder createInternal(String namespace, String nsvalue, boolean addIdentity) {
+    private static XRequirementBuilder createInternal(String namespace, String nsvalue) {
         XResourceBuilder<XResource> resbuilder = XResourceBuilderFactory.create();
         XRequirement req = resbuilder.addRequirement(namespace, nsvalue);
-        if (addIdentity) {
-            resbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "anonymous");
-        }
         return new XRequirementBuilder(resbuilder, req);
     }
-    
+
     private XRequirementBuilder(XResourceBuilder<XResource> resbuilder, XRequirement requirement) {
         this.resbuilder = resbuilder;
         this.requirement = requirement;
