@@ -194,7 +194,8 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
             @Override
             public boolean hasNext() {
                 while (!itres.hasNext() && ittype.hasNext()) {
-                    itres = getCachedResources(ittype.next()).iterator();
+                    Set<XResource> resources = getCachedResources(ittype.next());
+                    itres = new LinkedHashSet<XResource>(resources).iterator();
                 }
                 return itres.hasNext();
             }
