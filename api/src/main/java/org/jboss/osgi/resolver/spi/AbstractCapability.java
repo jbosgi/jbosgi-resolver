@@ -88,7 +88,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
 
     @Override
     public Map<String, String> getDirectives() {
-        return directives.getDirectives();
+        return isMutable() ? directives.getDirectives() : Collections.unmodifiableMap(directives.getDirectives());
     }
 
     @Override
@@ -98,7 +98,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
 
     @Override
     public Map<String, Object> getAttributes() {
-        return attributes.getAttributes();
+        return isMutable() ? attributes.getAttributes() : Collections.unmodifiableMap(attributes.getAttributes());
     }
 
     @Override
@@ -106,6 +106,10 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
         return attributes.getAttribute(key);
     }
 
+    private boolean isMutable() {
+        return resource.isMutable();
+    }
+    
     @Override
     public void validate() {
         if (valid == false) {
@@ -131,8 +135,6 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
                 if (namespaceValue == null)
                     throw MESSAGES.illegalStateCannotObtainAttribute(getNamespace());
             }
-            attributes = new AttributeSupporter(Collections.unmodifiableMap(attributes.getAttributes()));
-            directives = new DirectiveSupporter(Collections.unmodifiableMap(directives.getDirectives()));
             canonicalName = toString();
             valid = true;
         }

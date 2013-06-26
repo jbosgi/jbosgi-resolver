@@ -122,8 +122,6 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             }
 
             filter = getFilterFromDirective(this);
-            attributes = new AttributeSupporter(Collections.unmodifiableMap(atts));
-            directives = new DirectiveSupporter(Collections.unmodifiableMap(dirs));
             String resdir = getDirective(AbstractWiringNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE);
             optional = AbstractWiringNamespace.RESOLUTION_OPTIONAL.equals(resdir);
             canonicalName = toString();
@@ -176,7 +174,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
 
     @Override
     public Map<String, String> getDirectives() {
-        return directives.getDirectives();
+        return isMutable() ? directives.getDirectives() : Collections.unmodifiableMap(directives.getDirectives());
     }
 
     @Override
@@ -186,12 +184,21 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
 
     @Override
     public Map<String, Object> getAttributes() {
-        return attributes.getAttributes();
+        return isMutable() ? attributes.getAttributes() : Collections.unmodifiableMap(attributes.getAttributes());
     }
 
     @Override
     public Object getAttribute(String key) {
         return attributes.getAttribute(key);
+    }
+
+    private boolean isMutable() {
+        return resource.isMutable();
+    }
+
+    private void assertImmutable() {
+        if (isMutable() == true)
+            throw MESSAGES.illegalStateInvalidAccessToMutableResource();
     }
 
     @Override
@@ -350,15 +357,6 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
             VersionRange versionRange = new VersionRange((String) versionAtt);
             parts.add(versionRange.toFilterString(attrname));
         }
-    }
-
-    private boolean isMutable() {
-        return resource.isMutable();
-    }
-
-    private void assertImmutable() {
-        if (isMutable() == true)
-            throw MESSAGES.illegalStateInvalidAccessToMutableResource();
     }
 
     @Override
