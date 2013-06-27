@@ -66,9 +66,15 @@ public final class XRequirementBuilder {
     }
 
     public static XRequirementBuilder create(String namespace, String nsvalue) {
-        XRequirementBuilder reqbuilder = createInternal(namespace, nsvalue);
-        reqbuilder.resbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "anonymous");
-        return reqbuilder;
+        if (XResource.MODULE_IDENTITY_NAMESPACE.equals(namespace)) {
+            return create(ModuleIdentifier.fromString(nsvalue));
+        } else if (XResource.MAVEN_IDENTITY_NAMESPACE.equals(namespace)) {
+            return create(MavenCoordinates.parse(nsvalue));
+        } else {
+            XRequirementBuilder reqbuilder = createInternal(namespace, nsvalue);
+            reqbuilder.resbuilder.addCapability(IdentityNamespace.IDENTITY_NAMESPACE, "anonymous");
+            return reqbuilder;
+        }
     }
 
     private static XRequirementBuilder createInternal(String namespace, String nsvalue) {
