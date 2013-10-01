@@ -20,6 +20,9 @@
 
 package org.jboss.osgi.resolver.spi;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.jboss.osgi.resolver.XWiring;
 import org.jboss.osgi.resolver.XWiringSupport;
 
@@ -28,34 +31,37 @@ import org.jboss.osgi.resolver.XWiringSupport;
  *
  * @author thomas.diesler@jboss.com
  * @since 08-Feb-2013
+ * 
+ * @ThreadSafe
  */
 public class AbstractWiringSupport extends AbstractElement implements XWiringSupport {
 
-    private XWiring wiring;
-    private boolean effective = true;
+    private final AtomicReference<XWiring> wiring = new AtomicReference<XWiring>();
+    private final AtomicBoolean effective = new AtomicBoolean(true);
 
     @Override
-    public synchronized boolean isEffective() {
-        return effective;
+    public boolean isEffective() {
+        return effective.get();
     }
 
     @Override
-    public synchronized void makeUneffective() {
-        this.effective = false;
+    public void makeUneffective() {
+        effective.set(false);
     }
 
     @Override
-    public synchronized XWiring getWiring(boolean checkEffective) {
-        return checkEffective ? (effective ? wiring : null) : wiring;
+    public XWiring getWiring(boolean checkEffective) {
+        XWiring effectiveWiring = checkEffective ? (isEffective() ? wiring.get() : null) : wiring.get();
+        return effectiveWiring;
     }
 
     @Override
-    public synchronized void setWiring(XWiring wiring) {
-        this.wiring = wiring;
+    public void setWiring(XWiring wiring) {
+        this.wiring.set(wiring);
     }
 
     @Override
-    public synchronized void refresh() {
-        wiring = null;
+    public void refresh() {
+        wiring.set(null);
     }
 }
