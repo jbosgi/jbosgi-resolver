@@ -19,8 +19,7 @@
   #L%
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -35,14 +34,14 @@
     <artifactId>jbosgi-resolver-parent</artifactId>
     <packaging>pom</packaging>
 
-    <version>4.0.2.Final-SNAPSHOT</version>
+    <version>4.0.2.Final</version>
 
     <!-- Source -->
     <scm>
         <connection>scm:git:git://github.com/jbosgi/jbosgi-resolver.git</connection>
         <developerConnection>scm:git:git@github.com:jbosgi/jbosgi-resolver.git</developerConnection>
         <url>http://github.com/jbosgi/jbosgi-resolver</url>
-        <tag>HEAD</tag>
+        <tag>4.0.2.Final</tag>
     </scm>
 
     <!-- Properties -->
