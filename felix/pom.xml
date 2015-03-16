@@ -30,11 +30,12 @@
     <parent>
         <groupId>org.jboss.osgi.resolver</groupId>
         <artifactId>jbosgi-resolver-parent</artifactId>
-        <version>4.0.2.Final</version>
+        <version>4.0.3.Final-SNAPSHOT</version>
     </parent>
 
     <name>JBossOSGi Resolver Felix</name>
     <artifactId>jbosgi-resolver-felix</artifactId>
+  <version>4.0.2.Final</version>
     <packaging>jar</packaging>
 
     <!-- Properties -->
@@ -101,8 +102,4 @@
             </plugin>
         </plugins>
     </build>
-
-  <scm>
-    <tag>4.0.2.Final</tag>
-  </scm>
 </project>
