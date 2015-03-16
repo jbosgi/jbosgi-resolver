@@ -35,7 +35,6 @@
 
     <name>JBossOSGi Resolver Felix</name>
     <artifactId>jbosgi-resolver-felix</artifactId>
-  <version>4.0.2.Final</version>
     <packaging>jar</packaging>
 
     <!-- Properties -->

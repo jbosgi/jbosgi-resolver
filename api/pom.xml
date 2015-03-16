@@ -35,7 +35,6 @@
 
     <name>JBossOSGi Resolver API</name>
     <artifactId>jbosgi-resolver-api</artifactId>
-  <version>4.0.2.Final</version>
     <packaging>jar</packaging>
 
     <!-- Dependencies -->
