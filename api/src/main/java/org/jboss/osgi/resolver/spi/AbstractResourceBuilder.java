@@ -342,24 +342,9 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
             bcap.getAttributes().put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, version);
 
             // Add a package capability for every exported path
-            Set<String> paths = new HashSet<String>();
-            Iterator<Resource> it = module.getClassLoader().iterateResources("", true);
-            while (it.hasNext()) {
-                Resource res = it.next();
-                String path = res.getName();
-                if (!path.endsWith(".class"))
-                    continue;
-
-                int index = path.lastIndexOf("/");
-                if (index <= 0)
-                    continue;
-
-                path = path.substring(0, index);
-                if (!paths.contains(path)) {
-                    paths.add(path);
-                    String packageName = path.replace('/', '.');
-                    addCapability(PackageNamespace.PACKAGE_NAMESPACE, packageName);
-                }
+            for(String path : module.getExportedPaths()) {
+                String packageName = path.replace('/', '.');
+                addCapability(PackageNamespace.PACKAGE_NAMESPACE, packageName);
             }
 
             resource.validate();
