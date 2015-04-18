@@ -161,7 +161,7 @@ public class ResolverHookProcessor {
                         Collection<BundleRevision> before = new HashSet<BundleRevision>(candidates);
                         hook.filterResolvable(candidates);
                         for (BundleRevision aux : before) {
-                            if (candidates.contains(aux) == false) {
+                            if (!candidates.contains(aux)) {
                                 LOGGER.debugf("ResolverHook filtered resolvable: %s", aux);
                             }
                         }
@@ -251,7 +251,7 @@ public class ResolverHookProcessor {
     }
 
     private void populateCollisionCandidates(BundleCapability bcap, Map<BundleCapability, Collection<BundleCapability>> map, SingletonLocator locator) {
-        if (map.containsKey(bcap) == false) {
+        if (!map.containsKey(bcap)) {
             Collection<BundleCapability> candidates = locator.findCollisionCandidates(bcap);
             map.put(bcap, new RemoveOnlyCollection<BundleCapability>(candidates));
         }
@@ -266,7 +266,7 @@ public class ResolverHookProcessor {
                         Collection<BundleCapability> before = new HashSet<BundleCapability>(matching);
                         hook.filterMatches(breq, matching);
                         for (BundleCapability aux : before) {
-                            if (matching.contains(aux) == false) {
+                            if (!matching.contains(aux)) {
                                 LOGGER.debugf("ResolverHook filtered match: %s", aux);
                             }
                         }
@@ -322,7 +322,7 @@ public class ResolverHookProcessor {
         }
 
         ResolverHook getResolverHook() {
-            if (isRegistered() == false) {
+            if (!isRegistered()) {
                 throw MESSAGES.illegalStateResolverHookUnregistered(sref);
             }
             return hook;

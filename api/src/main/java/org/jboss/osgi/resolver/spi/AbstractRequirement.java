@@ -106,7 +106,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
 
     @Override
     public void validate() {
-        if (valid == false) {
+        if (!valid) {
             Map<String, Object> atts = attributes.getAttributes();
             Map<String, String> dirs = directives.getDirectives();
 
@@ -197,7 +197,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
     }
 
     private void assertImmutable() {
-        if (isMutable() == true)
+        if (isMutable())
             throw MESSAGES.illegalStateInvalidAccessToMutableResource();
     }
 
@@ -222,7 +222,7 @@ public class AbstractRequirement extends AbstractElement implements XHostRequire
         // The requirement matches the capability if their namespaces match and the filter is absent or matches the attributes.
         boolean matches = namespace.equals(cap.getNamespace()) && matchFilter(cap);
 
-        if (matches == true) {
+        if (matches) {
             if (BUNDLE_NAMESPACE.equals(getNamespace())) {
                 matches = matchesResourceRequirement(cap);
             } else if (HOST_NAMESPACE.equals(getNamespace())) {

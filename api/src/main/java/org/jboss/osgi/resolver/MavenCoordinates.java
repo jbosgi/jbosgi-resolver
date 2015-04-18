@@ -100,7 +100,7 @@ public final class MavenCoordinates {
 
     public URL getArtifactURL(URL baseURL) {
         String base = baseURL.toExternalForm();
-        if (base.endsWith("/") == false)
+        if (!base.endsWith("/"))
             base += "/";
         String urlstr = base + getArtifactPath();
         try {

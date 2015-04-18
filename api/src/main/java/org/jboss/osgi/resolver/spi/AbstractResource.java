@@ -126,12 +126,12 @@ public class AbstractResource extends AbstractElement implements XResource {
     }
 
     public void ensureImmutable() {
-        if (isMutable() == true)
+        if (isMutable())
             throw MESSAGES.illegalStateInvalidAccessToMutableResource();
     }
 
     public void ensureMutable() {
-        if (isMutable() == false)
+        if (!isMutable())
             throw MESSAGES.illegalStateInvalidAccessToImmutableResource();
     }
 

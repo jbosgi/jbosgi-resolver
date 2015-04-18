@@ -128,7 +128,7 @@ public class AbstractResolver implements XResolver {
                 }
             }
         }
-        if (fragments.isEmpty() == false) {
+        if (!fragments.isEmpty()) {
             LOGGER.debugf("Adding attachable fragments: %s", fragments);
             optres.addAll(fragments);
         }

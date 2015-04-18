@@ -112,7 +112,7 @@ public class AbstractCapability extends AbstractElement implements XIdentityCapa
     
     @Override
     public void validate() {
-        if (valid == false) {
+        if (!valid) {
             if (AbstractResource.identityNamespaces.contains(getNamespace())) {
                 version = getVersion(this, CAPABILITY_VERSION_ATTRIBUTE);
                 namespaceValue = (String) getAttribute(getNamespace());

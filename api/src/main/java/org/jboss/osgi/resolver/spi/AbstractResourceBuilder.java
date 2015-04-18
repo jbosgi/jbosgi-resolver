@@ -215,7 +215,7 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
 
             // Required Bundles
             List<ParameterizedAttribute> requireBundles = metadata.getRequireBundles();
-            if (requireBundles != null && requireBundles.isEmpty() == false) {
+            if (requireBundles != null && !requireBundles.isEmpty()) {
                 for (ParameterizedAttribute attr : requireBundles) {
                     String bundleName = attr.getAttribute();
                     XRequirement req = addRequirement(BundleNamespace.BUNDLE_NAMESPACE, bundleName);
@@ -226,7 +226,7 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
 
             // Required Execution Environment
             List<String> requiredEnvironments = metadata.getRequiredExecutionEnvironment();
-            if (requiredEnvironments != null && requiredEnvironments.isEmpty() == false) {
+            if (requiredEnvironments != null && !requiredEnvironments.isEmpty()) {
                 // Frameworks must convert a Bundle-RequiredExecutionEnvironment header to a requirement in the osgi.ee namespace
                 Filter filter = OSGiMetaDataBuilder.convertExecutionEnvironmentHeader(requiredEnvironments);
                 addRequirement(ExecutionEnvironmentNamespace.EXECUTION_ENVIRONMENT_NAMESPACE, filter);
@@ -234,7 +234,7 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
 
             // Export-Package
             List<PackageAttribute> exports = metadata.getExportPackages();
-            if (exports != null && exports.isEmpty() == false) {
+            if (exports != null && !exports.isEmpty()) {
                 for (PackageAttribute attr : exports) {
                     String packageName = attr.getAttribute();
                     XCapability cap = addCapability(PackageNamespace.PACKAGE_NAMESPACE, packageName);
@@ -263,7 +263,7 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
 
             // Import-Package
             List<PackageAttribute> imports = metadata.getImportPackages();
-            if (imports != null && imports.isEmpty() == false) {
+            if (imports != null && !imports.isEmpty()) {
                 for (PackageAttribute attr : imports) {
                     String packageName = attr.getAttribute();
                     XRequirement req = addRequirement(PackageNamespace.PACKAGE_NAMESPACE, packageName);
@@ -274,7 +274,7 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
 
             // DynamicImport-Package
             List<PackageAttribute> dynamicImports = metadata.getDynamicImports();
-            if (dynamicImports != null && dynamicImports.isEmpty() == false) {
+            if (dynamicImports != null && !dynamicImports.isEmpty()) {
                 for (PackageAttribute attr : dynamicImports) {
                     String packageName = attr.getAttribute();
                     Map<String, Object> atts = new LinkedHashMap<String, Object>();
@@ -289,7 +289,7 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
 
             // Provide-Capability
             List<ParameterizedAttribute> providedCapabilities = metadata.getProvidedCapabilities();
-            if (providedCapabilities != null && providedCapabilities.isEmpty() == false) {
+            if (providedCapabilities != null && !providedCapabilities.isEmpty()) {
                 for (ParameterizedAttribute attr : providedCapabilities) {
                     String capname = attr.getAttribute();
                     XCapability cap = addCapability(capname, null, null);
@@ -300,7 +300,7 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
 
             // Require-Capability
             List<ParameterizedAttribute> requiredCapabilities = metadata.getRequiredCapabilities();
-            if (requiredCapabilities != null && requiredCapabilities.isEmpty() == false) {
+            if (requiredCapabilities != null && !requiredCapabilities.isEmpty()) {
                 for (ParameterizedAttribute attr : requiredCapabilities) {
                     String reqname = attr.getAttribute();
                     XRequirement req = addRequirement(reqname, null, null);

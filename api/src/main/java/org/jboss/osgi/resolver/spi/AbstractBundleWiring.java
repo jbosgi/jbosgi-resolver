@@ -121,7 +121,7 @@ public class AbstractBundleWiring extends AbstractWiring implements XBundleWirin
     @Override
     public List<BundleCapability> getCapabilities(String namespace) {
         // If this bundle wiring is not in use, null will be returned
-        if (isInUse() == false) {
+        if (!isInUse()) {
             return null;
         }
         List<BundleCapability> result = new ArrayList<BundleCapability>();
@@ -134,7 +134,7 @@ public class AbstractBundleWiring extends AbstractWiring implements XBundleWirin
     @Override
     public List<BundleRequirement> getRequirements(String namespace) {
         // If this bundle wiring is not in use, null will be returned
-        if (isInUse() == false) {
+        if (!isInUse()) {
             return null;
         }
         List<BundleRequirement> result = new ArrayList<BundleRequirement>();
@@ -147,7 +147,7 @@ public class AbstractBundleWiring extends AbstractWiring implements XBundleWirin
     @Override
     public List<BundleWire> getProvidedWires(String namespace) {
         // If this bundle wiring is not in use, null will be returned
-        if (isInUse() == false) {
+        if (!isInUse()) {
             return null;
         }
         List<BundleWire> providedWires = new ArrayList<BundleWire>();
@@ -160,7 +160,7 @@ public class AbstractBundleWiring extends AbstractWiring implements XBundleWirin
     @Override
     public List<BundleWire> getRequiredWires(String namespace) {
         // If this bundle wiring is not in use, null will be returned
-        if (isInUse() == false) {
+        if (!isInUse()) {
             return null;
         }
         List<BundleWire> requiredWires = new ArrayList<BundleWire>();
@@ -183,7 +183,7 @@ public class AbstractBundleWiring extends AbstractWiring implements XBundleWirin
     @Override
     public ClassLoader getClassLoader() {
         // If this bundle wiring is not in use, null will be returned
-        if (isInUse() == false) {
+        if (!isInUse()) {
             return null;
         }
         XBundleRevision brev = getRevision();
@@ -193,7 +193,7 @@ public class AbstractBundleWiring extends AbstractWiring implements XBundleWirin
     @Override
     public List<URL> findEntries(String path, String filePattern, int options) {
         // If this bundle wiring is not in use, null will be returned
-        if (isInUse() == false) {
+        if (!isInUse()) {
             return null;
         }
         List<URL> result = new ArrayList<URL>();
@@ -217,7 +217,7 @@ public class AbstractBundleWiring extends AbstractWiring implements XBundleWirin
             filePattern = "*";
 
         // If this bundle wiring is not in use, null will be returned
-        if (isInUse() == false || getRevision().isFragment()) {
+        if (!isInUse() || getRevision().isFragment()) {
             return null;
         }
 
