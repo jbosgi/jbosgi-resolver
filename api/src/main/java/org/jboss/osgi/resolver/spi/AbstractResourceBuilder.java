@@ -337,16 +337,14 @@ public class AbstractResourceBuilder<T extends XResource> implements XResourceBu
             XCapability bcap = addCapability(BundleNamespace.BUNDLE_NAMESPACE, symbolicName);
             bcap.getAttributes().put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, version);
 
-            /****
-             * Must be in sync with ModuleIdentityRepository#getOSGiMetaDataFromModule
-             */
             // Add a package capability for every exported path
-            for (String path : module.getExportedPaths()) {
-                if (path.length() > 0) {
-                    String packageName = path.replace('/', '.');
+            new OSGiMetaDataProcessor.ModuleExportPackagesCollector(module) {
+                @Override
+                protected void addPackage(String packageName)
+                {
                     addCapability(PackageNamespace.PACKAGE_NAMESPACE, packageName);
                 }
-            }
+            }.collectExportPackages();
 
             resource.validate();
         } catch (RuntimeException ex) {
