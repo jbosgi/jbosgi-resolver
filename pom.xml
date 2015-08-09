@@ -34,14 +34,14 @@
     <artifactId>jbosgi-resolver-parent</artifactId>
     <packaging>pom</packaging>
 
-    <version>4.0.5.Final-SNAPSHOT</version>
+    <version>4.0.5.Final</version>
 
     <!-- Source -->
     <scm>
         <connection>scm:git:git://github.com/jbosgi/jbosgi-resolver.git</connection>
         <developerConnection>scm:git:git@github.com:jbosgi/jbosgi-resolver.git</developerConnection>
         <url>http://github.com/jbosgi/jbosgi-resolver</url>
-        <tag>HEAD</tag>
+        <tag>4.0.5.Final</tag>
     </scm>
 
     <!-- Properties -->
