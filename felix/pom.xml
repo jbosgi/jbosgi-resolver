@@ -30,7 +30,7 @@
     <parent>
         <groupId>org.jboss.osgi.resolver</groupId>
         <artifactId>jbosgi-resolver-parent</artifactId>
-        <version>4.0.5.Final</version>
+        <version>4.0.6.Final</version>
     </parent>
 
     <name>JBossOSGi Resolver Felix</name>
@@ -60,13 +60,6 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--  JBoss Dependencies -->
-        <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging</artifactId>
             <scope>provided</scope>
         </dependency>
 
