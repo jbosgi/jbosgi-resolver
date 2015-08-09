@@ -34,21 +34,21 @@
     <artifactId>jbosgi-resolver-parent</artifactId>
     <packaging>pom</packaging>
 
-    <version>4.0.4.Final</version>
+    <version>4.0.5.Final</version>
 
     <!-- Source -->
     <scm>
         <connection>scm:git:git://github.com/jbosgi/jbosgi-resolver.git</connection>
         <developerConnection>scm:git:git@github.com:jbosgi/jbosgi-resolver.git</developerConnection>
         <url>http://github.com/jbosgi/jbosgi-resolver</url>
-        <tag>4.0.4.Final</tag>
+        <tag>4.0.5.Final</tag>
     </scm>
 
     <!-- Properties -->
     <properties>
-        <version.jboss.osgi.metadata>4.0.1.Final</version.jboss.osgi.metadata>
-        <version.jboss.osgi.spi>4.0.2.Final</version.jboss.osgi.spi>
-        <version.jboss.osgi.testing>2.0.2.Final</version.jboss.osgi.testing>
+        <version.jboss.osgi.metadata>4.0.2.Final</version.jboss.osgi.metadata>
+        <version.jboss.osgi.spi>4.0.3.Final</version.jboss.osgi.spi>
+        <version.jboss.osgi.testing>2.0.3.Final</version.jboss.osgi.testing>
     </properties>
 
     <!-- Dependency Management -->
