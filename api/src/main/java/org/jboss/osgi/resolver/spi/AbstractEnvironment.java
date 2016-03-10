@@ -223,7 +223,9 @@ public class AbstractEnvironment implements XEnvironment, Cloneable {
         CacheKey cachekey = CacheKey.create(req);
         List<Capability> result = new ArrayList<Capability>();
         for (Capability cap : findCachedCapabilities(cachekey)) {
-            if (xreq.matches(cap)) {
+            boolean matches = xreq.matches(cap);
+            LOGGER.tracef("Env matching req %s with cap %s => %s", xreq, cap, matches);
+            if (matches) {
                 boolean ignoreCapability = false;
                 XCapability xcap = (XCapability) cap;
                 XResource capres = xcap.getResource();
