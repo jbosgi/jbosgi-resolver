@@ -30,7 +30,7 @@
     <parent>
         <groupId>org.jboss.osgi.resolver</groupId>
         <artifactId>jbosgi-resolver-parent</artifactId>
-        <version>5.0.1.Final</version>
+        <version>6.0.1.Final-SNAPSHOT</version>
     </parent>
 
     <name>JBossOSGi Resolver Felix</name>
