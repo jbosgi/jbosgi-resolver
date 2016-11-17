@@ -58,14 +58,18 @@ public class AbstractWiring implements XWiring {
         if (resource == null)
             throw MESSAGES.illegalArgumentNull("resource");
         this.resource = resource;
-        if (reqwires != null) {
-            for (Wire wire : reqwires) {
-                addRequiredWire(wire);
+        synchronized (this) {
+            // Necessary to guard collections post-construction
+
+            if (reqwires != null) {
+                for (Wire wire : reqwires) {
+                    addRequiredWire(wire);
+                }
             }
-        }
-        if (provwires != null) {
-            for (Wire wire : provwires) {
-                addProvidedWire(wire);
+            if (provwires != null) {
+                for (Wire wire : provwires) {
+                    addProvidedWire(wire);
+                }
             }
         }
     }
@@ -82,49 +86,62 @@ public class AbstractWiring implements XWiring {
 
     @Override
     public void addRequiredWire(Wire wire) {
-        if (wire instanceof AbstractWire) {
-            ((XWire) wire).setRequirerWiring(this);
+        synchronized (required) {
+            if (wire instanceof AbstractWire) {
+                ((XWire) wire).setRequirerWiring(this);
+            }
+            required.add(wire);
         }
-        required.add(wire);
     }
 
     @Override
     public void addProvidedWire(Wire wire) {
-        if (wire instanceof AbstractWire) {
-            ((XWire) wire).setProviderWiring(this);
-        }
+        synchronized (this) {
+            if (wire instanceof AbstractWire) {
+                ((XWire) wire).setProviderWiring(this);
+            }
 
-        Capability cap = wire.getCapability();
-        List<Wire> nswires = provided.get(cap.getNamespace());
-        if (nswires == null) {
-            nswires = new ArrayList<Wire>();
-            provided.put(cap.getNamespace(), nswires);
-        }
+            Capability cap = wire.getCapability();
+            List<Wire> nswires = provided.get(cap.getNamespace());
+            if (nswires == null) {
+                nswires = new ArrayList<Wire>();
+                provided.put(cap.getNamespace(), nswires);
+            }
 
-        // Ensures an implementation delivers a bundle wiring's provided wires in
-        // the proper order. The ordering rules are as follows.
-        //
-        // (1) For a given name space, the list contains the wires in the order the
-        // capabilities were specified in the manifests of the bundle revision and
-        // the attached fragments of this bundle wiring.
-        //
-        // (2) There is no ordering defined between wires in different namespaces.
-        //
-        // (3) There is no ordering defined between multiple wires for the same
-        // capability, but the wires must be contiguous, and the group must be
-        // ordered as in (1).
+            // Ensures an implementation delivers a bundle wiring's provided
+            // wires
+            // in
+            // the proper order. The ordering rules are as follows.
+            //
+            // (1) For a given name space, the list contains the wires in the
+            // order
+            // the
+            // capabilities were specified in the manifests of the bundle
+            // revision
+            // and
+            // the attached fragments of this bundle wiring.
+            //
+            // (2) There is no ordering defined between wires in different
+            // namespaces.
+            //
+            // (3) There is no ordering defined between multiple wires for the
+            // same
+            // capability, but the wires must be contiguous, and the group must
+            // be
+            // ordered as in (1).
 
-        int index = 0;
-        if (nswires.size() > 0) {
-            int capindex = getCapabilityIndex(cap);
-            for (Wire aux : nswires) {
-                int auxindex = getCapabilityIndex(aux.getCapability());
-                if (auxindex < capindex) {
-                    index++;
+            int index = 0;
+            if (nswires.size() > 0) {
+                int capindex = getCapabilityIndex(cap);
+                for (Wire aux : nswires) {
+                    int auxindex = getCapabilityIndex(aux.getCapability());
+                    if (auxindex < capindex) {
+                        index++;
+                    }
                 }
             }
+            nswires.add(index, wire);
         }
-        nswires.add(index, wire);
     }
 
     private int getCapabilityIndex(Capability cap) {
@@ -135,19 +152,21 @@ public class AbstractWiring implements XWiring {
     public List<Capability> getResourceCapabilities(String namespace) {
 
         List<Capability> result = new ArrayList<Capability>(resource.getCapabilities(namespace));
-
-        // Add capabilities from attached fragments
-        for (Wire wire : getProvidedResourceWires(HostNamespace.HOST_NAMESPACE)) {
-            for (Capability cap : wire.getRequirer().getCapabilities(namespace)) {
-                // The osgi.identity capability provided by attached fragment
-                // must not be included in the capabilities of the host wiring
-                if (IDENTITY_NAMESPACE.equals(cap.getNamespace())) {
-                    continue;
+        synchronized (this) {
+            // Add capabilities from attached fragments
+            for (Wire wire : getProvidedResourceWires(HostNamespace.HOST_NAMESPACE)) {
+                for (Capability cap : wire.getRequirer().getCapabilities(namespace)) {
+                    // The osgi.identity capability provided by attached
+                    // fragment
+                    // must not be included in the capabilities of the host
+                    // wiring
+                    if (IDENTITY_NAMESPACE.equals(cap.getNamespace())) {
+                        continue;
+                    }
+                    result.add(cap);
                 }
-                result.add(cap);
             }
         }
-
         // Remove unwanted caps
         Iterator<Capability> capit = result.iterator();
         while (capit.hasNext()) {
@@ -155,8 +174,10 @@ public class AbstractWiring implements XWiring {
             XCapability cap = (XCapability) capit.next();
             XResource res = cap.getResource();
 
-            // Capabilities with {@link Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE}
-            // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not returned
+            // Capabilities with {@link
+            // Namespace#CAPABILITY_EFFECTIVE_DIRECTIVE}
+            // not equal to {@link Namespace#EFFECTIVE_RESOLVE} are not
+            // returned
             String effdir = cap.getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
             if (effdir != null && !effdir.equals(Namespace.EFFECTIVE_RESOLVE)) {
                 capit.remove();
@@ -186,7 +207,6 @@ public class AbstractWiring implements XWiring {
                 removed = true;
             }
         }
-
         return Collections.unmodifiableList(result);
     }
 
@@ -197,19 +217,22 @@ public class AbstractWiring implements XWiring {
     @Override
     public List<Requirement> getResourceRequirements(String namespace) {
         List<Requirement> result = new ArrayList<Requirement>();
-        for (Wire wire : getRequiredResourceWires(namespace)) {
-            // A fragment may have multiple wire for the same host requirement
-            Requirement req = wire.getRequirement();
-            if (!result.contains(req)) {
-                result.add(req);
-            }
-        }
-        // Add dynamic package requirements that are not included already
-        for (Requirement req : getResource().getRequirements(namespace)) {
-            if (req instanceof XPackageRequirement) {
-                XPackageRequirement preq = (XPackageRequirement) req;
-                if (preq.isDynamic() && !result.contains(req)) {
+        synchronized (this) {
+            for (Wire wire : getRequiredResourceWires(namespace)) {
+                // A fragment may have multiple wire for the same host
+                // requirement
+                Requirement req = wire.getRequirement();
+                if (!result.contains(req)) {
                     result.add(req);
+                }
+            }
+            // Add dynamic package requirements that are not included already
+            for (Requirement req : getResource().getRequirements(namespace)) {
+                if (req instanceof XPackageRequirement) {
+                    XPackageRequirement preq = (XPackageRequirement) req;
+                    if (preq.isDynamic() && !result.contains(req)) {
+                        result.add(req);
+                    }
                 }
             }
         }
@@ -219,14 +242,16 @@ public class AbstractWiring implements XWiring {
     @Override
     public List<Wire> getProvidedResourceWires(String namespace) {
         List<Wire> result = new ArrayList<Wire>();
-        if (namespace != null) {
-            List<Wire> nswires = provided.get(namespace);
-            if (nswires != null) {
-                result.addAll(nswires);
-            }
-        } else {
-            for (List<Wire> wire : provided.values()) {
-                result.addAll(wire);
+        synchronized (this) {
+            if (namespace != null) {
+                List<Wire> nswires = provided.get(namespace);
+                if (nswires != null) {
+                    result.addAll(nswires);
+                }
+            } else {
+                for (List<Wire> wire : provided.values()) {
+                    result.addAll(wire);
+                }
             }
         }
         return Collections.unmodifiableList(result);
@@ -235,10 +260,12 @@ public class AbstractWiring implements XWiring {
     @Override
     public List<Wire> getRequiredResourceWires(String namespace) {
         List<Wire> result = new ArrayList<Wire>();
-        for (Wire wire : required) {
-            Requirement req = wire.getRequirement();
-            if (namespace == null || namespace.equals(req.getNamespace())) {
-                result.add(wire);
+        synchronized (this) {
+            for (Wire wire : required) {
+                Requirement req = wire.getRequirement();
+                if (namespace == null || namespace.equals(req.getNamespace())) {
+                    result.add(wire);
+                }
             }
         }
         return Collections.unmodifiableList(result);
